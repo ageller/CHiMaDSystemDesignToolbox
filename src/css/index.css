@@ -1,0 +1,17 @@
+html,body {
+	font: 12px sans-serif;
+	font-family: sans-serif;
+	padding:0;
+	margin:0;
+	background-color : white;
+	overflow: auto;
+	color: black;
+	/*height:100%;*/
+}
+
+.para{
+	margin:20px;
+	font-size:20px;
+	text-align: justify;
+	text-justify: inter-word;
+}
