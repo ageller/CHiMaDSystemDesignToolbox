@@ -7,6 +7,7 @@ function defineParams(){
 
     	this.googleAPIurl = "https://script.google.com/macros/s/AKfycbxexmKuZcrUv2YzbhwsyFRnb5dh_Y3PKE6SEKWWJGoGEUeIOac/exec";
 
+		//will be filled in after the user clicks submit
 		this.paraData = {};
 
 		this.cleanString = function(s){
