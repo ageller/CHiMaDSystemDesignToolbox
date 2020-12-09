@@ -1,3 +1,10 @@
+:root {
+	--processing-color: #F1CCB1;
+	--structure-color: #B1D095;
+	--properties-color: #B8C7E4;
+	--performance-color: #B8A0E9;
+}
+
 html,body {
 	font: 12px sans-serif;
 	font-family: sans-serif;
@@ -12,6 +19,49 @@ html,body {
 .para{
 	margin:20px;
 	font-size:20px;
+	line-height:38px;
 	text-align: justify;
 	text-justify: inter-word;
+}
+
+.selectionWord{
+	color: gray;
+	font-weight:bold;
+	border: 2px solid lightgray;
+	border-radius: 6px;
+	cursor: pointer;
+	padding:4px;
+}
+.selectionWord select{
+/*	border: 0;
+	width:20px;
+	height:15px;*/
+	cursor:pointer;
+	position:absolute;
+	overflow:hidden;
+}
+
+.hidden{
+	display:none;
+}
+
+.processingWord{
+	color: var(--processing-color);
+	font-style: italic;
+	font-weight:bold;
+}
+.structureWord{
+	color: var(--structure-color);
+	font-weight:bold;
+}
+.propertiesWord{
+	color: var(--properties-color);
+	text-decoration: underline;
+	font-weight:bold;
+}
+.performanceWord{
+	color: var(--performance-color);
+	font-style: italic;
+	text-decoration: underline;
+	font-weight:bold;
 }
