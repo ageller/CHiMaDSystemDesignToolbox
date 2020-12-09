@@ -1,2 +1,6 @@
 # CHiMaD Test Para Form
-testing a paragraph with dropdowns submitting to a google Sheet
+
+Testing a paragraph with dropdowns submitting to a google Sheet
+
+A live version is available [here](https://ageller.github.io/CHiMaDTestParaForm/).
+
