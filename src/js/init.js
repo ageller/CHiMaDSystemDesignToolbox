@@ -3,8 +3,10 @@ function createDropdowns(){
 	var options = ['Select Category','Processing','Structure','Properties','Performance'];
 	d3.selectAll('.selectionWord')
 		.on('click',function(){
-			var hidden = d3.select(this).select('select').classed('hidden');
-			d3.select(this).select('select').classed('hidden', !hidden);
+			var elem = d3.select(this).select('select')
+			elem.style('left', event.pageX)
+			elem.style('top', event.pageY+20)
+			elem.classed('hidden', !elem.classed('hidden'));
 		})
 	.append('select')
 		.attr('id',function(){
