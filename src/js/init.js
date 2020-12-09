@@ -1,3 +1,10 @@
+d3.select('body').on('click',function(){
+	console.log(event, d3.select(event.target.parentNode).attr('class'))
+	if (d3.select(event.target.parentNode).attr('class') != 'selectionWord'){
+		d3.selectAll('select').classed('hidden', true);
+	}
+})
+
 function createDropdowns(){
 
 	var options = ['Select Category','Processing','Structure','Properties','Performance'];
