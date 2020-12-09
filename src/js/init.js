@@ -1,6 +1,5 @@
 d3.select('body').on('click',function(){
-	console.log(event, d3.select(event.target.parentNode).attr('class'))
-	if (d3.select(event.target.parentNode).attr('class') != 'selectionWord'){
+	if (!event.target.parentNode.classList.contains('selectionWord')){ 
 		d3.selectAll('select').classed('hidden', true);
 	}
 })
