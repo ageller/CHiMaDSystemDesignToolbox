@@ -70,6 +70,7 @@ function readURLdata(){
 	console.log('URL input values ', params.URLinputValues)
 }
 
+
 function appendURLdata(){
 	//append new form data to the URL
 	var newURL = window.location.href.split("?")[0];
@@ -77,7 +78,8 @@ function appendURLdata(){
 	keys.forEach(function(k,i){
 		newURL += '?'+k+'='+params.URLinputValues[k];
 		if (i == keys.length - 1){
-			window.location.href = newURL
+			//window.location.href = newURL; //would reload the page
+			window.history.replaceState(null, "", newURL); //so that the page doesn't reload every time
 		}
 	});
 }
