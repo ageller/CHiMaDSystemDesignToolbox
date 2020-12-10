@@ -89,3 +89,17 @@ html,body {
 	text-decoration: underline;
 	font-weight:bold;
 }
+
+.notifications{
+	color:gray;
+	font-style:italic;
+}
+.blink_me{
+  animation: blinker 1.5s linear infinite;
+}
+
+@keyframes blinker{
+  50% {
+    opacity: 0;
+  }
+}

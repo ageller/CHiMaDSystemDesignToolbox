@@ -3,6 +3,7 @@ function sendToGoogleSheet(data){
 	//that url points to a google script attached to the google sheet, and will also append a timestamp
 
 	console.log('sending to Google');
+	params.nTrials += 1;
 
 	var jqxhr = $.ajax({
 		url: params.googleAPIurl,
@@ -11,12 +12,30 @@ function sendToGoogleSheet(data){
 		data: data,
 		success:function(d){
 			console.log('submitted data', JSON.stringify(data), d);
-		}
+			d3.select('#notification')
+				.classed('blink_me', false)
+				.text('Responses submitted successfully.');
+		},
+	    error: function (request, status, error) {
+        	console.log('failed to submit', request, status, error);
+        	if (params.nTrials < params.maxTrials){
+        		sendToGoogleSheet(data);
+        	} else {
+				d3.select('#notification')
+					.classed('blink_me', false)
+					.text('Responses failed to be submitted.  Please refresh your browser and try again.');
+        	}
+        }
 	});
 
 }
 
 function onFormSubmit(){
+	params.nTrials = 0;
+	d3.select('#notification')
+		.classed('blink_me', true)
+		.text('Processing...');
+
 	//gather the values from the form and sendToGoogleSheet (function above)
 	d3.select('#paraForm').selectAll('select').each(function(d,i){
 		var id = this.id;
