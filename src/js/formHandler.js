@@ -14,7 +14,7 @@ function sendToGoogleSheet(data){
 			console.log('submitted data', JSON.stringify(data), d);
 			d3.select('#notification')
 				.classed('blink_me', false)
-				.text('Responses submitted successfully.');
+				.text('Responses submitted successfully.  You can change your responses anytime by re-submitting.');
 		},
 	    error: function (request, status, error) {
         	console.log('failed to submit', request, status, error);

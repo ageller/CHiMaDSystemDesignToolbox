@@ -5,7 +5,7 @@ function defineParams(){
     params = new function() {
     	this.userIP = "";
 
-    	this.googleAPIurl = "https://script.google.com/macros/s/AKfycbxexmKuZcrUv2YzbhwsyFRnb5dh_Y3PKE6SEKWWJGoGEUeIOac/exec";
+    	this.googleAPIurl = "https://script.google.com/macros/s/AKfycbys9IdddyCwbLq5pcb44-L8dkvH0vMWM2PYdyGpVe2CwnHrjoabNhNS/exec";
 
 		//will be filled in after the user clicks submit
 		this.paraData = {};
