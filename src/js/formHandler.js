@@ -35,6 +35,8 @@ function onFormSubmit(){
 	console.log('username',params.username);
 
 	if (params.username != ""){
+		d3.select('#username').property('disabled', true);
+		
 		params.nTrials = 0;
 		d3.select('#notification')
 			.classed('blink_me', true)
