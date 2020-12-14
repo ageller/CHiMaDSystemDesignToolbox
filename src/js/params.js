@@ -4,6 +4,7 @@ var params;
 function defineParams(){
     params = new function() {
     	this.userIP = "";
+    	this.uername = "";
 
     	this.googleAPIurl = "https://script.google.com/macros/s/REDACTED/exec";
 
