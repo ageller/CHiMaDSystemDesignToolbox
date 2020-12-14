@@ -4,6 +4,8 @@ d3.select('body').on('click',function(){
 	}
 })
 
+d3.select('#username').on("keyup",getUsername);
+
 function createDropdowns(){
 
 	var options = ['Select Category','Processing','Structure','Properties','Performance'];
@@ -59,40 +61,26 @@ function createDropdowns(){
 	useURLdata();
 }
 
-function readURLdata(){
-	//read form data from the URL, if present
-	window.location.href.split("?").forEach(function(d){
-		if (d.includes('=')){
-			val = d.split('=');
-			params.URLinputValues[val[0]] = val[1];
-		}
-	});
-	console.log('URL input values ', params.URLinputValues)
-}
-
-
-function appendURLdata(){
-	//append new form data to the URL
-	var newURL = window.location.href.split("?")[0];
-	var keys = Object.keys(params.URLinputValues);
-	keys.forEach(function(k,i){
-		newURL += '?'+k+'='+params.URLinputValues[k];
-		if (i == keys.length - 1){
-			//window.location.href = newURL; //would reload the page
-			window.history.replaceState(null, "", newURL); //so that the page doesn't reload every time
-		}
-	});
-}
-
 function useURLdata(){
 	//apply the form data from the URL
 	var keys = Object.keys(params.URLinputValues);
 	keys.forEach(function(k){
 		console.log('using', k, params.URLinputValues[k])
-		d3.select(d3.select('#'+k).node().parentNode).attr('class','selectionWord '+params.URLinputValues[k].toLowerCase()+'Word')
-		d3.select('#'+k).select('#'+params.URLinputValues[k]).property("selected",true)
+		if (k == "username"){
+			params.username = params.URLinputValues[k];
+			d3.select('#username').attr('value',params.username);
+		} else {
+			d3.select(d3.select('#'+k).node().parentNode).attr('class','selectionWord '+params.URLinputValues[k].toLowerCase()+'Word');
+			d3.select('#'+k).select('#'+params.URLinputValues[k]).property("selected",true);
+		}
 
 	})
+}
+
+function getUsername(){
+	params.username = this.value;
+	params.URLinputValues["username"] = params.username;
+	appendURLdata();
 }
 
 defineParams();

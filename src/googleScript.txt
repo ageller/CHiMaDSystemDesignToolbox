@@ -28,14 +28,26 @@ function handleResponse(e) {
     var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     var nextRow = sheet.getLastRow()+1; // get next row
     
-    //AMG added to check if IP already exists and then set that as the row to use
+    var useRow = -1;
     var version = 1;
-    var foundIP = hasIP(sheet, e.parameter['IP']);
-    if (foundIP == 1){
+
+    // //AMG added to check if IP already exists and then set that as the row to use
+    // var foundIP = hasIP(sheet, e.parameter['IP']);
+    // if (foundIP == 1){
+    //   var version = 2;
+    //   useRow = searchIPv2(sheet, e.parameter['IP']);
+    //   if (useRow != -1){
+    //     nextRow = useRow;
+    //   }
+    // }
+
+    //AMG added to check if username already exists and then set that as the row to use
+    var foundUN = hasUsername(sheet, e.parameter['username']);
+    if (foundUN == 1){
       var version = 2;
-      var IProw = searchIPv2(sheet, e.parameter['IP']);
-      if (IProw != -1){
-        nextRow = IProw;
+      useRow = searchUsernamev2(sheet, e.parameter['username']);
+      if (useRow != -1){
+        nextRow = useRow;
       }
     }
 
@@ -56,7 +68,7 @@ function handleResponse(e) {
     sheet.getRange(nextRow, 1, 1, row.length).setValues([row]);
     // return json success results
     return ContentService
-    .createTextOutput(JSON.stringify({"result":"success", "row": nextRow,"IProw":IProw, "version":version,"input":e}))
+    .createTextOutput(JSON.stringify({"result":"success", "row": nextRow,"useRow":useRow, "version":version,"input":e}))
           .setMimeType(ContentService.MimeType.JSON);
   } catch(err){
     // if error return this
@@ -92,6 +104,28 @@ function searchIPv2(sheet, IPstring) {
   return -1;
 }
 
+function hasUsername(sheet, UNstring) {
+  //assumes that the username is the 3rd column
+  var values = sheet.getDataRange().getValues();
+
+  for(var i=0, iLen=values.length; i<iLen; i++) {
+    if(values[i][2] == UNstring ) { //check for username
+      return 1;
+    } 
+  }
+  return 0;
+}
+//AMG added to search for the IP and version number
+function searchUsernamev2(sheet, UNstring) {
+  //assumes that the username is the 3rd column, and version is the 4th column
+  var values = sheet.getDataRange().getValues();
+  for(var i=0, iLen=values.length; i<iLen; i++) {
+    if(values[i][2] == UNstring && values[i][3] == 2) { //check for username and version 2
+      return i+1;
+    } 
+  }
+  return -1;
+}
 function setup() {
     var doc = SpreadsheetApp.getActiveSpreadsheet();
     SCRIPT_PROP.setProperty("key", doc.getId());
