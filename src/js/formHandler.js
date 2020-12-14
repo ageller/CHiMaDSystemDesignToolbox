@@ -68,6 +68,7 @@ function onFormSubmit(){
 		params.paraData['username'] = params.username;
 		if (missing.length == 0){
 			console.log("form data", params.paraData);
+			createEmail();
 			sendToGoogleSheet(params.paraData);
 		} else {
 			console.log("missing", missing)
@@ -88,4 +89,9 @@ function onFormSubmit(){
 
 	}
 
+}
+function createEmail(){
+	var url = window.location.href;
+
+	window.location.href = "mailto:?subject=CHiMaD%20Form%20Entries&body=Thank%20you%20for%20submitting%20your%20responses.%20%20For%20your%20convenience,%20you%20can%20follow%20this%20link%20to%20a%20pre-populated%20form%20with%20your%20answers:%0A%0A"+url;
 }
