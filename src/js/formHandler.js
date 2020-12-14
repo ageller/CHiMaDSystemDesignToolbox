@@ -68,7 +68,7 @@ function onFormSubmit(){
 		params.paraData['username'] = params.username;
 		if (missing.length == 0){
 			console.log("form data", params.paraData);
-			createEmail();
+			//createEmail();
 			sendToGoogleSheet(params.paraData);
 		} else {
 			console.log("missing", missing)
