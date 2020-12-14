@@ -114,3 +114,6 @@ html,body {
 .error{
 	color:red;
 }
+.errorBorder{
+	border-color:red;
+}

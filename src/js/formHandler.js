@@ -2,6 +2,9 @@ function sendToGoogleSheet(data){
 	//send a javascript Object to the Google form accessed by the url below. 
 	//that url points to a google script attached to the google sheet, and will also append a timestamp
 
+	d3.selectAll('.error').classed('error', false);
+	d3.selectAll('.errorBorder').classed('errorBorder', false);
+
 	console.log('sending to Google');
 	params.nTrials += 1;
 
@@ -34,9 +37,10 @@ function sendToGoogleSheet(data){
 function onFormSubmit(){
 	console.log('username',params.username);
 
+	missing = [];
 	if (params.username != ""){
 		d3.select('#username').property('disabled', true);
-		
+
 		params.nTrials = 0;
 		d3.select('#notification')
 			.classed('blink_me', true)
@@ -49,8 +53,11 @@ function onFormSubmit(){
 			var options = d3.select(this).selectAll('option')
 			options.each(function(dd, j){
 				if (this.selected && !this.disabled){
-					params.paraData[id] = this.value
-				}
+					params.paraData[id] = this.value;
+				} 
+				if (this.selected && this.disabled){
+					missing.push(id);
+				} 
 			})
 		});
 
@@ -59,14 +66,26 @@ function onFormSubmit(){
 
 		//add the username
 		params.paraData['username'] = params.username;
-
-		console.log("form data", params.paraData);
-		sendToGoogleSheet(params.paraData);
+		if (missing.length == 0){
+			console.log("form data", params.paraData);
+			sendToGoogleSheet(params.paraData);
+		} else {
+			console.log("missing", missing)
+			d3.select('#notification')
+				.classed('blink_me', false)
+				.classed('error', true)
+				.text('Please classify all terms in Step (2) above.');
+			missing.forEach(function(m){
+				d3.select(d3.select('#'+m).node().parentNode).classed('errorBorder', true);
+			})
+		}
 	} else {
 		d3.select('#notification')
 			.classed('blink_me', false)
 			.classed('error', true)
-			.text('Please enter a username in Step (1) above');
+			.text('Please enter a username in Step (1) above.');
+		d3.select('#usernameLabel').classed('error', true);
+
 	}
 
 }
