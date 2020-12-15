@@ -1,88 +1,26 @@
+
+//hide dropdowns when you click out
 d3.select('body').on('click',function(){
 	if (!event.target.parentNode.classList.contains('selectionWord')){ 
 		d3.selectAll('select').classed('hidden', true);
 	}
 })
 
+//bind the username getter
 d3.select('#username').on("keyup",getUsername);
 
-function createDropdowns(){
 
-	var options = ['Select Category','Processing','Structure','Properties','Performance'];
-	d3.selectAll('.selectionWord')
-		.on('click',function(){
-			var elem = d3.select(this).select('select')
-			elem.style('left', event.pageX)
-			elem.style('top', event.pageY+20)
-			elem.classed('hidden', !elem.classed('hidden'));
-		})
-	.append('select')
-		.attr('id',function(){
-			return params.cleanString(d3.select(this.parentNode).select('text').node().innerHTML);})
-		.on('change',function(){
-			var parent = this.parentNode;
-			d3.select(this).selectAll('option').each(function(dd, j){
-				if (this.selected && !this.disabled){
-					d3.select(parent).attr('class','selectionWord '+this.value.toLowerCase()+'Word');
-					var key = params.cleanString(d3.select(parent).select('text').node().innerHTML);
-					params.URLinputValues[key] = this.value;
-					appendURLdata();
-				}
-			})
-		})
-		.classed('hidden', true)
-		.attr('size', 5)
-		.selectAll('option').data(options).enter()
-		.append('option')
-			.attr('id',function(d,i){
-				if (i > 0) {
-					return d;
-				}
-			})
-			.property('value',function(d,i){
-				if (i > 0) {
-					return d;
-				}
-			})
-			.property("selected", function(d,i){
-				if (i == 0) {
-					return true;
-				}
-				return false
-			})
-			.property("disabled", function(d,i){
-				if (i == 0) {
-					return true;
-				}
-				return false
-			})
-			.text(function(d){return d;})
-
-	useURLdata();
-}
-
-function useURLdata(){
-	//apply the form data from the URL
-	var keys = Object.keys(params.URLinputValues);
-	keys.forEach(function(k){
-		console.log('using', k, params.URLinputValues[k])
-		if (k == "username"){
-			params.username = params.URLinputValues[k];
-			d3.select('#username').attr('value',params.username);
-		} else {
-			d3.select(d3.select('#'+k).node().parentNode).attr('class','selectionWord '+params.URLinputValues[k].toLowerCase()+'Word');
-			d3.select('#'+k).select('#'+params.URLinputValues[k]).property("selected",true);
-		}
-
-	})
-}
-
-function getUsername(){
-	params.username = this.value;
-	params.URLinputValues["username"] = params.username;
-	appendURLdata();
-}
-
+//define the params object that holds all the global variables and functions
 defineParams();
+
+//load data from the URL to define the form input
 readURLdata();
+
+//add the dropdowns for each selection word
 createDropdowns();
+
+//create the skeleton of the visualization (will be filled in at loadResponses)
+createBars();
+
+//load the responses and fill in the visualization (will need to make this a recurring call, and only executed after the first submit)
+loadResponses(params.surveyFile);

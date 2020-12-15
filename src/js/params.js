@@ -6,7 +6,30 @@ function defineParams(){
     	this.userIP = "";
     	this.uername = "";
 
+    	//options for the dropdown menu
+		this.options = ['Select Category','Processing','Structure','Properties','Performance'];
+
+		//this defines the colormap
+		this.colorMap = d3.scaleLinear().domain([0,1]).interpolate(d3.interpolateHcl).range([d3.rgb("#E0E0E0"), d3.rgb('#2C78CA')]);
+
+    	//script that will control entries into the google sheet
     	this.googleAPIurl = "https://script.google.com/macros/s/AKfycbys9IdddyCwbLq5pcb44-L8dkvH0vMWM2PYdyGpVe2CwnHrjoabNhNS/exec";
+
+//the URL of the json getter of the sheet, for the visualization of results
+//in order to get this URL:
+// 1. make the sheet public to the web (File / Publish to Web /)
+// -- good walk through here: https://github.com/bpk68/g-sheets-api#readme
+// 2. use the URL from the share feature to get the ID (between the /d/ and next / in the URL)
+// -- here : https://docs.google.com/spreadsheets/d/1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q/edit?usp=sharing
+// 3. input that <SHEET_ID> into the following command : https://spreadsheets.google.com/feeds/cells/<SHEET_ID>/1/public/values?alt=json-in-script
+		this.surveyFile = 'https://spreadsheets.google.com/feeds/cells/1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q/1/public/values?alt=json-in-script&callback=readGoogleSheet'
+
+		//this will hold the responses downloaded from the google sheet
+		this.responses;
+		this.aggregatedResponses = {};
+
+		//this will hold the selection words (and is filled within populateBoxes)
+		this.selectionWords = [];
 
 		//will be filled in after the user clicks submit
 		this.paraData = {};
@@ -20,10 +43,18 @@ function defineParams(){
 		//maximum number of trials allows for submitting
 		this.maxTrials = 5;
 
+		//holds the svg element
+		this.svg;
+		this.xScale;
+		this.yScale;
+		this.svgMargin;
+		this.svgHeight;
+		this.svgHistHeight;
+		this.svgWidth;
+
 		this.cleanString = function(s){
 			return s.replace(/sub\>/g,'').replace(/\s/g,'').replace(/[^a-zA-Z ]/g, "").toLowerCase();
-
-
 		}
+
 	};
 }

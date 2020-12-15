@@ -16,6 +16,28 @@ html,body {
 	/*height:100%;*/
 }
 
+.leftColumn {
+	position: absolute;
+	top: 0;
+	left:0;
+	width:50%;
+}
+.centerLine{
+	position:absolute;
+	top:1%;
+	left:50%;
+	height:98%;
+	border-right: 4px solid #274d7e;
+	border-left: 4px solid #274d7e;
+	border-radius: 4px;
+}
+.rightColumn{
+	position: absolute;
+	top:0;
+	left:50%;
+	width:50%;
+
+}
 /* https://www.w3schools.com/css/tryit.asp?filename=trycss_buttons_animate3 */
 .button {
 	display: inline-block;
@@ -53,6 +75,7 @@ html,body {
 	font-weight:bold;
 	font-style: italic;
 	font-size:16px;
+	line-height:18px;
 }
 
 .selectionWord{

@@ -35,10 +35,11 @@ function sendToGoogleSheet(data){
 }
 
 function onFormSubmit(){
+	//when form is submitted, compile responses and send the Google sheet
 	console.log('username',params.username);
 
 	missing = [];
-	if (params.username != ""){
+	if (params.username != "" && typeof params.username !== 'undefined'){
 		d3.select('#username').property('disabled', true);
 
 		params.nTrials = 0;
@@ -75,7 +76,7 @@ function onFormSubmit(){
 			d3.select('#notification')
 				.classed('blink_me', false)
 				.classed('error', true)
-				.text('Please classify all terms in Step (2) above.');
+				.html('Please classify all terms in Step &#9313; above.');
 			missing.forEach(function(m){
 				d3.select(d3.select('#'+m).node().parentNode).classed('errorBorder', true);
 			})
@@ -84,13 +85,22 @@ function onFormSubmit(){
 		d3.select('#notification')
 			.classed('blink_me', false)
 			.classed('error', true)
-			.text('Please enter a username in Step (1) above.');
+			.html('Please enter a username in Step &#9312; above.');
 		d3.select('#usernameLabel').classed('error', true);
 
 	}
 
 }
+
+function getUsername(){
+	//get the username data from the text input box
+	params.username = this.value;
+	params.URLinputValues["username"] = params.username;
+	appendURLdata();
+}
+
 function createEmail(){
+	//if we want to send an email, this could be a way to start one for the user
 	var url = window.location.href;
 
 	window.location.href = "mailto:?subject=CHiMaD%20Form%20Entries&body=Thank%20you%20for%20submitting%20your%20responses.%20%20For%20your%20convenience,%20you%20can%20follow%20this%20link%20to%20a%20pre-populated%20form%20with%20your%20answers:%0A%0A"+url;
