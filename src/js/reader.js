@@ -104,10 +104,7 @@ function aggregateResults(){
 			})
 
 		}
-		//will need to remove this later on
-		if (i == params.responses.columns.length - 1){
-			defineBars();
-		}
+
 	})
 
 }

@@ -27,6 +27,7 @@ function defineParams(){
 		//this will hold the responses downloaded from the google sheet
 		this.responses;
 		this.aggregatedResponses = {};
+		this.dummyData = {};
 
 		//this will hold the selection words (and is filled within populateBoxes)
 		this.selectionWords = [];
@@ -51,6 +52,13 @@ function defineParams(){
 		this.svgHeight;
 		this.svgHistHeight;
 		this.svgWidth;
+
+		//wave the bars in this interval
+		this.waveInterval;
+
+		//transitions used for changing the bar heights
+		this.transitionDuration = 1000;
+		this.transitionWaveDuration = 5000;
 
 		this.cleanString = function(s){
 			return s.replace(/sub\>/g,'').replace(/\s/g,'').replace(/[^a-zA-Z ]/g, "").toLowerCase();
