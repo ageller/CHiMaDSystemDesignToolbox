@@ -18,6 +18,8 @@ function sendToGoogleSheet(data){
 			d3.select('#notification')
 				.classed('blink_me', false)
 				.text('Responses submitted successfully.  You can change your responses anytime by re-submitting.');
+			//show the aggregated responses
+			defineBars();
 		},
 		error: function (request, status, error) {
 			console.log('failed to submit', request, status, error);

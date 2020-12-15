@@ -15,7 +15,7 @@ function createBars(){
 
 	params.svgMargin = {"top":20,"bottom":180,"left":450,"right":50};
 	params.svgHeight = window.innerHeight - params.svgMargin.top - params.svgMargin.bottom - 60;
-	var offset = 1;
+	var offset = 4;
 	params.svgHistHeight = params.svgHeight/params.selectionWords.length - offset;
 	params.svgWidth = params.svgHistHeight*params.options.length
 //	params.svgWidth = window.innerWidth*0.5 - params.svgMargin.left - params.svgMargin.right - 40; //40 is from the padding on the outer div
@@ -27,17 +27,21 @@ function createBars(){
 		.attr("transform", "translate(" + params.svgMargin.left + "," + params.svgMargin.top + ")");
 
 
-	//set up dummy data so that I can define the visualization ahead of time 
-	var dummyData = []
-	params.options.forEach(function(o){
-		if (o != 'Select Category'){
-			var dat = {"category":o, "value":0.5}
-			dummyData.push(dat);
-		}
-	});
 
 	//create the grid of histograms (using svg rects)
 	params.selectionWords.forEach(function(c,j){
+
+		//set up dummy data so that I can define the visualization ahead of time 
+		//this may be a bit of a waste of memory, but I can't think of a better way to enable the waving feature that I want :)
+		params.dummyData[params.cleanString(c)] = [];
+		params.options.forEach(function(o, i){
+			if (o != 'Select Category'){
+				//var v = (j/params.selectionWords.length + i/params.options.length) % 1;
+				var dat = {"category":o, "value":0}
+				params.dummyData[params.cleanString(c)].push(dat);
+			}
+		});
+
 		var thisPlot = params.svg.append('g')
 			.attr('id',params.cleanString(c)+'_bar')
 			.attr("transform", "translate(0," + (params.svgHistHeight + offset)*j + ")")
@@ -46,14 +50,14 @@ function createBars(){
 		params.xScale = d3.scaleBand()
 			.range([0, params.svgWidth])
 			.padding(0.1)
-			.domain(dummyData.map(function(d) { return d.category; }));
+			.domain(params.dummyData[params.cleanString(c)].map(function(d) { return d.category; }));
 		params.yScale = d3.scaleLinear()
 			.range([params.svgHistHeight, 0])
 			.domain([0,1]);
 
 		//add the histograms
 		thisPlot.selectAll(".bar")
-			.data(dummyData).enter().append("rect")
+			.data(params.dummyData[params.cleanString(c)]).enter().append("rect")
 				.attr("class","bar")
 				.attr("x", function(d) { return params.xScale(d.category); })
 				.attr("width", params.xScale.bandwidth())
@@ -96,11 +100,26 @@ function createBars(){
 
 	});
 
+	waveBars();
+	params.waveInterval = setInterval(waveBars, params.transitionWaveDuration);
 
 	// resizer();
 }
 
+function updateBars(thisPlot, data, duration){
+	//update the data in a bar chart
+	thisPlot.selectAll('.bar')
+		.data(data).transition().ease(d3.easeLinear).duration(duration)
+			.attr("x", function(d) { return params.xScale(d.category); })
+			.attr("y", function(d) { return params.yScale(d.value); })
+			.attr("height", function(d) { return params.svgHistHeight - params.yScale(d.value); })
+			.style("fill",function(d){return params.colorMap(d.value);})
+}
+
 function defineBars(){
+	clearInterval(params.waveInterval);
+
+	//show the real aggregated data from the users
 	params.selectionWords.forEach(function(c,j){
 		var thisPlot = d3.select('#'+params.cleanString(c)+'_bar');
 
@@ -114,12 +133,31 @@ function defineBars(){
 			}
 		});
 
-		thisPlot.selectAll('.bar')
-			.data(realData).transition().duration(1000)
-				.attr("x", function(d) { return params.xScale(d.category); })
-				.attr("y", function(d) { return params.yScale(d.value); })
-				.attr("height", function(d) { return params.svgHistHeight - params.yScale(d.value); })
-				.style("fill",function(d){return params.colorMap(d.value);})
-	})
+		updateBars(thisPlot, realData, params.transitionDuration);
+	});
+
 }
 
+function waveBars(){
+	//show bars waving until user submits the data
+	params.selectionWords.forEach(function(c,j){
+		var thisPlot = d3.select('#'+params.cleanString(c)+'_bar');
+
+		setTimeout(function(){
+			params.options.forEach(function(o,i){
+				if (o != 'Select Category'){
+					var vPrev = params.dummyData[params.cleanString(c)][i-1].value;
+					var v = 0;
+					if (vPrev == 0){
+						v = 1;
+					}
+					var dat = {"category":o, "value":v}
+					params.dummyData[params.cleanString(c)][i-1] = dat
+				}
+			});
+			updateBars(thisPlot, params.dummyData[params.cleanString(c)], params.transitionWaveDuration);
+		}, params.transitionWaveDuration*j/params.selectionWords.length)
+	});
+
+
+}
