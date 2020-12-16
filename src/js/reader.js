@@ -93,7 +93,7 @@ function aggregateResults(){
 	//count up all the responses for each column and return the aggregate numbers
 	//in order to keep things a bit more simple, I will push a blank entry for version 0 (I may want to clean this up later)
 	params.aggregatedResponses.push({})
-	
+
 	for (var version=1; version<=2; version+=1){
 		params.aggregatedResponses.push({});
 
@@ -132,6 +132,7 @@ function loadAnswers() {
 		d3.csv('src/data/answers.csv'),
 	]).then(function(d) {
 		params.answers = d[0];
+		console.log("answers",params.answers)
 	})
 	.catch(function(error){
 		console.log('ERROR:', error)

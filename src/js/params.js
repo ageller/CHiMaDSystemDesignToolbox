@@ -27,7 +27,7 @@ function defineParams(){
 		//this will hold the responses downloaded from the google sheet
 		this.responses;
 		this.aggregatedResponses = []; //will have multiple versions
-		this.responseVersion = 2;
+		this.responseVersion = 1;
 		this.dummyData = {};
 		this.showingResults = false; //will be changed to true after form is submitted and results are shown
 
