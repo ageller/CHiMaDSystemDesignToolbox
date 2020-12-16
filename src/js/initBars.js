@@ -17,7 +17,7 @@ function createBars(){
 	params.svgHeight = window.innerHeight - params.svgMargin.top - params.svgMargin.bottom - 60;
 	var offset = 4;
 	params.svgHistHeight = params.svgHeight/params.selectionWords.length - offset;
-	params.svgWidth = params.svgHistHeight*params.options.length
+	params.svgWidth = params.svgHistHeight*1.5*params.options.length
 //	params.svgWidth = window.innerWidth*0.5 - params.svgMargin.left - params.svgMargin.right - 40; //40 is from the padding on the outer div
 
 	params.svg = d3.select('#svgContainer').append('svg')
@@ -156,7 +156,8 @@ function defineBars(){
 		var realData = []
 		params.options.forEach(function(o){
 			if (o != 'Select Category'){
-				var v = params.aggregatedResponses[params.cleanString(c)].num[params.cleanString(o)]/params.responses.length || 0;
+				var agg = params.aggregatedResponses[params.responseVersion][params.cleanString(c)]
+				var v = agg.num[params.cleanString(o)]/agg.total || 0;
 				var dat = {"category":o, "value":v}
 				realData.push(dat);
 			}
@@ -172,7 +173,7 @@ function defineBars(){
 				.attr("y", params.yScale(0.4))
 				.style('font-size', 0.5*params.yScale(0))
 				.style("text-anchor", "middle")
-				.text(function(d){return parseFloat(d.value).toFixed(1);})
+				.text(function(d){return parseFloat(d.value).toFixed(2);})
 				.style('opacity',0)
 		text.transition().duration(params.transitionDuration).style('opacity',1)
 

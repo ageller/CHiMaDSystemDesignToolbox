@@ -70,7 +70,7 @@ function readGoogleSheet(json) {
 
 //count the uniq elements in an array and return both the counts and the unique array
 function countUniq(arr){
-	out = {'uniq':[], 'num':{}};
+	var out = {'uniq':[], 'num':{}, 'total':0};
 
 	arr.forEach(function(a,i){
 		ac = params.cleanString(a);
@@ -80,37 +80,49 @@ function countUniq(arr){
 		} else {
 			out.num[ac] += 1;
 		}
+		out.total += 1;
 	})
+
 
 	return out;
 }
 
 function aggregateResults(){
 
+
 	//count up all the responses for each column and return the aggregate numbers
-	params.responses.columns.forEach(function(rc,i){
-		if (!rc.includes('Timestamp') && !rc.includes('IP') && !rc.includes('username') && !rc.includes('version')){
-			vals = []
-			params.responses.forEach(function(r,j){
-				//get the column
-				var v = r[rc];
-				if (typeof v == "undefined"){
-					v = ""
-				}
-				vals.push(v)
-				if (j == params.responses.length - 1){
-					params.aggregatedResponses[rc] = countUniq(vals);
-				}
-			})
+	//in order to keep things a bit more simple, I will push a blank entry for version 0 (I may want to clean this up later)
+	params.aggregatedResponses.push({})
+	
+	for (var version=1; version<=2; version+=1){
+		params.aggregatedResponses.push({});
 
-		}
-//for testing
-		// if (i == params.responses.columns.length - 1){
-		// 	console.log("aggregated", params.aggregatedResponses)
-		// 	defineBars();
-		// }
+		params.responses.columns.forEach(function(rc,i){
+			if (!rc.includes('Timestamp') && !rc.includes('IP') && !rc.includes('username') && !rc.includes('version')){
+				vals = []
+				//params.responses.forEach(function(r,j){
+				var using = params.responses.filter(function(d){return d.version == version;});
+				using.forEach(function(r,j){
+					//get the column
+					var v = r[rc];
+					if (typeof v == "undefined"){
+						v = ""
+					}
+					vals.push(v)
+					if (j == using.length - 1){
+						params.aggregatedResponses[version][rc] = countUniq(vals);
+					}
+				})
 
-	})
+			}
+	//for testing
+			if (i == params.responses.columns.length - 1 && version == params.responseVersion){
+				console.log("aggregated", params.aggregatedResponses[params.responseVersion])
+				defineBars();
+			}
+
+		})
+	}
 
 }
 
