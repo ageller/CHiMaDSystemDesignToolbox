@@ -22,6 +22,9 @@ window.addEventListener('mousemove', function(){
 //define the params object that holds all the global variables and functions
 defineParams();
 
+//read in the answer key
+loadAnswers();
+
 //load data from the URL to define the form input
 readURLdata();
 

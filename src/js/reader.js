@@ -34,16 +34,13 @@ function readGoogleSheet(json) {
 			var data = json.feed.entry;
 			var keys = [];
 			var out = [];
-			var row = null;
+			var row = {};
 			var j = 0;
 			for(var r=0; r<data.length; r++) {
 				var cell = data[r]["gs$cell"];
 				var val = cell["$t"];
 
 				if (cell.col == 1) {
-					if (j > 0){
-						out.push(row);
-					}
 					j = 0;
 					row = {};
 				}
@@ -56,11 +53,15 @@ function readGoogleSheet(json) {
 
 				j += 1;
 
+				if (j == keys.length & cell.row > 1){
+					out.push(row);
+				}
+
 			}
 			out.columns = keys; //I think I can do this (if not I need to make out an object to begin with)
 
 			params.responses = out;
-			console.log('responses', data.length, params.responses)
+			console.log('responses', out, data.length, params.responses)
 			aggregateResults();
 
 		}
@@ -105,9 +106,23 @@ function aggregateResults(){
 		}
 //for testing
 		if (i == params.responses.columns.length - 1){
+			console.log("aggregated", params.aggregatedResponses)
 			defineBars();
 		}
 
 	})
 
+}
+
+//for now I will work with a static csv file
+function loadAnswers() {
+	Promise.all([
+		d3.csv('src/data/answers.csv'),
+	]).then(function(d) {
+		params.answers = d[0];
+		showAnswers();
+	})
+	.catch(function(error){
+		console.log('ERROR:', error)
+	})
 }
