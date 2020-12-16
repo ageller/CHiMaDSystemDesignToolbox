@@ -26,7 +26,8 @@ function defineParams(){
 
 		//this will hold the responses downloaded from the google sheet
 		this.responses;
-		this.aggregatedResponses = {};
+		this.aggregatedResponses = []; //will have multiple versions
+		this.responseVersion = 2;
 		this.dummyData = {};
 		this.showingResults = false; //will be changed to true after form is submitted and results are shown
 
@@ -73,7 +74,7 @@ function defineParams(){
 
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
-		
+
 		this.cleanString = function(s){
 			return s.replace(/sub\>/g,'').replace(/\s/g,'').replace(/[^a-zA-Z ]/g, "").toLowerCase();
 		}
