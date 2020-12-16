@@ -105,10 +105,10 @@ function aggregateResults(){
 
 		}
 //for testing
-		if (i == params.responses.columns.length - 1){
-			console.log("aggregated", params.aggregatedResponses)
-			defineBars();
-		}
+		// if (i == params.responses.columns.length - 1){
+		// 	console.log("aggregated", params.aggregatedResponses)
+		// 	defineBars();
+		// }
 
 	})
 
@@ -120,7 +120,6 @@ function loadAnswers() {
 		d3.csv('src/data/answers.csv'),
 	]).then(function(d) {
 		params.answers = d[0];
-		showAnswers();
 	})
 	.catch(function(error){
 		console.log('ERROR:', error)
