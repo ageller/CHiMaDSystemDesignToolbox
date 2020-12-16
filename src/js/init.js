@@ -9,6 +9,8 @@ d3.select('body').on('click',function(){
 //bind the username getter
 d3.select('#username').on("keyup",getUsername);
 
+//resize events
+window.addEventListener('resize', resize);
 
 //define the params object that holds all the global variables and functions
 defineParams();
