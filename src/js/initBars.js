@@ -84,6 +84,16 @@ function createBars(){
 				// .on("mouseover",handleBarMouseOver)
 				// .on("mouseout",handleBarMouseOut);
 
+		//add text holder
+		thisPlot.selectAll('.text')
+			.data(params.dummyData[params.cleanString(c)]).enter().append('text')
+				.attr('class', function(d){ return 'text '+d.category; })
+				.attr("x", function(d) { return params.xScale(d.category) + params.xScale.bandwidth()/2.; })
+				.attr("y", params.yScale(0.4))
+				.style('font-size', 0.5*params.yScale(0))
+				.style("text-anchor", "middle")
+				.style('opacity',0)
+
 		// add the x Axis
 		if (j == params.selectionWords.length-1) {
 			thisPlot.append("g")
@@ -148,6 +158,18 @@ function defineBars(){
 	clearInterval(params.waveInterval);
 	params.waveTimeouts.forEach(function(w){ clearTimeout(w); });
 
+	//clean up the row labels
+	d3.selectAll('.rowLabel').each(function(){
+		var txt = d3.select(this).text().replaceAll('*','');
+		d3.select(this)
+			.style('font-style', 'normal')
+			.style('fill','black')
+			.text(txt)
+	})
+
+	//clean up the selectionWord outlines
+	d3.selectAll('.selectionWord').classed('wrongBorder',false)
+
 	//show the real aggregated data from the users
 	params.selectionWords.forEach(function(c,j){
 		var thisPlot = d3.select('#'+params.cleanString(c)+'_bar');
@@ -166,16 +188,10 @@ function defineBars(){
 		var update = updateBars(thisPlot, realData, params.transitionDuration, d3.easeLinear, params.barOpacity);
 
 		//add text
-		var text = thisPlot.selectAll('.text').data(realData).enter()
-			.append('text')
-				.attr('id', function(d){ return 'text '+d.category; })
-				.attr("x", function(d) { return params.xScale(d.category) + params.xScale.bandwidth()/2.; })
-				.attr("y", params.yScale(0.4))
-				.style('font-size', 0.5*params.yScale(0))
-				.style("text-anchor", "middle")
-				.text(function(d){return parseFloat(d.value).toFixed(2);})
-				.style('opacity',0)
-		text.transition().duration(params.transitionDuration).style('opacity',1)
+		thisPlot.selectAll('.text').data(realData)
+			.text(function(d){return parseFloat(d.value).toFixed(2);})
+			.style('opacity',0)
+		thisPlot.selectAll('.text').transition().duration(params.transitionDuration).style('opacity',1)
 
 		if (j == params.selectionWords.length - 1){
 			update.on("end", function(){params.showingResults = true})
@@ -187,14 +203,14 @@ function defineBars(){
 				if (pct < params.pctLim){
 					//change color on the visualization
 					var elem = d3.select('#'+params.cleanString(k)+'_bar').select('.rowLabel')
-					var txt = elem.text();
+					var txt = elem.text().replaceAll('*','');
 					elem.text('**'+txt+'**')
 						.style('font-style', 'italic')
 						.style('fill','#d92b9c');
 
 					//change color in the paragraph
 					var elem2 = d3.select('#'+params.cleanString(k)).node().parentNode;
-					d3.select(elem2).style('border-color','#d92b9c');
+					d3.select(elem2).classed('wrongBorder',true);
 				}
 			})
 		}
@@ -226,7 +242,6 @@ function waveBars(){
 }
 
 function showAnswers(){
-	console.log("answers",params.answers)
 	params.answers.columns.forEach(function(k){
 		d3.select('#'+k+'_bar').select('.barHover.'+params.answers[0][k])
 			.style('stroke','black')
@@ -236,6 +251,11 @@ function showAnswers(){
 
 }
 
+function switchVersions(){
+	console.log("version", this.value)
+	params.responseVersion = this.value;
+	defineBars();
+}
 // function handleBarMouseOut(){
 // 	if (params.showingResults){
 // 		var x = event.clientX;

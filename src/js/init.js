@@ -12,6 +12,9 @@ d3.select('#username').on("keyup",getUsername);
 //resize events
 window.addEventListener('resize', resize);
 
+//version options
+d3.select('#versionOptions').selectAll('input').on('change',switchVersions);
+
 //move the tooltip
 // window.addEventListener('mousemove', function(){
 // 	d3.select('#tooltip')
