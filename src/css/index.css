@@ -151,3 +151,14 @@ html,body {
 	opacity:0;
 	padding:2px;
 }
+
+.wrong{
+	font-style: italic;
+	fill: #d92b9c;
+}
+/*.wrong::before {
+	content: "**";
+}
+.wrong::after {
+	content: "**";
+}*/
