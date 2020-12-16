@@ -53,6 +53,9 @@ function defineParams(){
 		this.svgHistHeight;
 		this.svgWidth;
 
+		//will hold the default bar opacity
+		this.barOpacity = 1;
+
 		//minimum width for the paragraph to allow resizing
 		this.minWidth = 1000;
 
@@ -61,7 +64,7 @@ function defineParams(){
 		this.waveTimeouts = [];
 
 		//transitions used for changing the bar heights
-		this.transitionDuration = 1000;
+		this.transitionDuration = 500;
 		this.transitionWaveDuration = 5000;
 
 		this.cleanString = function(s){
