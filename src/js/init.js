@@ -12,6 +12,13 @@ d3.select('#username').on("keyup",getUsername);
 //resize events
 window.addEventListener('resize', resize);
 
+//move the tooltip
+window.addEventListener('mousemove', function(){
+	d3.select('#tooltip')
+		.style('left', event.pageX)
+		.style('top',event.pageY-20)
+});
+
 //define the params object that holds all the global variables and functions
 defineParams();
 

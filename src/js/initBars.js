@@ -28,6 +28,7 @@ function createBars(){
 			.attr("transform", "translate(" + params.svgMargin.left + "," + params.svgMargin.top + ")");
 
 
+	params.barOpacity = 0.2;
 
 	//create the grid of histograms (using svg rects)
 	params.selectionWords.forEach(function(c,j){
@@ -59,14 +60,28 @@ function createBars(){
 		//add the histograms
 		thisPlot.selectAll(".bar")
 			.data(params.dummyData[params.cleanString(c)]).enter().append("rect")
-				.attr("class","bar")
+				.attr("class",function(d){ return "bar " + d.category;})
 				.attr("x", function(d) { return params.xScale(d.category); })
 				.attr("width", params.xScale.bandwidth())
 				.attr("y", function(d) { return params.yScale(d.value); })
 				.attr("height", function(d) { return params.svgHistHeight - params.yScale(d.value); })
 				//.style("fill","#274d7e")
 				.style("fill",function(d){return params.colorMap(d.value);})
-				.style("opacity", 0.2)
+				.style("opacity", params.barOpacity)
+
+		// add blank rects for hovering
+		thisPlot.selectAll(".barHover")
+			.data(params.dummyData[params.cleanString(c)]).enter().append("rect")
+				.attr("class",function(d){ return "barHover " + d.category;})
+				.attr("x", function(d) { return params.xScale(d.category); })
+				.attr("width", params.xScale.bandwidth())
+				.attr("y", params.yScale(1))
+				.attr("height", params.svgHistHeight - params.yScale(1))
+				.style("fill","white")
+				.style("opacity",0)
+				.style("stroke", "none")
+				.on("mouseover",handleBarMouseOver)
+				.on("mouseout",handleBarMouseOut);
 
 		// add the x Axis
 		if (j == params.selectionWords.length-1) {
@@ -118,13 +133,16 @@ function updateBars(thisPlot, data, duration, easing, op){
 			.attr("height", function(d) { return params.svgHistHeight - params.yScale(d.value); })
 			.style("fill",function(d){return params.colorMap(d.value);})
 			.style("opacity", op)
+			.attr('data-pct',function(d) { return d.value;})
 
 }
 
 function defineBars(){
+	params.barOpacity = 1.;
+
 	clearInterval(params.waveInterval);
 	params.waveTimeouts.forEach(function(w){ clearTimeout(w); });
-	
+
 	//show the real aggregated data from the users
 	params.selectionWords.forEach(function(c,j){
 		var thisPlot = d3.select('#'+params.cleanString(c)+'_bar');
@@ -139,7 +157,7 @@ function defineBars(){
 			}
 		});
 
-		updateBars(thisPlot, realData, params.transitionDuration, d3.easeLinear, 1);
+		updateBars(thisPlot, realData, params.transitionDuration, d3.easeLinear, params.barOpacity);
 	});
 	d3.selectAll('.bar')
 
@@ -162,9 +180,30 @@ function waveBars(){
 					params.dummyData[params.cleanString(c)][i-1] = dat
 				}
 			});
-			updateBars(thisPlot, params.dummyData[params.cleanString(c)], params.transitionWaveDuration, d3.easeLinear, 0.2);
+			updateBars(thisPlot, params.dummyData[params.cleanString(c)], params.transitionWaveDuration, d3.easeLinear, params.barOpacity);
 		}, params.transitionWaveDuration*j/params.selectionWords.length)
 	});
+}
+
+function handleBarMouseOut(){
+	d3.select('#tooltip').transition().duration(params.transitionDuration).style('opacity',0);
+	d3.selectAll('.bar').transition().duration(params.transitionDuration).style('opacity',params.barOpacity)
+
+}
+
+function handleBarMouseOver(){
+	var classes = this.classList;
+	var bar = d3.select(this.parentNode).select('.bar.'+classes[1]);
+
+	//update ahd show the tooltip
+	d3.select('#tooltip').text(parseFloat(bar.attr('data-pct')).toFixed(2));
+	d3.select('#tooltip').transition().duration(params.transitionDuration).style('opacity',1);
+	
+	//dim all the bars
+	d3.selectAll('.bar').transition().duration(params.transitionDuration).style('opacity',0.2);
+
+	//highlight the bar where on
+	bar.transition().duration(params.transitionDuration).style('opacity',1);
 
 
 }

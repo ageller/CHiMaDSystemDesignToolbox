@@ -63,7 +63,6 @@ function readGoogleSheet(json) {
 			console.log('responses', data.length, params.responses)
 			aggregateResults();
 
-			//colorBoxes();
 		}
 	}
 }
@@ -103,6 +102,10 @@ function aggregateResults(){
 				}
 			})
 
+		}
+//for testing
+		if (i == params.responses.columns.length - 1){
+			defineBars();
 		}
 
 	})
