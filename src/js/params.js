@@ -7,7 +7,7 @@ function defineParams(){
     	this.uername = "";
 
     	//options for the dropdown menu
-		this.options = ['Select Category','Processing','Structure','Properties','Performance'];
+		this.options = ['Select Category','Processing','Structure','Property','Performance'];
 
 		//this defines the colormap
 		this.colorMap = d3.scaleLinear().domain([0,1]).interpolate(d3.interpolateHcl).range([d3.rgb("#E0E0E0"), d3.rgb('#2C78CA')]);
@@ -28,6 +28,10 @@ function defineParams(){
 		this.responses;
 		this.aggregatedResponses = {};
 		this.dummyData = {};
+		this.showingResults = false; //will be changed to true after form is submitted and results are shown
+
+		//this will hold the answers from the static data file
+		this.answers;
 
 		//this will hold the selection words (and is filled within populateBoxes)
 		this.selectionWords = [];

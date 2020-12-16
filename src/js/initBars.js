@@ -78,8 +78,9 @@ function createBars(){
 				.attr("y", params.yScale(1))
 				.attr("height", params.svgHistHeight - params.yScale(1))
 				.style("fill","white")
-				.style("opacity",0)
+				.style("fill-opacity",0)
 				.style("stroke", "none")
+				.style("stroke-opacity",0)
 				.on("mouseover",handleBarMouseOver)
 				.on("mouseout",handleBarMouseOut);
 
@@ -126,7 +127,7 @@ function createBars(){
 
 function updateBars(thisPlot, data, duration, easing, op){
 	//update the data in a bar chart
-	thisPlot.selectAll('.bar')
+	return thisPlot.selectAll('.bar')
 		.data(data).transition().ease(easing).duration(duration)
 			.attr("x", function(d) { return params.xScale(d.category); })
 			.attr("y", function(d) { return params.yScale(d.value); })
@@ -157,9 +158,12 @@ function defineBars(){
 			}
 		});
 
-		updateBars(thisPlot, realData, params.transitionDuration, d3.easeLinear, params.barOpacity);
+		var update = updateBars(thisPlot, realData, params.transitionDuration, d3.easeLinear, params.barOpacity);
+		if (j == params.selectionWords.length - 1){
+			update.on("end", function(){params.showingResults = true})
+		}
 	});
-	d3.selectAll('.bar')
+
 
 }
 
@@ -185,25 +189,38 @@ function waveBars(){
 	});
 }
 
-function handleBarMouseOut(){
-	d3.select('#tooltip').transition().duration(params.transitionDuration).style('opacity',0);
-	d3.selectAll('.bar').transition().duration(params.transitionDuration).style('opacity',params.barOpacity)
+function showAnswers(){
+	console.log("answers",params.answers)
+	params.answers.columns.forEach(function(k){
+		d3.select('#'+k+'_bar').select('.barHover.'+params.answers[0][k])
+			.style('stroke','black')
+			.style('stroke-width',2)
+			.style('stroke-opacity',1)
+	})
 
+}
+function handleBarMouseOut(){
+	if (params.showingResults){
+		d3.select('#tooltip').transition().duration(params.transitionDuration).style('opacity',0);
+		d3.selectAll('.bar').transition().duration(params.transitionDuration).style('opacity',params.barOpacity)
+	}
 }
 
 function handleBarMouseOver(){
-	var classes = this.classList;
-	var bar = d3.select(this.parentNode).select('.bar.'+classes[1]);
+	if (params.showingResults){
+		var classes = this.classList;
+		var bar = d3.select(this.parentNode).select('.bar.'+classes[1]);
 
-	//update ahd show the tooltip
-	d3.select('#tooltip').text(parseFloat(bar.attr('data-pct')).toFixed(2));
-	d3.select('#tooltip').transition().duration(params.transitionDuration).style('opacity',1);
-	
-	//dim all the bars
-	d3.selectAll('.bar').transition().duration(params.transitionDuration).style('opacity',0.2);
+		//update ahd show the tooltip
+		d3.select('#tooltip').text(parseFloat(bar.attr('data-pct')).toFixed(2));
+		d3.select('#tooltip').transition().duration(params.transitionDuration).style('opacity',1);
+		
+		//dim all the bars
+		d3.selectAll('.bar').transition().duration(params.transitionDuration).style('opacity',0.2);
 
-	//highlight the bar where on
-	bar.transition().duration(params.transitionDuration).style('opacity',1);
+		//highlight the bar where on
+		bar.transition().duration(params.transitionDuration).style('opacity',1);
+	}
 
 
 }

@@ -108,7 +108,7 @@ html,body {
 	color: var(--structure-color);
 	font-weight:bold;
 }
-.propertiesWord{
+.propertyWord{
 	color: var(--properties-color);
 	text-decoration: underline;
 	font-weight:bold;
