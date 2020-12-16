@@ -143,9 +143,9 @@ html,body {
 
 #tooltip{
 	position:absolute;
-	border: 1px solid black;
+	/*border: 1px solid black;
 	border-radius:5px;
-	background-color:#E8E8E8;
+	background-color:#E8E8E8;*/
 	color:black;
 	z-index:10;
 	opacity:0;
