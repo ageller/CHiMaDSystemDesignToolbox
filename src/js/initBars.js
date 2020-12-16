@@ -188,10 +188,12 @@ function defineBars(){
 		var update = updateBars(thisPlot, realData, params.transitionDuration, d3.easeLinear, params.barOpacity);
 
 		//add text
-		thisPlot.selectAll('.text').data(realData)
-			.text(function(d){return parseFloat(d.value).toFixed(2);})
+		thisPlot.selectAll('.text').transition().duration(params.transitionDuration/2.)
 			.style('opacity',0)
-		thisPlot.selectAll('.text').transition().duration(params.transitionDuration).style('opacity',1)
+			.on('end',function(){
+				thisPlot.selectAll('.text').data(realData).text(function(d){return parseFloat(d.value).toFixed(2);})
+				thisPlot.selectAll('.text').transition().duration(params.transitionDuration/2.).style('opacity',1)
+			})
 
 		if (j == params.selectionWords.length - 1){
 			update.on("end", function(){params.showingResults = true})
