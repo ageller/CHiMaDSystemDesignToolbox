@@ -116,10 +116,10 @@ function aggregateResults(){
 
 			}
 	//for testing
-			if (i == params.responses.columns.length - 1 && version == params.responseVersion){
-				console.log("aggregated", params.aggregatedResponses[params.responseVersion])
-				defineBars();
-			}
+			// if (i == params.responses.columns.length - 1 && version == params.responseVersion){
+			// 	console.log("aggregated", params.aggregatedResponses[params.responseVersion])
+			// 	defineBars();
+			// }
 
 		})
 	}
