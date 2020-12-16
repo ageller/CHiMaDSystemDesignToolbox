@@ -53,8 +53,12 @@ function defineParams(){
 		this.svgHistHeight;
 		this.svgWidth;
 
+		//minimum width for the paragraph to allow resizing
+		this.minWidth = 1000;
+
 		//wave the bars in this interval
 		this.waveInterval;
+		this.waveTimeouts = [];
 
 		//transitions used for changing the bar heights
 		this.transitionDuration = 1000;
