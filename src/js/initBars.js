@@ -109,6 +109,7 @@ function createBars(){
 
 		//add the label
 		thisPlot.append("text")
+			.attr('class','rowLabel')
 			.attr("x","-5px")
 			.attr("y",params.svgHistHeight)
 			//.attr("dy", "-1em")
@@ -127,14 +128,17 @@ function createBars(){
 
 function updateBars(thisPlot, data, duration, easing, op){
 	//update the data in a bar chart
-	return thisPlot.selectAll('.bar')
-		.data(data).transition().ease(easing).duration(duration)
-			.attr("x", function(d) { return params.xScale(d.category); })
-			.attr("y", function(d) { return params.yScale(d.value); })
-			.attr("height", function(d) { return params.svgHistHeight - params.yScale(d.value); })
-			.style("fill",function(d){return params.colorMap(d.value);})
-			.style("opacity", op)
-			.attr('data-pct',function(d) { return d.value;})
+	var update = thisPlot.selectAll('.bar').data(data)
+		.attr("x", function(d) { return params.xScale(d.category); })
+		.attr('data-pct',function(d) { return d.value;})
+
+	var trans = update.transition().ease(easing).duration(duration)
+		.attr("y", function(d) { return params.yScale(d.value); })
+		.attr("height", function(d) { return params.svgHistHeight - params.yScale(d.value); })
+		.style("fill",function(d){return params.colorMap(d.value);})
+		.style("opacity", op)
+
+	return trans;
 
 }
 
@@ -159,16 +163,31 @@ function defineBars(){
 		});
 
 		var update = updateBars(thisPlot, realData, params.transitionDuration, d3.easeLinear, params.barOpacity);
-		thisPlot.selectAll('.text').data(realData).enter()
+
+		//add text
+		var text = thisPlot.selectAll('.text').data(realData).enter()
 			.append('text')
+				.attr('id', function(d){ return 'text '+d.category; })
 				.attr("x", function(d) { return params.xScale(d.category) + params.xScale.bandwidth()/2.; })
 				.attr("y", params.yScale(0.4))
 				.style('font-size', 0.5*params.yScale(0))
 				.style("text-anchor", "middle")
 				.text(function(d){return parseFloat(d.value).toFixed(1);})
+				.style('opacity',0)
+		text.transition().duration(params.transitionDuration).style('opacity',1)
 
 		if (j == params.selectionWords.length - 1){
 			update.on("end", function(){params.showingResults = true})
+
+			//check for discrepant group answers and note this
+			params.answers.columns.forEach(function(k){
+				var pct = d3.select('#'+k+'_bar').select('.bar.'+params.answers[0][k]).attr('data-pct')
+				if (pct < params.pctLim){
+					var elem = d3.select('#'+params.cleanString(k)+'_bar').select('.rowLabel')
+					var txt = elem.text();
+					elem.text('**'+txt+'**').classed('wrong', true);
+				}
+			})
 		}
 	});
 
