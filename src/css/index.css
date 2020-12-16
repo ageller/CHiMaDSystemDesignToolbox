@@ -20,12 +20,12 @@ html,body {
 	position: absolute;
 	top: 0;
 	left:0;
-	width:50%;
+	width:1000px;
 }
 .centerLine{
 	position:absolute;
 	top:1%;
-	left:50%;
+	left:1000px;
 	height:98%;
 	border-right: 4px solid #274d7e;
 	border-left: 4px solid #274d7e;
@@ -34,8 +34,8 @@ html,body {
 .rightColumn{
 	position: absolute;
 	top:0;
-	left:50%;
-	width:50%;
+	left:1000px;
+	width:1000px;
 
 }
 /* https://www.w3schools.com/css/tryit.asp?filename=trycss_buttons_animate3 */

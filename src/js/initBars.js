@@ -24,7 +24,8 @@ function createBars(){
 		.style('height',params.svgHeight + params.svgMargin.top + params.svgMargin.bottom)
 		.style('width',params.svgWidth + params.svgMargin.left + params.svgMargin.right)
 		.append("g")
-		.attr("transform", "translate(" + params.svgMargin.left + "," + params.svgMargin.top + ")");
+			.attr("id","plotContainer")
+			.attr("transform", "translate(" + params.svgMargin.left + "," + params.svgMargin.top + ")");
 
 
 
@@ -65,6 +66,7 @@ function createBars(){
 				.attr("height", function(d) { return params.svgHistHeight - params.yScale(d.value); })
 				//.style("fill","#274d7e")
 				.style("fill",function(d){return params.colorMap(d.value);})
+				.style("opacity", 0.2)
 
 		// add the x Axis
 		if (j == params.selectionWords.length-1) {
@@ -100,25 +102,29 @@ function createBars(){
 
 	});
 
+	params.waveTimeouts = new Array(params.selectionWords.length);
 	waveBars();
 	params.waveInterval = setInterval(waveBars, params.transitionWaveDuration);
 
-	// resizer();
+	resize();
 }
 
-function updateBars(thisPlot, data, duration){
+function updateBars(thisPlot, data, duration, easing, op){
 	//update the data in a bar chart
 	thisPlot.selectAll('.bar')
-		.data(data).transition().ease(d3.easeLinear).duration(duration)
+		.data(data).transition().ease(easing).duration(duration)
 			.attr("x", function(d) { return params.xScale(d.category); })
 			.attr("y", function(d) { return params.yScale(d.value); })
 			.attr("height", function(d) { return params.svgHistHeight - params.yScale(d.value); })
 			.style("fill",function(d){return params.colorMap(d.value);})
+			.style("opacity", op)
+
 }
 
 function defineBars(){
 	clearInterval(params.waveInterval);
-
+	params.waveTimeouts.forEach(function(w){ clearTimeout(w); });
+	
 	//show the real aggregated data from the users
 	params.selectionWords.forEach(function(c,j){
 		var thisPlot = d3.select('#'+params.cleanString(c)+'_bar');
@@ -133,8 +139,9 @@ function defineBars(){
 			}
 		});
 
-		updateBars(thisPlot, realData, params.transitionDuration);
+		updateBars(thisPlot, realData, params.transitionDuration, d3.easeLinear, 1);
 	});
+	d3.selectAll('.bar')
 
 }
 
@@ -143,7 +150,7 @@ function waveBars(){
 	params.selectionWords.forEach(function(c,j){
 		var thisPlot = d3.select('#'+params.cleanString(c)+'_bar');
 
-		setTimeout(function(){
+		params.waveTimeouts[j] = setTimeout(function(){
 			params.options.forEach(function(o,i){
 				if (o != 'Select Category'){
 					var vPrev = params.dummyData[params.cleanString(c)][i-1].value;
@@ -155,7 +162,7 @@ function waveBars(){
 					params.dummyData[params.cleanString(c)][i-1] = dat
 				}
 			});
-			updateBars(thisPlot, params.dummyData[params.cleanString(c)], params.transitionWaveDuration);
+			updateBars(thisPlot, params.dummyData[params.cleanString(c)], params.transitionWaveDuration, d3.easeLinear, 0.2);
 		}, params.transitionWaveDuration*j/params.selectionWords.length)
 	});
 
