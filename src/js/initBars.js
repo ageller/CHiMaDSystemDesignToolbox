@@ -178,14 +178,22 @@ function defineBars(){
 
 		if (j == params.selectionWords.length - 1){
 			update.on("end", function(){params.showingResults = true})
+			showAnswers();
 
 			//check for discrepant group answers and note this
 			params.answers.columns.forEach(function(k){
 				var pct = d3.select('#'+k+'_bar').select('.bar.'+params.answers[0][k]).attr('data-pct')
 				if (pct < params.pctLim){
+					//change color on the visualization
 					var elem = d3.select('#'+params.cleanString(k)+'_bar').select('.rowLabel')
 					var txt = elem.text();
-					elem.text('**'+txt+'**').classed('wrong', true);
+					elem.text('**'+txt+'**')
+						.style('font-style', 'italic')
+						.style('fill','#d92b9c');
+
+					//change color in the paragraph
+					var elem2 = d3.select('#'+params.cleanString(k)).node().parentNode;
+					d3.select(elem2).style('border-color','#d92b9c');
 				}
 			})
 		}
