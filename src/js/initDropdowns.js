@@ -12,12 +12,9 @@ function createDropdowns(){
 				}
 				elem.classed('hidden', !elem.classed('hidden'));
 				console.log('isMobile', params.isMobile)
-				//if (params.isMobile && !elem.classed('hidden')){
-				//	elem.classed('hidden', false)
-					// event2 = document.createEvent('MouseEvents');
-					// event2.initMouseEvent('mousedown', true, true, window);
-					// elem.dispatchEvent(event2);
-				//}
+				if (params.isMobile && !elem.classed('hidden')){
+					elem.classed('hidden', false)
+				}
 
 		})
 	.append('select')
