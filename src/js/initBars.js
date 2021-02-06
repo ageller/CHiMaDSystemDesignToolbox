@@ -340,7 +340,7 @@ function switchVersions(){
 	console.log("version", this.value)
 	params.responseVersion = this.value;
 	params.firstDisplay = true;
-	defineBars();
+	if (params.submitted) defineBars();
 }
 // function handleBarMouseOut(){
 // 	if (params.showingResults){

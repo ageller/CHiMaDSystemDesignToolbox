@@ -17,11 +17,12 @@ function sendToGoogleSheet(data){
 			console.log('submitted data', JSON.stringify(data), d);
 			d3.select('#notification')
 				.classed('blink_me', false)
-				.text('Responses submitted successfully.  The plot will update momentarily.  You can change your responses anytime by re-submitting.');
+				.text('Responses submitted successfully.  The plot will update automatically when new data are available.  You can change your responses anytime by re-submitting.');
 			//show the aggregated responses (now showing after reading in the data within aggregateResults)
 			params.loadInterval = setInterval(function(){loadResponses(params.surveyFile);}, params.loadIntervalDuration);
 
-			//defineBars();
+			//show the previously loaded data.  This will be updated once the read completes
+			defineBars();
 		},
 		error: function (request, status, error) {
 			console.log('failed to submit', request, status, error);
@@ -41,6 +42,7 @@ function sendToGoogleSheet(data){
 function onFormSubmit(){
 	//when form is submitted, compile responses and send the Google sheet
 	console.log('username',params.username);
+	params.submitted = true;
 
 	missing = [];
 	if (params.username != "" && typeof params.username !== 'undefined'){
@@ -97,10 +99,39 @@ function onFormSubmit(){
 }
 
 function getUsername(){
-	//get the username data from the text input box
+	//get the username data from the text input box, and fill in the responses if the username exists
 	params.username = this.value;
+	params.URLinputValues = {};
 	params.URLinputValues["username"] = params.username;
-	appendURLdata();
+	console.log('username ', params.username)
+
+	var ubbox = d3.select('#usernameLabel').node().getBoundingClientRect();
+	d3.select('#usernameNotification')
+		.style('position','absolute')
+		.style('top',ubbox.y + ubbox.height + 'px')
+		.style('left','0px')
+		.text('');
+
+	params.responses.forEach(function(d,i){
+		if (d.username == params.username){
+			console.log('found user in database', d.username, params.username, d)
+			//show notification
+			d3.select('#usernameNotification')
+				.text('This username exists, and the responses below have been populated accordingly.  If these are not your responses, please change your username.');
+
+			//add the responses (I want to take version 2 if it exists, but I think this will happen by default since v2 will always come after v1 in order)
+			Object.keys(d).forEach(function(k){
+				if (k != 'IP' && k != 'Timestamp' && k != 'version') params.URLinputValues[k] = d[k];
+			})
+
+		}
+		if (i == params.responses.length - 1){
+			appendURLdata();
+			readURLdata();
+			useURLdata();
+		}
+	})
+
 }
 
 function createEmail(){

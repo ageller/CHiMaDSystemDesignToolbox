@@ -40,5 +40,6 @@ createDropdowns();
 //this is now called on reload
 //createBars();
 
-//load the responses and fill in the visualization (this is now a recurring call and only executed after the first submit)
-//loadResponses(params.surveyFile);
+//load the responses to check if username already exists
+//the visualization will not fill in until the user submits (this is now a recurring call and only executed after the first submit)
+loadResponses(params.surveyFile);

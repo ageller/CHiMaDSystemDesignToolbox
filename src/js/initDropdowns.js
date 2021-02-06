@@ -65,6 +65,7 @@ function createDropdowns(){
 function useURLdata(){
 	//apply the form data from the URL
 	var keys = Object.keys(params.URLinputValues);
+	d3.selectAll('.selectionWord').attr('class','selectionWord'); //remove all the colors
 	keys.forEach(function(k){
 		console.log('using', k, params.URLinputValues[k])
 		if (k == "username"){

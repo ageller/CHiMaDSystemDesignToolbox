@@ -15,6 +15,14 @@ function resize(){
 	d3.selectAll('.instructions')
 		.style('font-size', fsi + 'px')
 		.style('line-height', (fsi+4)+'px');
+	d3.selectAll('.notifications')
+		.style('font-size', fsi + 'px')
+		.style('line-height', (fsi+4)+'px');
+	var ubbox = d3.select('#usernameLabel').node().getBoundingClientRect();
+	d3.select('#usernameNotification')
+		.style('position','absolute')
+		.style('top',ubbox.y + ubbox.height + 'px')
+		.style('left','0px');
 	var fsv = Math.max(0.007*window.innerWidth, params.versionFSmin);
 	d3.select('#versionOptions')
 		.style('font-size', fsv + 'px')
