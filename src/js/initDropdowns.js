@@ -4,20 +4,21 @@ function createDropdowns(){
 	d3.selectAll('.selectionWord')
 		.on('click',function(){
 				d3.selectAll('.selectionWordDropdown').classed('hidden', true);
-				console.log('isMobile', params.isMobile)
 				var elem = d3.select(this).select('select')
-				elem.style('left', event.pageX)
-				elem.style('top', event.pageY+20)
-				 //else {
-				// 	elem.classed('hidden', !elem.classed('hidden'));
-				// }
-				elem.classed('hidden', !elem.classed('hidden'));
-				if (params.isMobile && !elem.classed('hidden')){
-					elem.classed('hidden', false)
-					event2 = document.createEvent('MouseEvents');
-					event2.initMouseEvent('mousedown', true, true, window);
-					elem.dispatchEvent(event2);
+				if (elem.classed('hidden')){
+					console.log('moving it', elem.node(), elem.classed('hidden'))
+					elem.style('left', event.pageX)
+					elem.style('top', event.pageY+20)
 				}
+				elem.classed('hidden', !elem.classed('hidden'));
+				console.log('isMobile', params.isMobile)
+				//if (params.isMobile && !elem.classed('hidden')){
+				//	elem.classed('hidden', false)
+					// event2 = document.createEvent('MouseEvents');
+					// event2.initMouseEvent('mousedown', true, true, window);
+					// elem.dispatchEvent(event2);
+				//}
+
 		})
 	.append('select')
 		.attr('id',function(){
@@ -33,8 +34,8 @@ function createDropdowns(){
 				}
 			})
 		})
-		.attr('class','selectionWordDropdown')
-		.classed('hidden', true)
+		.attr('class','selectionWordDropdown hidden')
+		//.classed('hidden', true)
 		.style('z-index',9)
 		.style('position','absolute')
 		.attr('size', 5)
