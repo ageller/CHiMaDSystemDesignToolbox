@@ -11,6 +11,7 @@ d3.select('#username').on("keyup",getUsername);
 
 //resize events
 window.addEventListener('resize', resize);
+window.addEventListener('load',resize);
 
 //version options
 d3.select('#versionOptions').selectAll('input').on('change',switchVersions);
@@ -35,7 +36,8 @@ readURLdata();
 createDropdowns();
 
 //create the skeleton of the visualization (will be filled in at loadResponses)
-createBars();
+//this is now called on reload
+//createBars();
 
-//load the responses and fill in the visualization (will need to make this a recurring call, and only executed after the first submit)
-loadResponses(params.surveyFile);
+//load the responses and fill in the visualization (this is now a recurring call and only executed after the first submit)
+//loadResponses(params.surveyFile);
