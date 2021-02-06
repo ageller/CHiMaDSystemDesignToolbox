@@ -8,6 +8,9 @@ function createDropdowns(){
 				elem.style('top', event.pageY+20)
 				if (params.isMobile){
 					elem.classed('hidden', false);
+				    event2 = document.createEvent('MouseEvents');
+    				event2.initMouseEvent('mousedown', true, true, window);
+    				elem.dispatchEvent(event2);
 				} else {
 					elem.classed('hidden', !elem.classed('hidden'));
 				}
