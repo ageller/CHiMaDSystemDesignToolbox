@@ -2,10 +2,12 @@
 //I will use this to load the google sheet
 function loadResponses(url){
 
+	console.log('loading responses...');
+
 	//in case it's already there, remove it (not tested yet)
 	var sheet = document.getElementById('GoogleSheet')
 	if (sheet != null){
-		sheet.removeChild(list.childNodes[0]);
+		sheet.remove();
 	}
 
     var script = document.createElement("script")
@@ -115,18 +117,19 @@ function aggregateResults(){
 				})
 
 			}
-	//for testing
-			// if (i == params.responses.columns.length - 1 && version == params.responseVersion){
-			// 	console.log("aggregated", params.aggregatedResponses[params.responseVersion])
-			// 	defineBars();
-			// }
+	//plot the results
+			if (i == params.responses.columns.length - 1 && version == params.responseVersion){
+				console.log("aggregated", params.aggregatedResponses[params.responseVersion]);
+				//I could check to see if anything changed before replotting, but I'm not sure that would offer a big speedup (since I'd need another for loop anyway)
+				defineBars();
+			}
 
 		})
 	}
 
 }
 
-//for now I will work with a static csv file
+//for now I will work with a static csv file for the correct responses
 function loadAnswers() {
 	Promise.all([
 		d3.csv('src/data/answers.csv'),

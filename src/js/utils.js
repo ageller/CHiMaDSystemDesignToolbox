@@ -1,9 +1,9 @@
-function getIP(json) {
-	//for IP addresses 
-	//https://ourcodeworld.com/articles/read/257/how-to-get-the-client-ip-address-with-javascript-only	
-    params.userIP = json.ip;
-    console.log("IP address : ", params.userIP)
-}
+// function getIP(json) {
+// 	//for IP addresses 
+// 	//https://ourcodeworld.com/articles/read/257/how-to-get-the-client-ip-address-with-javascript-only	
+//     params.userIP = json.ip;
+//     console.log("IP address : ", params.userIP)
+// }
 
 
 
