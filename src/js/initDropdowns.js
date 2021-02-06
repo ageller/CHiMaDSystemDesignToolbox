@@ -5,14 +5,12 @@ function createDropdowns(){
 		.on('click',function(){
 				var elem = d3.select(this).select('select')
 				if (elem.classed('hidden')){
-					console.log('moving it', elem.node(), elem.classed('hidden'))
 					elem.style('left', event.pageX)
 					elem.style('top', event.pageY+20)
 				}
 				d3.selectAll('.selectionWordDropdown').classed('hidden', true);
 				elem.classed('hidden', !elem.classed('hidden'));
 				if (params.isMobile){
-					console.log('isMobile', params.isMobile)
 					elem.classed('hidden', false)
 				}
 		})
