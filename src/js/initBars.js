@@ -19,7 +19,7 @@ function createBars(){
 
 	var bbI = d3.select('#usernameInstructions').node().getBoundingClientRect();
 	var bbV = d3.select('#versionOptions').node().getBoundingClientRect();
-	var fsp = Math.max(0.01*window.innerWidth, params.paraFSmin);
+	var fsp = Math.min(Math.max(0.01*window.innerWidth, params.paraFSmin), params.maxPlotFont);
 
 	//check whether we are plotting this in side-by-side w/ paragraph or top-bottom
 	var offset = 4;
@@ -127,7 +127,6 @@ function createBars(){
 
 		// add the x Axis
 		if (j == params.selectionWords.length-1) {
-			var fs = Math.min(fsp, params.maxPlotFont);
 			thisPlot.append("g")
 				.attr("transform", "translate(0," + params.svgHistHeight + offset*j + ")")
 				.call(d3.axisBottom(params.xScale))
@@ -137,7 +136,7 @@ function createBars(){
 					.attr("dy", ".35em")
 					.attr("transform", "rotate(-90)")
 					.style("text-anchor", "end")
-					.style("font-size",fs)
+					.style("font-size",fsp)
 					.attr('class',function(d){return params.cleanString(d)+'Word' + ' columnLabel'})
 
 		}else{
@@ -151,33 +150,32 @@ function createBars(){
 		// 	.call(d3.axisLeft(params.yScale).tickValues([]).tickSize(0));
 
 		//add the labels for the y axis
-		var fs = Math.min(fsp, params.maxPlotFont);
 		thisPlot.append("text")
 			.attr('class','rowLabel')
 			.attr("x","-5px")
 			.attr("y",params.svgHistHeight)
 			//.attr("dy", "-1em")
 			.style("text-anchor", "end")
-			.style("font-size",fs)
+			.style("font-size",fsp)
 			.html(c.replaceAll("<sub>","<tspan dy=5>").replaceAll("</sub>","</tspan><tspan dy=-5>"));  //I'm not closing the last tspan, but it seems OK 
 
 	});
 
 	//resize the margins and plot as necessary, given the labels
-	var maxW = 0;
-	d3.selectAll('.rowLabel').each(function(d){
-		if (this.getBoundingClientRect().width > maxW) maxW = this.getBoundingClientRect().width;
-	})
-	var maxH = 0;
-	d3.selectAll('.columnLabel').each(function(d){
-		if (this.getBoundingClientRect().height > maxH) maxH = this.getBoundingClientRect().height;
-	})
-	params.svgMargin.left = maxW+10;
-	params.svgMargin.bottom = maxH+10;
-	d3.select('#svgContainer').select('svg')
-		.style('height',params.svgHeight + params.svgMargin.top + params.svgMargin.bottom)
-		.style('width',params.svgWidth + params.svgMargin.left + params.svgMargin.right)
-	params.svg.attr("transform", "translate(" + params.svgMargin.left + "," + params.svgMargin.top + ")");
+	resizePlot();
+
+
+	//check the width to see if it's larger than the window width (and shrink font if necessary)
+	var plotWidth = params.svgWidth + params.svgMargin.left + params.svgMargin.right;
+	if (plotWidth > window.innerWidth){
+		//not obvious how to define this
+		var fsfac = 1.  - 2.5*(plotWidth - window.innerWidth)/window.innerWidth;
+		console.log("shrinking font size", fsfac)
+		fsp *= fsfac;
+		d3.selectAll('.rowLabel').style('font-size', fsp)
+		d3.selectAll('.columnLabel').style('font-size', fsp)
+		resizePlot();
+	}
 
 
 	//show the bars
@@ -193,6 +191,22 @@ function createBars(){
 	}
 }
 
+function resizePlot(){
+	var maxW = 0;
+	d3.selectAll('.rowLabel').each(function(d){
+		if (this.getBoundingClientRect().width > maxW) maxW = this.getBoundingClientRect().width;
+	})
+	var maxH = 0;
+	d3.selectAll('.columnLabel').each(function(d){
+		if (this.getBoundingClientRect().height > maxH) maxH = this.getBoundingClientRect().height;
+	})
+	params.svgMargin.left = maxW + 10;
+	params.svgMargin.bottom = maxH + 10;
+	d3.select('#svgContainer').select('svg')
+		.style('height',params.svgHeight + params.svgMargin.top + params.svgMargin.bottom)
+		.style('width',params.svgWidth + params.svgMargin.left + params.svgMargin.right)
+	params.svg.attr("transform", "translate(" + params.svgMargin.left + "," + params.svgMargin.top + ")");
+}
 
 
 function updateBars(thisPlot, data, duration, easing, op){
