@@ -147,6 +147,10 @@ html,body {
 	border-color:#d92b9c;
 }
 
+.radio{
+	cursor:pointer;
+}
+
 #tooltip{
 	position:absolute;
 	/*border: 1px solid black;
