@@ -3,18 +3,18 @@ function createDropdowns(){
 
 	d3.selectAll('.selectionWord')
 		.on('click',function(){
+				d3.selectAll('.selectionWordDropdown').classed('hidden', true);
 				var elem = d3.select(this).select('select')
+				elem.classed('hidden', !elem.classed('hidden'));
+				if (params.isMobile){
+					console.log('isMobile', params.isMobile)
+					elem.classed('hidden', false)
+				}
 				if (elem.classed('hidden')){
 					console.log('moving it', elem.node(), elem.classed('hidden'))
 					elem.style('left', event.pageX)
 					elem.style('top', event.pageY+20)
 				}
-				elem.classed('hidden', !elem.classed('hidden'));
-				console.log('isMobile', params.isMobile)
-				if (params.isMobile && !elem.classed('hidden')){
-					elem.classed('hidden', false)
-				}
-
 		})
 	.append('select')
 		.attr('id',function(){
