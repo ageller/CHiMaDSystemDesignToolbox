@@ -17,7 +17,7 @@ function sendToGoogleSheet(data){
 			console.log('submitted data', JSON.stringify(data), d);
 			d3.select('#notification')
 				.classed('blink_me', false)
-				.text('Responses submitted successfully.  The plot will update automatically when new data are available.  You can change your responses anytime by re-submitting.');
+				.text('Responses submitted successfully.  The chart shows all available data and will update automatically when new data are available.  You can change your responses anytime by re-submitting.');
 			//show the aggregated responses (now showing after reading in the data within aggregateResults)
 			params.loadInterval = setInterval(function(){loadResponses(params.surveyFile);}, params.loadIntervalDuration);
 
