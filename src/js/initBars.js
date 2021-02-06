@@ -180,15 +180,11 @@ function createBars(){
 
 
 	//show the bars
+	console.log("showing results", params.showingResults)
 	if (params.showingResults){
 		defineBars();
 	} else {
-		clearInterval(params.waveInterval);
-		if (params.waveTimeouts.length == 0) setWaveBars();
-		for (var i =0; i< params.waveTimeouts.length; i++){ //this will only happen if params.waveTimouts.length > 0
-			clearTimeout(params.waveTimeouts[i]);
-			if (i == params.waveTimeouts.length - 1) setWaveBars();
-		}
+		if (!params.wavingBars)setWaveBars();
 	}
 }
 
@@ -302,6 +298,7 @@ function defineBars(){
 
 function setWaveBars(){
 	console.log('waving bars ...')
+	params.wavingBars = true;
 	params.waveTimeouts = new Array(params.selectionWords.length);
 	waveBars();
 	params.waveInterval = setInterval(waveBars, params.transitionWaveDuration);
