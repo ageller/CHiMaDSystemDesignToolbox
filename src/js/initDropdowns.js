@@ -3,6 +3,7 @@ function createDropdowns(){
 
 	d3.selectAll('.selectionWord')
 		.on('click',function(){
+				d3.selectAll('.selectionWordDropdown').classed('hidden', true);
 				console.log('isMobile', params.isMobile)
 				var elem = d3.select(this).select('select')
 				elem.style('left', event.pageX)
