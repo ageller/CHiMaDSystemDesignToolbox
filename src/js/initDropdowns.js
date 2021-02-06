@@ -24,6 +24,7 @@ function createDropdowns(){
 		})
 		.classed('hidden', true)
 		.style('z-index',9)
+		.style('position','absolute')
 		.attr('size', 5)
 		.selectAll('option').data(params.options).enter()
 		.append('option')
