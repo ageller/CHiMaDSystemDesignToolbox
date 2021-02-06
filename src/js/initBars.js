@@ -1,25 +1,55 @@
 //this function will use the answers to create a grid of boxes and highlight the correct values
 //TO DO
-// -- I need to get the measurements to scale
+// -- I need to get the measurements to scale (not sure what this means)
 // -- add tooltips
 // -- is this better than the boxes?
-// -- make the dummy data move up and down until the submit button is clicked?
-// -- take only the most recent version of results for each person
-// -- add in the correct answers and the identification of incorrect responses from the aggregate
 function createBars(){
 
+	//destroy the plot (if it exists)
+	var parent = d3.select('#svgContainer').node();
+	while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+    }
+
 	//get all the rows
+	params.selectionWords = [];
 	d3.selectAll('.selectionWord').select('text').each(function(d){
 		params.selectionWords.push(this.innerHTML);
 	})
 
-	params.svgMargin = {"top":20,"bottom":180,"left":450,"right":50};
-	params.svgHeight = window.innerHeight - params.svgMargin.top - params.svgMargin.bottom - 60;
-	var offset = 4;
-	params.svgHistHeight = params.svgHeight/params.selectionWords.length - offset;
-	params.svgWidth = params.svgHistHeight*1.5*params.options.length
-//	params.svgWidth = window.innerWidth*0.5 - params.svgMargin.left - params.svgMargin.right - 40; //40 is from the padding on the outer div
+	var bbI = d3.select('#usernameInstructions').node().getBoundingClientRect();
+	var bbV = d3.select('#versionOptions').node().getBoundingClientRect();
+	var fsp = Math.max(0.01*window.innerWidth, params.paraFSmin);
 
+	//check whether we are plotting this in side-by-side w/ paragraph or top-bottom
+	var offset = 4;
+	var plotSSWidth = window.innerWidth*params.plotFraction;
+	var minPlotHeight = params.selectionWords.length*(params.minBarHeight + offset);
+	var totalWidth,totalHeight;
+	console.log('check widths', window.innerWidth, plotSSWidth, window.innerWidth - plotSSWidth, params.minPlotWidth, params.minParaWidth)
+	if (plotSSWidth >= params.minPlotWidth && (window.innerWidth - plotSSWidth >= params.minParaWidth) ){
+		//side-by-side view
+		console.log('plot side-by-side view')
+		totalWidth = plotSSWidth;
+		totalHeight = Math.max(window.innerHeight - bbI.height - bbV.height - 20, minPlotHeight);
+	} else {
+		//top-bottom view
+		console.log('plot top-bottom view')
+		totalWidth = window.innerWidth -100;
+		totalHeight = minPlotHeight;
+	}
+
+
+	//It would be better to determine these margins based on the plot size and font size!  I will resize this later after the text is added
+	params.svgMargin = {"top":20,"bottom":0.2*totalHeight,"left":0.7*totalWidth,"right":20};
+	params.svgHeight = totalHeight - params.svgMargin.top - params.svgMargin.bottom;
+	params.svgHistHeight = params.svgHeight/params.selectionWords.length - offset;
+	//make the bars squares, factor of 1.3 just judged by eye to make approximately square
+	params.svgWidth = (params.svgHistHeight*1.3)*(params.options.length-1); //one option is 'Select Category'
+	//params.svgWidth = totalWidth - params.svgMargin.left - params.svgMargin.right;
+	console.log('check widths', window.innerWidth, plotSSWidth, window.innerWidth - plotSSWidth, params.minPlotWidth, params.minParaWidth, params.svgHistHeight, params.svgWidth, totalHeight)
+
+	
 	params.svg = d3.select('#svgContainer').append('svg')
 		.style('height',params.svgHeight + params.svgMargin.top + params.svgMargin.bottom)
 		.style('width',params.svgWidth + params.svgMargin.left + params.svgMargin.right)
@@ -94,8 +124,10 @@ function createBars(){
 				.style("text-anchor", "middle")
 				.style('opacity',0)
 
+
 		// add the x Axis
 		if (j == params.selectionWords.length-1) {
+			var fs = Math.min(fsp, params.maxPlotFont);
 			thisPlot.append("g")
 				.attr("transform", "translate(0," + params.svgHistHeight + offset*j + ")")
 				.call(d3.axisBottom(params.xScale))
@@ -105,8 +137,9 @@ function createBars(){
 					.attr("dy", ".35em")
 					.attr("transform", "rotate(-90)")
 					.style("text-anchor", "end")
-					.style("font-size","16px")
-					.attr('class',function(d){return params.cleanString(d)+'Word'})
+					.style("font-size",fs)
+					.attr('class',function(d){return params.cleanString(d)+'Word' + ' columnLabel'})
+
 		}else{
 			thisPlot.append("g")
 				.attr("transform", "translate(0," + params.svgHistHeight + offset*j + ")")
@@ -117,24 +150,50 @@ function createBars(){
 		// thisPlot.append("g")
 		// 	.call(d3.axisLeft(params.yScale).tickValues([]).tickSize(0));
 
-		//add the label
+		//add the labels for the y axis
+		var fs = Math.min(fsp, params.maxPlotFont);
 		thisPlot.append("text")
 			.attr('class','rowLabel')
 			.attr("x","-5px")
 			.attr("y",params.svgHistHeight)
 			//.attr("dy", "-1em")
 			.style("text-anchor", "end")
-			.style("font-size","16px")
+			.style("font-size",fs)
 			.html(c.replaceAll("<sub>","<tspan dy=5>").replaceAll("</sub>","</tspan><tspan dy=-5>"));  //I'm not closing the last tspan, but it seems OK 
 
 	});
 
-	params.waveTimeouts = new Array(params.selectionWords.length);
-	waveBars();
-	params.waveInterval = setInterval(waveBars, params.transitionWaveDuration);
+	//resize the margins and plot as necessary, given the labels
+	var maxW = 0;
+	d3.selectAll('.rowLabel').each(function(d){
+		if (this.getBoundingClientRect().width > maxW) maxW = this.getBoundingClientRect().width;
+	})
+	var maxH = 0;
+	d3.selectAll('.columnLabel').each(function(d){
+		if (this.getBoundingClientRect().height > maxH) maxH = this.getBoundingClientRect().height;
+	})
+	params.svgMargin.left = maxW+10;
+	params.svgMargin.bottom = maxH+10;
+	d3.select('#svgContainer').select('svg')
+		.style('height',params.svgHeight + params.svgMargin.top + params.svgMargin.bottom)
+		.style('width',params.svgWidth + params.svgMargin.left + params.svgMargin.right)
+	params.svg.attr("transform", "translate(" + params.svgMargin.left + "," + params.svgMargin.top + ")");
 
-	resize();
+
+	//show the bars
+	if (params.showingResults){
+		defineBars();
+	} else {
+		clearInterval(params.waveInterval);
+		if (params.waveTimeouts.length == 0) setWaveBars();
+		for (var i =0; i< params.waveTimeouts.length; i++){ //this will only happen if params.waveTimouts.length > 0
+			clearTimeout(params.waveTimeouts[i]);
+			if (i == params.waveTimeouts.length - 1) setWaveBars();
+		}
+	}
 }
+
+
 
 function updateBars(thisPlot, data, duration, easing, op){
 	//update the data in a bar chart
@@ -189,11 +248,16 @@ function defineBars(){
 
 		//add text
 		thisPlot.selectAll('.text').transition().duration(params.transitionDuration/2.)
-			.style('opacity',0)
+			.style('opacity',function(){
+				if (params.firstDisplay){
+					return 0;
+				}
+				return 1;})
 			.on('end',function(){
 				thisPlot.selectAll('.text').data(realData).text(function(d){return parseFloat(d.value).toFixed(2);})
 				thisPlot.selectAll('.text').transition().duration(params.transitionDuration/2.).style('opacity',1)
 			})
+		params.firstDisplay = false;
 
 		if (j == params.selectionWords.length - 1){
 			update.on("end", function(){params.showingResults = true})
@@ -219,6 +283,13 @@ function defineBars(){
 	});
 
 
+}
+
+function setWaveBars(){
+	console.log('waving bars ...')
+	params.waveTimeouts = new Array(params.selectionWords.length);
+	waveBars();
+	params.waveInterval = setInterval(waveBars, params.transitionWaveDuration);
 }
 
 function waveBars(){
@@ -256,6 +327,7 @@ function showAnswers(){
 function switchVersions(){
 	console.log("version", this.value)
 	params.responseVersion = this.value;
+	params.firstDisplay = true;
 	defineBars();
 }
 // function handleBarMouseOut(){

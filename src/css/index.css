@@ -6,7 +6,7 @@
 }
 
 html,body {
-	font: 12px sans-serif;
+	font: 1vw sans-serif;
 	font-family: sans-serif;
 	padding:0;
 	margin:0;
@@ -16,13 +16,14 @@ html,body {
 	/*height:100%;*/
 }
 
-.leftColumn {
+#leftColumn {
 	position: absolute;
 	top: 0;
 	left:0;
 	width:1000px;
+	display:block;
 }
-.centerLine{
+#centerLine{
 	position:absolute;
 	top:1%;
 	left:1000px;
@@ -31,18 +32,18 @@ html,body {
 	border-left: 4px solid #274d7e;
 	border-radius: 4px;
 }
-.rightColumn{
+#rightColumn{
 	position: absolute;
 	top:0;
 	left:1000px;
 	width:1000px;
-
+	display:block;
 }
 /* https://www.w3schools.com/css/tryit.asp?filename=trycss_buttons_animate3 */
 .button {
 	display: inline-block;
 	padding: 10px 15px;
-	font-size: 20px;
+	font-size: 0.9vw;
 	cursor: pointer;
 	text-align: center;
 	text-decoration: none;
@@ -64,8 +65,8 @@ html,body {
 
 .para{
 	margin:20px;
-	font-size:20px;
-	line-height:38px;
+	font-size:1vw;
+	line-height:1.1vw;
 	text-align: justify;
 	text-justify: inter-word;
 }
@@ -74,8 +75,8 @@ html,body {
 	color:#274d7e;
 	font-weight:bold;
 	font-style: italic;
-	font-size:16px;
-	line-height:18px;
+	font-size:0.8vw;
+	line-height:0.9vw;
 	margin-bottom:10px;
 }
 
@@ -160,8 +161,8 @@ html,body {
 #versionOptions{
 	color:black;
 	font-style: italic;
-	font-size:14px;
-	line-height:16px;
+	font-size:0.7vw;
+	line-height:0.8vw;
 	margin-bottom:10px;
 	margin-left:40px;
 }
