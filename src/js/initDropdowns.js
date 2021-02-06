@@ -3,12 +3,12 @@ function createDropdowns(){
 
 	d3.selectAll('.selectionWord')
 		.on('click',function(){
-			if (!event.target.parentNode.classList.contains('selectionWordDropdown')){ 
-				var elem = d3.select(this).select('select')
-				elem.style('left', event.pageX)
-				elem.style('top', event.pageY+20)
-				elem.classed('hidden', !elem.classed('hidden'));
-			}
+			// if (!event.target.parentNode.classList.contains('selectionWordDropdown')){ 
+			// 	var elem = d3.select(this).select('select')
+			// 	elem.style('left', event.pageX)
+			// 	elem.style('top', event.pageY+20)
+			// 	elem.classed('hidden', !elem.classed('hidden'));
+			// }
 		})
 	.append('select')
 		.attr('id',function(){
