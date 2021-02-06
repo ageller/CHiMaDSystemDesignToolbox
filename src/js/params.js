@@ -80,6 +80,7 @@ function defineParams(){
 		this.instructionsFSmin = 12; //0.008
 		this.versionFSmin = 10; //0.007
 		this.maxPlotFont = 20;
+		this.minPlotFont = 10;
 		this.plotFraction = 0.4; //fraction of the page that will contain the plot if this is in side-by-side view
 		this.minPlotWidth = 1920*this.plotFraction/2.; //px, minimum width of the plot
 		this.minParaWidth = 1920*(1 - this.plotFraction)/2.; //px, minimum width of the paragraph

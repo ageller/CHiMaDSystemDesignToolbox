@@ -169,9 +169,10 @@ function createBars(){
 	var plotWidth = params.svgWidth + params.svgMargin.left + params.svgMargin.right;
 	if (plotWidth > window.innerWidth){
 		//not obvious how to define this
-		var fsfac = 1.  - 2.5*(plotWidth - window.innerWidth)/window.innerWidth;
-		console.log("shrinking font size", fsfac)
+		var fsfac = 1.  - 2.0*(plotWidth - window.innerWidth)/plotWidth;
+		console.log("shrinking font size", fsfac, plotWidth, window.innerWidth)
 		fsp *= fsfac;
+		fsp = Math.max(params.minPlotFont, fsp);
 		d3.selectAll('.rowLabel').style('font-size', fsp)
 		d3.selectAll('.columnLabel').style('font-size', fsp)
 		resizePlot();
