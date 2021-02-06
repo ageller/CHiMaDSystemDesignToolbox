@@ -22,6 +22,7 @@ function createDropdowns(){
 				}
 			})
 		})
+		.attr('class','selectionWordDropdown')
 		.classed('hidden', true)
 		.style('z-index',9)
 		.style('position','absolute')
