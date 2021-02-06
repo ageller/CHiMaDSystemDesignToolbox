@@ -3,7 +3,6 @@ function createDropdowns(){
 
 	d3.selectAll('.selectionWord')
 		.on('click',function(){
-				d3.selectAll('.selectionWordDropdown').classed('hidden', true);
 				var elem = d3.select(this).select('select')
 				if (elem.classed('hidden')){
 					console.log('moving it', elem.node(), elem.classed('hidden'))
