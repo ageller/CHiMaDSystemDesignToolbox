@@ -3,7 +3,7 @@
 var params;
 function defineParams(){
 	params = new function() {
-		this.userIP = "";
+		this.userIP = "00.000.00.00";
 		this.uername = "";
 
 		//options for the dropdown menu
@@ -29,6 +29,7 @@ function defineParams(){
 		this.aggregatedResponses = []; //will have multiple versions
 		this.responseVersion = 1;
 		this.dummyData = {};
+		this.submitted = false; //will be changed to true after form is submitted 
 		this.showingResults = false; //will be changed to true after form is submitted and results are shown
 		this.wavingBars = false; //will be changed to true after the plot is defined
 		this.firstDisplay = true; //controls whether to blink the text in the vis.  Will be true at first and then when version is changed 

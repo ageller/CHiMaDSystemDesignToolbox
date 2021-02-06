@@ -1,6 +1,7 @@
+function loadResponses(url){
 //this function can be used to load any external script
 //I will use this to load the google sheet
-function loadResponses(url){
+//I will send a url that has a callback to readGoogleSheet
 
 	console.log('loading responses...');
 
@@ -29,8 +30,8 @@ function loadResponses(url){
 
 
 
-//parse this json from the Google Sheet into the format that we need
 function readGoogleSheet(json) {
+//parse this json from the Google Sheet into the format that we need
 	if (json.hasOwnProperty('feed')){
 		if (json.feed.hasOwnProperty('entry')){
 			var data = json.feed.entry;
@@ -70,8 +71,8 @@ function readGoogleSheet(json) {
 	}
 }
 
-//count the uniq elements in an array and return both the counts and the unique array
 function countUniq(arr){
+//count the uniq elements in an array and return both the counts and the unique array
 	var out = {'uniq':[], 'num':{}, 'total':0};
 
 	arr.forEach(function(a,i){
@@ -121,7 +122,7 @@ function aggregateResults(){
 			if (i == params.responses.columns.length - 1 && version == params.responseVersion){
 				console.log("aggregated", params.aggregatedResponses[params.responseVersion]);
 				//I could check to see if anything changed before replotting, but I'm not sure that would offer a big speedup (since I'd need another for loop anyway)
-				defineBars();
+				if (params.submitted) defineBars();
 			}
 
 		})
