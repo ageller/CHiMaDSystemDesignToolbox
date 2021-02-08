@@ -17,12 +17,13 @@ function sendToGoogleSheet(data){
 			console.log('submitted data', JSON.stringify(data), d);
 			d3.select('#notification')
 				.classed('blink_me', false)
-				.text('Responses submitted successfully.  The chart shows all available data and will update automatically when new data are available.  You can change your responses anytime by re-submitting.');
+				.text('Responses submitted successfully.  The chart will update automatically when new data are available.  You can change your responses anytime by re-submitting.');
 			//show the aggregated responses (now showing after reading in the data within aggregateResults)
+			loadResponses(params.surveyFile);
 			params.loadInterval = setInterval(function(){loadResponses(params.surveyFile);}, params.loadIntervalDuration);
 
 			//show the previously loaded data.  This will be updated once the read completes
-			defineBars();
+			//defineBars();
 		},
 		error: function (request, status, error) {
 			console.log('failed to submit', request, status, error);
