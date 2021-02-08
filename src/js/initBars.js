@@ -249,12 +249,13 @@ function defineBars(){
 		params.options.forEach(function(o){
 			if (o != 'Select Category'){
 				var agg = params.aggregatedResponses[params.responseVersion][params.cleanString(c)]
-				var v = agg.num[params.cleanString(o)]/agg.total || 0;
+				var v = 0;
+				if (agg) v = agg.num[params.cleanString(o)]/agg.total || 0;
 				var dat = {"category":o, "value":v}
 				realData.push(dat);
 			}
 		});
-
+		if (c == "lightweight mechanical") console.log('realData',realData)
 		var update = updateBars(thisPlot, realData, params.transitionDuration, d3.easeLinear, params.barOpacity);
 
 		//add text
