@@ -21,7 +21,9 @@ function createDropdowns(){
 			var parent = this.parentNode;
 			d3.select(this).selectAll('option').each(function(dd, j){
 				if (this.selected && !this.disabled){
+					var wrong = d3.select(parent).classed('wrongBorder');
 					d3.select(parent).attr('class','selectionWord '+this.value.toLowerCase()+'Word');
+					d3.select(parent).classed('wrongBorder', wrong);
 					var key = params.cleanString(d3.select(parent).select('text').node().innerHTML);
 					params.URLinputValues[key] = this.value;
 					appendURLdata();
