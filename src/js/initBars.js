@@ -333,15 +333,31 @@ function showAnswers(){
 			.style('stroke','black')
 			.style('stroke-width',2)
 			.style('stroke-opacity',1)
+			.classed('answerBorder', true)
 	})
+
+	if (!params.showAnswers){
+		d3.selectAll('.answerBorder').style('stroke-opacity',0);
+	}
 
 }
 
+function toggleAnswers(){
+	var op = 0;
+	if (params.showAnswers) op = 1;
+	d3.selectAll('.answerBorder').transition().duration(params.transitionDuration).style('stroke-opacity',op)
+}
 function switchVersions(){
-	console.log("version", this.value)
-	params.responseVersion = this.value;
-	params.firstDisplay = true;
-	if (params.submitted) defineBars();
+	console.log("checked", this.name, this.value)
+	if (this.name == "version"){
+		params.responseVersion = this.value;
+		params.firstDisplay = true;
+		if (params.submitted) defineBars();
+	}
+	if (this.name == "answers"){
+		params.showAnswers = this.checked;
+		toggleAnswers();
+	}
 }
 // function handleBarMouseOut(){
 // 	if (params.showingResults){
