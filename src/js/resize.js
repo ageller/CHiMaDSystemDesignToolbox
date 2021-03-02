@@ -29,42 +29,51 @@ function resize(){
 		.style('line-height', (fsv+2)+'px');
 
 
-	var plotBbox = d3.select('#plotContainer').node().getBBox();
-	var rightBbox = d3.select('#rightColumn').node().getBoundingClientRect();
-	var leftBbox = d3.select('#leftColumn').node().getBoundingClientRect();
+	var plotBbox = d3.select('#boxGridPlotContainer').node().getBBox();
+	var boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
+	var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
  
-	var rightWidth = plotBbox.width;
-	var leftWidth = window.innerWidth - rightWidth - 100;
+	var boxGridWidth = plotBbox.width;
+	var paragraphFormWidth = window.innerWidth - boxGridWidth - 100;
 
 	//should I be more careful about this?  Or maybe resize the plot first?
-	d3.select('#rightColumn').style('width',rightWidth);
+	d3.select('#boxGrid').style('width',boxGridWidth);
 
 	var plotSSWidth = plotBbox.width;
 	console.log('resize check', plotSSWidth, window.innerWidth - plotSSWidth, window.innerWidth)
 	if (plotSSWidth >= params.minPlotWidth && (window.innerWidth - plotSSWidth >= params.minParaWidth) ){
 		console.log('resize side-by-side view')
 		//side-by-side view
-		d3.select('#leftColumn').style('width',leftWidth);
-		d3.select('#rightColumn')
-			.style('left',leftWidth)
+		d3.select('#paragraphForm').style('width',paragraphFormWidth);
+		d3.select('#boxGrid')
+			.style('left',paragraphFormWidth)
 			.style('top',0);
-		rightBbox = d3.select('#rightColumn').node().getBoundingClientRect();
-		d3.select('#centerLine')
+		boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
+		d3.select('#verticalLine')
 			.style('display','block')
-			.style('left',leftWidth)
-			.style('height', 0.98*Math.max(window.innerHeight,rightBbox.height));
+			.style('left',paragraphFormWidth)
+			.style('height', 0.98*Math.max(window.innerHeight,boxGridBbox.height));
 	} else {
 		//top-bottom view
-		console.log('resize top-bottom view', leftBbox.height, leftBbox, d3.select('#leftColumn').node())
-		d3.select('#leftColumn').style('width',(window.innerWidth-20) + 'px');
-		leftBbox = d3.select('#leftColumn').node().getBoundingClientRect();
-		d3.select('#rightColumn')
+		console.log('resize top-bottom view', paragraphFormBbox.height, paragraphFormBbox, d3.select('#paragraphForm').node())
+		d3.select('#paragraphForm').style('width',(window.innerWidth-20) + 'px');
+		paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
+		d3.select('#boxGrid')
 			.style('left',0)
-			.style('top',leftBbox.height + 50 + 'px')
-		d3.select('#centerLine').style('display','none');
+			.style('top',paragraphFormBbox.height + 50 + 'px')
+		d3.select('#verticalLine').style('display','none');
+		d3.select('#horizontalLine').style('display','none');
 	}
 
 
 
+	//for now I will just move the system design chart to the bottom (but might want to make it possible to do side-by-side?)
+	var plotBbox = d3.select('#boxGridPlotContainer').node().getBBox();
+	var boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
+	var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
+
+	var maxH = Math.max(Math.max(plotBbox.height, boxGridBbox.height), paragraphFormBbox.height);
+	d3.select('#horizontalLine').style('top',maxH+'px');
+	d3.select('#systemDesignChart').style('top',maxH + 20 +'px');
 
 }

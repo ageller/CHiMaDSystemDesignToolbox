@@ -40,6 +40,10 @@ createDropdowns();
 //this is now called on reload
 //createBars();
 
+//create the skeleton of the system design chart
+//using answers now, and will call this within loadAnswers
+//createSystemDesignChart();
+
 //load the responses to check if username already exists
 //the visualization will not fill in until the user submits (this is now a recurring call and only executed after the first submit)
 loadResponses(params.surveyFile);
