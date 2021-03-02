@@ -28,6 +28,7 @@ function resize(){
 		.style('font-size', fsv + 'px')
 		.style('line-height', (fsv+2)+'px');
 
+
 	var plotBbox = d3.select('#plotContainer').node().getBBox();
 	var rightBbox = d3.select('#rightColumn').node().getBoundingClientRect();
 	var leftBbox = d3.select('#leftColumn').node().getBoundingClientRect();

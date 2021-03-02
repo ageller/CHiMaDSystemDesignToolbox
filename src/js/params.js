@@ -36,6 +36,7 @@ function defineParams(){
 
 		//this will hold the answers from the static data file
 		this.answers;
+		this.showAnswers = true; //can be toggled with checkbox
 
 		//this will hold the selection words (and is filled within populateBoxes)
 		this.selectionWords = [];
