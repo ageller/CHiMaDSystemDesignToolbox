@@ -37,7 +37,7 @@ html,body {
 	width:100%;
 	display:block;
 }
-#verticalLine{
+.verticalLine{
 	position:absolute;
 	top:1%;
 	left:1000px;
@@ -46,7 +46,7 @@ html,body {
 	border-left: 4px solid #274d7e;
 	border-radius: 4px;
 }
-#horizontalLine{
+.horizontalLine{
 	position:absolute;
 	top:1000px;
 	left:1%;

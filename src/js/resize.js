@@ -49,10 +49,17 @@ function resize(){
 			.style('left',paragraphFormWidth)
 			.style('top',0);
 		boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
-		d3.select('#verticalLine')
+		var maxH = Math.max(Math.max(plotBbox.height, boxGridBbox.height), paragraphFormBbox.height);
+		d3.select('#verticalLine1')
 			.style('display','block')
 			.style('left',paragraphFormWidth)
-			.style('height', 0.98*Math.max(window.innerHeight,boxGridBbox.height));
+			//.style('height', 0.98*Math.max(window.innerHeight,boxGridBbox.height));
+			.style('height', maxH - 0.01*window.innerHeight + 4)
+		d3.select('#horizontalLine1').style('display','none');
+		d3.select('#horizontalLine2') 
+			.style('display','block')
+			.style('top',maxH+'px');
+
 	} else {
 		//top-bottom view
 		console.log('resize top-bottom view', paragraphFormBbox.height, paragraphFormBbox, d3.select('#paragraphForm').node())
@@ -61,19 +68,23 @@ function resize(){
 		d3.select('#boxGrid')
 			.style('left',0)
 			.style('top',paragraphFormBbox.height + 50 + 'px')
-		d3.select('#verticalLine').style('display','none');
-		d3.select('#horizontalLine').style('display','none');
+		d3.select('#verticalLine1').style('display','none');
+		d3.select('#horizontalLine1')			
+			.style('display','block')
+			.style('top',paragraphFormBbox.height+'px');
+		maxH = paragraphFormBbox.height + Math.max(plotBbox.height, boxGridBbox.height) + 80;
+		d3.select('#horizontalLine2')			
+			.style('display','block')
+			.style('top',maxH+'px');
 	}
 
 
 
 	//for now I will just move the system design chart to the bottom (but might want to make it possible to do side-by-side?)
-	var plotBbox = d3.select('#boxGridPlotContainer').node().getBBox();
-	var boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
-	var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
+	// var plotBbox = d3.select('#boxGridPlotContainer').node().getBBox();
+	// var boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
+	// var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
 
-	var maxH = Math.max(Math.max(plotBbox.height, boxGridBbox.height), paragraphFormBbox.height);
-	d3.select('#horizontalLine').style('top',maxH+'px');
 	d3.select('#systemDesignChart').style('top',maxH + 20 +'px');
-
+	createSystemDesignChart();
 }

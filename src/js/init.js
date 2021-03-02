@@ -41,7 +41,7 @@ createDropdowns();
 //createBars();
 
 //create the skeleton of the system design chart
-//using answers now, and will call this within loadAnswers
+//using answers now, and will call this within reload (but will this always happen after loadAnswers?)
 //createSystemDesignChart();
 
 //load the responses to check if username already exists
