@@ -10,7 +10,7 @@ function createSystemDesignChart(){
 		if (d != 'Select Category') params.SDCcolumnCenters[d] = (i-1)*w + offset
 	})
 
-	var boxWidth = 0.6*w - params.SDCboxMargin;
+	params.SDCboxWidth = 0.6*w - params.SDCboxMargin;
 	var boxHeight = 40; //will need to modify this below for each box, based on text size
 
 	//destroy the plot (if it exists)
@@ -32,6 +32,16 @@ function createSystemDesignChart(){
 			.attr("id","SDCPlotContainer")
 			.attr("transform", "translate(" + params.SDCSVGMargin.left + "," + params.SDCSVGMargin.top + ")");
 
+
+	//create a rect to capture mouse events
+	params.SDCSVG.append('rect')
+		.attr('id','SDCmouseEvents')
+		.attr('x',0)
+		.attr('y',0)
+		.attr('fill','none')
+		.attr('width',params.SDCSVGWidth)
+		.attr('height',params.SDCSVGHeight)
+		.on('mouseup',endSDCLine)
 
 	// add the column headers
 	params.SDCSVG.selectAll('.text')
@@ -56,27 +66,28 @@ function createSystemDesignChart(){
 
 		var box = params.SDCSVG.append('g')
 			.attr('class','SDCrectContainer' + params.answers[0][d])
-			.attr('x',params.SDCcolumnCenters[params.answers[0][d]] - boxWidth/2.)
+			.attr('x',params.SDCcolumnCenters[params.answers[0][d]] - params.SDCboxWidth/2.)
 			.attr('y',SDCcolumnLocations[params.answers[0][d]])
-			.attr("transform", "translate(" + (params.SDCcolumnCenters[params.answers[0][d]] - boxWidth/2.) + "," + SDCcolumnLocations[params.answers[0][d]] + ")")
+			.attr("transform", "translate(" + (params.SDCcolumnCenters[params.answers[0][d]] - params.SDCboxWidth/2.) + "," + SDCcolumnLocations[params.answers[0][d]] + ")")
 
 		box.append('rect')
 			.attr('class','SDCrect ' + params.answers[0][d]+'Word')
 			.attr('x',0)
 			.attr('y', 0)
-			.attr('width', boxWidth)
+			.attr('width', params.SDCboxWidth)
 			.attr('height', boxHeight) //will need to update this
+			.on('mousedown', startSDCLine)
 
 
 		var text = box.append('text')
-			.attr("x", boxWidth/2.)
+			.attr("x", params.SDCboxWidth/2.)
 			.attr("y", boxHeight/2.)
 			.attr("dy", ".35em")
 			.style("text-anchor", "middle")
 			.style('opacity',1)
 			.style('fill','black')
 			.text(params.selectionWords[i].replaceAll('<sub>','_').replaceAll('</sub>','$')) //recoding so the line width is about correct
-			.call(wrapSVGtext, boxWidth-10)
+			.call(wrapSVGtext, params.SDCboxWidth-10)
 
 		//fix any subcripts
 		text.selectAll('tspan').each(function(){
@@ -109,7 +120,10 @@ function createSystemDesignChart(){
 						d3.selectAll('.SDCrectContainer'+dd).each(function(){
 							var y = parseFloat(d3.select(this).attr('y')) + offset
 							var x = d3.select(this).attr('x')
-							d3.select(this).attr("transform", "translate(" + x + ","+ y + ")");
+							d3.select(this)
+								.attr('x',x)
+								.attr('y',y)
+								.attr("transform", "translate(" + x + ","+ y + ")");
 						})
 					}
 				}
@@ -117,6 +131,36 @@ function createSystemDesignChart(){
 		}
 	})
 
+}
 
+//draw lines 
+//http://jsfiddle.net/9tr7w/360/
+function startSDCLine() {
+	var parent = d3.select(this.parentNode);
+	var x = parseFloat(parent.attr('x')) + params.SDCboxWidth;
+	var y = parseFloat(parent.attr('y')) + parseFloat(d3.select(this).attr('height'))/2.;
+	params.SDCLine = params.SDCSVG.append("line")
+		.attr('stroke','black')
+		.attr('stroke-width',2)
+		.attr("x1", x)
+		.attr("y1", y)
+		.attr("x2", x)
+		.attr("y2", y);
+	
+	console.log('starting line', this, d3.select('#SDCmouseEvents').node());
 
+}
+
+function moveSDCLine() {
+	if (params.SDCLine){
+		params.SDCLine
+			.attr("x2", params.event.clientX - params.SDCSVGMargin.left)
+			.attr("y2", params.event.clientY - params.SDCSVGMargin.top);
+	}
+
+}
+
+function endSDCLine() {
+	console.log('ending line')
+	params.SDCLine = null;
 }
