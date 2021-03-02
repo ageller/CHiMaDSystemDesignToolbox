@@ -271,27 +271,49 @@ function defineBars(){
 			})
 		params.firstDisplay = false;
 
+		//instead of comparing to answers, check for discrepancies within the submitted answers and note this
+		var maxPct = 0;
+		thisPlot.selectAll('.bar').each(function(d){
+			if (d.value > maxPct) maxPct = d.value;
+		})
+		if (maxPct < params.pctLim){
+			//change color on the visualization
+			var elem = d3.select('#'+params.cleanString(c)+'_bar').select('.rowLabel')
+			var txt = elem.text().replaceAll('*','');
+			elem.text('**'+txt+'**')
+				.style('font-style', 'italic')
+				.style('fill','#d92b9c');
+
+			//change color in the paragraph
+			var elem2 = d3.select('#'+params.cleanString(c)).node().parentNode;
+			d3.select(elem2).classed('wrongBorder',true);
+		}
+
 		if (j == params.selectionWords.length - 1){
 			update.on("end", function(){params.showingResults = true})
 			showAnswers();
 
-			//check for discrepant group answers and note this
-			params.answers.columns.forEach(function(k){
-				var pct = d3.select('#'+k+'_bar').select('.bar.'+params.answers[0][k]).attr('data-pct')
-				if (pct < params.pctLim){
-					//change color on the visualization
-					var elem = d3.select('#'+params.cleanString(k)+'_bar').select('.rowLabel')
-					var txt = elem.text().replaceAll('*','');
-					elem.text('**'+txt+'**')
-						.style('font-style', 'italic')
-						.style('fill','#d92b9c');
+			// //check for discrepancies from the provided answers and note this
+			// params.answers.columns.forEach(function(k){
+			// 	var pct = d3.select('#'+k+'_bar').select('.bar.'+params.answers[0][k]).attr('data-pct')
+			// 	if (pct < params.pctLim){
+			// 		//change color on the visualization
+			// 		var elem = d3.select('#'+params.cleanString(k)+'_bar').select('.rowLabel')
+			// 		var txt = elem.text().replaceAll('*','');
+			// 		elem.text('**'+txt+'**')
+			// 			.style('font-style', 'italic')
+			// 			.style('fill','#d92b9c');
 
-					//change color in the paragraph
-					var elem2 = d3.select('#'+params.cleanString(k)).node().parentNode;
-					d3.select(elem2).classed('wrongBorder',true);
-				}
-			})
+			// 		//change color in the paragraph
+			// 		var elem2 = d3.select('#'+params.cleanString(k)).node().parentNode;
+			// 		d3.select(elem2).classed('wrongBorder',true);
+			// 	}
+			// })
+
+
+
 		}
+
 	});
 
 
@@ -347,6 +369,7 @@ function toggleAnswers(){
 	if (params.showAnswers) op = 1;
 	d3.selectAll('.answerBorder').transition().duration(params.transitionDuration).style('stroke-opacity',op)
 }
+
 function switchVersions(){
 	console.log("checked", this.name, this.value)
 	if (this.name == "version"){
