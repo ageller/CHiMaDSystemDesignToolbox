@@ -76,7 +76,7 @@ function createSystemDesignChart(){
 			.style('opacity',1)
 			.style('fill','black')
 			.text(d)
-			.call(wrapSVGtext, boxWidth)
+			.call(wrapSVGtext, boxWidth-10)
 
 		//get the text height and resize the box
 		var bbox = text.node().getBBox();
