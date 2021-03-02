@@ -27,6 +27,12 @@ d3.select('#versionOptions').selectAll('input').on('change',switchVersions);
 //define the params object that holds all the global variables and functions
 defineParams();
 
+//get all the words for selecting
+params.selectionWords = [];
+d3.selectAll('.selectionWord').select('text').each(function(d){
+	params.selectionWords.push(this.innerHTML);
+})
+
 //read in the answer key
 loadAnswers();
 

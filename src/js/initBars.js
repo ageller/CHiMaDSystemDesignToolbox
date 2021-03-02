@@ -11,11 +11,6 @@ function createBars(){
 		parent.removeChild(parent.firstChild);
 	}
 
-	//get all the rows
-	params.selectionWords = [];
-	d3.selectAll('.selectionWord').select('text').each(function(d){
-		params.selectionWords.push(this.innerHTML);
-	})
 
 	var bbI = d3.select('#usernameInstructions').node().getBoundingClientRect();
 	var bbV = d3.select('#versionOptions').node().getBoundingClientRect();

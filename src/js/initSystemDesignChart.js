@@ -51,8 +51,8 @@ function createSystemDesignChart(){
 	params.options.forEach(function(d){
 		if (d != 'Select Category') SDCcolumnLocations[d] = params.SDCboxMargin;
 	})
-	for (var i=0; i<params.answers.columns.length; i++){
-		var d = params.answers.columns[i];
+	for (var i=0; i<params.selectionWords.length; i++){
+		var d = params.cleanString(params.selectionWords[i]);
 
 		var box = params.SDCSVG.append('g')
 			.attr('class','SDCrectContainer' + params.answers[0][d])
@@ -75,8 +75,16 @@ function createSystemDesignChart(){
 			.style("text-anchor", "middle")
 			.style('opacity',1)
 			.style('fill','black')
-			.text(d)
+			.text(params.selectionWords[i].replaceAll('<sub>','_').replaceAll('</sub>','$')) //recoding so the line width is about correct
 			.call(wrapSVGtext, boxWidth-10)
+
+		//fix any subcripts
+		text.selectAll('tspan').each(function(){
+			var t = d3.select(this).text()
+			d3.select(this).html(t.replaceAll("_","<tspan dy=5>").replaceAll("$","</tspan><tspan dy=-5>"));  //I'm not closing the last tspan, but it seems OK 
+
+		})
+
 
 		//get the text height and resize the box
 		var bbox = text.node().getBBox();
