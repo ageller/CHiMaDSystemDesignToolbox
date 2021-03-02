@@ -24,6 +24,14 @@ d3.select('#versionOptions').selectAll('input').on('change',switchVersions);
 // 		.style('top',event.pageY-20)
 // });
 
+//for line drawing
+window.addEventListener('mousemove', function(){
+	params.event = window.event;
+	moveSDCLine();
+});
+window.addEventListener('mouseup', function(){
+	endSDCLine();
+});
 //define the params object that holds all the global variables and functions
 defineParams();
 

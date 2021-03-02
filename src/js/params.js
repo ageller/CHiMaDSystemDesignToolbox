@@ -96,9 +96,14 @@ function defineParams(){
 		this.SDCSVGHeight;
 		this.SDCSVGWidth;
 		this.SDCboxMargin = 20;
-		
+		this.SDCboxWidth;
+		this.SDCLine = null;
+
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
+
+		//will hold mouse events
+		this.event = null;
 
 		this.cleanString = function(s){
 			return s.replace(/sub\>/g,'').replace(/\s/g,'').replace(/[^a-zA-Z ]/g, "").toLowerCase();
