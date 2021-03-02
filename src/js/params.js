@@ -54,13 +54,13 @@ function defineParams(){
 		this.maxTrials = 5;
 
 		//holds the svg element
-		this.svg;
-		this.xScale;
-		this.yScale;
-		this.svgMargin;
-		this.svgHeight;
-		this.svgHistHeight;
-		this.svgWidth;
+		this.boxGridSVG;
+		this.boxGridxScale;
+		this.boxGridyScale;
+		this.boxGridSVGMargin;
+		this.boxGridSVGHeight;
+		this.boxGridSVGHistHeight;
+		this.boxGridSVGWidth;
 
 		//will hold the default bar opacity
 		this.barOpacity = 1;
@@ -89,6 +89,14 @@ function defineParams(){
 		this.minParaWidth = 1920*(1 - this.plotFraction)/2.; //px, minimum width of the paragraph
 		this.minBarHeight = 30; //px, minimum height of each row in the plot
 
+		//settings for the system design chart
+		this.SDCcolumnCenters; //will hold the central x locations for the columns
+		this.SDCSVG;
+		this.SDCSVGMargin;
+		this.SDCSVGHeight;
+		this.SDCSVGWidth;
+		this.SDCboxMargin = 20;
+		
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
 

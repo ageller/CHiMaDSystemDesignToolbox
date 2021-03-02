@@ -10,7 +10,8 @@
 
 		<div id='tooltip'>1.0</div>
 
-		<div id='leftColumn'>
+		<!-- default is for this on the left -->
+		<div id='paragraphForm'>
 			<!-- standard html form -->
 			<form>
 
@@ -38,9 +39,10 @@
 			<div id="notification" class="notifications" style="margin:20px"></div>
 		</div>
 
-		<div id="centerLine"></div>
+		<div id="verticalLine"></div>
 
-		<div id="rightColumn">
+		<!-- default is for this on the right -->
+		<div id="boxGrid">
 			<div class="para">
 
 				<div id="usernameInstructions" class="instructions">&#9314; After you submit your responses, this visualization will populate with the aggregate results from the group. </div>
@@ -55,9 +57,23 @@
 					<label for="answerToggle">Answers on/off</label><br>
 				</form>
 
-				<div id="svgContainer"></div>
+				<div id="boxGridSVGContainer"></div>
 			</div>
 		</div>
+
+		<!-- default is for this on the bottom -->
+		<div id="horizontalLine"></div>
+
+		<div id="systemDesignChart">
+			<div class="para">
+
+				<div id="usernameInstructions" class="instructions">&#9315; Construct a system design chart.  Click+drag lines to connect boxes in each column with the adjacent column(s).  When you have completed your chart, click the submit button below.  After clicking submit, the results from the rest of your group will also be shown.  </div>
+
+				<div id="systemDesignChartSVGContainer"></div>
+
+			</div>
+		</div>
+
 
 		<!-- Libraries -->
 		<script src='src/lib/d3.v6.min.js'></script>
@@ -71,6 +87,7 @@
 		<script src="src/js/reader.js"></script>
 		<script src="src/js/initDropdowns.js"></script>
 		<script src="src/js/initBars.js"></script>
+		<script src="src/js/initSystemDesignChart.js"></script>
 		<script src="src/js/resize.js"></script>
 		<script src="src/js/init.js"></script>
 

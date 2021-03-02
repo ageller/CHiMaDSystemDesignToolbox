@@ -16,14 +16,28 @@ html,body {
 	/*height:100%;*/
 }
 
-#leftColumn {
+#paragraphForm {
 	position: absolute;
 	top: 0;
 	left:0;
 	width:1000px;
 	display:block;
 }
-#centerLine{
+#boxGrid{
+	position: absolute;
+	top:0;
+	left:1000px;
+	width:1000px;
+	display:block;
+}
+#systemDesignChart{
+	position: absolute;
+	top:1000px;
+	left:0px;
+	width:100%;
+	display:block;
+}
+#verticalLine{
 	position:absolute;
 	top:1%;
 	left:1000px;
@@ -32,12 +46,14 @@ html,body {
 	border-left: 4px solid #274d7e;
 	border-radius: 4px;
 }
-#rightColumn{
-	position: absolute;
-	top:0;
-	left:1000px;
-	width:1000px;
-	display:block;
+#horizontalLine{
+	position:absolute;
+	top:1000px;
+	left:1%;
+	width:98%;
+	border-top: 4px solid #274d7e;
+	border-bottom: 4px solid #274d7e;
+	border-radius: 4px;
 }
 /* https://www.w3schools.com/css/tryit.asp?filename=trycss_buttons_animate3 */
 .button {
@@ -103,25 +119,34 @@ html,body {
 
 .processingWord{
 	color: var(--processing-color);
+	fill: var(--processing-color);
 	font-style: italic;
 	font-weight:bold;
 }
 .structureWord{
 	color: var(--structure-color);
+	fill: var(--structure-color);
 	font-weight:bold;
 }
 .propertyWord{
 	color: var(--properties-color);
+	fill: var(--properties-color);
 	text-decoration: underline;
 	font-weight:bold;
 }
 .performanceWord{
 	color: var(--performance-color);
+	fill: var(--performance-color);
 	font-style: italic;
 	text-decoration: underline;
 	font-weight:bold;
 }
 
+.SDCrect{
+	stroke: black;
+	stroke-width: 1;
+	stroke-opacity: 1;
+}
 .notifications{
 	color:gray;
 	font-style:italic;
