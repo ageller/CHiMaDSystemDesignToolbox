@@ -6,10 +6,10 @@
 function createBars(){
 
 	//destroy the plot (if it exists)
-	var parent = d3.select('#svgContainer').node();
+	var parent = d3.select('#boxGridSVGContainer').node();
 	while (parent.firstChild) {
-        parent.removeChild(parent.firstChild);
-    }
+		parent.removeChild(parent.firstChild);
+	}
 
 	//get all the rows
 	params.selectionWords = [];
@@ -41,21 +41,21 @@ function createBars(){
 
 
 	//It would be better to determine these margins based on the plot size and font size!  I will resize this later after the text is added
-	params.svgMargin = {"top":20,"bottom":0.2*totalHeight,"left":0.7*totalWidth,"right":20};
-	params.svgHeight = totalHeight - params.svgMargin.top - params.svgMargin.bottom;
-	params.svgHistHeight = params.svgHeight/params.selectionWords.length - offset;
+	params.boxGridSVGMargin = {"top":20,"bottom":0.2*totalHeight,"left":0.7*totalWidth,"right":20};
+	params.boxGridSVGHeight = totalHeight - params.boxGridSVGMargin.top - params.boxGridSVGMargin.bottom;
+	params.boxGridSVGHistHeight = params.boxGridSVGHeight/params.selectionWords.length - offset;
 	//make the bars squares, factor of 1.3 just judged by eye to make approximately square
-	params.svgWidth = (params.svgHistHeight*1.3)*(params.options.length-1); //one option is 'Select Category'
-	//params.svgWidth = totalWidth - params.svgMargin.left - params.svgMargin.right;
-	console.log('check widths', window.innerWidth, plotSSWidth, window.innerWidth - plotSSWidth, params.minPlotWidth, params.minParaWidth, params.svgHistHeight, params.svgWidth, totalHeight)
+	params.boxGridSVGWidth = (params.boxGridSVGHistHeight*1.3)*(params.options.length-1); //one option is 'Select Category'
+	//params.boxGridSVGWidth = totalWidth - params.boxGridSVGMargin.left - params.boxGridSVGMargin.right;
+	console.log('check widths', window.innerWidth, plotSSWidth, window.innerWidth - plotSSWidth, params.minPlotWidth, params.minParaWidth, params.boxGridSVGHistHeight, params.boxGridSVGWidth, totalHeight)
 
 	
-	params.svg = d3.select('#svgContainer').append('svg')
-		.style('height',params.svgHeight + params.svgMargin.top + params.svgMargin.bottom)
-		.style('width',params.svgWidth + params.svgMargin.left + params.svgMargin.right)
+	params.boxGridSVG = d3.select('#boxGridSVGContainer').append('svg')
+		.style('height',params.boxGridSVGHeight + params.boxGridSVGMargin.top + params.boxGridSVGMargin.bottom)
+		.style('width',params.boxGridSVGWidth + params.boxGridSVGMargin.left + params.boxGridSVGMargin.right)
 		.append("g")
-			.attr("id","plotContainer")
-			.attr("transform", "translate(" + params.svgMargin.left + "," + params.svgMargin.top + ")");
+			.attr("id","boxGridPlotContainer")
+			.attr("transform", "translate(" + params.boxGridSVGMargin.left + "," + params.boxGridSVGMargin.top + ")");
 
 
 	params.barOpacity = 0.2;
@@ -74,27 +74,27 @@ function createBars(){
 			}
 		});
 
-		var thisPlot = params.svg.append('g')
+		var thisPlot = params.boxGridSVG.append('g')
 			.attr('id',params.cleanString(c)+'_bar')
-			.attr("transform", "translate(0," + (params.svgHistHeight + offset)*j + ")")
+			.attr("transform", "translate(0," + (params.boxGridSVGHistHeight + offset)*j + ")")
 
 		// set the ranges
-		params.xScale = d3.scaleBand()
-			.range([0, params.svgWidth])
+		params.boxGridxScale = d3.scaleBand()
+			.range([0, params.boxGridSVGWidth])
 			.padding(0.1)
 			.domain(params.dummyData[params.cleanString(c)].map(function(d) { return d.category; }));
-		params.yScale = d3.scaleLinear()
-			.range([params.svgHistHeight, 0])
+		params.boxGridyScale = d3.scaleLinear()
+			.range([params.boxGridSVGHistHeight, 0])
 			.domain([0,1]);
 
 		//add the histograms
 		thisPlot.selectAll(".bar")
 			.data(params.dummyData[params.cleanString(c)]).enter().append("rect")
 				.attr("class",function(d){ return "bar " + d.category;})
-				.attr("x", function(d) { return params.xScale(d.category); })
-				.attr("width", params.xScale.bandwidth())
-				.attr("y", function(d) { return params.yScale(d.value); })
-				.attr("height", function(d) { return params.svgHistHeight - params.yScale(d.value); })
+				.attr("x", function(d) { return params.boxGridxScale(d.category); })
+				.attr("width", params.boxGridxScale.bandwidth())
+				.attr("y", function(d) { return params.boxGridyScale(d.value); })
+				.attr("height", function(d) { return params.boxGridSVGHistHeight - params.boxGridyScale(d.value); })
 				//.style("fill","#274d7e")
 				.style("fill",function(d){return params.colorMap(d.value);})
 				.style("opacity", params.barOpacity)
@@ -103,10 +103,10 @@ function createBars(){
 		thisPlot.selectAll(".barHover")
 			.data(params.dummyData[params.cleanString(c)]).enter().append("rect")
 				.attr("class",function(d){ return "barHover " + d.category;})
-				.attr("x", function(d) { return params.xScale(d.category); })
-				.attr("width", params.xScale.bandwidth())
-				.attr("y", params.yScale(1))
-				.attr("height", params.svgHistHeight - params.yScale(1))
+				.attr("x", function(d) { return params.boxGridxScale(d.category); })
+				.attr("width", params.boxGridxScale.bandwidth())
+				.attr("y", params.boxGridyScale(1))
+				.attr("height", params.boxGridSVGHistHeight - params.boxGridyScale(1))
 				.style("fill","white")
 				.style("fill-opacity",0)
 				.style("stroke", "none")
@@ -118,9 +118,9 @@ function createBars(){
 		thisPlot.selectAll('.text')
 			.data(params.dummyData[params.cleanString(c)]).enter().append('text')
 				.attr('class', function(d){ return 'text '+d.category; })
-				.attr("x", function(d) { return params.xScale(d.category) + params.xScale.bandwidth()/2.; })
-				.attr("y", params.yScale(0.4))
-				.style('font-size', 0.5*params.yScale(0))
+				.attr("x", function(d) { return params.boxGridxScale(d.category) + params.boxGridxScale.bandwidth()/2.; })
+				.attr("y", params.boxGridyScale(0.4))
+				.style('font-size', 0.5*params.boxGridyScale(0))
 				.style("text-anchor", "middle")
 				.style('opacity',0)
 
@@ -128,8 +128,8 @@ function createBars(){
 		// add the x Axis
 		if (j == params.selectionWords.length-1) {
 			thisPlot.append("g")
-				.attr("transform", "translate(0," + params.svgHistHeight + offset*j + ")")
-				.call(d3.axisBottom(params.xScale))
+				.attr("transform", "translate(0," + params.boxGridSVGHistHeight + offset*j + ")")
+				.call(d3.axisBottom(params.boxGridxScale))
 				.selectAll("text")
 					.attr("y", 0)
 					.attr("x", -9)
@@ -141,19 +141,19 @@ function createBars(){
 
 		}else{
 			thisPlot.append("g")
-				.attr("transform", "translate(0," + params.svgHistHeight + offset*j + ")")
-				.call(d3.axisBottom(params.xScale).tickValues([]).tickSize(0));
+				.attr("transform", "translate(0," + params.boxGridSVGHistHeight + offset*j + ")")
+				.call(d3.axisBottom(params.boxGridxScale).tickValues([]).tickSize(0));
 		}
 
 		// // add the y Axis
 		// thisPlot.append("g")
-		// 	.call(d3.axisLeft(params.yScale).tickValues([]).tickSize(0));
+		// 	.call(d3.axisLeft(params.boxGridyScale).tickValues([]).tickSize(0));
 
 		//add the labels for the y axis
 		thisPlot.append("text")
 			.attr('class','rowLabel')
 			.attr("x","-5px")
-			.attr("y",params.svgHistHeight)
+			.attr("y",params.boxGridSVGHistHeight)
 			//.attr("dy", "-1em")
 			.style("text-anchor", "end")
 			.style("font-size",fsp)
@@ -166,7 +166,7 @@ function createBars(){
 
 
 	//check the width to see if it's larger than the window width (and shrink font if necessary)
-	var plotWidth = params.svgWidth + params.svgMargin.left + params.svgMargin.right;
+	var plotWidth = params.boxGridSVGWidth + params.boxGridSVGMargin.left + params.boxGridSVGMargin.right;
 	if (plotWidth > window.innerWidth){
 		//not obvious how to define this
 		var fsfac = 1.  - 2.0*(plotWidth - window.innerWidth)/plotWidth;
@@ -197,24 +197,24 @@ function resizePlot(){
 	d3.selectAll('.columnLabel').each(function(d){
 		if (this.getBoundingClientRect().height > maxH) maxH = this.getBoundingClientRect().height;
 	})
-	params.svgMargin.left = maxW + 10;
-	params.svgMargin.bottom = maxH + 10;
-	d3.select('#svgContainer').select('svg')
-		.style('height',params.svgHeight + params.svgMargin.top + params.svgMargin.bottom)
-		.style('width',params.svgWidth + params.svgMargin.left + params.svgMargin.right)
-	params.svg.attr("transform", "translate(" + params.svgMargin.left + "," + params.svgMargin.top + ")");
+	params.boxGridSVGMargin.left = maxW + 10;
+	params.boxGridSVGMargin.bottom = maxH + 10;
+	d3.select('#boxGridSVGContainer').select('svg')
+		.style('height',params.boxGridSVGHeight + params.boxGridSVGMargin.top + params.boxGridSVGMargin.bottom)
+		.style('width',params.boxGridSVGWidth + params.boxGridSVGMargin.left + params.boxGridSVGMargin.right)
+	params.boxGridSVG.attr("transform", "translate(" + params.boxGridSVGMargin.left + "," + params.boxGridSVGMargin.top + ")");
 }
 
 
 function updateBars(thisPlot, data, duration, easing, op){
 	//update the data in a bar chart
 	var update = thisPlot.selectAll('.bar').data(data)
-		.attr("x", function(d) { return params.xScale(d.category); })
+		.attr("x", function(d) { return params.boxGridxScale(d.category); })
 		.attr('data-pct',function(d) { return d.value;})
 
 	var trans = update.transition().ease(easing).duration(duration)
-		.attr("y", function(d) { return params.yScale(d.value); })
-		.attr("height", function(d) { return params.svgHistHeight - params.yScale(d.value); })
+		.attr("y", function(d) { return params.boxGridyScale(d.value); })
+		.attr("height", function(d) { return params.boxGridSVGHistHeight - params.boxGridyScale(d.value); })
 		.style("fill",function(d){return params.colorMap(d.value);})
 		.style("opacity", op)
 
@@ -351,7 +351,7 @@ function waveBars(){
 
 function showAnswers(){
 	params.answers.columns.forEach(function(k){
-		d3.select('#'+k+'_bar').select('.barHover.'+params.answers[0][k])
+		d3.select('#'+params.cleanString(k)+'_bar').select('.barHover.'+params.answers[0][k])
 			.style('stroke','black')
 			.style('stroke-width',2)
 			.style('stroke-opacity',1)
