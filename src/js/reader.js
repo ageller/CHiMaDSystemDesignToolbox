@@ -38,25 +38,19 @@ function readGoogleSheet(json) {
 			var keys = [];
 			var out = [];
 			var row = {};
-			var j = 0;
 			for(var r=0; r<data.length; r++) {
 				var cell = data[r]["gs$cell"];
 				var val = cell["$t"];
 
-				if (cell.col == 1) {
-					j = 0;
-					row = {};
-				}
+				if (cell.col == 1) row = {};
 
 				if (cell.row == 1){
 					keys.push(val)
 				} else {
-					row[keys[j]] = val;
+					row[keys[parseInt(cell['col']) - 1]] = val;
 				}
-
-				j += 1;
-
-				if (j == keys.length & cell.row > 1){
+				
+				if (parseInt(cell['col']) == keys.length & cell.row > 1){
 					out.push(row);
 				}
 

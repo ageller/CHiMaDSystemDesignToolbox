@@ -121,8 +121,14 @@ function getUsername(){
 				.text('This username exists, and the responses below have been populated accordingly.  If these are not your responses, please change your username.');
 
 			//add the responses (I want to take version 2 if it exists, but I think this will happen by default since v2 will always come after v1 in order)
+			task = '';
 			Object.keys(d).forEach(function(k){
-				if (k != 'IP' && k != 'Timestamp' && k != 'version' && k !='task') params.URLInputValues[k] = d[k];
+				if (k == 'task') task = d[k]
+				if (k != 'IP' && k != 'Timestamp' && k != 'version' && k !='task') {
+					var key = k;
+					if (task == 'SDC') key = 'SDC'+k;
+					params.URLInputValues[key] = d[k];
+				}
 			})
 
 		}
@@ -130,6 +136,7 @@ function getUsername(){
 			appendURLdata();
 			readURLdata();
 			useParaURLdata();
+			useSDCURLdata();
 		}
 	})
 
@@ -181,3 +188,4 @@ function createEmail(){
 
 	window.location.href = "mailto:?subject=CHiMaD%20Form%20Entries&body=Thank%20you%20for%20submitting%20your%20responses.%20%20For%20your%20convenience,%20you%20can%20follow%20this%20link%20to%20a%20pre-populated%20form%20with%20your%20answers:%0A%0A"+url;
 }
+
