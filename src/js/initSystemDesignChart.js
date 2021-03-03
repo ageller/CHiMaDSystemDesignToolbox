@@ -26,6 +26,7 @@ function createSystemDesignChart(){
 
 	
 	params.SDCSVG = d3.select('#systemDesignChartSVGContainer').append('svg')
+		.attr("id","SDCPlotSVG")
 		.style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom)
 		.style('width',params.SDCSVGWidth + params.SDCSVGMargin.left + params.SDCSVGMargin.right)
 		.append("g")
@@ -65,13 +66,13 @@ function createSystemDesignChart(){
 		var d = params.cleanString(params.selectionWords[i]);
 
 		var box = params.SDCSVG.append('g')
-			.attr('class','SDCrectContainer' + params.answers[0][d])
+			.attr('class','SDCrectContainer ' + params.answers[0][d])
 			.attr('x',params.SDCcolumnCenters[params.answers[0][d]] - params.SDCboxWidth/2.)
 			.attr('y',SDCcolumnLocations[params.answers[0][d]])
 			.attr("transform", "translate(" + (params.SDCcolumnCenters[params.answers[0][d]] - params.SDCboxWidth/2.) + "," + SDCcolumnLocations[params.answers[0][d]] + ")")
 
 		box.append('rect')
-			.attr('class','SDCrect ' + params.answers[0][d]+'Word')
+			.attr('class','SDCrect ' + params.answers[0][d]+'Word ' + params.answers[0][d])
 			.attr('x',0)
 			.attr('y', 0)
 			.attr('width', params.SDCboxWidth)
@@ -117,7 +118,7 @@ function createSystemDesignChart(){
 				if (dd != 'Select Category') {
 					if (SDCcolumnLocations[dd] < maxH){
 						var offset = (maxH - SDCcolumnLocations[dd])/2.;
-						d3.selectAll('.SDCrectContainer'+dd).each(function(){
+						d3.selectAll('.SDCrectContainer.'+dd).each(function(){
 							var y = parseFloat(d3.select(this).attr('y')) + offset
 							var x = d3.select(this).attr('x')
 							d3.select(this)
@@ -136,31 +137,124 @@ function createSystemDesignChart(){
 //draw lines 
 //http://jsfiddle.net/9tr7w/360/
 function startSDCLine() {
-	var parent = d3.select(this.parentNode);
+	//get right side of box
+	var elem = this;
+	//if on top of the circle
+	if (elem.classList.contains('SDCCircle0')){
+		elem = document.elementFromPoint(params.event.clientX -7, params.event.clientY);
+		if (elem.nodeName == 'tspan') elem = elem.parentNode;
+	}
+	var parent = d3.select(elem.parentNode);
 	var x = parseFloat(parent.attr('x')) + params.SDCboxWidth;
-	var y = parseFloat(parent.attr('y')) + parseFloat(d3.select(this).attr('height'))/2.;
-	params.SDCLine = params.SDCSVG.append("line")
-		.attr('stroke','black')
-		.attr('stroke-width',2)
-		.attr("x1", x)
-		.attr("y1", y)
-		.attr("x2", x)
-		.attr("y2", y);
-	
-	console.log('starting line', this, d3.select('#SDCmouseEvents').node());
+	var y = parseFloat(parent.attr('y')) + parseFloat(d3.select(elem).attr('height'))/2.;
 
+	//get the category from the rect class list (will this always be the last class value?)
+	var cat = parent.node().classList[1]
+	var i = params.options.indexOf(cat);
+	if (i < params.options.length-1){
+		console.log('starting line', elem, parent.node(), cat)
+		params.SDCLine = params.SDCSVG.append("line")
+			.attr('attached','false') //custom attribute to track if the line is connected
+			.attr('startCategory',cat) //custom attribute to track the starting category
+			.attr('endCategory','null') //custom attribute to track the ending category
+			.attr('stroke','black')
+			.attr('stroke-width',4)
+			.attr("x1", x)
+			.attr("y1", y)
+			.attr("x2", x)
+			.attr("y2", y);
+		
+		params.SDCCircle0 = params.SDCSVG.append("circle")
+			.attr('class','SDCCircle0')
+			.attr('fill', 'black')
+			.attr('cx',x)
+			.attr('cy',y)
+			.attr('r',6)
+			.on('mousedown', startSDCLine);
+
+		params.SDCCircle = params.SDCSVG.append("circle")
+			.attr('class','SDCCircle')
+			.attr('fill', 'black')
+			.attr('cx',x)
+			.attr('cy',y)
+			.attr('r',6);
+	}
 }
 
 function moveSDCLine() {
 	if (params.SDCLine){
+		//stop text highlighting
+		window.event.cancelBubble = true;
+		window.event.returnValue = false;
+
+		var x = params.event.layerX - params.SDCSVGMargin.left;
+		var y = params.event.layerY - params.SDCSVGMargin.top;
+
+		//snap to object if close enough
+		var elem = document.elementFromPoint(params.event.clientX + 20, params.event.clientY);
+		var attached = false;
+		if (elem){
+			//check parents for tspan
+			if (elem.nodeName == 'tspan') elem = elem.parentNode;
+			var parent = d3.select(elem.parentNode);
+			if (parent.classed('SDCrectContainer')){
+				//get the category from the rect class list (will this always be the last class value?)
+				var cat = parent.node().classList[1];
+				var cat0 = params.SDCLine.attr('startCategory');
+				
+				//check if this is an adjacent category to the starting point
+				var adjacent = false;
+				var i = params.options.indexOf(cat);
+				var i0 = params.options.indexOf(cat0);
+				if (i - i0 == 1) adjacent = true;
+				if (adjacent){
+					attached = true;
+					//get left side of box
+					x = parseFloat(parent.attr('x'));
+					y = parseFloat(parent.attr('y')) + parseFloat(parent.select('.SDCrect').attr('height'))/2.;
+					params.SDCLine
+						.attr('attached','true')
+						.attr('endCategory', cat);
+				}
+			} 
+		}
+		if (!attached){
+			params.SDCLine
+				.attr('attached','false')
+				.attr('endCategory', 'null');
+		}
+		
+
 		params.SDCLine
-			.attr("x2", params.event.clientX - params.SDCSVGMargin.left)
-			.attr("y2", params.event.clientY - params.SDCSVGMargin.top);
+			.attr("x2", x)
+			.attr("y2", y);
+
+		params.SDCCircle
+			.attr("cx", x)
+			.attr("cy", y);
 	}
 
 }
 
 function endSDCLine() {
 	console.log('ending line')
+
+	//restart text highlighting
+	window.event.cancelBubble = false;
+	window.event.returnValue = true;
+	
+	//delete line if not attached
+	if (params.SDCLine){
+		if (params.SDCLine.attr('attached') != 'true'){
+			params.SDCLine.remove();
+			params.SDCCircle0.remove();
+			params.SDCCircle.remove();
+		}
+	}
+
 	params.SDCLine = null;
+	params.SDCCircle0 = null;
+	params.SDCCircle = null;
+
+
 }
