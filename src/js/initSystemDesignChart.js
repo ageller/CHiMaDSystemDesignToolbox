@@ -5,12 +5,12 @@ function createSystemDesignChart(){
 	var n = params.options.length - 1;
 	var w = (window.innerWidth - 80)/n;
 	var offset = w/2;
-	params.SDCcolumnCenters = {};
+	params.SDCColumnCenters = {};
 	params.options.forEach(function(d,i){
-		if (d != 'Select Category') params.SDCcolumnCenters[d] = (i-1)*w + offset
+		if (d != 'Select Category') params.SDCColumnCenters[d] = (i-1)*w + offset
 	})
 
-	params.SDCboxWidth = 0.6*w - params.SDCboxMargin;
+	params.SDCBoxWidth = 0.6*w - params.SDCBoxMargin;
 	var boxHeight = 40; //will need to modify this below for each box, based on text size
 
 	//destroy the plot (if it exists)
@@ -49,7 +49,7 @@ function createSystemDesignChart(){
 		.data(params.options).enter().filter(function(d){return d != 'Select Category';})
 		.append('text')
 			.attr('class', function(d){ return 'text '+d+'Word'; })
-			.attr("x", function(d) { return params.SDCcolumnCenters[d]; })
+			.attr("x", function(d) { return params.SDCColumnCenters[d]; })
 			.attr("y", 0)
 			.attr("dy", ".35em")
 			.style("text-anchor", "middle")
@@ -60,35 +60,40 @@ function createSystemDesignChart(){
 	// It looks like I need to do this in a for loop so that I can get the proper y positions
 	var SDCcolumnLocations = {};
 	params.options.forEach(function(d){
-		if (d != 'Select Category') SDCcolumnLocations[d] = params.SDCboxMargin;
+		if (d != 'Select Category') SDCcolumnLocations[d] = params.SDCBoxMargin;
 	})
 	for (var i=0; i<params.selectionWords.length; i++){
 		var d = params.cleanString(params.selectionWords[i]);
 
 		var box = params.SDCSVG.append('g')
 			.attr('class','SDCrectContainer ' + params.answers[0][d])
-			.attr('x',params.SDCcolumnCenters[params.answers[0][d]] - params.SDCboxWidth/2.)
+			.attr('selectionWords',params.cleanString(params.selectionWords[i])) //custom attribute to hold the selection words
+			.attr('x',params.SDCColumnCenters[params.answers[0][d]] - params.SDCBoxWidth/2.)
 			.attr('y',SDCcolumnLocations[params.answers[0][d]])
-			.attr("transform", "translate(" + (params.SDCcolumnCenters[params.answers[0][d]] - params.SDCboxWidth/2.) + "," + SDCcolumnLocations[params.answers[0][d]] + ")")
+			.attr("transform", "translate(" + (params.SDCColumnCenters[params.answers[0][d]] - params.SDCBoxWidth/2.) + "," + SDCcolumnLocations[params.answers[0][d]] + ")")
 
 		box.append('rect')
 			.attr('class','SDCrect ' + params.answers[0][d]+'Word ' + params.answers[0][d])
 			.attr('x',0)
 			.attr('y', 0)
-			.attr('width', params.SDCboxWidth)
+			.attr('width', params.SDCBoxWidth)
 			.attr('height', boxHeight) //will need to update this
 			.on('mousedown', startSDCLine)
 
 
 		var text = box.append('text')
-			.attr("x", params.SDCboxWidth/2.)
+			.attr('class','noSelect')
+			.attr("x", params.SDCBoxWidth/2.)
 			.attr("y", boxHeight/2.)
 			.attr("dy", ".35em")
 			.style("text-anchor", "middle")
 			.style('opacity',1)
 			.style('fill','black')
 			.text(params.selectionWords[i].replaceAll('<sub>','_').replaceAll('</sub>','$')) //recoding so the line width is about correct
-			.call(wrapSVGtext, params.SDCboxWidth-10)
+			.call(wrapSVGtext, params.SDCBoxWidth-10)
+
+		//add the mouse event
+		text.selectAll('tspan').on('mousedown', startSDCLine)
 
 		//fix any subcripts
 		text.selectAll('tspan').each(function(){
@@ -101,7 +106,7 @@ function createSystemDesignChart(){
 		//get the text height and resize the box
 		var bbox = text.node().getBBox();
 		box.select('rect').attr('height',bbox.height+10)
-		SDCcolumnLocations[params.answers[0][d]] += bbox.height+10 + params.SDCboxMargin;// - boxHeight;
+		SDCcolumnLocations[params.answers[0][d]] += bbox.height+10 + params.SDCBoxMargin;// - boxHeight;
 
 	}
 
@@ -139,26 +144,30 @@ function createSystemDesignChart(){
 function startSDCLine() {
 	//get right side of box
 	var elem = this;
+	if (elem.nodeName == 'tspan') elem = d3.select(elem.parentNode.parentNode).select('rect').node();
 	//if on top of the circle
 	if (elem.classList.contains('SDCCircle0')){
 		elem = document.elementFromPoint(params.event.clientX -7, params.event.clientY);
-		if (elem.nodeName == 'tspan') elem = elem.parentNode;
+		if (elem.nodeName == 'tspan') elem = d3.select(elem.parentNode.parentNode).select('rect').node();
 	}
 	var parent = d3.select(elem.parentNode);
-	var x = parseFloat(parent.attr('x')) + params.SDCboxWidth;
+	var x = parseFloat(parent.attr('x')) + params.SDCBoxWidth;
 	var y = parseFloat(parent.attr('y')) + parseFloat(d3.select(elem).attr('height'))/2.;
 
 	//get the category from the rect class list (will this always be the last class value?)
 	var cat = parent.node().classList[1]
+	var words = parent.attr('selectionWords')
 	var i = params.options.indexOf(cat);
-	if (i < params.options.length-1){
+	if (i < params.options.length-1 && !isNaN(x) && !isNaN(y)){
 		params.SDCLineIndex += 1;
-
 		params.SDCLine = params.SDCSVG.append("line")
 			.attr('attached','false') //custom attribute to track if the line is connected
 			.attr('startCategory',cat) //custom attribute to track the starting category
 			.attr('endCategory','null') //custom attribute to track the ending category
+			.attr('startSelectionWords',words) //custom attribute to track the starting word(s)
+			.attr('endSelectionWords','null') //custom attribute to track the ending word(s)			
 			.attr('id','SDCLine_'+params.SDCLineIndex)
+			.attr('class','SDCLine')
 			.attr('stroke','black')
 			.attr('stroke-width',4)
 			.attr("x1", x)
@@ -209,6 +218,8 @@ function moveSDCLine() {
 				var cat = parent.node().classList[1];
 				var cat0 = params.SDCLine.attr('startCategory');
 				
+				var words = parent.attr('selectionWords')
+
 				//check if this is an adjacent category to the starting point
 				var adjacent = false;
 				var i = params.options.indexOf(cat);
@@ -221,14 +232,17 @@ function moveSDCLine() {
 					y = parseFloat(parent.attr('y')) + parseFloat(parent.select('.SDCrect').attr('height'))/2.;
 					params.SDCLine
 						.attr('attached','true')
-						.attr('endCategory', cat);
+						.attr('endCategory', cat)
+						.attr('endSelectionWords',words);
 				}
 			} 
 		}
 		if (!attached){
 			params.SDCLine
 				.attr('attached','false')
-				.attr('endCategory', 'null');
+				.attr('endCategory', 'null')
+				.attr('endSelectionWords','null');
+
 		}
 		
 
