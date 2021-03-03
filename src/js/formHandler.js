@@ -1,4 +1,4 @@
-function sendToGoogleSheet(data){
+function sendToGoogleSheet(data, notificationID){
 	//send a javascript Object to the Google form accessed by the url below. 
 	//that url points to a google script attached to the google sheet, and will also append a timestamp
 
@@ -15,10 +15,10 @@ function sendToGoogleSheet(data){
 		data: data,
 		success:function(d){
 			console.log('submitted data', JSON.stringify(data), d);
-			d3.select('#paraNotification')
+			d3.select('#'+notificationID)
 				.classed('blink_me', false)
 				.text('Responses submitted successfully.  The chart will update automatically when new data are available.  You can change your responses anytime by re-submitting.');
-			//show the aggregated responses (now showing after reading in the data within aggregateResults)
+			//show the aggregated responses (now showing after reading in the data within aggregateParaResults)
 			loadResponses(params.surveyFile);
 			params.loadInterval = setInterval(function(){loadResponses(params.surveyFile);}, params.loadIntervalDuration);
 
@@ -30,7 +30,7 @@ function sendToGoogleSheet(data){
 			if (params.nTrials < params.maxTrials){
 				sendToGoogleSheet(data);
 			} else {
-				d3.select('#paraNotification')
+				d3.select('#'+notificationID)
 					.classed('blink_me', false)
 					.classed('error', false)
 					.text('Responses failed to be submitted.  Please refresh your browser and try again.');
@@ -43,7 +43,7 @@ function sendToGoogleSheet(data){
 function onFormSubmit(){
 	//when form is submitted, compile responses and send the Google sheet
 	console.log('username',params.username);
-	params.submitted = true;
+	params.paraSubmitted = false;
 
 	missing = [];
 	if (params.username != "" && typeof params.username !== 'undefined'){
@@ -69,15 +69,15 @@ function onFormSubmit(){
 			})
 		});
 
-		//add the IP
+		//add the IP, username and task (not using IP anymore)
 		params.paraData['IP'] = params.userIP;
-
-		//add the username
 		params.paraData['username'] = params.username;
+		params.paraData['task'] = 'para';
 		if (missing.length == 0){
 			console.log("form data", params.paraData);
 			//createEmail();
-			sendToGoogleSheet(params.paraData);
+			params.paraSubmitted = true;
+			sendToGoogleSheet(params.paraData, 'paraNotification');
 		} else {
 			console.log("missing", missing)
 			d3.select('#paraNotification')
@@ -122,7 +122,7 @@ function getUsername(){
 
 			//add the responses (I want to take version 2 if it exists, but I think this will happen by default since v2 will always come after v1 in order)
 			Object.keys(d).forEach(function(k){
-				if (k != 'IP' && k != 'Timestamp' && k != 'version') params.URLinputValues[k] = d[k];
+				if (k != 'IP' && k != 'Timestamp' && k != 'version' && k !='task') params.URLinputValues[k] = d[k];
 			})
 
 		}
@@ -136,15 +136,25 @@ function getUsername(){
 }
 
 function onSDCSubmit(){
-	//gather all the data from the lines that were drawn, and (eventually) send them to a Google form
+	//gather all the data from the lines that were drawn, and send them to a Google form
+
+	params.nTrials = 0;
+	d3.select('#SDCNotification')
+		.classed('blink_me', true)
+		.classed('error', false)
+		.text('Processing...');
 
 	params.SDCData = {};
+	//add the IP, username and task (not using IP anymore)
+	params.SDCData['IP'] = params.userIP;
+	params.SDCData['username'] = params.username;
+	params.SDCData['task'] = 'SDC';
 	params.selectionWords.forEach(function(w,i){
 		//initialize to empty
 		params.SDCData[params.cleanString(w)] = '';
 		if (i == params.selectionWords.length - 1){
 			//gather all the data and combine into aggregated lists when necessary
-			d3.selectAll('.SDCLine').each(function(){
+			d3.selectAll('.SDCLine').each(function(d,j){
 				var elem = d3.select(this)
 				var word1 = elem.attr('startSelectionWords');
 				var word2 = '';
@@ -153,21 +163,18 @@ function onSDCSubmit(){
 					word2 += elem.attr('endSelectionWords');
 					params.SDCData[word1] += word2;
 				}
+
+				if (j == d3.selectAll('.SDCLine').size() - 1){
+					sendToGoogleSheet(params.SDCData, 'SDCNotification');
+					console.log('submitted SDC form', params.SDCData)
+
+				}
 			})
 		}
 	})
 
-
-
-
-	//submit to google form
-
-	console.log('submitted SDC form', params.SDCData)
-
-	d3.select('#SDCNotification')
-		.text('Your responses have been recorded.');
-
 }
+
 function createEmail(){
 	//if we want to send an email, this could be a way to start one for the user
 	var url = window.location.href;
