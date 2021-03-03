@@ -25,7 +25,7 @@ function createDropdowns(){
 					d3.select(parent).attr('class','selectionWord '+this.value.toLowerCase()+'Word');
 					d3.select(parent).classed('wrongBorder', wrong);
 					var key = params.cleanString(d3.select(parent).select('text').node().innerHTML);
-					params.URLinputValues[key] = this.value;
+					params.URLInputValues[key] = this.value;
 					appendURLdata();
 				}
 			})
@@ -61,21 +61,23 @@ function createDropdowns(){
 			})
 			.text(function(d){return d;})
 
-	useURLdata();
+	useParaURLdata();
 }
 
-function useURLdata(){
+function useParaURLdata(){
 	//apply the form data from the URL
-	var keys = Object.keys(params.URLinputValues);
+	var keys = Object.keys(params.URLInputValues);
 	d3.selectAll('.selectionWord').attr('class','selectionWord'); //remove all the colors
 	keys.forEach(function(k){
-		console.log('using', k, params.URLinputValues[k])
 		if (k == "username"){
-			params.username = params.URLinputValues[k];
+			params.username = params.URLInputValues[k];
 			d3.select('#username').attr('value',params.username);
 		} else {
-			d3.select(d3.select('#'+k).node().parentNode).attr('class','selectionWord '+params.URLinputValues[k].toLowerCase()+'Word');
-			d3.select('#'+k).select('#'+params.URLinputValues[k]).property("selected",true);
+			if (k.substring(0,3) != 'SDC'){
+				//console.log('using', k, params.URLInputValues[k])
+				d3.select(d3.select('#'+k).node().parentNode).attr('class','selectionWord '+params.URLInputValues[k].toLowerCase()+'Word');
+				d3.select('#'+k).select('#'+params.URLInputValues[k]).property("selected",true);
+			}
 		}
 
 	})
