@@ -261,6 +261,7 @@ function moveExistingSDCLine(){
 	var useIndex = this.id.split('_')[1];
 	params.SDCLine = d3.select('#SDCLine_'+useIndex)
 	params.SDCCircle = d3.select('#SDCCircle_'+useIndex)
+	params.SDCCircle0 = d3.select('#SDCCircle0_'+useIndex)
 }
 
 function endSDCLine() {
