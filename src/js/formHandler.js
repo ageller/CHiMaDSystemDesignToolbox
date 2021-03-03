@@ -15,7 +15,7 @@ function sendToGoogleSheet(data){
 		data: data,
 		success:function(d){
 			console.log('submitted data', JSON.stringify(data), d);
-			d3.select('#notification')
+			d3.select('#paraNotification')
 				.classed('blink_me', false)
 				.text('Responses submitted successfully.  The chart will update automatically when new data are available.  You can change your responses anytime by re-submitting.');
 			//show the aggregated responses (now showing after reading in the data within aggregateResults)
@@ -30,7 +30,7 @@ function sendToGoogleSheet(data){
 			if (params.nTrials < params.maxTrials){
 				sendToGoogleSheet(data);
 			} else {
-				d3.select('#notification')
+				d3.select('#paraNotification')
 					.classed('blink_me', false)
 					.classed('error', false)
 					.text('Responses failed to be submitted.  Please refresh your browser and try again.');
@@ -50,7 +50,7 @@ function onFormSubmit(){
 		d3.select('#username').property('disabled', true);
 
 		params.nTrials = 0;
-		d3.select('#notification')
+		d3.select('#paraNotification')
 			.classed('blink_me', true)
 			.classed('error', false)
 			.text('Processing...');
@@ -80,7 +80,7 @@ function onFormSubmit(){
 			sendToGoogleSheet(params.paraData);
 		} else {
 			console.log("missing", missing)
-			d3.select('#notification')
+			d3.select('#paraNotification')
 				.classed('blink_me', false)
 				.classed('error', true)
 				.html('Please classify all terms in Step &#9313; above.');
@@ -89,7 +89,7 @@ function onFormSubmit(){
 			})
 		}
 	} else {
-		d3.select('#notification')
+		d3.select('#paraNotification')
 			.classed('blink_me', false)
 			.classed('error', true)
 			.html('Please enter a username in Step &#9312; above.');
@@ -135,6 +135,39 @@ function getUsername(){
 
 }
 
+function onSDCSubmit(){
+	//gather all the data from the lines that were drawn, and (eventually) send them to a Google form
+
+	params.SDCData = {};
+	params.selectionWords.forEach(function(w,i){
+		//initialize to empty
+		params.SDCData[params.cleanString(w)] = '';
+		if (i == params.selectionWords.length - 1){
+			//gather all the data and combine into aggregated lists when necessary
+			d3.selectAll('.SDCLine').each(function(){
+				var elem = d3.select(this)
+				var word1 = elem.attr('startSelectionWords');
+				var word2 = '';
+				if (!params.SDCData[word1].includes(elem.attr('endSelectionWords'))){
+					if (params.SDCData[word1] != '') word2 = ' ';
+					word2 += elem.attr('endSelectionWords');
+					params.SDCData[word1] += word2;
+				}
+			})
+		}
+	})
+
+
+
+
+	//submit to google form
+
+	console.log('submitted SDC form', params.SDCData)
+
+	d3.select('#SDCNotification')
+		.text('Your responses have been recorded.');
+
+}
 function createEmail(){
 	//if we want to send an email, this could be a way to start one for the user
 	var url = window.location.href;
