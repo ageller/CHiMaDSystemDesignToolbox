@@ -89,19 +89,20 @@ function defineParams(){
 		this.minParaWidth = 1920*(1 - this.plotFraction)/2.; //px, minimum width of the paragraph
 		this.minBarHeight = 30; //px, minimum height of each row in the plot
 
-		//settings for the system design chart
-		this.SDCcolumnCenters; //will hold the central x locations for the columns
+		//settings for the system design chart (SDC)
+		this.SDCColumnCenters; //will hold the central x locations for the columns
 		this.SDCSVG;
 		this.SDCSVGMargin;
 		this.SDCSVGHeight;
 		this.SDCSVGWidth;
-		this.SDCboxMargin = 20;
-		this.SDCboxWidth;
+		this.SDCBoxMargin = 20;
+		this.SDCBoxWidth;
 		this.SDCLine = null;
 		this.SDCCircle0 = null;
 		this.SDCCircle = null;
 		this.SDCLineIndex = 0;
-		
+		this.SDCData = {}; //will hold all the data from the SDC
+
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
 
