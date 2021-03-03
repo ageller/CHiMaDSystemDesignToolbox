@@ -264,6 +264,8 @@ function moveExistingSDCLine(){
 }
 
 function endSDCLine() {
+	//add to the url
+
 	//restart text highlighting
 	window.event.cancelBubble = false;
 	window.event.returnValue = true;

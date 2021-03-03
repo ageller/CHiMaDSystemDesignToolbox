@@ -243,7 +243,7 @@ function defineBars(){
 		var realData = []
 		params.options.forEach(function(o){
 			if (o != 'Select Category'){
-				var agg = params.aggregatedResponses[params.responseVersion][params.cleanString(c)]
+				var agg = params.aggregatedParaResponses[params.responseVersion][params.cleanString(c)]
 				var v = 0;
 				if (agg) v = agg.num[params.cleanString(o)]/agg.total || 0;
 				var dat = {"category":o, "value":v}
@@ -366,11 +366,10 @@ function toggleAnswers(){
 }
 
 function switchVersions(){
-	console.log("checked", this.name, this.value)
 	if (this.name == "version"){
 		params.responseVersion = this.value;
 		params.firstDisplay = true;
-		if (params.submitted) defineBars();
+		if (params.paraSubmitted) defineBars();
 	}
 	if (this.name == "answers"){
 		params.showAnswers = this.checked;

@@ -65,7 +65,7 @@ function readGoogleSheet(json) {
 
 			params.responses = out;
 			console.log('responses', out, data.length, params.responses)
-			aggregateResults();
+			aggregateParaResults();
 
 		}
 	}
@@ -90,21 +90,21 @@ function countUniq(arr){
 	return out;
 }
 
-function aggregateResults(){
+function aggregateParaResults(){
 
 
 	//count up all the responses for each column and return the aggregate numbers
 	//in order to keep things a bit more simple, I will push a blank entry for version 0 (I may want to clean this up later)
-	params.aggregatedResponses.push({})
+	params.aggregatedParaResponses.push({})
 
 	for (var version=1; version<=2; version+=1){
-		params.aggregatedResponses.push({});
+		params.aggregatedParaResponses.push({});
 
 		params.responses.columns.forEach(function(rc,i){
-			if (!rc.includes('Timestamp') && !rc.includes('IP') && !rc.includes('username') && !rc.includes('version')){
+			if (!rc.includes('Timestamp') && !rc.includes('IP') && !rc.includes('username') && !rc.includes('version') && !rc.includes('task')){
 				vals = []
 				//params.responses.forEach(function(r,j){
-				var using = params.responses.filter(function(d){return d.version == version;});
+				var using = params.responses.filter(function(d){return (d.version == version && d.task == 'para');});
 				using.forEach(function(r,j){
 					//get the column
 					var v = r[rc];
@@ -113,16 +113,16 @@ function aggregateResults(){
 					}
 					vals.push(v)
 					if (j == using.length - 1){
-						params.aggregatedResponses[version][rc] = countUniq(vals);
+						params.aggregatedParaResponses[version][rc] = countUniq(vals);
 					}
 				})
 
 			}
 	//plot the results
 			if (i == params.responses.columns.length - 1 && version == params.responseVersion){
-				console.log("aggregated", params.aggregatedResponses[params.responseVersion]);
+				console.log("aggregated", params.aggregatedParaResponses[params.responseVersion]);
 				//I could check to see if anything changed before replotting, but I'm not sure that would offer a big speedup (since I'd need another for loop anyway)
-				if (params.submitted) defineBars();
+				if (params.paraSubmitted) defineBars();
 			}
 
 		})

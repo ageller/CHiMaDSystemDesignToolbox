@@ -42,10 +42,10 @@ function handleResponse(e) {
     // }
 
     //AMG added to check if username already exists and then set that as the row to use
-    var foundUN = hasUsername(sheet, e.parameter['username']);
+    var foundUN = hasUsername(sheet, e.parameter['username'], e.parameter['task']);
     if (foundUN == 1){
       var version = 2;
-      useRow = searchUsernamev2(sheet, e.parameter['username']);
+      useRow = searchUsernamev2(sheet, e.parameter['username'], e.parameter['task']);
       if (useRow != -1){
         nextRow = useRow;
       }
@@ -68,7 +68,7 @@ function handleResponse(e) {
     sheet.getRange(nextRow, 1, 1, row.length).setValues([row]);
     // return json success results
     return ContentService
-    .createTextOutput(JSON.stringify({"result":"success", "row": nextRow,"useRow":useRow, "version":version,"input":e}))
+    .createTextOutput(JSON.stringify({"result":"success123", "row": nextRow,"useRow":useRow, "version":version,"input":e}))
           .setMimeType(ContentService.MimeType.JSON);
   } catch(err){
     // if error return this
@@ -104,23 +104,23 @@ function searchIPv2(sheet, IPstring) {
   return -1;
 }
 
-function hasUsername(sheet, UNstring) {
+function hasUsername(sheet, UNstring, Tstring) {
   //assumes that the username is the 3rd column
   var values = sheet.getDataRange().getValues();
 
   for(var i=0, iLen=values.length; i<iLen; i++) {
-    if(values[i][2] == UNstring ) { //check for username
+    if(values[i][2] == UNstring && values[i][4] == Tstring) { //check for username and task
       return 1;
     } 
   }
   return 0;
 }
 //AMG added to search for the IP and version number
-function searchUsernamev2(sheet, UNstring) {
+function searchUsernamev2(sheet, UNstring, Tstring) {
   //assumes that the username is the 3rd column, and version is the 4th column
   var values = sheet.getDataRange().getValues();
   for(var i=0, iLen=values.length; i<iLen; i++) {
-    if(values[i][2] == UNstring && values[i][3] == 2) { //check for username and version 2
+    if(values[i][2] == UNstring && values[i][3] == 2 && values[i][4] == Tstring) { //check for username and version 2 and task
       return i+1;
     } 
   }
