@@ -32,6 +32,7 @@ function loadResponses(url){
 
 function readGoogleSheet(json) {
 //parse this json from the Google Sheet into the format that we need
+	var pushed = false;
 	if (json.hasOwnProperty('feed')){
 		if (json.feed.hasOwnProperty('entry')){
 			var data = json.feed.entry;
@@ -42,7 +43,11 @@ function readGoogleSheet(json) {
 				var cell = data[r]["gs$cell"];
 				var val = cell["$t"];
 
-				if (cell.col == 1) row = {};
+				if (cell.col == 1) {
+					if (!pushed && Object.keys(out).length > 0) out.push(row)
+					pushed = false
+					row = {};
+				}
 
 				if (cell.row == 1){
 					keys.push(val)
@@ -52,7 +57,10 @@ function readGoogleSheet(json) {
 				
 				if (parseInt(cell['col']) == keys.length & cell.row > 1){
 					out.push(row);
+					pushed = true;
 				}
+
+				if (r == data.length -1 && !pushed && Object.keys(out).length > 0) out.push(row);
 
 			}
 			out.columns = keys; //I think I can do this (if not I need to make out an object to begin with)

@@ -101,6 +101,7 @@ function defineParams(){
 		this.SDCCircle0 = null;
 		this.SDCCircle = null;
 		this.SDCData = {}; //will hold all the data from the SDC
+		this.SDCLineIndex = 0;
 
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
