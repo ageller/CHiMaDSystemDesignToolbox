@@ -72,6 +72,8 @@ function createSystemDesignChart(){
 			.attr('x',params.SDCColumnCenters[params.answers[0][d]] - params.SDCBoxWidth/2.)
 			.attr('y',SDCcolumnLocations[params.answers[0][d]])
 			.attr("transform", "translate(" + (params.SDCColumnCenters[params.answers[0][d]] - params.SDCBoxWidth/2.) + "," + SDCcolumnLocations[params.answers[0][d]] + ")")
+			.on('mouseover',highlightSDCLines)
+			.on('mousedown', startSDCLine)
 
 		box.append('rect')
 			.attr('class','SDCrect ' + params.answers[0][d]+'Word ' + params.answers[0][d])
@@ -79,7 +81,6 @@ function createSystemDesignChart(){
 			.attr('y', 0)
 			.attr('width', params.SDCBoxWidth)
 			.attr('height', boxHeight) //will need to update this
-			.on('mousedown', startSDCLine)
 
 
 		var text = box.append('text')
@@ -94,7 +95,7 @@ function createSystemDesignChart(){
 			.call(wrapSVGtext, params.SDCBoxWidth-10)
 
 		//add the mouse event
-		text.selectAll('tspan').on('mousedown', startSDCLine)
+		//text.selectAll('tspan').on('mousedown', startSDCLine)
 
 		//fix any subcripts
 		text.selectAll('tspan').each(function(){
@@ -143,14 +144,16 @@ function createSystemDesignChart(){
 }
 
 function createSDCLine(x1,y1,x2,y2,r,cat,startWords,endWords){
+	params.SDCLineIndex += 1;
+
 	params.SDCLine = params.SDCSVG.append("line")
 		.attr('attached','false') //custom attribute to track if the line is connected
 		.attr('startCategory',cat) //custom attribute to track the starting category
 		.attr('endCategory','null') //custom attribute to track the ending category
 		.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
 		.attr('endSelectionWords',endWords) //custom attribute to track the ending word(s)			
-		.attr('id','SDCLine_'+startWords)
-		.attr('class','SDCLine')
+		.attr('id','SDCLine_'+params.SDCLineIndex)
+		.attr('class','SDCLine SDCLine_'+startWords)
 		.attr('stroke','black')
 		.attr('stroke-width',4)
 		.attr("x1", x1)
@@ -160,7 +163,7 @@ function createSDCLine(x1,y1,x2,y2,r,cat,startWords,endWords){
 		.on('mousedown', moveExistingSDCLine);
 
 	params.SDCCircle0 = params.SDCSVG.append("circle")
-		.attr('id','SDCCircle0_'+startWords)
+		.attr('id','SDCCircle0_'+params.SDCLineIndex)
 		.attr('class','SDCCircle0')
 		.attr('fill', 'black')
 		.attr('cx',x1)
@@ -169,7 +172,7 @@ function createSDCLine(x1,y1,x2,y2,r,cat,startWords,endWords){
 		.on('mousedown', startSDCLine);
 
 	params.SDCCircle = params.SDCSVG.append("circle")
-		.attr('id','SDCCircle_'+startWords)
+		.attr('id','SDCCircle_'+params.SDCLineIndex)
 		.attr('class','SDCCircle')
 		.attr('fill', 'black')
 		.attr('cx',x2)
@@ -182,19 +185,19 @@ function createSDCLine(x1,y1,x2,y2,r,cat,startWords,endWords){
 function startSDCLine() {
 	//get right side of box
 	var elem = this;
-	if (elem.nodeName == 'tspan') elem = d3.select(elem.parentNode.parentNode).select('rect').node();
+	if (elem.nodeName == 'tspan') elem = d3.select(elem.parentNode.parentNode).select('rect').node().parentNode;
 	//if on top of the circle
 	if (elem.classList.contains('SDCCircle0')){
-		elem = document.elementFromPoint(params.event.clientX -7, params.event.clientY);
-		if (elem.nodeName == 'tspan') elem = d3.select(elem.parentNode.parentNode).select('rect').node();
+		elem = document.elementFromPoint(params.event.clientX -7, params.event.clientY).parentNode;
+		if (elem.nodeName == 'tspan') elem = d3.select(elem.parentNode.parentNode).select('rect').node().parentNode;
 	}
-	var parent = d3.select(elem.parentNode);
-	var x = parseFloat(parent.attr('x')) + params.SDCBoxWidth;
-	var y = parseFloat(parent.attr('y')) + parseFloat(d3.select(elem).attr('height'))/2.;
+	elem = d3.select(elem);
+	var x = parseFloat(elem.attr('x')) + params.SDCBoxWidth;
+	var y = parseFloat(elem.attr('y')) + parseFloat(elem.select('rect').attr('height'))/2.;
 
 	//get the category from the rect class list (will this always be the last class value?)
-	var cat = parent.node().classList[1]
-	var words = parent.attr('selectionWords')
+	var cat = elem.node().classList[1]
+	var words = elem.attr('selectionWords')
 	var i = params.options.indexOf(cat);
 	if (i < params.options.length-1 && !isNaN(x) && !isNaN(y)) createSDCLine(x,y,x,y,6,cat,words,'null');
 
@@ -300,6 +303,9 @@ function endSDCLine() {
 
 }
 
+function highlightSDCLines(){
+	console.log('here')
+}
 
 function useSDCURLdata(){
 	//remove all the lines
