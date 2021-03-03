@@ -45,7 +45,7 @@ function defineParams(){
 		this.paraData = {};
 
 		//if the url contains form data, this will store it
-		this.URLinputValues = {};
+		this.URLInputValues = {};
 
 		//will store the number of trials for submitting
 		this.nTrials = 0;
@@ -100,7 +100,6 @@ function defineParams(){
 		this.SDCLine = null;
 		this.SDCCircle0 = null;
 		this.SDCCircle = null;
-		this.SDCLineIndex = 0;
 		this.SDCData = {}; //will hold all the data from the SDC
 
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)

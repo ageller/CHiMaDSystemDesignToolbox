@@ -102,8 +102,8 @@ function onFormSubmit(){
 function getUsername(){
 	//get the username data from the text input box, and fill in the responses if the username exists
 	params.username = this.value;
-	params.URLinputValues = {};
-	params.URLinputValues["username"] = params.username;
+	params.URLInputValues = {};
+	params.URLInputValues["username"] = params.username;
 	console.log('username ', params.username)
 
 	var ubbox = d3.select('#usernameLabel').node().getBoundingClientRect();
@@ -122,14 +122,14 @@ function getUsername(){
 
 			//add the responses (I want to take version 2 if it exists, but I think this will happen by default since v2 will always come after v1 in order)
 			Object.keys(d).forEach(function(k){
-				if (k != 'IP' && k != 'Timestamp' && k != 'version' && k !='task') params.URLinputValues[k] = d[k];
+				if (k != 'IP' && k != 'Timestamp' && k != 'version' && k !='task') params.URLInputValues[k] = d[k];
 			})
 
 		}
 		if (i == params.responses.length - 1){
 			appendURLdata();
 			readURLdata();
-			useURLdata();
+			useParaURLdata();
 		}
 	})
 

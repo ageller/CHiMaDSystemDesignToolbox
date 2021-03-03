@@ -12,19 +12,19 @@ function readURLdata(){
 	window.location.href.split("?").forEach(function(d){
 		if (d.includes('=')){
 			val = d.split('=');
-			params.URLinputValues[val[0]] = val[1];
+			params.URLInputValues[val[0]] = val[1];
 		}
 	});
-	console.log('URL input values ', params.URLinputValues)
+	console.log('URL input values ', params.URLInputValues)
 }
 
 
 function appendURLdata(){
 	//append new form data to the URL
 	var newURL = window.location.href.split("?")[0];
-	var keys = Object.keys(params.URLinputValues);
+	var keys = Object.keys(params.URLInputValues);
 	keys.forEach(function(k,i){
-		newURL += '?'+k+'='+params.URLinputValues[k];
+		newURL += '?'+k+'='+params.URLInputValues[k];
 		if (i == keys.length - 1){
 			//window.location.href = newURL; //would reload the page
 			window.history.replaceState(null, "", newURL); //so that the page doesn't reload every time

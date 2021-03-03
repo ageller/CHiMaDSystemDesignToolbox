@@ -67,6 +67,7 @@ function createSystemDesignChart(){
 
 		var box = params.SDCSVG.append('g')
 			.attr('class','SDCrectContainer ' + params.answers[0][d])
+			.attr('id','SDCBox'+params.cleanString(params.selectionWords[i]))
 			.attr('selectionWords',params.cleanString(params.selectionWords[i])) //custom attribute to hold the selection words
 			.attr('x',params.SDCColumnCenters[params.answers[0][d]] - params.SDCBoxWidth/2.)
 			.attr('y',SDCcolumnLocations[params.answers[0][d]])
@@ -137,10 +138,47 @@ function createSystemDesignChart(){
 		}
 	})
 
+	useSDCURLdata();
+
+}
+
+function createSDCLine(x1,y1,x2,y2,r,cat,startWords,endWords){
+	params.SDCLine = params.SDCSVG.append("line")
+		.attr('attached','false') //custom attribute to track if the line is connected
+		.attr('startCategory',cat) //custom attribute to track the starting category
+		.attr('endCategory','null') //custom attribute to track the ending category
+		.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
+		.attr('endSelectionWords',endWords) //custom attribute to track the ending word(s)			
+		.attr('id','SDCLine_'+startWords)
+		.attr('class','SDCLine')
+		.attr('stroke','black')
+		.attr('stroke-width',4)
+		.attr("x1", x1)
+		.attr("y1", y1)
+		.attr("x2", x2)
+		.attr("y2", y2)
+		.on('mousedown', moveExistingSDCLine);
+
+	params.SDCCircle0 = params.SDCSVG.append("circle")
+		.attr('id','SDCCircle0_'+startWords)
+		.attr('class','SDCCircle0')
+		.attr('fill', 'black')
+		.attr('cx',x1)
+		.attr('cy',y1)
+		.attr('r',r)
+		.on('mousedown', startSDCLine);
+
+	params.SDCCircle = params.SDCSVG.append("circle")
+		.attr('id','SDCCircle_'+startWords)
+		.attr('class','SDCCircle')
+		.attr('fill', 'black')
+		.attr('cx',x2)
+		.attr('cy',y2)
+		.attr('r',r)
+		.on('mousedown', moveExistingSDCLine);
 }
 
 //draw lines 
-//http://jsfiddle.net/9tr7w/360/
 function startSDCLine() {
 	//get right side of box
 	var elem = this;
@@ -158,43 +196,8 @@ function startSDCLine() {
 	var cat = parent.node().classList[1]
 	var words = parent.attr('selectionWords')
 	var i = params.options.indexOf(cat);
-	if (i < params.options.length-1 && !isNaN(x) && !isNaN(y)){
-		params.SDCLineIndex += 1;
-		params.SDCLine = params.SDCSVG.append("line")
-			.attr('attached','false') //custom attribute to track if the line is connected
-			.attr('startCategory',cat) //custom attribute to track the starting category
-			.attr('endCategory','null') //custom attribute to track the ending category
-			.attr('startSelectionWords',words) //custom attribute to track the starting word(s)
-			.attr('endSelectionWords','null') //custom attribute to track the ending word(s)			
-			.attr('id','SDCLine_'+params.SDCLineIndex)
-			.attr('class','SDCLine')
-			.attr('stroke','black')
-			.attr('stroke-width',4)
-			.attr("x1", x)
-			.attr("y1", y)
-			.attr("x2", x)
-			.attr("y2", y)
-			.on('mousedown', moveExistingSDCLine);
+	if (i < params.options.length-1 && !isNaN(x) && !isNaN(y)) createSDCLine(x,y,x,y,6,cat,words,'null');
 
-		params.SDCCircle0 = params.SDCSVG.append("circle")
-			.attr('id','SDCCircle0_'+params.SDCLineIndex)
-			.attr('class','SDCCircle0')
-			.attr('fill', 'black')
-			.attr('cx',x)
-			.attr('cy',y)
-			.attr('r',6)
-			.on('mousedown', startSDCLine);
-
-		params.SDCCircle = params.SDCSVG.append("circle")
-			.attr('id','SDCCircle_'+params.SDCLineIndex)
-			.attr('class','SDCCircle')
-			.attr('fill', 'black')
-			.attr('cx',x)
-			.attr('cy',y)
-			.attr('r',6)
-			.on('mousedown', moveExistingSDCLine);
-
-	}
 }
 
 function moveSDCLine() {
@@ -271,9 +274,19 @@ function endSDCLine() {
 	window.event.cancelBubble = false;
 	window.event.returnValue = true;
 	
-	//delete line if not attached
 	if (params.SDCLine){
-		if (params.SDCLine.attr('attached') != 'true'){
+		if (params.SDCLine.attr('attached') == 'true'){
+			//add to URL
+			var word1 = 'SDC'+params.SDCLine.attr('startSelectionWords');
+			var word2 = params.SDCLine.attr('endSelectionWords');
+			if (word1 in params.URLInputValues){
+				word2 = params.URLInputValues[word1];
+				if (!params.URLInputValues[word1].includes(params.SDCLine.attr('endSelectionWords'))) word2 += '%20'+params.SDCLine.attr('endSelectionWords');
+			} 
+			params.URLInputValues[word1] = word2;
+			appendURLdata();
+		} else {
+			//delete line if not attached
 			params.SDCLine.remove();
 			params.SDCCircle0.remove();
 			params.SDCCircle.remove();
@@ -285,4 +298,44 @@ function endSDCLine() {
 	params.SDCCircle = null;
 
 
+}
+
+
+function useSDCURLdata(){
+	//remove all the lines
+	d3.selectAll('.SDCLine').remove();
+	d3.selectAll('.SDCCircle0').remove();
+	d3.selectAll('.SDCCircle').remove();
+
+	//apply the form data from the URL
+	var keys = Object.keys(params.URLInputValues);
+	keys.forEach(function(k){
+		if (k.substring(0,3) == 'SDC'){
+			var startWords = k.substring(3,k.length);
+			var endWords = decodeURI(params.URLInputValues[k]).split(' ');
+			//console.log('using', k, params.URLInputValues[k], startWords, endWords);
+
+			endWords.forEach(function(w,i){
+
+				var startParent = d3.select('#SDCBox'+startWords);
+				var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth;
+				var y1 = parseFloat(startParent.attr('y')) + parseFloat(startParent.select('rect').attr('height'))/2.;
+
+				var endParent = d3.select('#SDCBox'+w);
+				var x2 = parseFloat(endParent.attr('x'))
+				var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
+
+				//get the category from the rect class list (will this always be the last class value?)
+				var cat = startParent.node().classList[1]
+
+				if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) createSDCLine(x1,y1,x2,y2,6,cat,startWords,w);
+				params.SDCLine = null;
+				params.SDCCircle0 = null;
+				params.SDCCircle = null;
+			})
+
+
+		}
+
+	})
 }
