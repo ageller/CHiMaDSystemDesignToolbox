@@ -152,19 +152,23 @@ function startSDCLine() {
 	var cat = parent.node().classList[1]
 	var i = params.options.indexOf(cat);
 	if (i < params.options.length-1){
-		console.log('starting line', elem, parent.node(), cat)
+		params.SDCLineIndex += 1;
+
 		params.SDCLine = params.SDCSVG.append("line")
 			.attr('attached','false') //custom attribute to track if the line is connected
 			.attr('startCategory',cat) //custom attribute to track the starting category
 			.attr('endCategory','null') //custom attribute to track the ending category
+			.attr('id','SDCLine_'+params.SDCLineIndex)
 			.attr('stroke','black')
 			.attr('stroke-width',4)
 			.attr("x1", x)
 			.attr("y1", y)
 			.attr("x2", x)
-			.attr("y2", y);
-		
+			.attr("y2", y)
+			.on('mousedown', moveExistingSDCLine);
+
 		params.SDCCircle0 = params.SDCSVG.append("circle")
+			.attr('id','SDCCircle0_'+params.SDCLineIndex)
 			.attr('class','SDCCircle0')
 			.attr('fill', 'black')
 			.attr('cx',x)
@@ -173,11 +177,14 @@ function startSDCLine() {
 			.on('mousedown', startSDCLine);
 
 		params.SDCCircle = params.SDCSVG.append("circle")
+			.attr('id','SDCCircle_'+params.SDCLineIndex)
 			.attr('class','SDCCircle')
 			.attr('fill', 'black')
 			.attr('cx',x)
 			.attr('cy',y)
-			.attr('r',6);
+			.attr('r',6)
+			.on('mousedown', moveExistingSDCLine);
+
 	}
 }
 
@@ -236,9 +243,13 @@ function moveSDCLine() {
 
 }
 
-function endSDCLine() {
-	console.log('ending line')
+function moveExistingSDCLine(){
+	var useIndex = this.id.split('_')[1];
+	params.SDCLine = d3.select('#SDCLine_'+useIndex)
+	params.SDCCircle = d3.select('#SDCCircle_'+useIndex)
+}
 
+function endSDCLine() {
 	//restart text highlighting
 	window.event.cancelBubble = false;
 	window.event.returnValue = true;
