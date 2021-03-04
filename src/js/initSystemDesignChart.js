@@ -276,6 +276,12 @@ function moveSDCLine() {
 		}
 		
 
+		var x1 = params.SDCLine.attr('x1')
+		var y1 = params.SDCLine.attr('y1')
+		if (x < x1){
+			x = x1;
+			y = y1
+		}
 		params.SDCLine
 			.attr("x2", x)
 			.attr("y2", y);
@@ -283,6 +289,7 @@ function moveSDCLine() {
 		params.SDCCircle
 			.attr("cx", x)
 			.attr("cy", y);
+
 	}
 
 }
@@ -343,6 +350,10 @@ function highlightSDCLines(elem){
 		var id = foo.substr(7,foo.length-7);
 		d3.selectAll('.SDCLine_'+id).interrupt().transition()
 		d3.selectAll('.SDCLine_'+id).style('opacity',1)
+
+		d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1);
+		d3.selectAll('.SDCAggregateLine_'+id).interrupt().transition()
+		d3.selectAll('.SDCAggregateLine_'+id).style('opacity',1)
 	}
 
 }
@@ -352,6 +363,9 @@ function resetSDCLines(){
 	d3.selectAll('.SDCLine').transition().duration(params.transitionSDCDuration).style('opacity',1);
 	d3.selectAll('.SDCCircle').transition().duration(params.transitionSDCDuration).style('opacity',1);
 	d3.selectAll('.SDCCircle0').transition().duration(params.transitionSDCDuration).style('opacity',1);
+
+	d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionSDCDuration).style('opacity',0.5);
+
 }
 
 function useSDCURLdata(){
