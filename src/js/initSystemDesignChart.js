@@ -448,7 +448,7 @@ function plotSDCAggregateLines(){
 
 			if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
 
-				params.SDCAggSVG.append('line')
+				var line = params.SDCAggSVG.append('line')
 					.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
 					.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
 					.attr('fracion',frac) //custom attribute to track the fraction		
@@ -459,10 +459,14 @@ function plotSDCAggregateLines(){
 					.attr('stroke-linecap','round') 
 					.attr('x1', x1)
 					.attr('y1', y1)
-					.attr('x2', x2)
-					.attr('y2', y2)
+					.attr('x2', x1)
+					.attr('y2', y1)
 					.style('opacity',0.5)
 					.style('z-index',-10)
+
+				line.transition().duration(params.transitionDuration)
+					.attr('x2', x2)
+					.attr('y2', y2)
 
 				//also create a box and text to hold the fraction
 				var textHolder = params.SDCAggSVG.append('g')
@@ -507,7 +511,19 @@ function plotSDCAggregateLines(){
 function switchSDCVersions(){
 	if (this.name == 'version'){
 		params.SDCResponseVersion = this.value;
-		if (params.SDCSubmitted) plotSDCAggregateLines();
+
+		params.SDCAggSVG.selectAll('line').each(function(d,i){
+			var el = d3.select(this)
+			var t = el.transition().duration(params.transitionDuration)
+				.attr('x1', el.attr('x2'))
+				.attr('y1', el.attr('y2'))
+			if (i == params.SDCAggSVG.selectAll('line').size() -1){
+				t.on('end',function(){
+					if (params.SDCSubmitted) plotSDCAggregateLines();
+				})
+			}
+		})
+			
 	}
 
 }
