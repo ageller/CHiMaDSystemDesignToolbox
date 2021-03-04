@@ -162,7 +162,7 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords){
 		.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
 		.attr('endSelectionWords',endWords) //custom attribute to track the ending word(s)			
 		.attr('id','SDCLine_'+params.SDCLineIndex)
-		.attr('class','SDCLine SDCLine_'+startWords)
+		.attr('class','SDCLine SDCLine_'+startWords+' SDCLine_'+endWords)
 		.attr('stroke','black')
 		.attr('stroke-width',4)
 		.attr('x1', x1)
@@ -175,7 +175,7 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords){
 
 	params.SDCCircle0 = params.SDCSVG.append('circle')
 		.attr('id','SDCCircle0_'+params.SDCLineIndex)
-		.attr('class','SDCCircle0 SDCLine_'+startWords)
+		.attr('class','SDCCircle0 SDCLine_'+startWords+' SDCLine_'+endWords)
 		.attr('fill', 'black')
 		.attr('cx',x1)
 		.attr('cy',y1)
@@ -186,7 +186,7 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords){
 
 	params.SDCCircle = params.SDCSVG.append('circle')
 		.attr('id','SDCCircle_'+params.SDCLineIndex)
-		.attr('class','SDCCircle SDCLine_'+startWords)
+		.attr('class','SDCCircle SDCLine_'+startWords+' SDCLine_'+endWords)
 		.attr('fill', 'black')
 		.attr('cx',x2)
 		.attr('cy',y2)
@@ -453,7 +453,7 @@ function plotSDCAggregateLines(){
 					.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
 					.attr('fracion',frac) //custom attribute to track the fraction		
 					.attr('id','SDCAggregateLine_'+params.SDCLineIndex)
-					.attr('class','SDCAggregateLine SDCAggregateLine_'+startWords)
+					.attr('class','SDCAggregateLine SDCAggregateLine_'+startWords+ ' SDCAggregateLine_'+w)
 					.attr('stroke',params.colorMap(frac))
 					.attr('stroke-width',width)
 					.attr('stroke-linecap','round') 
@@ -466,17 +466,15 @@ function plotSDCAggregateLines(){
 
 				//also create a box and text to hold the fraction
 				var textHolder = params.SDCAggSVG.append('g')
-					.attr('class','SDCAggregateFracBox SDCAggregateFracBox_'+startWords)
+					.attr('class','SDCAggregateFracBox SDCAggregateFracBox_'+startWords+' SDCAggregateFracBox_'+w)
 
-				var xt = x2 ;//(x1 + x2)/2.;
-				var yt = y2;//(y1 + y2)/2.;
+				var xt = (x1 + x2)/2.;
+				var yt = (y1 + y2)/2.;
 				var d = Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
 				var angle = Math.acos(Math.abs(x2 - x1)/d)*180/Math.PI;
-				var yoff = -width;
-				if (y1 > y2) {
-					angle = -1.*angle;
-					yoff = width;
-				}
+				var yoff = width;
+				if (y1 > y2) angle = -1.*angle;
+				
 				// textHolder.append('rect')
 				// 	.attr('fill',params.colorMap(frac))
 				// 	.attr('x',xt - fracBoxSize*2.)
