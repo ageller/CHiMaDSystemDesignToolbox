@@ -71,7 +71,8 @@ function defineParams(){
 		//wave the bars in this interval
 		this.waveInterval;
 		this.waveTimeouts = [];
-
+		this.waveWait;
+		
 		//interval for reloading data
 		this.loadInterval;
 		this.loadIntervalDuration = 30*1000; //30 seconds, in units of milliseconds
@@ -107,7 +108,7 @@ function defineParams(){
 		this.SDCData = {}; //will hold all the data from the SDC
 		this.SDCLineIndex = 0;
 		this.SDCLineHighlighted = false;
-		
+
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
 
