@@ -48,14 +48,14 @@
 
 				<div id="usernameInstructions" class="instructions">&#9314; After you submit your responses, this visualization will populate with the aggregate results from the group. </div>
 
-				<form id="versionOptions">
+				<form id="paraVersionOptions" class='versionOptions'>
 					<div>Select which version of the responses to display, and whether to show the answers (black boxes).</div>
-					<input type="radio" id="version1" name="version" value="1" class="radio" checked>
-					<label for="version1">Version 1</label><br>
-					<input type="radio" id="version2" name="version" value="2" class="radio">
-					<label for="version2">Version 2</label><br>
-					<input type="checkbox" id="answerToggle" name="answers" value="1" class="radio" checked>
-					<label for="answerToggle">Answers on/off</label><br>
+					<input type="radio" id="paraVersion1" name="version" value="1" class="radio" checked>
+					<label for="paraVersion1">Version 1</label><br>
+					<input type="radio" id="paraVersion2" name="version" value="2" class="radio">
+					<label for="paraVersion2">Version 2</label><br>
+					<input type="checkbox" id="paraAnswerToggle" name="answers" value="1" class="radio" checked>
+					<label for="paraAnswerToggle">Answers on/off</label><br>
 				</form>
 
 				<div id="boxGridSVGContainer"></div>
@@ -68,7 +68,16 @@
 		<div id="systemDesignChart">
 			<div class="para">
 
-				<div id="usernameInstructions" class="instructions">&#9315; Construct a system design chart.  Click+drag lines to connect boxes in each column with the adjacent column(s).  When you have completed your chart, click the submit button below.  After clicking submit, the results from the rest of your group will also be shown.  </div>
+				<div id="SDCInstructions" class="instructions">&#9315; Construct a system design chart.  Click+drag lines to connect boxes in each column with the adjacent column(s).  When you have completed your chart, click the submit button below.  After clicking submit, the results from the rest of your group will also be shown.  </div>
+
+				<form id="SDCVersionOptions" class='versionOptions'>
+					<div>Select which version of the responses to display.</div>
+					<input type="radio" id="SDCVersion1" name="version" value="1" class="radio" checked>
+					<label for="SDCVersion1">Version 1</label><br>
+					<input type="radio" id="SDCVersion2" name="version" value="2" class="radio">
+					<label for="SDCVersion2">Version 2</label><br>
+				</form>
+
 
 				<div id="systemDesignChartSVGContainer"></div>
 

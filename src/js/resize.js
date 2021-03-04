@@ -24,7 +24,7 @@ function resize(){
 		.style('top',ubbox.y + ubbox.height + 'px')
 		.style('left','0px');
 	var fsv = Math.max(0.007*window.innerWidth, params.versionFSmin);
-	d3.select('#versionOptions')
+	d3.select('#paraVersionOptions')
 		.style('font-size', fsv + 'px')
 		.style('line-height', (fsv+2)+'px');
 

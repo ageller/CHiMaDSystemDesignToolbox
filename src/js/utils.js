@@ -32,6 +32,14 @@ function appendURLdata(){
 	});
 }
 
+//https://stackoverflow.com/questions/20798477/how-to-find-index-of-all-occurrences-of-element-in-array#:~:text=The%20.,val%2C%20i%2B1))%20!%3D
+function getAllIndices(arr, val) {
+	var indices = [], i;
+	for(i = 0; i < arr.length; i++)
+		if (arr[i] === val)
+			indices.push(i);
+	return indices;
+}
 
 //https://bl.ocks.org/mbostock/7555321
 //https://stackoverflow.com/questions/24784302/wrapping-text-in-d3/24785497

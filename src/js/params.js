@@ -30,7 +30,7 @@ function defineParams(){
 		//this will hold the responses downloaded from the google sheet
 		this.responses;
 		this.aggregatedParaResponses = []; //will have multiple versions
-		this.responseVersion = 1;
+		this.paraResponseVersion = 1;
 		this.dummyData = {};
 		this.paraSubmitted = false; //will be changed to true after form is submitted 
 		this.showingResults = false; //will be changed to true after form is submitted and results are shown
@@ -72,7 +72,7 @@ function defineParams(){
 		this.waveInterval;
 		this.waveTimeouts = [];
 		this.waveWait;
-		
+
 		//interval for reloading data
 		this.loadInterval;
 		this.loadIntervalDuration = 30*1000; //30 seconds, in units of milliseconds
@@ -97,6 +97,7 @@ function defineParams(){
 		//settings for the system design chart (SDC)
 		this.SDCColumnCenters; //will hold the central x locations for the columns
 		this.SDCSVG;
+		this.SDCAggSVG;
 		this.SDCSVGMargin;
 		this.SDCSVGHeight;
 		this.SDCSVGWidth;
@@ -108,7 +109,12 @@ function defineParams(){
 		this.SDCData = {}; //will hold all the data from the SDC
 		this.SDCLineIndex = 0;
 		this.SDCLineHighlighted = false;
-
+		this.aggregatedSDCResponses = []; //will have multiple version
+		this.SDCSubmitted = false;
+		this.maxSDCLineWidth = 20;
+		this.minSDCLineWidth = 1;
+		this.SDCResponseVersion = 1;
+		
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
 

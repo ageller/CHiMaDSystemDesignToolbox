@@ -45,6 +45,9 @@ function createSystemDesignChart(){
 		.attr('height',params.SDCSVGHeight)
 		.on('mouseup',endSDCLine)
 
+	//will hold the aggregate results
+	params.SDCAggSVG = params.SDCSVG.append('g').attr('id','AggregatedSDCLinesContainer');
+
 	// add the column headers
 	params.SDCSVG.selectAll('.text')
 		.data(params.options).enter().filter(function(d){return d != 'Select Category';})
@@ -142,6 +145,10 @@ function createSystemDesignChart(){
 	})
 
 	useSDCURLdata();
+
+	//for testing
+	if (params.SDCSubmitted)plotSDCAggregateLines();
+
 
 }
 
@@ -384,4 +391,65 @@ function useSDCURLdata(){
 		}
 
 	})
+}
+
+function plotSDCAggregateLines(){
+
+	//destroy the plot (if it exists)
+	var parent = params.SDCAggSVG.node();
+	while (parent.firstChild) {
+		parent.removeChild(parent.firstChild);
+	}
+	var SDCdata = params.aggregatedSDCResponses[params.SDCResponseVersion];
+	Object.keys(SDCdata).forEach(function(startWords){
+		var endWords = SDCdata[startWords].uniq;
+
+		endWords.forEach(function(w,i){
+
+			var startParent = d3.select('#SDCBox_'+startWords);
+			var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth;
+			var y1 = parseFloat(startParent.attr('y')) + parseFloat(startParent.select('rect').attr('height'))/2.;
+
+			var endParent = d3.select('#SDCBox_'+w);
+			var x2 = parseFloat(endParent.attr('x'))
+			var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
+
+			//get the category from the rect class list (will this always be the last class value?)
+			var cat = startParent.node().classList[1];
+
+			//line width is based on entries
+			var frac = SDCdata[startWords].num[w]/params.aggregatedSDCResponses.nVersion[params.SDCResponseVersion];
+			var width = (params.maxSDCLineWidth - params.minSDCLineWidth)*frac + params.minSDCLineWidth;
+
+			if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
+
+				params.SDCAggSVG.append("line")
+					.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
+					.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
+					.attr('fracion',frac) //custom attribute to track the fraction		
+					.attr('id','SDCAggregateLine_'+params.SDCLineIndex)
+					.attr('class','SDCAggregateLine SDCAggregateLine_'+startWords)
+					.attr('stroke',params.colorMap(frac))
+					.attr('stroke-width',width)
+					.attr('stroke-linecap','round') 
+					.attr("x1", x1)
+					.attr("y1", y1)
+					.attr("x2", x2)
+					.attr("y2", y2)
+					.style('opacity',0.5)
+					.style('z-index',-10)
+
+			}
+		})
+
+	})
+
+}
+
+function switchSDCVersions(){
+	if (this.name == "version"){
+		params.SDCResponseVersion = this.value;
+		if (params.SDCSubmitted) plotSDCAggregateLines();
+	}
+
 }

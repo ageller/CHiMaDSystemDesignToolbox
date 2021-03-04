@@ -18,7 +18,7 @@ function createBars(){
 	}
 
 	var bbI = d3.select('#usernameInstructions').node().getBoundingClientRect();
-	var bbV = d3.select('#versionOptions').node().getBoundingClientRect();
+	var bbV = d3.select('#paraVersionOptions').node().getBoundingClientRect();
 	var fsp = Math.min(Math.max(0.01*window.innerWidth, params.paraFSmin), params.maxPlotFont);
 
 	//check whether we are plotting this in side-by-side w/ paragraph or top-bottom
@@ -248,7 +248,7 @@ function defineBars(){
 		var realData = []
 		params.options.forEach(function(o){
 			if (o != 'Select Category'){
-				var agg = params.aggregatedParaResponses[params.responseVersion][params.cleanString(c)]
+				var agg = params.aggregatedParaResponses[params.paraResponseVersion][params.cleanString(c)]
 				var v = 0;
 				if (agg) v = agg.num[params.cleanString(o)]/agg.total || 0;
 				var dat = {"category":o, "value":v}
@@ -375,9 +375,9 @@ function toggleAnswers(){
 	d3.selectAll('.answerBorder').transition().duration(params.transitionDuration).style('stroke-opacity',op)
 }
 
-function switchVersions(){
+function switchParaVersions(){
 	if (this.name == "version"){
-		params.responseVersion = this.value;
+		params.paraResponseVersion = this.value;
 		params.firstDisplay = true;
 		if (params.paraSubmitted) defineBars();
 	}

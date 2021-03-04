@@ -187,7 +187,7 @@ html,body {
 	padding:2px;
 }
 
-#versionOptions{
+.versionOptions{
 	color:black;
 	font-style: italic;
 	font-size:0.7vw;

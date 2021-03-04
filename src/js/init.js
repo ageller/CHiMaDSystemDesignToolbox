@@ -15,7 +15,8 @@ window.addEventListener('resize', resize);
 window.addEventListener('load',resize);
 
 //version options
-d3.select('#versionOptions').selectAll('input').on('change',switchVersions);
+d3.select('#paraVersionOptions').selectAll('input').on('change',switchParaVersions);
+d3.select('#SDCVersionOptions').selectAll('input').on('change',switchSDCVersions);
 
 //move the tooltip
 // window.addEventListener('mousemove', function(){
