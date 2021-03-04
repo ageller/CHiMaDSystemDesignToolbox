@@ -112,9 +112,9 @@ function defineParams(){
 		this.aggregatedSDCResponses = []; //will have multiple version
 		this.SDCSubmitted = false;
 		this.maxSDCLineWidth = 20;
-		this.minSDCLineWidth = 1;
+		this.minSDCLineWidth = 5;
 		this.SDCResponseVersion = 1;
-		
+
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
 

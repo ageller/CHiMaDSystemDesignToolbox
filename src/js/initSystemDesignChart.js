@@ -20,19 +20,19 @@ function createSystemDesignChart(){
 	}
 
 	//plot size and margins; I may have to resize this later once I know how many entries go in each column
-	params.SDCSVGMargin = {"top":20,"bottom":20,"left":20,"right":20};
+	params.SDCSVGMargin = {'top':20,'bottom':20,'left':20,'right':20};
 	params.SDCSVGHeight = 0.9*window.innerHeight - params.SDCSVGMargin.top - params.SDCSVGMargin.bottom;
 	params.SDCSVGWidth = window.innerWidth-40 - params.SDCSVGMargin.left - params.SDCSVGMargin.right;
 
 	
 	params.SDCSVG = d3.select('#systemDesignChartSVGContainer').append('svg')
-		.attr("id","SDCPlotSVG")
+		.attr('id','SDCPlotSVG')
 		.style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom)
 		.style('width',params.SDCSVGWidth + params.SDCSVGMargin.left + params.SDCSVGMargin.right)
-		.append("g")
+		.append('g')
 			.on('mouseup',resetSDCLines)
-			.attr("id","SDCPlotContainer")
-			.attr("transform", "translate(" + params.SDCSVGMargin.left + "," + params.SDCSVGMargin.top + ")");
+			.attr('id','SDCPlotContainer')
+			.attr('transform', 'translate(' + params.SDCSVGMargin.left + ',' + params.SDCSVGMargin.top + ')');
 
 
 	//create a rect to capture mouse events
@@ -53,10 +53,10 @@ function createSystemDesignChart(){
 		.data(params.options).enter().filter(function(d){return d != 'Select Category';})
 		.append('text')
 			.attr('class', function(d){ return 'text '+d+'Word'; })
-			.attr("x", function(d) { return params.SDCColumnCenters[d]; })
-			.attr("y", 0)
-			.attr("dy", ".35em")
-			.style("text-anchor", "middle")
+			.attr('x', function(d) { return params.SDCColumnCenters[d]; })
+			.attr('y', 0)
+			.attr('dy', '.35em')
+			.style('text-anchor', 'middle')
 			.style('opacity',1)
 			.text(function(d){return d})
 
@@ -75,7 +75,7 @@ function createSystemDesignChart(){
 			.attr('selectionWords',params.cleanString(params.selectionWords[i])) //custom attribute to hold the selection words
 			.attr('x',params.SDCColumnCenters[params.answers[0][d]] - params.SDCBoxWidth/2.)
 			.attr('y',SDCcolumnLocations[params.answers[0][d]])
-			.attr("transform", "translate(" + (params.SDCColumnCenters[params.answers[0][d]] - params.SDCBoxWidth/2.) + "," + SDCcolumnLocations[params.answers[0][d]] + ")")
+			.attr('transform', 'translate(' + (params.SDCColumnCenters[params.answers[0][d]] - params.SDCBoxWidth/2.) + ',' + SDCcolumnLocations[params.answers[0][d]] + ')')
 			//.on('mouseover',function(){highlightSDCLines(this)})
 			//.on('mouseout',resetSDCLines)
 			.on('mousedown', startSDCLine)
@@ -90,10 +90,10 @@ function createSystemDesignChart(){
 
 		var text = box.append('text')
 			.attr('class','noSelect')
-			.attr("x", params.SDCBoxWidth/2.)
-			.attr("y", boxHeight/2.)
-			.attr("dy", ".35em")
-			.style("text-anchor", "middle")
+			.attr('x', params.SDCBoxWidth/2.)
+			.attr('y', boxHeight/2.)
+			.attr('dy', '.35em')
+			.style('text-anchor', 'middle')
 			.style('opacity',1)
 			.style('fill','black')
 			.text(params.selectionWords[i].replaceAll('<sub>','_').replaceAll('</sub>','$')) //recoding so the line width is about correct
@@ -105,7 +105,7 @@ function createSystemDesignChart(){
 		//fix any subcripts
 		text.selectAll('tspan').each(function(){
 			var t = d3.select(this).text()
-			d3.select(this).html(t.replaceAll("_","<tspan dy=5>").replaceAll("$","</tspan><tspan dy=-5>"));  //I'm not closing the last tspan, but it seems OK 
+			d3.select(this).html(t.replaceAll('_','<tspan dy=5>').replaceAll('$','</tspan><tspan dy=-5>'));  //I'm not closing the last tspan, but it seems OK 
 
 		})
 
@@ -136,7 +136,7 @@ function createSystemDesignChart(){
 							d3.select(this)
 								.attr('x',x)
 								.attr('y',y)
-								.attr("transform", "translate(" + x + ","+ y + ")");
+								.attr('transform', 'translate(' + x + ','+ y + ')');
 						})
 					}
 				}
@@ -155,7 +155,7 @@ function createSystemDesignChart(){
 function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords){
 	params.SDCLineIndex += 1;
 
-	params.SDCLine = params.SDCSVG.append("line")
+	params.SDCLine = params.SDCSVG.append('line')
 		.attr('attached','false') //custom attribute to track if the line is connected
 		.attr('startCategory',cat) //custom attribute to track the starting category
 		.attr('endCategory','null') //custom attribute to track the ending category
@@ -165,15 +165,15 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords){
 		.attr('class','SDCLine SDCLine_'+startWords)
 		.attr('stroke','black')
 		.attr('stroke-width',4)
-		.attr("x1", x1)
-		.attr("y1", y1)
-		.attr("x2", x2)
-		.attr("y2", y2)
+		.attr('x1', x1)
+		.attr('y1', y1)
+		.attr('x2', x2)
+		.attr('y2', y2)
 		.on('mousedown', moveExistingSDCLine)
 		//.on('mouseover',function(){highlightSDCLines(elem)})
 		//.on('mouseout',resetSDCLines);
 
-	params.SDCCircle0 = params.SDCSVG.append("circle")
+	params.SDCCircle0 = params.SDCSVG.append('circle')
 		.attr('id','SDCCircle0_'+params.SDCLineIndex)
 		.attr('class','SDCCircle0 SDCLine_'+startWords)
 		.attr('fill', 'black')
@@ -184,7 +184,7 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords){
 		//.on('mouseover',function(){highlightSDCLines(elem)})
 		//.on('mouseout',resetSDCLines);
 
-	params.SDCCircle = params.SDCSVG.append("circle")
+	params.SDCCircle = params.SDCSVG.append('circle')
 		.attr('id','SDCCircle_'+params.SDCLineIndex)
 		.attr('class','SDCCircle SDCLine_'+startWords)
 		.attr('fill', 'black')
@@ -283,12 +283,12 @@ function moveSDCLine() {
 			y = y1
 		}
 		params.SDCLine
-			.attr("x2", x)
-			.attr("y2", y);
+			.attr('x2', x)
+			.attr('y2', y);
 
 		params.SDCCircle
-			.attr("cx", x)
-			.attr("cy", y);
+			.attr('cx', x)
+			.attr('cy', y);
 
 	}
 
@@ -353,7 +353,13 @@ function highlightSDCLines(elem){
 
 		d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1);
 		d3.selectAll('.SDCAggregateLine_'+id).interrupt().transition()
-		d3.selectAll('.SDCAggregateLine_'+id).style('opacity',1)
+		d3.selectAll('.SDCAggregateLine_'+id).style('opacity',0.5)
+
+		d3.selectAll('.SDCAggregateFracBox_'+id).select('rect').interrupt().transition()
+		d3.selectAll('.SDCAggregateFracBox_'+id).select('text').interrupt().transition()
+		d3.selectAll('.SDCAggregateFracBox_'+id).select('rect').transition().duration(params.transitionSDCDuration).style('opacity',0.5)
+		d3.selectAll('.SDCAggregateFracBox_'+id).select('text').transition().duration(params.transitionSDCDuration).style('opacity',1)
+
 	}
 
 }
@@ -366,6 +372,8 @@ function resetSDCLines(){
 
 	d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionSDCDuration).style('opacity',0.5);
 
+	d3.selectAll('.SDCAggregateFracBox').select('rect').transition().duration(params.transitionSDCDuration).style('opacity',0)
+	d3.selectAll('.SDCAggregateFracBox').select('text').transition().duration(params.transitionSDCDuration).style('opacity',0)
 }
 
 function useSDCURLdata(){
@@ -414,6 +422,9 @@ function plotSDCAggregateLines(){
 	while (parent.firstChild) {
 		parent.removeChild(parent.firstChild);
 	}
+
+	var fracBoxSize = 20;//should this change with resize?
+
 	var SDCdata = params.aggregatedSDCResponses[params.SDCResponseVersion];
 	Object.keys(SDCdata).forEach(function(startWords){
 		var endWords = SDCdata[startWords].uniq;
@@ -437,7 +448,7 @@ function plotSDCAggregateLines(){
 
 			if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
 
-				params.SDCAggSVG.append("line")
+				params.SDCAggSVG.append('line')
 					.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
 					.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
 					.attr('fracion',frac) //custom attribute to track the fraction		
@@ -446,12 +457,47 @@ function plotSDCAggregateLines(){
 					.attr('stroke',params.colorMap(frac))
 					.attr('stroke-width',width)
 					.attr('stroke-linecap','round') 
-					.attr("x1", x1)
-					.attr("y1", y1)
-					.attr("x2", x2)
-					.attr("y2", y2)
+					.attr('x1', x1)
+					.attr('y1', y1)
+					.attr('x2', x2)
+					.attr('y2', y2)
 					.style('opacity',0.5)
 					.style('z-index',-10)
+
+				//also create a box and text to hold the fraction
+				var textHolder = params.SDCAggSVG.append('g')
+					.attr('class','SDCAggregateFracBox SDCAggregateFracBox_'+startWords)
+
+				var xt = x2 ;//(x1 + x2)/2.;
+				var yt = y2;//(y1 + y2)/2.;
+				var d = Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
+				var angle = Math.acos(Math.abs(x2 - x1)/d)*180/Math.PI;
+				var yoff = -width;
+				if (y1 > y2) {
+					angle = -1.*angle;
+					yoff = width;
+				}
+				// textHolder.append('rect')
+				// 	.attr('fill',params.colorMap(frac))
+				// 	.attr('x',xt - fracBoxSize*2.)
+				// 	.attr('y',yt - fracBoxSize/2 - width)
+				// 	.attr('rx', fracBoxSize/4.)
+				// 	.attr('ry', fracBoxSize/4.)
+				// 	.attr('width',fracBoxSize*2.)
+				// 	.attr('height',fracBoxSize)
+				// 	.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
+				// 	.style('opacity',0)
+
+
+				textHolder.append('text')
+					.attr('x',xt - fracBoxSize)
+					.attr('y',yt - yoff)
+					.attr('dy', '.35em')
+					.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
+					.attr('fill','black')
+					.style('text-anchor', 'middle')
+					.style('opacity',0)
+					.text(frac.toFixed(2))
 
 			}
 		})
@@ -461,7 +507,7 @@ function plotSDCAggregateLines(){
 }
 
 function switchSDCVersions(){
-	if (this.name == "version"){
+	if (this.name == 'version'){
 		params.SDCResponseVersion = this.value;
 		if (params.SDCSubmitted) plotSDCAggregateLines();
 	}
