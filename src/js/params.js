@@ -3,6 +3,9 @@
 var params;
 function defineParams(){
 	params = new function() {
+
+		this.mouseDown = false;
+
 		this.userIP = "00.000.00.00";
 		this.uername = "";
 
@@ -76,6 +79,7 @@ function defineParams(){
 		//transitions used for changing the bar heights
 		this.transitionDuration = 500;
 		this.transitionWaveDuration = 5000;
+		this.transitionSDCDuration = 200;
 
 		//minimum sizes for fonts and bounding boxes
 		this.paraFSmin = 16;  //0.01
@@ -102,7 +106,8 @@ function defineParams(){
 		this.SDCCircle = null;
 		this.SDCData = {}; //will hold all the data from the SDC
 		this.SDCLineIndex = 0;
-
+		this.SDCLineHighlighted = false;
+		
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
 
