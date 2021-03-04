@@ -31,7 +31,12 @@ window.addEventListener('mousemove', function(){
 });
 window.addEventListener('mouseup', function(){
 	endSDCLine();
+	params.mouseDown = false;
 });
+window.addEventListener('mousedown', function(){
+	params.mouseDown = true;
+});
+
 //define the params object that holds all the global variables and functions
 defineParams();
 
