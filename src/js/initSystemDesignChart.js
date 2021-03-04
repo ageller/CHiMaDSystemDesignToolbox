@@ -30,6 +30,7 @@ function createSystemDesignChart(){
 		.style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom)
 		.style('width',params.SDCSVGWidth + params.SDCSVGMargin.left + params.SDCSVGMargin.right)
 		.append("g")
+			.on('mouseup',resetSDCLines)
 			.attr("id","SDCPlotContainer")
 			.attr("transform", "translate(" + params.SDCSVGMargin.left + "," + params.SDCSVGMargin.top + ")");
 
@@ -67,12 +68,13 @@ function createSystemDesignChart(){
 
 		var box = params.SDCSVG.append('g')
 			.attr('class','SDCrectContainer ' + params.answers[0][d])
-			.attr('id','SDCBox'+params.cleanString(params.selectionWords[i]))
+			.attr('id','SDCBox_'+params.cleanString(params.selectionWords[i]))
 			.attr('selectionWords',params.cleanString(params.selectionWords[i])) //custom attribute to hold the selection words
 			.attr('x',params.SDCColumnCenters[params.answers[0][d]] - params.SDCBoxWidth/2.)
 			.attr('y',SDCcolumnLocations[params.answers[0][d]])
 			.attr("transform", "translate(" + (params.SDCColumnCenters[params.answers[0][d]] - params.SDCBoxWidth/2.) + "," + SDCcolumnLocations[params.answers[0][d]] + ")")
-			.on('mouseover',highlightSDCLines)
+			//.on('mouseover',function(){highlightSDCLines(this)})
+			//.on('mouseout',resetSDCLines)
 			.on('mousedown', startSDCLine)
 
 		box.append('rect')
@@ -143,7 +145,7 @@ function createSystemDesignChart(){
 
 }
 
-function createSDCLine(x1,y1,x2,y2,r,cat,startWords,endWords){
+function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords){
 	params.SDCLineIndex += 1;
 
 	params.SDCLine = params.SDCSVG.append("line")
@@ -160,25 +162,32 @@ function createSDCLine(x1,y1,x2,y2,r,cat,startWords,endWords){
 		.attr("y1", y1)
 		.attr("x2", x2)
 		.attr("y2", y2)
-		.on('mousedown', moveExistingSDCLine);
+		.on('mousedown', moveExistingSDCLine)
+		//.on('mouseover',function(){highlightSDCLines(elem)})
+		//.on('mouseout',resetSDCLines);
 
 	params.SDCCircle0 = params.SDCSVG.append("circle")
 		.attr('id','SDCCircle0_'+params.SDCLineIndex)
-		.attr('class','SDCCircle0')
+		.attr('class','SDCCircle0 SDCLine_'+startWords)
 		.attr('fill', 'black')
 		.attr('cx',x1)
 		.attr('cy',y1)
 		.attr('r',r)
-		.on('mousedown', startSDCLine);
+		.on('mousedown', startSDCLine)
+		//.on('mouseover',function(){highlightSDCLines(elem)})
+		//.on('mouseout',resetSDCLines);
 
 	params.SDCCircle = params.SDCSVG.append("circle")
 		.attr('id','SDCCircle_'+params.SDCLineIndex)
-		.attr('class','SDCCircle')
+		.attr('class','SDCCircle SDCLine_'+startWords)
 		.attr('fill', 'black')
 		.attr('cx',x2)
 		.attr('cy',y2)
 		.attr('r',r)
-		.on('mousedown', moveExistingSDCLine);
+		.on('mousedown', moveExistingSDCLine)
+		//.on('mouseover',function(){highlightSDCLines(elem)})
+		//.on('mouseout',resetSDCLines);
+
 }
 
 //draw lines 
@@ -191,6 +200,8 @@ function startSDCLine() {
 		elem = document.elementFromPoint(params.event.clientX -7, params.event.clientY).parentNode;
 		if (elem.nodeName == 'tspan') elem = d3.select(elem.parentNode.parentNode).select('rect').node().parentNode;
 	}
+	highlightSDCLines(elem)
+
 	elem = d3.select(elem);
 	var x = parseFloat(elem.attr('x')) + params.SDCBoxWidth;
 	var y = parseFloat(elem.attr('y')) + parseFloat(elem.select('rect').attr('height'))/2.;
@@ -199,7 +210,7 @@ function startSDCLine() {
 	var cat = elem.node().classList[1]
 	var words = elem.attr('selectionWords')
 	var i = params.options.indexOf(cat);
-	if (i < params.options.length-1 && !isNaN(x) && !isNaN(y)) createSDCLine(x,y,x,y,6,cat,words,'null');
+	if (i < params.options.length-1 && !isNaN(x) && !isNaN(y)) createSDCLine(elem, x,y,x,y,6,cat,words,'null');
 
 }
 
@@ -208,6 +219,10 @@ function moveSDCLine() {
 		//stop text highlighting
 		window.event.cancelBubble = true;
 		window.event.returnValue = false;
+
+		//for highlighting
+		var id = 'SDCBox_'+params.SDCLine.attr('startSelectionWords')
+		highlightSDCLines(d3.select('#'+id).node());
 
 		var x = params.event.layerX - params.SDCSVGMargin.left;
 		var y = params.event.layerY - params.SDCSVGMargin.top;
@@ -220,6 +235,8 @@ function moveSDCLine() {
 			if (elem.nodeName == 'tspan') elem = elem.parentNode;
 			var parent = d3.select(elem.parentNode);
 			if (parent.classed('SDCrectContainer')){
+
+
 				//get the category from the rect class list (will this always be the last class value?)
 				var cat = parent.node().classList[1];
 				var cat0 = params.SDCLine.attr('startCategory');
@@ -300,11 +317,34 @@ function endSDCLine() {
 	params.SDCCircle0 = null;
 	params.SDCCircle = null;
 
+	resetSDCLines();
 
 }
 
-function highlightSDCLines(){
-	console.log('here')
+function highlightSDCLines(elem){
+	if (!params.SDCLineHighlighted){
+		params.SDCLineHighlighted = true;
+		// d3.selectAll('.SDCLine').interrupt().transition()
+		// d3.selectAll('.SDCCircle').interrupt().transition()
+		// d3.selectAll('.SDCCircle0').interrupt().transition()
+
+		d3.selectAll('.SDCLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
+		d3.selectAll('.SDCCircle').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
+		d3.selectAll('.SDCCircle0').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
+
+		var foo = d3.select(elem).attr('id')
+		var id = foo.substr(7,foo.length-7);
+		d3.selectAll('.SDCLine_'+id).interrupt().transition()
+		d3.selectAll('.SDCLine_'+id).style('opacity',1)
+	}
+
+}
+function resetSDCLines(){
+	params.SDCLineHighlighted = false;
+
+	d3.selectAll('.SDCLine').transition().duration(params.transitionSDCDuration).style('opacity',1);
+	d3.selectAll('.SDCCircle').transition().duration(params.transitionSDCDuration).style('opacity',1);
+	d3.selectAll('.SDCCircle0').transition().duration(params.transitionSDCDuration).style('opacity',1);
 }
 
 function useSDCURLdata(){
@@ -323,18 +363,18 @@ function useSDCURLdata(){
 
 			endWords.forEach(function(w,i){
 
-				var startParent = d3.select('#SDCBox'+startWords);
+				var startParent = d3.select('#SDCBox_'+startWords);
 				var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth;
 				var y1 = parseFloat(startParent.attr('y')) + parseFloat(startParent.select('rect').attr('height'))/2.;
 
-				var endParent = d3.select('#SDCBox'+w);
+				var endParent = d3.select('#SDCBox_'+w);
 				var x2 = parseFloat(endParent.attr('x'))
 				var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
 
 				//get the category from the rect class list (will this always be the last class value?)
 				var cat = startParent.node().classList[1]
 
-				if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) createSDCLine(x1,y1,x2,y2,6,cat,startWords,w);
+				if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) createSDCLine(startParent.node(), x1,y1,x2,y2,6,cat,startWords,w);
 				params.SDCLine = null;
 				params.SDCCircle0 = null;
 				params.SDCCircle = null;
