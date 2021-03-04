@@ -68,7 +68,7 @@ function readGoogleSheet(json) {
 			params.responses = out;
 			console.log('responses', out, data.length, params.responses)
 			aggregateParaResults();
-
+			aggregateSDCResults();
 		}
 	}
 }
@@ -97,7 +97,7 @@ function aggregateParaResults(){
 
 	//count up all the responses for each column and return the aggregate numbers
 	//in order to keep things a bit more simple, I will push a blank entry for version 0 (I may want to clean this up later)
-	params.aggregatedParaResponses.push({})
+	params.aggregatedParaResponses = [{}]
 
 	for (var version=1; version<=2; version+=1){
 		params.aggregatedParaResponses.push({});
@@ -121,8 +121,8 @@ function aggregateParaResults(){
 
 			}
 	//plot the results
-			if (i == params.responses.columns.length - 1 && version == params.responseVersion){
-				console.log("aggregated", params.aggregatedParaResponses[params.responseVersion]);
+			if (i == params.responses.columns.length - 1 && version == params.paraResponseVersion){
+				console.log("aggregatedPara", params.aggregatedParaResponses);
 				//I could check to see if anything changed before replotting, but I'm not sure that would offer a big speedup (since I'd need another for loop anyway)
 				if (params.paraSubmitted) defineBars();
 			}
@@ -132,6 +132,49 @@ function aggregateParaResults(){
 
 }
 
+function aggregateSDCResults(){
+
+
+	//count up all the responses for each column and return the aggregate numbers
+	//in order to keep things a bit more simple, I will push a blank entry for version 0 (I may want to clean this up later)
+	params.aggregatedSDCResponses = [{}];
+	params.aggregatedSDCResponses.nVersion = [0];
+	for (var version=1; version<=2; version+=1){
+		params.aggregatedSDCResponses.push({});
+		var using = params.responses.filter(function(d){return (d.version == version && d.task == 'SDC');});
+		params.aggregatedSDCResponses.nVersion.push(using.length);
+
+		params.responses.columns.forEach(function(rc,i){
+			if (!rc.includes('Timestamp') && !rc.includes('IP') && !rc.includes('username') && !rc.includes('version') && !rc.includes('task')){
+				vals = []
+
+				using.forEach(function(r,j){
+					//get the column
+					var v = r[rc];
+					if (typeof v == "undefined"){
+						v = ""
+					}
+					vals = vals.concat(v.split(' '));
+					blanks = getAllIndices(vals,"");
+					blanks.forEach(function(b){vals.splice(b, 1)});
+					if (j == using.length - 1){
+						params.aggregatedSDCResponses[version][rc] = countUniq(vals);
+					}
+				})
+
+			}
+			//plot the results
+			if (i == params.responses.columns.length - 1 && version == params.SDCResponseVersion){
+				console.log("aggregatedSDC", params.aggregatedSDCResponses);
+				if (params.SDCSubmitted) plotSDCAggregateLines();
+				//for testing
+				params.SDCSubmitted = true;
+			}
+
+		})
+	}
+
+}
 //for now I will work with a static csv file for the correct responses
 function loadAnswers() {
 	Promise.all([

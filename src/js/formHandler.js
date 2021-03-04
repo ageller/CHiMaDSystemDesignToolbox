@@ -173,8 +173,8 @@ function onSDCSubmit(){
 
 				if (j == d3.selectAll('.SDCLine').size() - 1){
 					sendToGoogleSheet(params.SDCData, 'SDCNotification');
-					console.log('submitted SDC form', params.SDCData)
-
+					params.SDCSubmitted = true;
+					console.log('submitted SDC form', params.SDCData);
 				}
 			})
 		}
