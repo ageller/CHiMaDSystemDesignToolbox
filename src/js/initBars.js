@@ -11,6 +11,11 @@ function createBars(){
 		parent.removeChild(parent.firstChild);
 	}
 
+	if (params.wavingBars){
+		clearInterval(params.waveInterval);
+		params.waveTimeouts.forEach(function(w){ clearTimeout(w); });
+		params.wavingBars = false;
+	}
 
 	var bbI = d3.select('#usernameInstructions').node().getBoundingClientRect();
 	var bbV = d3.select('#versionOptions').node().getBoundingClientRect();
@@ -315,11 +320,16 @@ function defineBars(){
 }
 
 function setWaveBars(){
-	console.log('waving bars ...')
-	params.wavingBars = true;
-	params.waveTimeouts = new Array(params.selectionWords.length);
-	waveBars();
-	params.waveInterval = setInterval(waveBars, params.transitionWaveDuration);
+	//wait just a bit to make sure that any resize has finished
+	clearTimeout(params.waveWait);
+	params.waveWait = setTimeout(function(){
+		console.log('waving bars ...')
+		params.wavingBars = true;
+		params.waveTimeouts = new Array(params.selectionWords.length);
+		waveBars();
+		params.waveInterval = setInterval(waveBars, params.transitionWaveDuration);
+	}, 3000);
+
 }
 
 function waveBars(){
