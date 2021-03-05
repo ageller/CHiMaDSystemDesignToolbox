@@ -46,7 +46,10 @@ function createSystemDesignChart(){
 		.on('mouseup',endSDCLine)
 
 	//will hold the aggregate results
-	params.SDCAggSVG = params.SDCSVG.append('g').attr('id','AggregatedSDCLinesContainer');
+	params.SDCAggSVG = params.SDCSVG.append('g').attr('id','SDCAggregatedLinesContainer');
+
+	//will hold the aggregate results
+	params.SDCAnswersSVG = params.SDCSVG.append('g').attr('id','SDCAnswersLinesContainer');
 
 	// add the column headers
 	params.SDCSVG.selectAll('.text')
@@ -153,9 +156,10 @@ function createSystemDesignChart(){
 
 	useSDCURLdata();
 
-	//for testing
-	if (params.SDCSubmitted)plotSDCAggregateLines();
-
+	if (params.SDCSubmitted) {
+		plotSDCAggregateLines();
+		if (params.showSDCAnswers) plotSDCAnswerLines();
+	}
 
 }
 
@@ -206,30 +210,33 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords){
 
 //draw lines 
 function startSDCLine() {
-	//get right side of box
-	var elem = this;
-	if (elem.nodeName == 'tspan') elem = d3.select(elem.parentNode.parentNode).select('rect').node().parentNode;
-	//if on top of the circle
-	if (elem.classList.contains('SDCCircle0')){
-		elem = document.elementFromPoint(params.event.clientX -7, params.event.clientY).parentNode;
+	if (params.showSDCResponses){
+
+		//get right side of box
+		var elem = this;
 		if (elem.nodeName == 'tspan') elem = d3.select(elem.parentNode.parentNode).select('rect').node().parentNode;
+		//if on top of the circle
+		if (elem.classList.contains('SDCCircle0')){
+			elem = document.elementFromPoint(params.event.clientX -7, params.event.clientY).parentNode;
+			if (elem.nodeName == 'tspan') elem = d3.select(elem.parentNode.parentNode).select('rect').node().parentNode;
+		}
+		highlightSDCLines(elem)
+
+		elem = d3.select(elem);
+		var x = parseFloat(elem.attr('x')) + params.SDCBoxWidth;
+		var y = parseFloat(elem.attr('y')) + parseFloat(elem.select('rect').attr('height'))/2.;
+
+		//get the category from the rect class list (will this always be the last class value?)
+		var cat = elem.node().classList[1]
+		var words = elem.attr('selectionWords')
+		var i = params.options.indexOf(cat);
+		if (i < params.options.length-1 && !isNaN(x) && !isNaN(y)) createSDCLine(elem, x,y,x,y,6,cat,words,'null');
 	}
-	highlightSDCLines(elem)
-
-	elem = d3.select(elem);
-	var x = parseFloat(elem.attr('x')) + params.SDCBoxWidth;
-	var y = parseFloat(elem.attr('y')) + parseFloat(elem.select('rect').attr('height'))/2.;
-
-	//get the category from the rect class list (will this always be the last class value?)
-	var cat = elem.node().classList[1]
-	var words = elem.attr('selectionWords')
-	var i = params.options.indexOf(cat);
-	if (i < params.options.length-1 && !isNaN(x) && !isNaN(y)) createSDCLine(elem, x,y,x,y,6,cat,words,'null');
 
 }
 
 function moveSDCLine() {
-	if (params.SDCLine){
+	if (params.SDCLine && params.showSDCResponses){
 		//stop text highlighting
 		window.event.cancelBubble = true;
 		window.event.returnValue = false;
@@ -302,43 +309,46 @@ function moveSDCLine() {
 }
 
 function moveExistingSDCLine(){
-	var useIndex = this.id.split('_')[1];
-	params.SDCLine = d3.select('#SDCLine_'+useIndex)
-	params.SDCCircle = d3.select('#SDCCircle_'+useIndex)
-	params.SDCCircle0 = d3.select('#SDCCircle0_'+useIndex)
+	if (params.showSDCResponses){
+		var useIndex = this.id.split('_')[1];
+		params.SDCLine = d3.select('#SDCLine_'+useIndex);
+		params.SDCCircle = d3.select('#SDCCircle_'+useIndex);
+		params.SDCCircle0 = d3.select('#SDCCircle0_'+useIndex);
+	}
 }
 
 function endSDCLine() {
-	//add to the url
+	if (params.showSDCResponses){
 
-	//restart text highlighting
-	window.event.cancelBubble = false;
-	window.event.returnValue = true;
-	
-	if (params.SDCLine){
-		if (params.SDCLine.attr('attached') == 'true'){
-			//add to URL
-			var word1 = 'SDC'+params.SDCLine.attr('startSelectionWords');
-			var word2 = params.SDCLine.attr('endSelectionWords');
-			if (word1 in params.URLInputValues){
-				word2 = params.URLInputValues[word1];
-				if (!params.URLInputValues[word1].includes(params.SDCLine.attr('endSelectionWords'))) word2 += '%20'+params.SDCLine.attr('endSelectionWords');
-			} 
-			params.URLInputValues[word1] = word2;
-			appendURLdata();
-		} else {
-			//delete line if not attached
-			params.SDCLine.remove();
-			params.SDCCircle0.remove();
-			params.SDCCircle.remove();
+		//restart text highlighting
+		window.event.cancelBubble = false;
+		window.event.returnValue = true;
+		
+		if (params.SDCLine){
+			if (params.SDCLine.attr('attached') == 'true'){
+				//add to URL
+				var word1 = 'SDC'+params.SDCLine.attr('startSelectionWords');
+				var word2 = params.SDCLine.attr('endSelectionWords');
+				if (word1 in params.URLInputValues){
+					word2 = params.URLInputValues[word1];
+					if (!params.URLInputValues[word1].includes(params.SDCLine.attr('endSelectionWords'))) word2 += '%20'+params.SDCLine.attr('endSelectionWords');
+				} 
+				params.URLInputValues[word1] = word2;
+				appendURLdata();
+			} else {
+				//delete line if not attached
+				params.SDCLine.remove();
+				params.SDCCircle0.remove();
+				params.SDCCircle.remove();
+			}
 		}
+
+		params.SDCLine = null;
+		params.SDCCircle0 = null;
+		params.SDCCircle = null;
+
+		resetSDCLines();
 	}
-
-	params.SDCLine = null;
-	params.SDCCircle0 = null;
-	params.SDCCircle = null;
-
-	resetSDCLines();
 
 }
 
@@ -367,6 +377,12 @@ function highlightSDCLines(elem){
 		d3.selectAll('.SDCAggregateFracBox_'+id).select('rect').transition().duration(params.transitionSDCDuration).style('opacity',0.5)
 		d3.selectAll('.SDCAggregateFracBox_'+id).select('text').transition().duration(params.transitionSDCDuration).style('opacity',1)
 
+		if (params.showSDCAnswers){
+			d3.selectAll('.SDCAnswerLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1);
+			d3.selectAll('.SDCAnswerLine_'+id).interrupt().transition()
+			d3.selectAll('.SDCAnswerLine_'+id).style('opacity',1)
+		}
+
 	}
 
 }
@@ -381,6 +397,10 @@ function resetSDCLines(){
 
 	d3.selectAll('.SDCAggregateFracBox').select('rect').transition().duration(params.transitionSDCDuration).style('opacity',0)
 	d3.selectAll('.SDCAggregateFracBox').select('text').transition().duration(params.transitionSDCDuration).style('opacity',0)
+
+	if (params.showSDCAnswers) d3.selectAll('.SDCAnswerLine').transition().duration(params.transitionSDCDuration).style('opacity',1);
+
+
 }
 
 function useSDCURLdata(){
@@ -476,7 +496,6 @@ function plotSDCAggregateLines(){
 						return y2
 					})
 					.style('opacity',0.5)
-					.style('z-index',-10)
 
 				line.transition().duration(params.transitionDuration)
 					.attr('x2', x2)
@@ -510,7 +529,7 @@ function plotSDCAggregateLines(){
 					.attr('y',yt - yoff)
 					.attr('dy', '.35em')
 					.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
-					.attr('fill','black')
+					.attr('fill',params.colorMap(1))
 					.style('text-anchor', 'middle')
 					.style('opacity',0)
 					.text(frac.toFixed(2))
@@ -523,12 +542,97 @@ function plotSDCAggregateLines(){
 
 }
 
+function plotSDCAnswerLines(){
+	//lots of the same code from plotSDCAggregate (above); could clean up the code by making a more generic function
+
+	console.log('PLOTTING ANSWERS')
+	var using = params.answers.filter(function(d){return (d.task == 'SDC');})[0];
+	Object.keys(using).forEach(function(startWords, j){
+		if (startWords != 'task'){
+			var endWords = using[startWords].split(' ');
+			var blanks = getAllIndices(endWords,"");
+			blanks.forEach(function(b){endWords.splice(b, 1)});
+			if (endWords){
+				endWords.forEach(function(w,i){
+
+					var startParent = d3.select('#SDCBox_'+startWords);
+					var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth;
+					var y1 = parseFloat(startParent.attr('y')) + parseFloat(startParent.select('rect').attr('height'))/2.;
+
+					var endParent = d3.select('#SDCBox_'+w);
+					var x2 = parseFloat(endParent.attr('x'))
+					var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
+
+					//get the category from the rect class list (will this always be the last class value?)
+					var cat = startParent.node().classList[1];
+
+					if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
+
+						var line = params.SDCAnswersSVG.append('line')
+							.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
+							.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
+							.attr('id','SDCAnswerLine_'+params.SDCLineIndex)
+							.attr('class','SDCAnswerLine SDCAnswerLine_'+startWords+ ' SDCAnswerLine_'+w)
+							.attr('stroke','black')
+							.attr('stroke-width',6)
+							.attr('stroke-linecap','round') 
+							.attr('x1', x1)
+							.attr('y1', y1)
+							.attr('x2', function(){
+								if (params.transitionSDCAnswers) return x1;
+								return x2
+							})
+							.attr('y2', function(){
+								if (params.transitionSDCAnswers) return y1;
+								return y2
+							})
+							.style('opacity',1)
+
+						line.transition().duration(params.transitionDuration)
+							.attr('x2', x2)
+							.attr('y2', y2)
+					}
+					//if (i == endWords.length - 1 && j == Object.keys(using).length - 1) params.transitionSDCAnswers = false;
+				})
+			}
+		}
+		if (j == Object.keys(using).length - 1) params.transitionSDCAnswers = false; //moved here in case the inner if's are not true
+
+	})
+
+}
+
 function toggleSDCAnswers(){
 	var op = 0;
 	if (params.showSDCAnswers) op = 1;
-	d3.selectAll('.answerLine').transition().duration(params.transitionDuration).style('stroke-opacity',op)
+	d3.selectAll('.SDCAnswerLine').transition().duration(params.transitionDuration).style('stroke-opacity',op);
 }
 
+function toggleSDCResponses(){
+	var op = 0;
+	if (params.showSDCResponses) {
+		op = 1;
+		d3.selectAll('.SDCLine').classed('hidden',false);
+		d3.selectAll('.SDCCircle0').classed('hidden',false);
+		d3.selectAll('.SDCCircle').classed('hidden',false);
+	}
+	d3.selectAll('.SDCLine').transition().duration(params.transitionDuration)
+		.style('stroke-opacity',op)
+		.on('end',function(){
+			if (op == 0) d3.select(this).classed('hidden', true);
+		});
+	d3.selectAll('.SDCCircle0').transition().duration(params.transitionDuration)
+		.style('opacity',op)
+		.on('end',function(){
+			if (op == 0) d3.select(this).classed('hidden', true);
+		});
+	d3.selectAll('.SDCCircle').transition().duration(params.transitionDuration)
+		.style('opacity',op)
+		.on('end',function(){
+			if (op == 0) d3.select(this).classed('hidden', true);
+		});
+
+}
 function switchSDCVersions(){
 	if (this.name == 'version'){
 		params.transitionSDCAgg = true
@@ -552,5 +656,8 @@ function switchSDCVersions(){
 		params.showSDCAnswers = this.checked;
 		toggleSDCAnswers();
 	}
-
+	if (this.name == "responses"){
+		params.showSDCResponses = this.checked;
+		toggleSDCResponses();
+	}
 }

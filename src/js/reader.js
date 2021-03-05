@@ -166,7 +166,10 @@ function aggregateSDCResults(){
 			//plot the results
 			if (i == params.responses.columns.length - 1 && version == params.SDCResponseVersion){
 				console.log("aggregatedSDC", params.aggregatedSDCResponses);
-				if (params.SDCSubmitted) plotSDCAggregateLines();
+				if (params.SDCSubmitted) {
+					plotSDCAggregateLines();
+					if (params.showSDCAnswers && params.transitionSDCAnswers) plotSDCAnswerLines(); //params.transitionSDCAnswers will only be true at the stars, this way we don't plot multiple answer lines on top of each other
+				}
 				//for testing
 				//params.SDCSubmitted = true;
 			}

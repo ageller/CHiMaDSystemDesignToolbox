@@ -358,14 +358,16 @@ function showParaAnswers(){
 	var using = params.answers.filter(function(d){return (d.task == 'para');})[0];
 
 	params.answers.columns.forEach(function(k,i){
-		var d = d3.select('#'+params.cleanString(k)+'_bar').select('.barHover.'+using[k])
-			.style('stroke','black')
-			.style('stroke-width',2)
-			.style('stroke-opacity',function(){
-				if (params.transitionParaAnswers) return 0;
-				return 1;
-			})
-			.classed('answerBorder', true)
+		if (k != 'task'){
+			var d = d3.select('#'+params.cleanString(k)+'_bar').select('.barHover.'+using[k])
+				.style('stroke','black')
+				.style('stroke-width',2)
+				.style('stroke-opacity',function(){
+					if (params.transitionParaAnswers) return 0;
+					return 1;
+				})
+				.classed('answerBorder', true)
+		}
 		if (i == params.answers.columns.length - 1) {
 			toggleParaAnswers();
 			params.transitionParaAnswers = false;
