@@ -36,7 +36,7 @@ function defineParams(){
 		this.showingResults = false; //will be changed to true after form is submitted and results are shown
 		this.wavingBars = false; //will be changed to true after the plot is defined
 		this.toggleParaText = true; //controls whether to toggle text in para.  Will be true at first and then when version is changed 
-		this.transitionParaAnswers = true; //controls whether to use transition for answers.  Will be true at first and then when version is changed 
+		this.transitionParaAnswers = true; //controls whether to use transition for answers.  Will be true at first.
 
 		//this will hold the answers from the static data file
 		this.answers;
@@ -98,8 +98,9 @@ function defineParams(){
 
 		//settings for the system design chart (SDC)
 		this.SDCColumnCenters; //will hold the central x locations for the columns
-		this.SDCSVG;
-		this.SDCAggSVG;
+		this.SDCSVG = null;
+		this.SDCAggSVG = null;
+		this.SDCAnswersSVG = null;
 		this.SDCSVGMargin;
 		this.SDCSVGHeight;
 		this.SDCSVGWidth;
@@ -117,6 +118,8 @@ function defineParams(){
 		this.minSDCLineWidth = 5;
 		this.SDCResponseVersion = 1;
 		this.transitionSDCAgg = true; //controls whether to show the transitions in the vis.  Will be true at first and then when version is changed 
+		this.transitionSDCAnswers = true; //controls whether to show the transitions in the vis.  Will be true at first.
+		this.showSDCResponses = true;
 
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
