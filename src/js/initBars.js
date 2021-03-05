@@ -261,15 +261,15 @@ function defineBars(){
 		//add text
 		thisPlot.selectAll('.text').transition().duration(params.transitionDuration/2.)
 			.style('opacity',function(){
-				if (params.firstDisplay){
+				if (params.toggleParaText){
 					return 0;
 				}
 				return 1;})
 			.on('end',function(){
 				thisPlot.selectAll('.text').data(realData).text(function(d){return parseFloat(d.value).toFixed(2);})
 				thisPlot.selectAll('.text').transition().duration(params.transitionDuration/2.).style('opacity',1)
+				params.toggleParaText = false;
 			})
-		params.firstDisplay = false;
 
 		//instead of comparing to answers, check for discrepancies within the submitted answers and note this
 		var maxPct = 0;
@@ -291,7 +291,7 @@ function defineBars(){
 
 		if (j == params.selectionWords.length - 1){
 			update.on("end", function(){params.showingResults = true})
-			showAnswers();
+			showParaAnswers();
 
 			// //check for discrepancies from the provided answers and note this
 			// params.answers.columns.forEach(function(k){
@@ -354,36 +354,45 @@ function waveBars(){
 	});
 }
 
-function showAnswers(){
-	params.answers.columns.forEach(function(k){
-		d3.select('#'+params.cleanString(k)+'_bar').select('.barHover.'+params.answers[0][k])
+function showParaAnswers(){
+	var using = params.answers.filter(function(d){return (d.task == 'para');})[0];
+
+	params.answers.columns.forEach(function(k,i){
+		var d = d3.select('#'+params.cleanString(k)+'_bar').select('.barHover.'+using[k])
 			.style('stroke','black')
 			.style('stroke-width',2)
-			.style('stroke-opacity',1)
+			.style('stroke-opacity',function(){
+				if (params.transitionParaAnswers) return 0;
+				return 1;
+			})
 			.classed('answerBorder', true)
+		if (i == params.answers.columns.length - 1) {
+			toggleParaAnswers();
+			params.transitionParaAnswers = false;
+		}
 	})
 
-	if (!params.showAnswers){
+	if (!params.showParaAnswers){
 		d3.selectAll('.answerBorder').style('stroke-opacity',0);
 	}
 
 }
 
-function toggleAnswers(){
+function toggleParaAnswers(){
 	var op = 0;
-	if (params.showAnswers) op = 1;
+	if (params.showParaAnswers) op = 1;
 	d3.selectAll('.answerBorder').transition().duration(params.transitionDuration).style('stroke-opacity',op)
 }
 
 function switchParaVersions(){
 	if (this.name == "version"){
 		params.paraResponseVersion = this.value;
-		params.firstDisplay = true;
+		params.toggleParaText = true;
 		if (params.paraSubmitted) defineBars();
 	}
 	if (this.name == "answers"){
-		params.showAnswers = this.checked;
-		toggleAnswers();
+		params.showParaAnswers = this.checked;
+		toggleParaAnswers();
 	}
 }
 // function handleBarMouseOut(){

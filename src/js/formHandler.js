@@ -124,10 +124,10 @@ function getUsername(){
 			task = '';
 			Object.keys(d).forEach(function(k){
 				if (k == 'task') task = d[k]
-				if (k != 'IP' && k != 'Timestamp' && k != 'version' && k !='task') {
+				if (k != 'IP' && k != 'Timestamp' && k != 'version' && k !='task' && d[k] != '') {
 					var key = k;
 					if (task == 'SDC') key = 'SDC'+k;
-					params.URLInputValues[key] = d[k];
+					params.URLInputValues[key] = d[k].trim();
 				}
 			})
 
