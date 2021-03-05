@@ -146,7 +146,7 @@ function aggregateSDCResults(){
 
 		params.responses.columns.forEach(function(rc,i){
 			if (!rc.includes('Timestamp') && !rc.includes('IP') && !rc.includes('username') && !rc.includes('version') && !rc.includes('task')){
-				vals = []
+				var vals = []
 
 				using.forEach(function(r,j){
 					//get the column
@@ -155,7 +155,7 @@ function aggregateSDCResults(){
 						v = ""
 					}
 					vals = vals.concat(v.split(' '));
-					blanks = getAllIndices(vals,"");
+					var blanks = getAllIndices(vals,"");
 					blanks.forEach(function(b){vals.splice(b, 1)});
 					if (j == using.length - 1){
 						params.aggregatedSDCResponses[version][rc] = countUniq(vals);
@@ -168,7 +168,7 @@ function aggregateSDCResults(){
 				console.log("aggregatedSDC", params.aggregatedSDCResponses);
 				if (params.SDCSubmitted) plotSDCAggregateLines();
 				//for testing
-				params.SDCSubmitted = true;
+				//params.SDCSubmitted = true;
 			}
 
 		})
