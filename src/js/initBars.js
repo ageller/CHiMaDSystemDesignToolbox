@@ -184,7 +184,7 @@ function createBars(){
 	if (params.showingResults){
 		defineBars();
 	} else {
-		if (!params.wavingBars)setWaveBars();
+//		if (!params.wavingBars)setWaveBars();
 	}
 }
 
