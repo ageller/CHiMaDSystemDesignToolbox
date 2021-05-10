@@ -11,11 +11,11 @@ function createBars(){
 		parent.removeChild(parent.firstChild);
 	}
 
-	// if (params.wavingBars){
-	// 	clearInterval(params.waveInterval);
-	// 	params.waveTimeouts.forEach(function(w){ clearTimeout(w); });
-	// 	params.wavingBars = false;
-	// }
+	if (params.wavingBars){
+		clearInterval(params.waveInterval);
+		params.waveTimeouts.forEach(function(w){ clearTimeout(w); });
+		params.wavingBars = false;
+	}
 
 	var bbI = d3.select('#usernameInstructions').node().getBoundingClientRect();
 	var bbV = d3.select('#paraVersionOptions').node().getBoundingClientRect();
@@ -184,7 +184,7 @@ function createBars(){
 	if (params.showingResults){
 		defineBars();
 	} else {
-//		if (!params.wavingBars)setWaveBars();
+		if (!params.wavingBars)setWaveBars();
 	}
 }
 
@@ -225,8 +225,8 @@ function updateBars(thisPlot, data, duration, easing, op){
 function defineBars(){
 	params.barOpacity = 1.;
 
-	// clearInterval(params.waveInterval);
-	// params.waveTimeouts.forEach(function(w){ clearTimeout(w); });
+	clearInterval(params.waveInterval);
+	params.waveTimeouts.forEach(function(w){ clearTimeout(w); });
 
 	//clean up the row labels
 	d3.selectAll('.rowLabel').each(function(){
