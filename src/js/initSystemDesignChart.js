@@ -69,6 +69,7 @@ function createSystemDesignChart(){
 	params.options.forEach(function(d){
 		if (d != 'Select Category') SDCcolumnLocations[d] = params.SDCBoxMargin;
 	})
+	console.log('params.answers', params.answers)
 	var using = params.answers.filter(function(d){return (d.task == 'para');})[0];
 	console.log('using', using)
 	for (var i=0; i<params.selectionWords.length; i++){

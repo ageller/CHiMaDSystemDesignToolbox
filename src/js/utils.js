@@ -76,3 +76,46 @@ function wrapSVGtext(text, width) {
 		
 	});
 }
+
+function eventFire(el, etype){
+	//console.log('trying to click', el, etype)
+	if (el.fireEvent) {
+		el.fireEvent('on' + etype);
+	} else {
+		var evObj = document.createEvent('Events');
+		evObj.initEvent(etype, true, false);
+		el.dispatchEvent(evObj);
+	}
+}
+
+//https://gomakethings.com/finding-the-next-and-previous-sibling-elements-that-match-a-selector-with-vanilla-js/
+function getNextSibling(elem, selector) {
+
+	// Get the next sibling element
+	var sibling = elem.nextElementSibling;
+
+	// If there's no selector, return the first sibling
+	if (!selector) return sibling;
+
+	// If the sibling matches our selector, use it
+	// If not, jump to the next sibling and continue the loop
+	while (sibling) {
+		if (sibling.matches(selector)) return sibling;
+		sibling = sibling.nextElementSibling
+	}
+};
+function getPrevSibling(elem, selector) {
+
+	// Get the next sibling element
+	var sibling = elem.previousElementSibling;
+
+	// If there's no selector, return the first sibling
+	if (!selector) return sibling;
+
+	// If the sibling matches our selector, use it
+	// If not, jump to the next sibling and continue the loop
+	while (sibling) {
+		if (sibling.matches(selector)) return sibling;
+		sibling = sibling.previousElementSibling;
+	}
+};

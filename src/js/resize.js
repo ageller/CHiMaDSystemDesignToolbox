@@ -86,5 +86,5 @@ function resize(){
 	// var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
 
 	d3.select('#systemDesignChart').style('top',maxH + 20 +'px');
-	createSystemDesignChart();
+	if (params.answers)	createSystemDesignChart();
 }

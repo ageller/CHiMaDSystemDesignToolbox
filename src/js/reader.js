@@ -185,6 +185,7 @@ function loadAnswers() {
 	]).then(function(d) {
 		params.answers = d[0];
 		console.log("answers",params.answers)
+		createSystemDesignChart();
 	})
 	.catch(function(error){
 		console.log('ERROR:', error)
