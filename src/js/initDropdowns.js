@@ -5,10 +5,10 @@ function createDropdowns(){
 		.on('click',function(){
 			var elem = d3.select(this).select('select')
 			//console.log('clicked on', this, elem.node(), event.target)
-			if (elem.classed('hidden')){
-				elem.style('left', event.pageX);
-				elem.style('top', event.pageY+20);
-			}
+			// if (elem.classed('hidden')){
+			// 	elem.style('left', event.pageX);
+			// 	elem.style('top', event.pageY+20);
+			// }
 			d3.selectAll('.selectionWordDropdown').classed('hidden', true);
 			elem.classed('hidden', !elem.classed('hidden'));
 			elem.node().focus();
@@ -45,6 +45,7 @@ function createDropdowns(){
 		//.classed('hidden', true)
 		.style('z-index',9)
 		.style('position','absolute')
+		.style('margin-left','7px')
 		.attr('size', 5) //this also changes the entire look of the dropdowns and makes it so that one cannot use arrows
 		.selectAll('option').data(params.options).enter()
 		.append('option')
