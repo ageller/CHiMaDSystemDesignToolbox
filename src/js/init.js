@@ -2,7 +2,7 @@
 //hide dropdowns when you click out
 d3.select('body').on('click',function(){
 	//if (!event.target.parentNode.classList.contains('selectionWord') && !event.target.parentNode.classList.contains('selectionWordDropdown')){ 
-	if (!event.target.parentNode.classList.contains('selectionWord')){ 
+	if (!event.target.classList.contains('selectionWord') && !event.target.parentNode.classList.contains('selectionWord')){ 
 		d3.selectAll('select').classed('hidden', true);
 	}
 })
