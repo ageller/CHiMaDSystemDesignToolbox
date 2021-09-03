@@ -15,7 +15,7 @@ function readURLdata(){
 			params.URLInputValues[val[0]] = val[1];
 		}
 	});
-	console.log('URL input values ', params.URLInputValues)
+	console.log('URL input values ', params.URLInputValues);
 }
 
 
@@ -79,12 +79,14 @@ function wrapSVGtext(text, width) {
 
 function eventFire(el, etype){
 	//console.log('trying to click', el, etype)
-	if (el.fireEvent) {
-		el.fireEvent('on' + etype);
-	} else {
-		var evObj = document.createEvent('Events');
-		evObj.initEvent(etype, true, false);
-		el.dispatchEvent(evObj);
+	if (el){
+		if (el.fireEvent) {
+			el.fireEvent('on' + etype);
+		} else {
+			var evObj = document.createEvent('Events');
+			evObj.initEvent(etype, true, false);
+			el.dispatchEvent(evObj);
+		}
 	}
 }
 
