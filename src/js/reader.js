@@ -51,6 +51,7 @@ function readGoogleSheet(json) {
 		console.log('responses', keys, out, keys.length, params.responses)
 		aggregateParaResults();
 		if (!params.SDCLineHighlighted) aggregateSDCResults(); //so that is doesn't redraw while someone is inspecting
+		if (params.URLInputValues.hasOwnProperty('username')) getUsername(params.URLInputValues.username)
 	}
 
 	//old format (prior to Sept. 2021)
@@ -205,7 +206,8 @@ function loadAnswers() {
 		d3.csv('src/data/answers_clean.csv'),
 	]).then(function(d) {
 		params.answers = d[0];
-		console.log("answers",params.answers)
+		console.log("answers",params.answers);
+		createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
 	})
 	.catch(function(error){
 		console.log('ERROR:', error)
