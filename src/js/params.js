@@ -43,6 +43,7 @@ function defineParams(){
 		this.paraResponseVersion = 1;
 		this.dummyData = {};
 		this.paraSubmitted = false; //will be changed to true after form is submitted 
+		this.paraSubmitted2 = false; //will be changed to true after form is submitted a second time
 		this.showingResults = false; //will be changed to true after form is submitted and results are shown
 		this.wavingBars = false; //will be changed to true after the plot is defined
 		this.toggleParaText = true; //controls whether to toggle text in para.  Will be true at first and then when version is changed 
