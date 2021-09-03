@@ -50,7 +50,7 @@ function readGoogleSheet(json) {
 		params.responses.columns = keys
 		console.log('responses', keys, out, keys.length, params.responses)
 		aggregateParaResults();
-		aggregateSDCResults();
+		if (!params.SDCLineHighlighted) aggregateSDCResults(); //so that is doesn't redraw while someone is inspecting
 	}
 
 	//old format (prior to Sept. 2021)
