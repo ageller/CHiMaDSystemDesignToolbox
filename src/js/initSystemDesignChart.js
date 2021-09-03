@@ -483,7 +483,7 @@ function plotSDCAggregateLines(){
 				var line = params.SDCAggSVG.append('line')
 					.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
 					.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
-					.attr('fracion',frac) //custom attribute to track the fraction		
+					.attr('fraction',frac) //custom attribute to track the fraction		
 					.attr('id','SDCAggregateLine_'+params.SDCLineIndex)
 					.attr('class','SDCAggregateLine SDCAggregateLine_'+startWords+ ' SDCAggregateLine_'+w)
 					.attr('stroke',params.colorMap(frac))
@@ -572,12 +572,22 @@ function plotSDCAnswerLines(){
 
 					if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
 
+						var strokeColor = 'black';
+						//check for a discrepancy and plot that in pink
+						var aggElem = d3.select('.SDCAggregateLine_'+startWords+'.SDCAggregateLine_'+w);
+						if (!aggElem) {
+							strokeColor = '#d92b9c';
+						} else {
+							var frac = parseFloat(aggElem.attr('fraction'));
+							if (frac < params.pctLim) strokeColor = '#d92b9c';
+						}
+
 						var line = params.SDCAnswersSVG.append('line')
 							.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
 							.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
 							.attr('id','SDCAnswerLine_'+params.SDCLineIndex)
 							.attr('class','SDCAnswerLine SDCAnswerLine_'+startWords+ ' SDCAnswerLine_'+w)
-							.attr('stroke','black')
+							.attr('stroke',strokeColor)
 							.attr('stroke-width',6)
 							.attr('stroke-linecap','round') 
 							.attr('x1', x1)
@@ -606,6 +616,25 @@ function plotSDCAnswerLines(){
 
 }
 
+function recolorSDCAnswers(){
+	console.log('recoloring the answers')
+	d3.selectAll('.SDCAnswerLine').each(function(){
+		var elem = d3.select(this);
+		var startWords = elem.attr('startSelectionWords');
+		var w = elem.attr('endSelectionWords');
+
+		var strokeColor = 'black';
+		//check for a discrepancy and plot that in pink
+		var aggElem = d3.select('.SDCAggregateLine_'+startWords+'.SDCAggregateLine_'+w);
+		if (!aggElem) {
+			strokeColor = '#d92b9c';
+		} else {
+			var frac = parseFloat(aggElem.attr('fraction'));
+			if (frac < params.pctLim) strokeColor = '#d92b9c';
+		}
+		elem.attr('stroke',strokeColor)
+	})
+}
 function toggleSDCAnswers(){
 	var op = 0;
 	if (params.showSDCAnswers) op = 1;
@@ -649,7 +678,10 @@ function switchSDCVersions(){
 				.attr('y1', el.attr('y2'))
 			if (i == params.SDCAggSVG.selectAll('line').size() -1){
 				t.on('end',function(){
-					if (params.SDCSubmitted) plotSDCAggregateLines();
+					if (params.SDCSubmitted) {
+						plotSDCAggregateLines();
+						setTimeout(recolorSDCAnswers, params.transitionDuration);
+					}
 				})
 			}
 		})
