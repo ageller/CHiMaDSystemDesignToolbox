@@ -32,45 +32,66 @@ function loadResponses(url){
 
 function readGoogleSheet(json) {
 //parse this json from the Google Sheet into the format that we need
+	console.log('in readGoogleSheets', json)
 	var pushed = false;
-	if (json.hasOwnProperty('feed')){
-		if (json.feed.hasOwnProperty('entry')){
-			var data = json.feed.entry;
-			var keys = [];
-			var out = [];
-			var row = {};
-			for(var r=0; r<data.length; r++) {
-				var cell = data[r]["gs$cell"];
-				var val = cell["$t"];
-
-				if (cell.col == 1) {
-					if (!pushed && Object.keys(out).length > 0) out.push(row)
-					pushed = false
-					row = {};
-				}
-
-				if (cell.row == 1){
-					keys.push(val)
-				} else {
-					row[keys[parseInt(cell['col']) - 1]] = val;
-				}
-				
-				if (parseInt(cell['col']) == keys.length & cell.row > 1){
-					out.push(row);
-					pushed = true;
-				}
-
-				if (r == data.length -1 && !pushed && Object.keys(out).length > 0) out.push(row);
-
+	if (json.hasOwnProperty('values')){
+		keys = json.values[0];
+		out = [];
+		for (var i = 1; i < json.values.length; i++){
+			row = {};
+			var vals = json.values[i];
+			for (var j = 0; j < keys.length; j++){
+				row[keys[j]] = vals[j];
+				if (typeof row[keys[j]] == 'undefined') row[keys[j]] = '';
 			}
-			out.columns = keys; //I think I can do this (if not I need to make out an object to begin with)
-
-			params.responses = out;
-			console.log('responses', out, data.length, params.responses)
-			aggregateParaResults();
-			aggregateSDCResults();
+			out.push(row);
 		}
+		params.responses = out;
+		params.responses.columns = keys
+		console.log('responses', keys, out, keys.length, params.responses)
+		aggregateParaResults();
+		aggregateSDCResults();
 	}
+
+	//old format (prior to Sept. 2021)
+	// if (json.hasOwnProperty('feed')){
+	// 	if (json.feed.hasOwnProperty('entry')){
+	// 		var data = json.feed.entry;
+	// 		var keys = [];
+	// 		var out = [];
+	// 		var row = {};
+	// 		for(var r=0; r<data.length; r++) {
+	// 			var cell = data[r]["gs$cell"];
+	// 			var val = cell["$t"];
+
+	// 			if (cell.col == 1) {
+	// 				if (!pushed && Object.keys(out).length > 0) out.push(row)
+	// 				pushed = false
+	// 				row = {};
+	// 			}
+
+	// 			if (cell.row == 1){
+	// 				keys.push(val)
+	// 			} else {
+	// 				row[keys[parseInt(cell['col']) - 1]] = val;
+	// 			}
+				
+	// 			if (parseInt(cell['col']) == keys.length & cell.row > 1){
+	// 				out.push(row);
+	// 				pushed = true;
+	// 			}
+
+	// 			if (r == data.length -1 && !pushed && Object.keys(out).length > 0) out.push(row);
+
+	// 		}
+	// 		out.columns = keys; //I think I can do this (if not I need to make out an object to begin with)
+
+	// 		params.responses = out;
+	// 		console.log('responses', out, data.length, params.responses)
+	// 		aggregateParaResults();
+	// 		aggregateSDCResults();
+	// 	}
+	// }
 }
 
 function countUniq(arr){

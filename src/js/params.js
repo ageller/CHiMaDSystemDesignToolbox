@@ -19,13 +19,23 @@ function defineParams(){
 		this.googleAPIurl = "https://script.google.com/macros/s/AKfycbys9IdddyCwbLq5pcb44-L8dkvH0vMWM2PYdyGpVe2CwnHrjoabNhNS/exec";
 
 //the URL of the json getter of the sheet, for the visualization of results
+//sometime near Sept. 2021, Google stopped allowing the simle JSON alt type variant.  Now we need an api_key
+//see here: https://stackoverflow.com/questions/68854198/did-google-sheets-stop-allowing-json-access
+
 //in order to get this URL:
 // 1. make the sheet public to the web (File / Publish to Web /)
 // -- good walk through here: https://github.com/bpk68/g-sheets-api#readme
 // 2. use the URL from the share feature to get the ID (between the /d/ and next / in the URL)
 // -- here : https://docs.google.com/spreadsheets/d/1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q/edit?usp=sharing
-// 3. input that <SHEET_ID> into the following command : https://spreadsheets.google.com/feeds/cells/<SHEET_ID>/1/public/values?alt=json-in-script
-		this.surveyFile = 'https://spreadsheets.google.com/feeds/cells/1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q/1/public/values?alt=json-in-script&callback=readGoogleSheet'
+// 3. the url will look like : https://sheets.googleapis.com/v4/spreadsheets/'+worksheet_id+'/values/'+tab_name+'?alt=json&key='+key-value
+// -- to worksheet_id is the string in between /d/ and /edit? above
+// -- tab_name is the string name of the tab I want (Sheet1)
+// -- key-value is the API key : AIzaSyAiBnUwMyItsN0LMFs271XTist56tXb9Hw
+// 4. to set up the API key : https://support.google.com/googleapi/answer/6158862?hl=en
+// 5. I shearched within the Google console cloud for Sheets, and then clicked Enable
+
+		this.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q/values/Sheet1/?alt=json&callback=readGoogleSheet&key=AIzaSyAiBnUwMyItsN0LMFs271XTist56tXb9Hw'
+
 
 		//this will hold the responses downloaded from the google sheet
 		this.responses;
