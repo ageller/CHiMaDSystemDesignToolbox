@@ -211,17 +211,17 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords){
 
 //draw lines 
 function startSDCLine() {
-	if (params.showSDCResponses){
-
-		//get right side of box
-		var elem = this;
+	//get right side of box
+	var elem = this;
+	if (elem.nodeName == 'tspan') elem = d3.select(elem.parentNode.parentNode).select('rect').node().parentNode;
+	//if on top of the circle
+	if (elem.classList.contains('SDCCircle0')){
+		elem = document.elementFromPoint(params.event.clientX -7, params.event.clientY).parentNode;
 		if (elem.nodeName == 'tspan') elem = d3.select(elem.parentNode.parentNode).select('rect').node().parentNode;
-		//if on top of the circle
-		if (elem.classList.contains('SDCCircle0')){
-			elem = document.elementFromPoint(params.event.clientX -7, params.event.clientY).parentNode;
-			if (elem.nodeName == 'tspan') elem = d3.select(elem.parentNode.parentNode).select('rect').node().parentNode;
-		}
-		highlightSDCLines(elem)
+	}
+	highlightSDCLines(elem)
+
+	if (params.showSDCResponses){
 
 		elem = d3.select(elem);
 		var x = parseFloat(elem.attr('x')) + params.SDCBoxWidth;
@@ -237,14 +237,17 @@ function startSDCLine() {
 }
 
 function moveSDCLine() {
-	if (params.SDCLine && params.showSDCResponses){
-		//stop text highlighting
-		window.event.cancelBubble = true;
-		window.event.returnValue = false;
+	//stop text highlighting
+	window.event.cancelBubble = true;
+	window.event.returnValue = false;
 
-		//for highlighting
+	//for highlighting
+	if (params.SDCLine){
 		var id = 'SDCBox_'+params.SDCLine.attr('startSelectionWords')
 		highlightSDCLines(d3.select('#'+id).node());
+	} 
+
+	if (params.SDCLine && params.showSDCResponses){
 
 		var x = params.event.layerX - params.SDCSVGMargin.left;
 		var y = params.event.layerY - params.SDCSVGMargin.top;
