@@ -127,6 +127,7 @@ function getUsername(){
 				if (k != 'IP' && k != 'Timestamp' && k != 'version' && k !='task' && d[k] != '') {
 					var key = k;
 					if (task == 'SDC') key = 'SDC'+k;
+					console.log("testing", d, key, k, params.URLInputValues[key], d[k])
 					params.URLInputValues[key] = d[k].trim();
 				}
 			})
