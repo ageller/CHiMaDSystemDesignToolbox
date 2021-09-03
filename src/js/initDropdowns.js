@@ -53,6 +53,7 @@ function createDropdowns(){
 				if (i > 0) {
 					return d;
 				}
+				return 'disabled'
 			})
 			.property('value',function(d,i){
 				if (i > 0) {

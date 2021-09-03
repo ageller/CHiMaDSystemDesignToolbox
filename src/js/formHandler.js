@@ -80,7 +80,7 @@ function onFormSubmit(){
 			params.paraSubmitted = true;
 			if (submitted1) {
 				params.paraSubmitted2 = true;
-				if (params.answers) createSystemDesignChart();
+				if (params.answers) d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
 			}
 			sendToGoogleSheet(params.paraData, 'paraNotification');
 		} else {
@@ -104,9 +104,14 @@ function onFormSubmit(){
 
 }
 
-function getUsername(){
+function getUsername(username=null){
 	//get the username data from the text input box, and fill in the responses if the username exists
-	params.username = this.value;
+	if (this.value) {
+		params.username = this.value;
+	} else {
+		params.username = username;
+	}
+	
 	params.URLInputValues = {};
 	params.URLInputValues["username"] = params.username;
 	console.log('username ', params.username)
@@ -118,21 +123,30 @@ function getUsername(){
 		.style('left','0px')
 		.text('');
 
+	var SDCVersion = -1;
+	var paraVersion = -1;
+
+	//reset all the selection words dropdowns
+	d3.selectAll('.selectionWord').select('select').selectAll('option').property('selected',false);
+	d3.selectAll('.selectionWord').select('select').select('#disabled').property('selected',true);
+
 	params.responses.forEach(function(d,i){
 		if (d.username == params.username){
+
 			console.log('found user in database', d.username, params.username, d)
 			//show notification
 			d3.select('#usernameNotification')
 				.text('This username exists, and the responses below have been populated accordingly.  If these are not your responses, please change your username.');
 
 			//add the responses (I want to take version 2 if it exists, but I think this will happen by default since v2 will always come after v1 in order)
-			task = '';
+			if (d.task == 'para') paraVersion = Math.max(paraVersion, parseInt(d.version));
+			if (d.task == 'SDC') SDCVersion = Math.max(SDCVersion, parseInt(d.version));
 			Object.keys(d).forEach(function(k){
-				if (k == 'task') task = d[k]
-				if (k != 'IP' && k != 'Timestamp' && k != 'version' && k !='task' && d[k] != '') {
+
+				if (k != 'IP' && k != 'Timestamp' && k != 'version' && k !='task' && d[k] != '' && k != 'username') {
 					var key = k;
-					if (task == 'SDC') key = 'SDC'+k;
-					console.log("testing", d, key, k, params.URLInputValues[key], d[k])
+					if (d.task == 'SDC') key = 'SDC'+k;
+					//console.log("testing", d, key, k, params.URLInputValues[key], d[k])
 					params.URLInputValues[key] = d[k].trim();
 				}
 			})
@@ -145,6 +159,16 @@ function getUsername(){
 			useSDCURLdata();
 		}
 	})
+
+	console.log('checking versions', paraVersion, SDCVersion)
+	if (paraVersion >= 1) params.paraSubmitted = true;
+	if (paraVersion >= 2) {
+		params.paraSubmitted2 = true; 
+		d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
+	} else {
+		d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
+	}
+
 
 }
 
