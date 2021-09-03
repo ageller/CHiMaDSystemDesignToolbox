@@ -197,8 +197,8 @@ function aggregateSDCResults(){
 
 		})
 	}
-
 }
+
 //for now I will work with a static csv file for the correct responses
 function loadAnswers() {
 	Promise.all([
@@ -206,7 +206,6 @@ function loadAnswers() {
 	]).then(function(d) {
 		params.answers = d[0];
 		console.log("answers",params.answers)
-		createSystemDesignChart();
 	})
 	.catch(function(error){
 		console.log('ERROR:', error)
