@@ -18,6 +18,9 @@ window.addEventListener('load',resize);
 d3.select('#paraVersionOptions').selectAll('input').on('change',switchParaVersions);
 d3.select('#SDCVersionOptions').selectAll('input').on('change',switchSDCVersions);
 
+//hide the system design chart at load (will be displayed when user submits the second response)
+d3.select('#systemDesignChart').style('display','None');
+
 //move the tooltip
 // window.addEventListener('mousemove', function(){
 // 	d3.select('#tooltip')

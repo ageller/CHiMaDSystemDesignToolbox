@@ -43,6 +43,7 @@ function sendToGoogleSheet(data, notificationID){
 function onFormSubmit(){
 	//when form is submitted, compile responses and send the Google sheet
 	console.log('username',params.username);
+	var submitted1 = params.paraSubmitted;
 	params.paraSubmitted = false;
 
 	missing = [];
@@ -77,6 +78,10 @@ function onFormSubmit(){
 			console.log("form data", params.paraData);
 			//createEmail();
 			params.paraSubmitted = true;
+			if (submitted1) {
+				params.paraSubmitted2 = true;
+				if (params.answers) createSystemDesignChart();
+			}
 			sendToGoogleSheet(params.paraData, 'paraNotification');
 		} else {
 			console.log("missing", missing)

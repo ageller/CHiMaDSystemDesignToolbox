@@ -1,6 +1,8 @@
 function createSystemDesignChart(){
 	console.log('creating system design chart ...');
 
+	d3.select('#systemDesignChart').style('display','block');
+
 	//get the column centers
 	var n = params.options.length - 1;
 	var w = (window.innerWidth - 80)/n;
