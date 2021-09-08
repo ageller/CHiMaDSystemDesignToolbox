@@ -1,6 +1,7 @@
 //all "global" variables are contained within params object
   
 var params;
+defineParams();
 function defineParams(){
 	params = new function() {
 
@@ -78,6 +79,9 @@ function defineParams(){
 		this.boxGridSVGHistHeight;
 		this.boxGridSVGWidth;
 
+		//will be set to true if initBars.js is included and will enable drawing of the bar charts
+		this.haveBars = false;
+
 		//will hold the default bar opacity
 		this.barOpacity = 1;
 
@@ -106,6 +110,9 @@ function defineParams(){
 		this.minPlotWidth = 1920*this.plotFraction/2.; //px, minimum width of the plot
 		this.minParaWidth = 1920*(1 - this.plotFraction)/2.; //px, minimum width of the paragraph
 		this.minBarHeight = 30; //px, minimum height of each row in the plot
+
+		//will be set to true if initBars.js is included and will enable drawing of the SDC
+		this.haveSDC = false;
 
 		//settings for the system design chart (SDC)
 		this.SDCColumnCenters; //will hold the central x locations for the columns
