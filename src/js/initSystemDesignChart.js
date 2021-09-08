@@ -1,3 +1,23 @@
+params.haveSDC = true;
+
+
+//version options
+d3.select('#SDCVersionOptions').selectAll('input').on('change',switchSDCVersions);
+
+//for line drawing
+window.addEventListener('mousemove', function(){
+	params.event = window.event;
+	moveSDCLine();
+});
+window.addEventListener('mouseup', function(){
+	endSDCLine();
+	params.mouseDown = false;
+});
+window.addEventListener('mousedown', function(){
+	params.mouseDown = true;
+});
+
+
 function createSystemDesignChart(){
 	console.log('creating system design chart ...');
 

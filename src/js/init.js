@@ -14,9 +14,6 @@ d3.select('#username').on("keyup",getUsername);
 window.addEventListener('resize', resize);
 window.addEventListener('load',resize);
 
-//version options
-d3.select('#paraVersionOptions').selectAll('input').on('change',switchParaVersions);
-d3.select('#SDCVersionOptions').selectAll('input').on('change',switchSDCVersions);
 
 //hide the system design chart at load (will be displayed when user submits the second response)
 d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
@@ -28,21 +25,8 @@ d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
 // 		.style('top',event.pageY-20)
 // });
 
-//for line drawing
-window.addEventListener('mousemove', function(){
-	params.event = window.event;
-	moveSDCLine();
-});
-window.addEventListener('mouseup', function(){
-	endSDCLine();
-	params.mouseDown = false;
-});
-window.addEventListener('mousedown', function(){
-	params.mouseDown = true;
-});
 
-//define the params object that holds all the global variables and functions
-defineParams();
+
 
 //get all the words for selecting
 params.selectionWords = [];
