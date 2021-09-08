@@ -17,8 +17,8 @@ function defineParams(){
 		this.colorMap = d3.scaleLinear().domain([0,1]).interpolate(d3.interpolateHcl).range([d3.rgb("#E0E0E0"), d3.rgb('#2C78CA')]);
 
 		//script that will control entries into the google sheet
-		this.googleAPIurl = "https://script.google.com/macros/s/AKfycbys9IdddyCwbLq5pcb44-L8dkvH0vMWM2PYdyGpVe2CwnHrjoabNhNS/exec";
-
+		this.googleAPIurl = 'https://script.google.com/macros/s/AKfycbzZjmKJUTYonCswzqrhGGn47w8mXzdp0sRfrMlRB1D7X6_6gW6EpthPGn8j8ct7xVIW/exec';
+		
 //the URL of the json getter of the sheet, for the visualization of results
 //sometime near Sept. 2021, Google stopped allowing the simle JSON alt type variant.  Now we need an api_key
 //see here: https://stackoverflow.com/questions/68854198/did-google-sheets-stop-allowing-json-access
@@ -35,11 +35,18 @@ function defineParams(){
 // 4. to set up the API key : https://support.google.com/googleapi/answer/6158862?hl=en
 // 5. I shearched within the Google console cloud for Sheets, and then clicked Enable
 
-		this.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q/values/Sheet1/?alt=json&callback=readGoogleSheet&key=AIzaSyAiBnUwMyItsN0LMFs271XTist56tXb9Hw'
+		this.groupname = 'default';
+		this.sheetID = '1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q';
+		this.APIkey = 'AIzaSyAiBnUwMyItsN0LMFs271XTist56tXb9Hw';
+		this.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/values/'+this.groupname+'/?alt=json&callback=readGoogleSheet&key='+this.APIkey;
 
+		//use this to get the available sheets
+		this.sheetRequest = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/?alt=json&callback=getAvailableSheets&key='+this.APIkey;
+		this.availableGroupnames = []; //this will hold the available sheets
+		
 		//will save the initial input text before adding dropdown tags
 		this.paraTextSave = '';
-		
+
 		//this will hold the responses downloaded from the google sheet
 		this.responses;
 		this.aggregatedParaResponses = []; //will have multiple versions
