@@ -8,6 +8,7 @@
 
 
 function readURLdata(){
+	params.URLInputValues = {};
 	//read form data from the URL, if present
 	window.location.href.split("?").forEach(function(d){
 		if (d.includes('=')){
@@ -30,6 +31,19 @@ function appendURLdata(){
 			window.history.replaceState(null, "", newURL); //so that the page doesn't reload every time
 		}
 	});
+}
+
+function resetURLdata(){
+	readURLdata();
+
+	//then reset the url
+	var newURL = window.location.href.split("?")[0];
+	//save the username if it exists
+	if (params.URLInputValues.hasOwnProperty('username')) newURL += '?username='+params.URLInputValues.username;
+	window.history.replaceState(null, "", newURL); //so that the page doesn't reload every time
+
+	readURLdata();
+
 }
 
 //https://stackoverflow.com/questions/20798477/how-to-find-index-of-all-occurrences-of-element-in-array#:~:text=The%20.,val%2C%20i%2B1))%20!%3D
@@ -121,3 +135,7 @@ function getPrevSibling(elem, selector) {
 		sibling = sibling.previousElementSibling;
 	}
 };
+
+function insertAfter(newNode, existingNode) {
+    existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
+}
