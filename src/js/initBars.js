@@ -3,6 +3,13 @@
 // -- I need to get the measurements to scale (not sure what this means)
 // -- add tooltips
 // -- is this better than the boxes?
+
+
+params.haveBars = true;
+
+//version options
+d3.select('#paraVersionOptions').selectAll('input').on('change',switchParaVersions);
+
 function createBars(){
 
 	//destroy the plot (if it exists)

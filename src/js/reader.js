@@ -207,7 +207,7 @@ function loadAnswers() {
 	]).then(function(d) {
 		params.answers = d[0];
 		console.log("answers",params.answers);
-		createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
+		if (params.haveSDC) createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
 	})
 	.catch(function(error){
 		console.log('ERROR:', error)

@@ -2,8 +2,9 @@
 function resize(){
 	
 	//remake the plot.  Is there a more efficient way to do this?
-	createBars();
+	if (params.haveBars) createBars();
 
+	var elem;
 
 	//change font sizes
 	d3.selectAll('.button').style('font-size', Math.max(0.009*window.innerWidth, params.buttonFSmin) + 'px');
@@ -18,66 +19,71 @@ function resize(){
 	d3.selectAll('.notifications')
 		.style('font-size', fsi + 'px')
 		.style('line-height', (fsi+4)+'px');
-	var ubbox = d3.select('#usernameLabel').node().getBoundingClientRect();
-	d3.select('#usernameNotification')
-		.style('position','absolute')
-		.style('top',ubbox.y + ubbox.height + 'px')
-		.style('left','0px');
+	elem = d3.select('#usernameLabel').node()
+	if (elem){
+		var ubbox = elem.getBoundingClientRect();
+		d3.select('#usernameNotification')
+			.style('position','absolute')
+			.style('top',ubbox.y + ubbox.height + 'px')
+			.style('left','0px');
+	}
 	var fsv = Math.max(0.007*window.innerWidth, params.versionFSmin);
 	d3.select('#paraVersionOptions')
 		.style('font-size', fsv + 'px')
 		.style('line-height', (fsv+2)+'px');
 
 
-	var plotBbox = d3.select('#boxGridPlotContainer').node().getBBox();
-	var boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
-	var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
- 
-	var boxGridWidth = plotBbox.width;
-	var paragraphFormWidth = window.innerWidth - boxGridWidth - 100;
+	//for now I'm disabling this entire section unless we are showing the bar chart
+	if (params.haveBars) {
+		var plotBbox = d3.select('#boxGridPlotContainer').node().getBBox();
+		var boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
+		var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
+	 
+		var boxGridWidth = plotBbox.width;
+		var paragraphFormWidth = window.innerWidth - boxGridWidth - 100;
 
-	//should I be more careful about this?  Or maybe resize the plot first?
-	d3.select('#boxGrid').style('width',boxGridWidth);
+		//should I be more careful about this?  Or maybe resize the plot first?
+		d3.select('#boxGrid').style('width',boxGridWidth);
 
-	var plotSSWidth = plotBbox.width;
-	console.log('resize check', plotSSWidth, window.innerWidth - plotSSWidth, window.innerWidth)
-	if (plotSSWidth >= params.minPlotWidth && (window.innerWidth - plotSSWidth >= params.minParaWidth) ){
-		console.log('resize side-by-side view')
-		//side-by-side view
-		d3.select('#paragraphForm').style('width',paragraphFormWidth);
-		d3.select('#boxGrid')
-			.style('left',paragraphFormWidth)
-			.style('top',0);
-		boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
-		var maxH = Math.max(Math.max(plotBbox.height, boxGridBbox.height), paragraphFormBbox.height);
-		d3.select('#verticalLine1')
-			.style('display','block')
-			.style('left',paragraphFormWidth)
-			//.style('height', 0.98*Math.max(window.innerHeight,boxGridBbox.height));
-			.style('height', maxH - 0.01*window.innerHeight + 4)
-		d3.select('#horizontalLine1').style('display','none');
-		d3.select('#horizontalLine2') 
-			.style('display','block')
-			.style('top',maxH+'px');
+		var plotSSWidth = plotBbox.width;
+		console.log('resize check', plotSSWidth, window.innerWidth - plotSSWidth, window.innerWidth)
+		if (plotSSWidth >= params.minPlotWidth && (window.innerWidth - plotSSWidth >= params.minParaWidth) ){
+			console.log('resize side-by-side view')
+			//side-by-side view
+			d3.select('#paragraphForm').style('width',paragraphFormWidth);
+			d3.select('#boxGrid')
+				.style('left',paragraphFormWidth)
+				.style('top',0);
+			boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
+			var maxH = Math.max(Math.max(plotBbox.height, boxGridBbox.height), paragraphFormBbox.height);
+			d3.select('#verticalLine1')
+				.style('display','block')
+				.style('left',paragraphFormWidth)
+				//.style('height', 0.98*Math.max(window.innerHeight,boxGridBbox.height));
+				.style('height', maxH - 0.01*window.innerHeight + 4)
+			d3.select('#horizontalLine1').style('display','none');
+			d3.select('#horizontalLine2') 
+				.style('display','block')
+				.style('top',maxH+'px');
 
-	} else {
-		//top-bottom view
-		console.log('resize top-bottom view', paragraphFormBbox.height, paragraphFormBbox, d3.select('#paragraphForm').node())
-		d3.select('#paragraphForm').style('width',(window.innerWidth-20) + 'px');
-		paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
-		d3.select('#boxGrid')
-			.style('left',0)
-			.style('top',paragraphFormBbox.height + 50 + 'px')
-		d3.select('#verticalLine1').style('display','none');
-		d3.select('#horizontalLine1')			
-			.style('display','block')
-			.style('top',paragraphFormBbox.height+'px');
-		maxH = paragraphFormBbox.height + Math.max(plotBbox.height, boxGridBbox.height) + 80;
-		d3.select('#horizontalLine2')			
-			.style('display','block')
-			.style('top',maxH+'px');
+		} else {
+			//top-bottom view
+			console.log('resize top-bottom view', paragraphFormBbox.height, paragraphFormBbox, d3.select('#paragraphForm').node())
+			d3.select('#paragraphForm').style('width',(window.innerWidth-20) + 'px');
+			paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
+			d3.select('#boxGrid')
+				.style('left',0)
+				.style('top',paragraphFormBbox.height + 50 + 'px')
+			d3.select('#verticalLine1').style('display','none');
+			d3.select('#horizontalLine1')			
+				.style('display','block')
+				.style('top',paragraphFormBbox.height+'px');
+			maxH = paragraphFormBbox.height + Math.max(plotBbox.height, boxGridBbox.height) + 80;
+			d3.select('#horizontalLine2')			
+				.style('display','block')
+				.style('top',maxH+'px');
+		}
 	}
-
 
 
 	//for now I will just move the system design chart to the bottom (but might want to make it possible to do side-by-side?)
@@ -86,5 +92,5 @@ function resize(){
 	// var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
 
 	d3.select('#systemDesignChart').style('top',maxH + 20 +'px');
-	if (params.answers && params.paraSubmitted2) createSystemDesignChart();
+	if (params.answers && params.paraSubmitted2 && params.haveSDC) createSystemDesignChart();
 }
