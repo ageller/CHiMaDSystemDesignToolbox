@@ -37,7 +37,9 @@ function defineParams(){
 
 		this.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/REDACTED/values/Sheet1/?alt=json&callback=readGoogleSheet&key=REDACTED_GOOGLE_API_KEY'
 
-
+		//will save the initial input text before adding dropdown tags
+		this.paraTextSave = '';
+		
 		//this will hold the responses downloaded from the google sheet
 		this.responses;
 		this.aggregatedParaResponses = []; //will have multiple versions

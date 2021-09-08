@@ -26,13 +26,11 @@ d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
 // });
 
 
-
+//convert the paragraph with tagged words to contain html markup
+convertPara();
 
 //get all the words for selecting
-params.selectionWords = [];
-d3.selectAll('.selectionWord').select('text').each(function(d){
-	params.selectionWords.push(this.innerHTML);
-})
+getSelectionWords();
 
 //read in the answer key
 loadAnswers();

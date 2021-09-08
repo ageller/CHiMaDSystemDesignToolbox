@@ -1,5 +1,27 @@
+function convertPara(){
+	//take the input paragraph with tagged words and convert those tags to html markup
+
+	//first save the initial text
+	params.paraTextSave = d3.select('#paraText').html().trim();
+
+	//now modify the paragraph to 
+	// - change the '[[' to <span class="selectionWord"><text>
+	// - change the ']]' to </text></span>
+	d3.select('#paraText').html(params.paraTextSave.replaceAll('[[','<span class="selectionWord"><text>').replaceAll(']]','</text></span>'));	
+}
+
+function getSelectionWords(){
+	//get all the words for selecting
+
+	params.selectionWords = [];
+	d3.selectAll('.selectionWord').select('text').each(function(d){
+		params.selectionWords.push(this.innerHTML);
+	})
+}
+
 function createDropdowns(){
 //create all the dropdowns for the selection words (and prefill based on the URL)
+
 
 	d3.selectAll('.selectionWord')
 		.on('click',function(){
@@ -88,8 +110,11 @@ function useParaURLdata(){
 		} else {
 			if (k.substring(0,3) != 'SDC'){
 				//console.log('using', k, params.URLInputValues[k])
-				d3.select(d3.select('#'+k).node().parentNode).attr('class','selectionWord '+params.URLInputValues[k].toLowerCase()+'Word');
-				d3.select('#'+k).select('#'+params.URLInputValues[k]).property("selected",true);
+				var elem = d3.select('#'+k)
+				if (elem.node()){
+					d3.select(elem.node().parentNode).attr('class','selectionWord '+params.URLInputValues[k].toLowerCase()+'Word');
+					elem.select('#'+params.URLInputValues[k]).property("selected",true);
+				}
 			}
 		}
 
