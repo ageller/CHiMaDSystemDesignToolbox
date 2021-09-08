@@ -18,7 +18,8 @@ function resize(){
 		.style('line-height', (fsi+4)+'px');
 	d3.selectAll('.notifications')
 		.style('font-size', fsi + 'px')
-		.style('line-height', (fsi+4)+'px');
+		.style('line-height', (fsi+4)+'px')
+		.style('min-height', (fsi+4)+'px');
 	elem = d3.select('#usernameLabel').node()
 	if (elem){
 		var ubbox = elem.getBoundingClientRect();

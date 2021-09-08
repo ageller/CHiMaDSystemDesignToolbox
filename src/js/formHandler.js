@@ -188,22 +188,29 @@ function getUsername(username=null){
 
 
 function getGroupname(groupname=null){
+	if (event.keyCode === 13 || event.which === 13) {
+		//prevent returns from triggering anything
+		event.preventDefault();
+	} else {
 	//get the group data from the text input box to define the paragraph
 	//this will eventually be a dropdown
-	if (this.value) {
-		params.groupname = this.value;
-	} else {
-		params.groupname = groupname;
-	}
-	console.log('groupname ', params.groupname);
-	if (params.availableGroupnames.includes(params.groupname)) {
-		d3.select('#groupnameNotification')
-			.classed('error', true)
-			.text('Please choose a different group name.  This one is already used.');
-	} else {
-		d3.select('#groupnameNotification').text('');
-		params.URLInputValues["groupname"] = params.groupname;
-		appendURLdata();
+		if (this.value) {
+			params.groupname = this.value;
+		} else {
+			params.groupname = groupname;
+		}
+		if (!(typeof params.groupname === 'string') && !(params.groupname instanceof String)) params.groupname = '';
+
+		console.log('groupname ', params.groupname);
+		if (params.availableGroupnames.includes(params.groupname) || params.groupname == '') {
+			d3.select('#groupnameNotification')
+				.classed('error', true)
+				.text('Please choose a different group name.');
+		} else {
+			d3.select('#groupnameNotification').text('');
+			params.URLInputValues["groupname"] = params.groupname;
+			appendURLdata();
+		}
 	}
 }
 
