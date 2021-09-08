@@ -49,12 +49,15 @@ function beginParaEdit(){
 function saveParaEdit(){
 	console.log('saving paragraph');
 
+	//get the available tabs in the Google sheet
+	loadResponses(params.sheetRequest); //in case another edit was made by another user (but will this complete in time for the following if statement??)
 	//check that the group name is not already used
-
-	if (!params.availableGroupnames.includes(params.groupname)) {
+	if (params.availableGroupnames.includes(params.groupname) || params.groupname == ''){
+		d3.select('#groupnameNotification')
+			.classed('error', true)
+			.text('Please choose a different group name.  ');
+	} else {
 		
-
-
 		//change button to save
 		d3.select('#paraEditButton').style('display','block');
 		d3.select('#paraSaveButton').style('display','none');
@@ -85,6 +88,6 @@ function saveParaEdit(){
 		//hide the editor and show the current paragraph
 		d3.select('#paraText').style('display','block');
 		d3.select('#paraTextEditor').style('display','none');
-	}
+	} 
 }
 
