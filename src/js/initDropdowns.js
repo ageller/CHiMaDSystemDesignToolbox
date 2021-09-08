@@ -106,7 +106,7 @@ function useParaURLdata(){
 	keys.forEach(function(k){
 		if (k == "username"){
 			params.username = params.URLInputValues[k];
-			d3.select('#username').attr('value',params.username);
+			d3.select('#usernameInput').attr('value',params.username);
 		} else {
 			if (k.substring(0,3) != 'SDC'){
 				//console.log('using', k, params.URLInputValues[k])
