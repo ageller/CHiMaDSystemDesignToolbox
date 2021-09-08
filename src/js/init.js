@@ -8,7 +8,8 @@ d3.select('body').on('click',function(){
 })
 
 //bind the username getter
-d3.select('#username').on("keyup",getUsername);
+d3.select('#usernameInput').on("keyup",getUsername);
+d3.select('#groupnameInput').on("keyup",getGroupname);
 
 //resize events
 window.addEventListener('resize', resize);
@@ -25,6 +26,8 @@ d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
 // 		.style('top',event.pageY-20)
 // });
 
+//get the available tabs in the Google sheet
+loadResponses(params.sheetRequest);
 
 //convert the paragraph with tagged words to contain html markup
 convertPara();

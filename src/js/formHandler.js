@@ -1,10 +1,12 @@
-function sendToGoogleSheet(data, notificationID){
+function sendToGoogleSheet(data, notificationID, startInterval=true, successResponse=null, failResponse=null){
 	//send a javascript Object to the Google form accessed by the url below. 
 	//that url points to a google script attached to the google sheet, and will also append a timestamp
 
 	d3.selectAll('.error').classed('error', false);
 	d3.selectAll('.errorBorder').classed('errorBorder', false);
 
+	if (!successResponse) successResponse = 'Responses submitted successfully.  The chart will update automatically when new data are available.  You can change your responses anytime by re-submitting.';
+	if (!failResponse) failResponse = 'Responses failed to be submitted.  Please refresh your browser and try again.'
 	console.log('sending to Google');
 	params.nTrials += 1;
 
@@ -14,13 +16,22 @@ function sendToGoogleSheet(data, notificationID){
 		dataType: "json",
 		data: data,
 		success:function(d){
+			var resp = successResponse;
+			if (d.result == 'error') {
+				resp = failResponse
+				d3.select('#'+notificationID).classed('error', true)
+			}
 			console.log('submitted data', JSON.stringify(data), d);
-			d3.select('#'+notificationID)
-				.classed('blink_me', false)
-				.text('Responses submitted successfully.  The chart will update automatically when new data are available.  You can change your responses anytime by re-submitting.');
+			if (notificationID){
+				d3.select('#'+notificationID)
+					.classed('blink_me', false)
+					.text(resp);
+			}
 			//show the aggregated responses (now showing after reading in the data within aggregateParaResults)
-			loadResponses(params.surveyFile);
-			params.loadInterval = setInterval(function(){loadResponses(params.surveyFile);}, params.loadIntervalDuration);
+			if (startInterval && d.result != 'error') {
+				loadResponses(params.surveyFile);
+				params.loadInterval = setInterval(function(){loadResponses(params.surveyFile);}, params.loadIntervalDuration);
+			}
 
 			//show the previously loaded data.  This will be updated once the read completes
 			//defineBars();
@@ -30,10 +41,12 @@ function sendToGoogleSheet(data, notificationID){
 			if (params.nTrials < params.maxTrials){
 				sendToGoogleSheet(data);
 			} else {
-				d3.select('#'+notificationID)
-					.classed('blink_me', false)
-					.classed('error', false)
-					.text('Responses failed to be submitted.  Please refresh your browser and try again.');
+				if (notificationID){
+					d3.select('#'+notificationID)
+						.classed('blink_me', false)
+						.classed('error', true)
+						.text(failResponse);
+				}
 			}
 		}
 	});
@@ -48,7 +61,7 @@ function onFormSubmit(){
 
 	missing = [];
 	if (params.username != "" && typeof params.username !== 'undefined'){
-		d3.select('#username').property('disabled', true);
+		d3.select('#usernameInput').property('disabled', true);
 
 		params.nTrials = 0;
 		d3.select('#paraNotification')
@@ -82,6 +95,7 @@ function onFormSubmit(){
 				params.paraSubmitted2 = true;
 				if (params.answers) d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
 			}
+			params.paraData['SHEET_NAME'] = params.groupname;
 			sendToGoogleSheet(params.paraData, 'paraNotification');
 		} else {
 			console.log("missing", missing)
@@ -170,6 +184,27 @@ function getUsername(username=null){
 	}
 
 
+}
+
+
+function getGroupname(groupname=null){
+	//get the group data from the text input box to define the paragraph
+	//this will eventually be a dropdown
+	if (this.value) {
+		params.groupname = this.value;
+	} else {
+		params.groupname = groupname;
+	}
+	console.log('groupname ', params.groupname);
+	if (params.availableGroupnames.includes(params.groupname)) {
+		d3.select('#groupnameNotification')
+			.classed('error', true)
+			.text('Please choose a different group name.  This one is already used.');
+	} else {
+		d3.select('#groupnameNotification').text('');
+		params.URLInputValues["groupname"] = params.groupname;
+		appendURLdata();
+	}
 }
 
 function onSDCSubmit(){

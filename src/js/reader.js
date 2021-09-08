@@ -95,6 +95,17 @@ function readGoogleSheet(json) {
 	// }
 }
 
+function getAvailableSheets(json){
+	params.availableGroupnames = [];
+	console.log('in getAvailableSheets', json)
+	if (json.hasOwnProperty('sheets')){
+		json.sheets.forEach(function(d){
+			params.availableGroupnames.push(d.properties.title);
+		})
+	}
+	console.log('have available groupnames', params.availableGroupnames);
+}
+
 function countUniq(arr){
 //count the uniq elements in an array and return both the counts and the unique array
 	var out = {'uniq':[], 'num':{}, 'total':0};

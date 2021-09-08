@@ -17,8 +17,8 @@ function defineParams(){
 		this.colorMap = d3.scaleLinear().domain([0,1]).interpolate(d3.interpolateHcl).range([d3.rgb("#E0E0E0"), d3.rgb('#2C78CA')]);
 
 		//script that will control entries into the google sheet
-		this.googleAPIurl = "https://script.google.com/macros/s/REDACTED/exec";
-
+		this.googleAPIurl = 'https://script.google.com/macros/s/REDACTED/exec';
+		
 //the URL of the json getter of the sheet, for the visualization of results
 //sometime near Sept. 2021, Google stopped allowing the simle JSON alt type variant.  Now we need an api_key
 //see here: https://stackoverflow.com/questions/68854198/did-google-sheets-stop-allowing-json-access
@@ -35,11 +35,18 @@ function defineParams(){
 // 4. to set up the API key : https://support.google.com/googleapi/answer/6158862?hl=en
 // 5. I shearched within the Google console cloud for Sheets, and then clicked Enable
 
-		this.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/REDACTED/values/Sheet1/?alt=json&callback=readGoogleSheet&key=REDACTED_GOOGLE_API_KEY'
+		this.groupname = 'default';
+		this.sheetID = 'REDACTED';
+		this.APIkey = 'REDACTED_GOOGLE_API_KEY';
+		this.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/values/'+this.groupname+'/?alt=json&callback=readGoogleSheet&key='+this.APIkey;
 
+		//use this to get the available sheets
+		this.sheetRequest = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/?alt=json&callback=getAvailableSheets&key='+this.APIkey;
+		this.availableGroupnames = []; //this will hold the available sheets
+		
 		//will save the initial input text before adding dropdown tags
 		this.paraTextSave = '';
-		
+
 		//this will hold the responses downloaded from the google sheet
 		this.responses;
 		this.aggregatedParaResponses = []; //will have multiple versions
