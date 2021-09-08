@@ -37,7 +37,9 @@ function defineParams(){
 
 		this.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q/values/Sheet1/?alt=json&callback=readGoogleSheet&key=AIzaSyAiBnUwMyItsN0LMFs271XTist56tXb9Hw'
 
-
+		//will save the initial input text before adding dropdown tags
+		this.paraTextSave = '';
+		
 		//this will hold the responses downloaded from the google sheet
 		this.responses;
 		this.aggregatedParaResponses = []; //will have multiple versions
