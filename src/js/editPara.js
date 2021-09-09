@@ -82,6 +82,8 @@ function saveParaEdit(){
 			data.header.push(d);
 		})
 		sendToGoogleSheet(data, 'groupnameNotification', startInterval=false, succesResponse='Paragraph updated successfully.');
+		data =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupname,'paragraph':newText,'answersJSON':''}
+		sendToGoogleSheet(data, 'groupnameNotification', startInterval=false, succesResponse='Paragraph updated successfully.');
 
 		//how will we deal with the answers?
 

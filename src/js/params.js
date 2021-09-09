@@ -39,6 +39,7 @@ function defineParams(){
 		this.sheetID = '1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q';
 		this.APIkey = 'AIzaSyDQkhXUUtjzbG61dvodYiIjnr-5JhYdn9s';
 		this.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/values/'+this.groupname+'/?alt=json&callback=readGoogleSheet&key='+this.APIkey;
+		this.paragraphFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/values/paragraphs/?alt=json&callback=readGoogleSheetParagraphs&key='+this.APIkey;
 
 		//use this to get the available sheets
 		this.sheetRequest = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/?alt=json&callback=getAvailableSheets&key='+this.APIkey;
@@ -46,6 +47,9 @@ function defineParams(){
 
 		//will save the initial input text before adding dropdown tags
 		this.paraTextSave = '';
+		
+		//will hold the paragraphs that are saved in the google sheet
+		this.paragraphs;
 
 		//this will hold the responses downloaded from the google sheet
 		this.responses;
@@ -61,6 +65,7 @@ function defineParams(){
 
 		//this will hold the answers from the static data file
 		this.answers;
+		this.answersGroupnames = [];
 		this.showParaAnswers = true; //can be toggled with checkbox
 		this.showSDCAnswers = true; //can be toggled with checkbox
 
@@ -120,7 +125,7 @@ function defineParams(){
 		this.minParaWidth = 1920*(1 - this.plotFraction)/2.; //px, minimum width of the paragraph
 		this.minBarHeight = 30; //px, minimum height of each row in the plot
 
-		//will be set to true if initBars.js is included and will enable drawing of the SDC
+		//will be set to true if initSystemDesignChart.js is included and will enable drawing of the SDC
 		this.haveSDC = false;
 
 		//settings for the system design chart (SDC)

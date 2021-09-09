@@ -13,13 +13,17 @@
 		<!-- default is for this on the left -->
 		<div id='paragraphForm'>
 
-
 			<div id='paraForm' class='para'>
+
+				<div id='groupnameSelector' style='margin-bottom:20px'>
+					<div id="groupnameInstructions" class="instructions">&#9450; Select your paragraph. </div>
+
+				</div>
 				<div id="usernameInstructions" class="instructions">&#9312; Enter a unique user name below (e.g., your full name plus birthdate). </div>
 				<label for="username" id="usernameLabel">user name:</label>
 				<input type="text" id="usernameInput" name="username">
 				<div id="usernameNotification" class="notifications" style="margin:20;"></div>
-				<br><br><br>
+				<br>
 
 				<div id="paraInstructions" class="instructions">&#9313; Classify each term below that is within a gray box.  The possible categories are <span class="processingWord">Processing</span>, <span class="structureWord">Structure</span>, <span class="propertyWord">Property</span> or <span class="performanceWord">Performance</span>.  When you are finished please click the submit button.</div>
 
@@ -48,8 +52,8 @@
 					<label for="paraVersion1">Version 1</label><br>
 					<input type="radio" id="paraVersion2" name="version" value="2" class="radio">
 					<label for="paraVersion2">Version 2</label><br>
-					<input type="checkbox" id="paraAnswerToggle" name="answers" value="1" class="radio" checked>
-					<label for="paraAnswerToggle">Show answers</label><br>
+					<input type="checkbox" id="paraAnswerToggle" class='answerToggle' name="answers" value="1" class="radio" checked>
+					<label for="paraAnswerToggle" class='answerToggle'>Show answers</label><br>
 				</form>
 
 				<div id="boxGridSVGContainer"></div>
@@ -62,7 +66,7 @@
 		<div id="systemDesignChart">
 			<div class="para">
 
-				<div id="SDCInstructions" class="instructions">&#9315; After you submit your second response to Part 2 (above), this visualize will populate and allow you to construct a system design chart.  Click+drag lines to connect boxes in each column with the adjacent column(s).  When you have completed your chart, click the submit button below.  After clicking submit, the results from the rest of your group will also be shown.  </div>
+				<div id="SDCInstructions" class="instructions">&#9315; After you submit your second response to Part 2 (above), this visualization will populate and allow you to construct a system design chart.  Click+drag lines to connect boxes in each column with the adjacent column(s).  When you have completed your chart, click the submit button below.  After clicking submit, the results from the rest of your group will also be shown.  </div>
 
 				<form id="SDCVersionOptions" class='versionOptions'>
 					<div>Select which version of the responses to display, and whether to show the answers (black lines).</div>
@@ -70,19 +74,19 @@
 					<label for="SDCVersion1">Version 1</label><br>
 					<input type="radio" id="SDCVersion2" name="version" value="2" class="radio">
 					<label for="SDCVersion2">Version 2</label><br>
-					<input type="checkbox" id="SDCAnswerToggle" name="answers" value="1" class="radio" checked>
-					<label for="SDCAnswerToggle">Show answers</label><br>
 					<input type="checkbox" id="SDCResponseToggle" name="responses" value="1" class="radio" checked>
 					<label for="SDCResponseToggle">Your responses on/off</label><br>
+					<input type="checkbox" id="SDCAnswerToggle" class='answerToggle' name="answers" value="1" class="radio" checked>
+					<label for="SDCAnswerToggle" class='answerToggle'>Show answers</label><br>
 				</form>
 
 
 				<div id="systemDesignChartSVGContainer"></div>
 
-					<div id="SDCButton">
-						<button class="button" style="margin-left:20px" onclick="onSDCSubmit()">Submit</button>
-						<div id="SDCNotification" class="notifications" style="margin:20px">Please click the Submit button above when you have completed your work.</div>
-					</div>
+				<div id="SDCButton">
+					<button class="button" style="margin-left:20px" onclick="onSDCSubmit()">Submit</button>
+					<div id="SDCNotification" class="notifications" style="margin:20px">Please click the Submit button above when you have completed your work.</div>
+				</div>
 
 			</div>
 		</div>
