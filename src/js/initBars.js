@@ -33,7 +33,7 @@ function createBars(){
 	var plotSSWidth = window.innerWidth*params.plotFraction;
 	var minPlotHeight = params.selectionWords.length*(params.minBarHeight + offset);
 	var totalWidth,totalHeight;
-	console.log('check widths', window.innerWidth, plotSSWidth, window.innerWidth - plotSSWidth, params.minPlotWidth, params.minParaWidth)
+	//console.log('check widths', window.innerWidth, plotSSWidth, window.innerWidth - plotSSWidth, params.minPlotWidth, params.minParaWidth)
 	if (plotSSWidth >= params.minPlotWidth && (window.innerWidth - plotSSWidth >= params.minParaWidth) ){
 		//side-by-side view
 		console.log('plot side-by-side view')
@@ -52,7 +52,7 @@ function createBars(){
 	params.boxGridSVGHeight = totalHeight - params.boxGridSVGMargin.top - params.boxGridSVGMargin.bottom;
 	params.boxGridSVGHistHeight = params.boxGridSVGHeight/params.selectionWords.length - offset;
 	//make the bars squares, factor of 1.3 just judged by eye to make approximately square
-	params.boxGridSVGWidth = (params.boxGridSVGHistHeight*1.3)*(params.options.length-1); //one option is 'Select Category'
+	params.boxGridSVGWidth = Math.min((params.boxGridSVGHistHeight*1.3)*(params.options.length-1), 0.5*window.innerWidth); //one option is 'Select Category'
 	//params.boxGridSVGWidth = totalWidth - params.boxGridSVGMargin.left - params.boxGridSVGMargin.right;
 	console.log('check widths', window.innerWidth, plotSSWidth, window.innerWidth - plotSSWidth, params.minPlotWidth, params.minParaWidth, params.boxGridSVGHistHeight, params.boxGridSVGWidth, totalHeight)
 
@@ -127,7 +127,7 @@ function createBars(){
 				.attr('class', function(d){ return 'text '+d.category; })
 				.attr("x", function(d) { return params.boxGridxScale(d.category) + params.boxGridxScale.bandwidth()/2.; })
 				.attr("y", params.boxGridyScale(0.4))
-				.style('font-size', 0.5*params.boxGridyScale(0))
+				.style('font-size', Math.min(0.5*params.boxGridyScale(0), fsp))
 				.style("text-anchor", "middle")
 				.style('opacity',0)
 

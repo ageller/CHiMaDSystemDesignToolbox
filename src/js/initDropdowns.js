@@ -39,62 +39,62 @@ function createDropdowns(){
 				elem.classed('hidden', false);
 			}
 		})
-	.append('select')
-		.attr('id',function(){
-			return params.cleanString(d3.select(this.parentNode).select('text').node().innerHTML);})
-		.on('change',function(){
-			var parent = this.parentNode;
-			d3.select(this).selectAll('option').each(function(dd, j){
-				if (this.selected && !this.disabled){
-					var wrong = d3.select(parent).classed('wrongBorder');
-					d3.select(parent).attr('class','selectionWord '+this.value.toLowerCase()+'Word');
-					d3.select(parent).classed('wrongBorder', wrong);
-					var key = params.cleanString(d3.select(parent).select('text').node().innerHTML);
-					params.URLInputValues[key] = this.value;
-					appendURLdata();
-				}
+		.append('select')
+			.attr('id',function(){
+				return params.cleanString(d3.select(this.parentNode).select('text').node().innerHTML);})
+			.on('change',function(){
+				var parent = this.parentNode;
+				d3.select(this).selectAll('option').each(function(dd, j){
+					if (this.selected && !this.disabled){
+						var wrong = d3.select(parent).classed('wrongBorder');
+						d3.select(parent).attr('class','selectionWord '+this.value.toLowerCase()+'Word');
+						d3.select(parent).classed('wrongBorder', wrong);
+						var key = params.cleanString(d3.select(parent).select('text').node().innerHTML);
+						params.URLInputValues[key] = this.value;
+						appendURLdata();
+					}
+				})
 			})
-		})
-		.on('keyup', function(){
-			//enter
-			if (event.keyCode == 13) d3.select(this).classed('hidden', true); 
-			//right arrow
-			if (event.keyCode == 39) eventFire(getNextSibling(this.parentNode, '.selectionWord'), 'click');
-			//left arrow
-			if (event.keyCode == 37) eventFire(getPrevSibling(this.parentNode, '.selectionWord'), 'click');
-		})
-		.attr('class','selectionWordDropdown hidden')
-		//.classed('hidden', true)
-		.style('z-index',9)
-		.style('position','absolute')
-		.style('margin-left','7px')
-		.attr('size', 5) //this also changes the entire look of the dropdowns and makes it so that one cannot use arrows
-		.selectAll('option').data(params.options).enter()
-		.append('option')
-			.attr('id',function(d,i){
-				if (i > 0) {
-					return d;
-				}
-				return 'disabled'
+			.on('keyup', function(){
+				//enter
+				if (event.keyCode == 13) d3.select(this).classed('hidden', true); 
+				//right arrow
+				if (event.keyCode == 39) eventFire(getNextSibling(this.parentNode, '.selectionWord'), 'click');
+				//left arrow
+				if (event.keyCode == 37) eventFire(getPrevSibling(this.parentNode, '.selectionWord'), 'click');
 			})
-			.property('value',function(d,i){
-				if (i > 0) {
-					return d;
-				}
-			})
-			.property("selected", function(d,i){
-				if (i == 0) {
-					return true;
-				}
-				return false
-			})
-			.property("disabled", function(d,i){
-				if (i == 0) {
-					return true;
-				}
-				return false
-			})
-			.text(function(d){return d;})
+			.attr('class','selectionWordDropdown hidden')
+			//.classed('hidden', true)
+			.style('z-index',9)
+			.style('position','absolute')
+			.style('margin-left','7px')
+			.attr('size', 5) //this also changes the entire look of the dropdowns and makes it so that one cannot use arrows
+			.selectAll('option').data(params.options).enter()
+			.append('option')
+				.attr('id',function(d,i){
+					if (i > 0) {
+						return d;
+					}
+					return 'disabled'
+				})
+				.property('value',function(d,i){
+					if (i > 0) {
+						return d;
+					}
+				})
+				.property("selected", function(d,i){
+					if (i == 0) {
+						return true;
+					}
+					return false
+				})
+				.property("disabled", function(d,i){
+					if (i == 0) {
+						return true;
+					}
+					return false
+				})
+				.text(function(d){return d;})
 
 	useParaURLdata();
 }

@@ -32,8 +32,7 @@ function loadResponses(url){
 
 function readGoogleSheet(json) {
 //parse this json from the Google Sheet into the format that we need
-	console.log('in readGoogleSheets', json)
-	var pushed = false;
+	console.log('in readGoogleSheet', json)
 	if (json.hasOwnProperty('values')){
 		keys = json.values[0];
 		out = [];
@@ -55,6 +54,7 @@ function readGoogleSheet(json) {
 	}
 
 	//old format (prior to Sept. 2021)
+	// var pushed = false;
 	// if (json.hasOwnProperty('feed')){
 	// 	if (json.feed.hasOwnProperty('entry')){
 	// 		var data = json.feed.entry;
@@ -94,8 +94,36 @@ function readGoogleSheet(json) {
 	// 	}
 	// }
 }
+function readGoogleSheetParagraphs(json) {
+//parse this json from the Google Sheet into the format that we need
+	console.log('in readGoogleSheetParagraph', json)
+	if (json.hasOwnProperty('values')){
+		keys = json.values[0];
+		out = [];
+		for (var i = 1; i < json.values.length; i++){
+			row = {};
+			var vals = json.values[i];
+			for (var j = 0; j < keys.length; j++){
+				row[keys[j]] = vals[j];
+				if (typeof row[keys[j]] == 'undefined') row[keys[j]] = '';
+			}
+			out.push(row);
+		}
+		params.paragraphs = out;
+		params.paragraphs.columns = keys
+		console.log('paragraphs', keys, out, keys.length, params.responses)
+
+		params.paragraphs.forEach(function(d){
+			params.availableGroupnames.push(d.groupname);
+		})
+		console.log('have available groupnames', params.availableGroupnames);
+		createGroupnameSelect();
+
+	}
+}
 
 function getAvailableSheets(json){
+	//not used anymore (set in readGoogleSheetParagraphs)
 	params.availableGroupnames = [];
 	console.log('in getAvailableSheets', json)
 	if (json.hasOwnProperty('sheets')){
@@ -103,7 +131,9 @@ function getAvailableSheets(json){
 			params.availableGroupnames.push(d.properties.title);
 		})
 	}
+	params.availableGroupnames = params.availableGroupnames.sort();
 	console.log('have available groupnames', params.availableGroupnames);
+	createGroupnameSelect();
 }
 
 function countUniq(arr){
@@ -211,14 +241,32 @@ function aggregateSDCResults(){
 	}
 }
 
+function initSDC(){
+	//this is not be the best place for this function.  but I can rework this when I get the answers into the google sheet
+	d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
+	d3.select('#SDCButton').style('visibility','hidden');
+
+	console.log('!!! initializing SDC', params.answersGroupnames, params.groupname)
+	if ((params.answersGroupnames.includes(params.groupname))) {
+		if (params.haveSDC) createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
+	} else {
+		d3.selectAll('.answerToggle').style('visibility','hidden');
+	}
+}
+
 //for now I will work with a static csv file for the correct responses
+//I want to get the answers into the google sheet instead somehow
 function loadAnswers() {
 	Promise.all([
 		d3.csv('src/data/answers_clean.csv'),
 	]).then(function(d) {
 		params.answers = d[0];
 		console.log("answers",params.answers);
-		if (params.haveSDC) createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
+		params.answersGroupnames = [];
+		params.answers.forEach(function(d){
+			if (!(params.answersGroupnames.includes(d.groupname))) params.answersGroupnames.push(d.groupname);
+		})
+		initSDC();
 	})
 	.catch(function(error){
 		console.log('ERROR:', error)

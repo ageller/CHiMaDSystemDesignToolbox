@@ -3,7 +3,7 @@
 d3.select('body').on('click',function(){
 	//if (!event.target.parentNode.classList.contains('selectionWord') && !event.target.parentNode.classList.contains('selectionWordDropdown')){ 
 	if (!event.target.classList.contains('selectionWord') && !event.target.parentNode.classList.contains('selectionWord')){ 
-		d3.selectAll('select').classed('hidden', true);
+		d3.select('#paraText').selectAll('select').classed('hidden', true);
 	}
 })
 
@@ -26,8 +26,12 @@ d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
 // 		.style('top',event.pageY-20)
 // });
 
-//get the available tabs in the Google sheet
-loadResponses(params.sheetRequest);
+//get the available tabs in the Google sheet and create the select box
+//this could be removed now and just take the 'groupname' column in the paragraphs tab, within loadResponses(params.paragraphFile)
+//loadResponses(params.sheetRequest);
+
+//get the paragraphs
+loadResponses(params.paragraphFile);
 
 //convert the paragraph with tagged words to contain html markup
 convertPara();
@@ -45,7 +49,7 @@ readURLdata();
 createDropdowns();
 
 //create the skeleton of the visualization (will be filled in at loadResponses)
-//this is now called on reload
+//this is now called in resize
 //createBars();
 
 //create the skeleton of the system design chart
