@@ -11,7 +11,7 @@ function sendToGoogleSheet(data, notificationID, startInterval=true, successResp
 	params.nTrials += 1;
 
 	var jqxhr = $.ajax({
-		url: params.googleAPIurl,
+		url: params.googleScriptURL,
 		method: "GET",
 		dataType: "json",
 		data: data,
