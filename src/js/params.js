@@ -31,19 +31,19 @@ function defineParams(){
 // 3. the url will look like : https://sheets.googleapis.com/v4/spreadsheets/'+worksheet_id+'/values/'+tab_name+'?alt=json&key='+key-value
 // -- to worksheet_id is the string in between /d/ and /edit? above
 // -- tab_name is the string name of the tab I want (Sheet1)
-// -- key-value is the API key : AIzaSyAiBnUwMyItsN0LMFs271XTist56tXb9Hw
+// -- key-value is the API key (NOTE: this is a restricted key and only works on this github repo.  In a full deployment, security would need to be improved. Better to store the API key only on the server side, and only run the calls to google sheets on the server side.)
 // 4. to set up the API key : https://support.google.com/googleapi/answer/6158862?hl=en
 // 5. I shearched within the Google console cloud for Sheets, and then clicked Enable
 
 		this.groupname = 'default';
 		this.sheetID = '1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q';
-		this.APIkey = 'AIzaSyAiBnUwMyItsN0LMFs271XTist56tXb9Hw';
+		this.APIkey = 'AIzaSyDQkhXUUtjzbG61dvodYiIjnr-5JhYdn9s';
 		this.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/values/'+this.groupname+'/?alt=json&callback=readGoogleSheet&key='+this.APIkey;
 
 		//use this to get the available sheets
 		this.sheetRequest = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/?alt=json&callback=getAvailableSheets&key='+this.APIkey;
 		this.availableGroupnames = []; //this will hold the available sheets
-		
+
 		//will save the initial input text before adding dropdown tags
 		this.paraTextSave = '';
 
