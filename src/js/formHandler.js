@@ -131,11 +131,7 @@ function getUsername(username=null){
 	console.log('username ', params.username)
 
 	var ubbox = d3.select('#usernameLabel').node().getBoundingClientRect();
-	d3.select('#usernameNotification')
-		.style('position','absolute')
-		.style('top',ubbox.y + ubbox.height + 'px')
-		.style('left','0px')
-		.text('');
+	d3.select('#usernameNotification').text('');
 
 	var SDCVersion = -1;
 	var paraVersion = -1;
@@ -176,11 +172,14 @@ function getUsername(username=null){
 
 	console.log('checking versions', paraVersion, SDCVersion)
 	if (paraVersion >= 1) params.paraSubmitted = true;
-	if (paraVersion >= 2) {
-		params.paraSubmitted2 = true; 
+	if (paraVersion >= 2) params.paraSubmitted2 = true;
+	if (paraVersion >= 2 && params.answersGroupnames.includes(params.groupname) ){
 		d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
+		d3.select('#SDCButton').style('visibility','visible');
+		resize();
 	} else {
 		d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
+		d3.select('#SDCButton').style('visibility','hidden');
 	}
 
 
@@ -188,6 +187,7 @@ function getUsername(username=null){
 
 
 function getGroupname(groupname=null){
+	//this will handle the write-in groupname for the editor
 	if (event.keyCode === 13 || event.which === 13) {
 		//prevent returns from triggering anything
 		event.preventDefault();
@@ -212,6 +212,78 @@ function getGroupname(groupname=null){
 			appendURLdata();
 		}
 	}
+}
+
+function createGroupnameSelect(){
+
+	d3.select('#groupnameSelector').append('label')
+		.attr('for','groupnameSelect')
+		.html('paragraph name: ')
+
+	var slct = d3.select('#groupnameSelector').append('select')
+		.attr('id','groupnameSelect')
+		.attr('name','groupnameSelect')
+		.on('change',setGroupnameFromOptions)
+
+	slct.selectAll('option').data(params.availableGroupnames).enter().filter(function(d){return d != 'paragraphs'}).append('option')
+		.attr('id',function(d){return 'groupname'+d;})
+		.attr('value',function(d){return d;})
+		.text(function(d){return d;})
+	
+	var index = -1;
+	params.availableGroupnames.filter(function(d){return d != 'paragraphs'}).forEach(function(d,i){
+		if (d == params.groupname) index = i;
+	})
+	slct.node().selectedIndex = index;
+
+}
+
+function setGroupnameFromOptions(groupname=null){
+	//this will handle the dropdown menu for the paragraph
+
+	if (this.value) {
+		params.groupname = this.value;
+	} else {
+		params.groupname = groupname;
+	}
+
+	console.log('setting groupname', params.groupname);
+
+	//reset the URL
+	resetURLdata();
+
+	params.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+params.sheetID+'/values/'+params.groupname+'/?alt=json&callback=readGoogleSheet&key='+params.APIkey;
+
+	//check if the answers exist, and if not, hide the answers checkboxes
+	d3.selectAll('.answerToggle').style('visibility','visible');
+	if (!(params.answersGroupnames.includes(params.groupname))) {
+		d3.selectAll('.answerToggle').style('visibility','hidden');
+	}
+
+	//reset the paragraph
+	var newText = null;
+	params.paragraphs.forEach(function(d){
+		if (d.groupname = params.groupname) newText = d.paragraph;
+	})
+	console.log('have new text:',newText);
+	d3.select('#paraText').html(newText);
+
+	//now convert the paragraph to html markup (this also updates params.paraTextSave)
+	convertPara();
+
+	//update the selection words list
+	getSelectionWords();
+
+	//define the dropdowns
+	createDropdowns();
+
+	//re-create the chart
+	createBars();
+	loadResponses(params.surveyFile);
+
+	//re-create the system design chart
+	initSDC(); 
+
 }
 
 function onSDCSubmit(){

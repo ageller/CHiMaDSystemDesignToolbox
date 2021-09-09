@@ -156,13 +156,10 @@ html,body {
   word-break: normal;
 }
 
-
-/* IE11 hide native button (thanks Matt!) */
-select::-ms-expand {
+/* IE11 hide native button */
+.selectionWord select::-ms-expand {
 	display: none;
 }
-
-
 
 
 .selectdiv select {

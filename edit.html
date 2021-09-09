@@ -22,8 +22,8 @@
 				<br><br><br> -->
 
 				<!-- eventually this should become a drop down -->
-				<div id="groupnameInstructions" class="instructions">Enter the group name. </div>
-				<label for="groupname" id="groupnameLabel">group name:</label>
+				<div id="groupnameInstructions" class="instructions">Enter the paragraph name. </div>
+				<label for="groupname" id="groupnameLabel">paragraph name:</label>
 				<input type="text" id="groupnameInput" name="groupname" value=''>
 				<div id="groupnameNotification" class="notifications" style="margin:20"></div>
 
@@ -57,8 +57,8 @@
 					<label for="paraVersion1">Version 1</label><br>
 					<input type="radio" id="paraVersion2" name="version" value="2" class="radio">
 					<label for="paraVersion2">Version 2</label><br>
-					<input type="checkbox" id="paraAnswerToggle" name="answers" value="1" class="radio" checked>
-					<label for="paraAnswerToggle">Show answers</label><br>
+					<input type="checkbox" id="paraAnswerToggle" class='answerToggle' name="answers" value="1" class="radio" checked>
+					<label for="paraAnswerToggle" class='answerToggle'>Show answers</label><br>
 				</form>
 
 				<div id="boxGridSVGContainer"></div>
@@ -79,10 +79,10 @@
 					<label for="SDCVersion1">Version 1</label><br>
 					<input type="radio" id="SDCVersion2" name="version" value="2" class="radio">
 					<label for="SDCVersion2">Version 2</label><br>
-					<input type="checkbox" id="SDCAnswerToggle" name="answers" value="1" class="radio" checked>
-					<label for="SDCAnswerToggle">Show answers</label><br>
 					<input type="checkbox" id="SDCResponseToggle" name="responses" value="1" class="radio" checked>
 					<label for="SDCResponseToggle">Your responses on/off</label><br>
+					<input type="checkbox" id="SDCAnswerToggle" class='answerToggle' name="answers" value="1" class="radio" checked>
+					<label for="SDCAnswerToggle" class='answerToggle'>Show answers</label><br>
 				</form>
 
 

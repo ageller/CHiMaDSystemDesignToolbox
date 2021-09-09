@@ -20,16 +20,8 @@ function resize(){
 		.style('font-size', fsi + 'px')
 		.style('line-height', (fsi+4)+'px')
 		.style('min-height', (fsi+4)+'px');
-	elem = d3.select('#usernameLabel').node()
-	if (elem){
-		var ubbox = elem.getBoundingClientRect();
-		d3.select('#usernameNotification')
-			.style('position','absolute')
-			.style('top',ubbox.y + ubbox.height + 'px')
-			.style('left','0px');
-	}
 	var fsv = Math.max(0.007*window.innerWidth, params.versionFSmin);
-	d3.select('#paraVersionOptions')
+	d3.selectAll('.versionOptions')
 		.style('font-size', fsv + 'px')
 		.style('line-height', (fsv+2)+'px');
 
