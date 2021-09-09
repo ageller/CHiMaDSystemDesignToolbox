@@ -263,9 +263,9 @@ function setGroupnameFromOptions(groupname=null){
 	//reset the paragraph
 	var newText = null;
 	params.paragraphs.forEach(function(d){
-		if (d.groupname = params.groupname) newText = d.paragraph;
+		if (d.groupname == params.groupname) newText = d.paragraph;
 	})
-	console.log('have new text:',newText);
+	console.log('have new text:',params.groupname, newText);
 	d3.select('#paraText').html(newText);
 
 	//now convert the paragraph to html markup (this also updates params.paraTextSave)
