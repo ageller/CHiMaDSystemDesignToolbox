@@ -8,11 +8,15 @@ function doGet(e){
 }
 
 //  Enter sheet name where data is to be written below
-        var SHEET_NAME = "Sheet1";
+var SHEET_NAME = "default";
 
 var SCRIPT_PROP = PropertiesService.getScriptProperties(); // new property service
 
+ 
 function handleResponse(e) {
+//for debugging
+//  e = {'parameter':{'SHEET_NAME':'foo','header':['col1','col2','col3']}};
+
   // shortly after my original solution Google announced the LockService[1]
   // this prevents concurrent access overwritting data
   // [1] http://googleappsdeveloper.blogspot.co.uk/2011/10/concurrency-and-google-apps-script.html
@@ -23,57 +27,77 @@ function handleResponse(e) {
   try {
     // next set where we write the data - you could write to multiple/alternate destinations
     var doc = SpreadsheetApp.openById(SCRIPT_PROP.getProperty("key"));
+  
+      //reset the sheet name based on the input
+    if ('SHEET_NAME' in e.parameter) SHEET_NAME = e.parameter['SHEET_NAME'];
+    //SHEET_NAME = e.parameter['SHEET_NAME'];
+
     var sheet = doc.getSheetByName(SHEET_NAME);
-    
-    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    var nextRow = sheet.getLastRow()+1; // get next row
-    
-    var useRow = -1;
-    var version = 1;
-
-    // //AMG added to check if IP already exists and then set that as the row to use
-    // var foundIP = hasIP(sheet, e.parameter['IP']);
-    // if (foundIP == 1){
-    //   var version = 2;
-    //   useRow = searchIPv2(sheet, e.parameter['IP']);
-    //   if (useRow != -1){
-    //     nextRow = useRow;
-    //   }
-    // }
-
-    //AMG added to check if username already exists and then set that as the row to use
-    var foundUN = hasUsername(sheet, e.parameter['username'], e.parameter['task']);
-    if (foundUN == 1){
-      var version = 2;
-      useRow = searchUsernamev2(sheet, e.parameter['username'], e.parameter['task']);
-      if (useRow != -1){
-        nextRow = useRow;
-      }
+    if (!sheet) {
+      doc.insertSheet(SHEET_NAME);
+      sheet = doc.getSheetByName(SHEET_NAME);
     }
 
-    var row = []; 
-    // loop through the header columns
-    for (i in headers){
-      if (headers[i] == "Timestamp"){ // special case if you include a 'Timestamp' column
-        row.push(new Date());
-      } 
-      if (headers[i] == "version"){ // special case if you include a 'Timestamp' column
-        row.push(version);
-      } 
-      if (headers[i] != "Timestamp" && headers[i] != "version") { // else use header name to get data
-        row.push(e.parameter[headers[i]]);
+    //if we are creating a new sheet, we will need to define the headers
+    if ('header[]' in e.parameters){
+      sheet.getRange(1, 1, 1, e.parameters['header[]'].length).setValues([e.parameters['header[]']]);
+    } else {
+      //otherwise fill in the row
+
+      var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+      var nextRow = sheet.getLastRow()+1; // get next row
+      
+      var useRow = -1;
+      var version = 1;
+
+      // //AMG added to check if IP already exists and then set that as the row to use
+      // var foundIP = hasIP(sheet, e.parameter['IP']);
+      // if (foundIP == 1){
+      //   var version = 2;
+      //   useRow = searchIPv2(sheet, e.parameter['IP']);
+      //   if (useRow != -1){
+      //     nextRow = useRow;
+      //   }
+      // }
+
+      //AMG added to check if username already exists and then set that as the row to use
+      var foundUN = hasUsername(sheet, e.parameter['username'], e.parameter['task']);
+      if (foundUN == 1){
+        var version = 2;
+        useRow = searchUsernamev2(sheet, e.parameter['username'], e.parameter['task']);
+        if (useRow != -1){
+          nextRow = useRow;
+        }
       }
+
+      var row = []; 
+      // loop through the header columns
+      for (i in headers){
+        if (headers[i] == "Timestamp"){ // special case if you include a 'Timestamp' column
+          row.push(new Date());
+        } 
+        if (headers[i] == "version"){ // special case if you include a 'Timestamp' column
+          row.push(version);
+        } 
+        if (headers[i] != "Timestamp" && headers[i] != "version") { // else use header name to get data
+          row.push(e.parameter[headers[i]]);
+        }
+      }
+      // more efficient to set values as [][] array than individually
+      sheet.getRange(nextRow, 1, 1, row.length).setValues([row]);
+
     }
-    // more efficient to set values as [][] array than individually
-    sheet.getRange(nextRow, 1, 1, row.length).setValues([row]);
+
     // return json success results
     return ContentService
     .createTextOutput(JSON.stringify({"result":"success123", "row": nextRow,"useRow":useRow, "version":version,"input":e}))
           .setMimeType(ContentService.MimeType.JSON);
+
+
   } catch(err){
     // if error return this
     return ContentService
-          .createTextOutput(JSON.stringify({"result":"error", "error": err}))
+          .createTextOutput(JSON.stringify({"result":"error", "error": err, "input":e}))
           .setMimeType(ContentService.MimeType.JSON);
   } finally { //release lock
     lock.releaseLock();
@@ -126,6 +150,7 @@ function searchUsernamev2(sheet, UNstring, Tstring) {
   }
   return -1;
 }
+
 function setup() {
     var doc = SpreadsheetApp.getActiveSpreadsheet();
     SCRIPT_PROP.setProperty("key", doc.getId());

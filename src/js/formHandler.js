@@ -205,7 +205,7 @@ function getGroupname(groupname=null){
 		if (params.availableGroupnames.includes(params.groupname) || params.groupname == '') {
 			d3.select('#groupnameNotification')
 				.classed('error', true)
-				.text('Please choose a different group name.');
+				.text('Please choose a different group name. ');
 		} else {
 			d3.select('#groupnameNotification').text('');
 			params.URLInputValues["groupname"] = params.groupname;
