@@ -17,7 +17,7 @@ function defineParams(){
 		this.colorMap = d3.scaleLinear().domain([0,1]).interpolate(d3.interpolateHcl).range([d3.rgb("#E0E0E0"), d3.rgb('#2C78CA')]);
 
 		//script that will control entries into the google sheet
-		this.googleAPIurl = 'https://script.google.com/macros/s/AKfycbzZjmKJUTYonCswzqrhGGn47w8mXzdp0sRfrMlRB1D7X6_6gW6EpthPGn8j8ct7xVIW/exec';
+		this.googleScriptURL = 'https://script.google.com/macros/s/AKfycbxyezKnh2nHg_JXXz33uYEO8ec9fus4TgK_PPjKY0e7opWEN0N3w8cZyOPwLuY1bw6F/exec';
 		
 //the URL of the json getter of the sheet, for the visualization of results
 //sometime near Sept. 2021, Google stopped allowing the simle JSON alt type variant.  Now we need an api_key
