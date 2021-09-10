@@ -333,6 +333,7 @@ function defineBars(){
 		}
 
 	});
+	resize();
 
 
 }
