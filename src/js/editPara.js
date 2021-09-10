@@ -62,13 +62,9 @@ function saveParaEdit(){
 		d3.select('#paraEditButton').style('display','block');
 		d3.select('#paraSaveButton').style('display','none');
 
-		//populate the paragraph
+		//populate the paragraph and convert the paragraph to html markup (this also updates params.paraTextSave)
 		var newText = d3.select('#paraTextEditor').select('textarea').node().value;
-		console.log('have new text:',newText);
-		d3.select('#paraText').html(newText);
-
-		//now convert the paragraph to html markup (this also updates params.paraTextSave)
-		convertPara();
+		updatePara(newText);
 
 		//update the selection words list
 		getSelectionWords();
