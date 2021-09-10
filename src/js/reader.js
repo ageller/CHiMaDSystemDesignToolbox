@@ -33,6 +33,9 @@ function loadResponses(url){
 function readGoogleSheet(json) {
 //parse this json from the Google Sheet into the format that we need
 	console.log('in readGoogleSheet', json)
+
+	params.haveSurveyData = false;
+
 	if (json.hasOwnProperty('values')){
 		keys = json.values[0];
 		out = [];
@@ -49,8 +52,8 @@ function readGoogleSheet(json) {
 		params.responses.columns = keys
 		console.log('responses', keys, out, keys.length, params.responses)
 		aggregateParaResults();
-		if (!params.SDCLineHighlighted) aggregateSDCResults(); //so that is doesn't redraw while someone is inspecting
-		if (params.URLInputValues.hasOwnProperty('username')) getUsername(params.URLInputValues.username)
+		aggregateSDCResults(); 
+		if (params.URLInputValues.hasOwnProperty('username')) getUsernameInput(params.URLInputValues.username, {'keyCode':null});
 	}
 
 	//old format (prior to Sept. 2021)
@@ -96,6 +99,9 @@ function readGoogleSheet(json) {
 }
 function readGoogleSheetParagraphs(json) {
 //parse this json from the Google Sheet into the format that we need
+
+	params.haveParagraphData = false;
+
 	console.log('in readGoogleSheetParagraph', json)
 	if (json.hasOwnProperty('values')){
 		keys = json.values[0];
@@ -118,6 +124,8 @@ function readGoogleSheetParagraphs(json) {
 		})
 		console.log('have available groupnames', params.availableGroupnames);
 		createGroupnameSelect();
+
+		params.haveParagraphData = true;
 
 	}
 }
@@ -186,7 +194,7 @@ function aggregateParaResults(){
 	//plot the results
 			if (i == params.responses.columns.length - 1 && version == params.paraResponseVersion){
 				console.log("aggregatedPara", params.aggregatedParaResponses);
-				//I could check to see if anything changed before replotting, but I'm not sure that would offer a big speedup (since I'd need another for loop anyway)
+				params.haveSurveyData = true;
 				if (params.paraSubmitted) defineBars();
 			}
 
@@ -231,7 +239,7 @@ function aggregateSDCResults(){
 				console.log("aggregatedSDC", params.aggregatedSDCResponses);
 				if (params.SDCSubmitted) {
 					plotSDCAggregateLines();
-					if (params.showSDCAnswers && params.transitionSDCAnswers) plotSDCAnswerLines(); //params.transitionSDCAnswers will only be true at the stars, this way we don't plot multiple answer lines on top of each other
+					if (params.showSDCAnswers && params.transitionSDCAnswers) plotSDCAnswerLines(); //params.transitionSDCAnswers will only be true at the start, this way we don't plot multiple answer lines on top of each other
 				}
 				//for testing
 				//params.SDCSubmitted = true;
@@ -245,8 +253,8 @@ function initSDC(){
 	//this is not be the best place for this function.  but I can rework this when I get the answers into the google sheet
 	d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
 	d3.select('#SDCButton').style('visibility','hidden');
+	d3.select('#SDCVersionOptions').style('visibility','hidden');
 
-	console.log('!!! initializing SDC', params.answersGroupnames, params.groupname)
 	if ((params.answersGroupnames.includes(params.groupname))) {
 		if (params.haveSDC) createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
 	} else {
@@ -257,6 +265,7 @@ function initSDC(){
 //for now I will work with a static csv file for the correct responses
 //I want to get the answers into the google sheet instead somehow
 function loadAnswers() {
+	params.haveAnswersData = false;
 	Promise.all([
 		d3.csv('src/data/answers_clean.csv'),
 	]).then(function(d) {
@@ -266,7 +275,7 @@ function loadAnswers() {
 		params.answers.forEach(function(d){
 			if (!(params.answersGroupnames.includes(d.groupname))) params.answersGroupnames.push(d.groupname);
 		})
-		initSDC();
+		params.haveAnswersData = true;
 	})
 	.catch(function(error){
 		console.log('ERROR:', error)

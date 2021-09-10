@@ -11,7 +11,8 @@ params.haveBars = true;
 d3.select('#paraVersionOptions').selectAll('input').on('change',switchParaVersions);
 
 function createBars(){
-
+	params.createdBars = false;
+	console.log('!!! creating bars', params.selectionWords)
 	//destroy the plot (if it exists)
 	var parent = d3.select('#boxGridSVGContainer').node();
 	while (parent.firstChild) {
@@ -156,6 +157,8 @@ function createBars(){
 		// thisPlot.append("g")
 		// 	.call(d3.axisLeft(params.boxGridyScale).tickValues([]).tickSize(0));
 
+		fsp = resizeBarPlot();
+
 		//add the labels for the y axis
 		thisPlot.append("text")
 			.attr('class','rowLabel')
@@ -166,11 +169,25 @@ function createBars(){
 			.style("font-size",fsp)
 			.html(c.replaceAll("<sub>","<tspan dy=5>").replaceAll("</sub>","</tspan><tspan dy=-5>"));  //I'm not closing the last tspan, but it seems OK 
 
+
 	});
 
-	//resize the margins and plot as necessary, given the labels
-	resizePlot();
 
+	params.createdBars = true;
+
+	//show the bars
+	console.log("showing results", params.showingResults)
+	if (params.showingResults){
+		defineBars();
+	} else {
+//		if (!params.wavingBars)setWaveBars();
+	}
+}
+
+function resizeBarPlot(){
+	//resize the margins and plot as necessary, given the labels
+	resizeBars();
+	var fsp = Math.min(Math.max(0.01*window.innerWidth, params.paraFSmin), params.maxPlotFont);
 
 	//check the width to see if it's larger than the window width (and shrink font if necessary)
 	var plotWidth = params.boxGridSVGWidth + params.boxGridSVGMargin.left + params.boxGridSVGMargin.right;
@@ -182,20 +199,13 @@ function createBars(){
 		fsp = Math.max(params.minPlotFont, fsp);
 		d3.selectAll('.rowLabel').style('font-size', fsp)
 		d3.selectAll('.columnLabel').style('font-size', fsp)
-		resizePlot();
+		resizeBars();
 	}
 
+	return fsp
 
-	//show the bars
-	console.log("showing results", params.showingResults)
-	if (params.showingResults){
-		defineBars();
-	} else {
-//		if (!params.wavingBars)setWaveBars();
-	}
 }
-
-function resizePlot(){
+function resizeBars(){
 	var maxW = 0;
 	d3.selectAll('.rowLabel').each(function(d){
 		if (this.getBoundingClientRect().width > maxW) maxW = this.getBoundingClientRect().width;
@@ -230,6 +240,7 @@ function updateBars(thisPlot, data, duration, easing, op){
 }
 
 function defineBars(){
+	console.log('!!!! defining bars', params.showingResults)
 	params.barOpacity = 1.;
 
 	// clearInterval(params.waveInterval);
@@ -262,7 +273,7 @@ function defineBars(){
 				realData.push(dat);
 			}
 		});
-		if (c == "lightweight mechanical") console.log('realData',realData)
+		if (j == 0) console.log('realData',realData)
 		var update = updateBars(thisPlot, realData, params.transitionDuration, d3.easeLinear, params.barOpacity);
 
 		//add text

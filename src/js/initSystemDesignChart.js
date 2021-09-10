@@ -6,7 +6,6 @@ d3.select('#SDCVersionOptions').selectAll('input').on('change',switchSDCVersions
 
 //for line drawing
 window.addEventListener('mousemove', function(){
-	params.event = window.event;
 	moveSDCLine();
 });
 window.addEventListener('mouseup', function(){
@@ -19,169 +18,182 @@ window.addEventListener('mousedown', function(){
 
 
 function createSystemDesignChart(){
-	console.log('creating system design chart ...');
+	if (!params.SDCLineHighlighted){
+		console.log('creating system design chart ...');
 
-	//get the column centers
-	var n = params.options.length - 1;
-	var w = (window.innerWidth - 80)/n;
-	var offset = w/2;
-	params.SDCColumnCenters = {};
-	params.options.forEach(function(d,i){
-		if (d != 'Select Category') params.SDCColumnCenters[d] = (i-1)*w + offset
-	})
-
-	params.SDCBoxWidth = 0.6*w - params.SDCBoxMargin;
-	var boxHeight = 40; //will need to modify this below for each box, based on text size
-
-	//destroy the plot (if it exists)
-	var parent = d3.select('#systemDesignChartSVGContainer').node();
-	while (parent.firstChild) {
-		parent.removeChild(parent.firstChild);
-	}
-
-	//plot size and margins; I may have to resize this later once I know how many entries go in each column
-	params.SDCSVGMargin = {'top':20,'bottom':20,'left':20,'right':20};
-	params.SDCSVGHeight = 0.9*window.innerHeight - params.SDCSVGMargin.top - params.SDCSVGMargin.bottom;
-	params.SDCSVGWidth = window.innerWidth-40 - params.SDCSVGMargin.left - params.SDCSVGMargin.right;
-
-	
-	params.SDCSVG = d3.select('#systemDesignChartSVGContainer').append('svg')
-		.attr('id','SDCPlotSVG')
-		.style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom)
-		.style('width',params.SDCSVGWidth + params.SDCSVGMargin.left + params.SDCSVGMargin.right)
-		.append('g')
-			.on('mouseup',resetSDCLines)
-			.attr('id','SDCPlotContainer')
-			.attr('transform', 'translate(' + params.SDCSVGMargin.left + ',' + params.SDCSVGMargin.top + ')');
-
-
-	//create a rect to capture mouse events
-	params.SDCSVG.append('rect')
-		.attr('id','SDCmouseEvents')
-		.attr('x',0)
-		.attr('y',0)
-		.attr('fill','none')
-		.attr('width',params.SDCSVGWidth)
-		.attr('height',params.SDCSVGHeight)
-		.on('mouseup',endSDCLine)
-
-	//will hold the aggregate results
-	params.SDCAggSVG = params.SDCSVG.append('g').attr('id','SDCAggregatedLinesContainer');
-
-	//will hold the aggregate results
-	params.SDCAnswersSVG = params.SDCSVG.append('g').attr('id','SDCAnswersLinesContainer');
-
-	// add the column headers
-	params.SDCSVG.selectAll('.text')
-		.data(params.options).enter().filter(function(d){return d != 'Select Category';})
-		.append('text')
-			.attr('class', function(d){ return 'text '+d+'Word'; })
-			.attr('x', function(d) { return params.SDCColumnCenters[d]; })
-			.attr('y', 0)
-			.attr('dy', '.35em')
-			.style('text-anchor', 'middle')
-			.style('opacity',1)
-			.text(function(d){return d})
-
-
-	// It looks like I need to do this in a for loop so that I can get the proper y positions
-	var SDCcolumnLocations = {};
-	params.options.forEach(function(d){
-		if (d != 'Select Category') SDCcolumnLocations[d] = params.SDCBoxMargin;
-	})
-	console.log('params.answers', params.answers)
-	var using = params.answers.filter(function(d){return (d.task == 'para');})[0];
-	console.log('using', using)
-	for (var i=0; i<params.selectionWords.length; i++){
-		var d = params.cleanString(params.selectionWords[i]);
-
-		var box = params.SDCSVG.append('g')
-			.attr('class','SDCrectContainer ' + using[d])
-			.attr('id','SDCBox_'+params.cleanString(params.selectionWords[i]))
-			.attr('selectionWords',params.cleanString(params.selectionWords[i])) //custom attribute to hold the selection words
-			.attr('x',params.SDCColumnCenters[using[d]] - params.SDCBoxWidth/2.)
-			.attr('y',SDCcolumnLocations[using[d]])
-			.attr('transform', 'translate(' + (params.SDCColumnCenters[using[d]] - params.SDCBoxWidth/2.) + ',' + SDCcolumnLocations[using[d]] + ')')
-			//.on('mouseover',function(){highlightSDCLines(this)})
-			//.on('mouseout',resetSDCLines)
-			.on('mousedown', startSDCLine)
-
-		box.append('rect')
-			.attr('class','SDCrect ' + using[d]+'Word ' + using[d])
-			.attr('x',0)
-			.attr('y', 0)
-			.attr('width', params.SDCBoxWidth)
-			.attr('height', boxHeight) //will need to update this
-
-
-		var text = box.append('text')
-			.attr('class','noSelect')
-			.attr('x', params.SDCBoxWidth/2.)
-			.attr('y', boxHeight/2.)
-			.attr('dy', '.35em')
-			.style('text-anchor', 'middle')
-			.style('opacity',1)
-			.style('fill','black')
-			.text(params.selectionWords[i].replaceAll('<sub>','_').replaceAll('</sub>','$')) //recoding so the line width is about correct
-			.call(wrapSVGtext, params.SDCBoxWidth-10)
-
-		//add the mouse event
-		//text.selectAll('tspan').on('mousedown', startSDCLine)
-
-		//fix any subcripts
-		text.selectAll('tspan').each(function(){
-			var t = d3.select(this).text()
-			d3.select(this).html(t.replaceAll('_','<tspan dy=5>').replaceAll('$','</tspan><tspan dy=-5>'));  //I'm not closing the last tspan, but it seems OK 
-
+		//get the column centers
+		var n = params.options.length - 1;
+		var w = (window.innerWidth - 80)/n;
+		var offset = w/2;
+		params.SDCColumnCenters = {};
+		params.options.forEach(function(d,i){
+			if (d != 'Select Category') params.SDCColumnCenters[d] = (i-1)*w + offset
 		})
 
+		params.SDCBoxWidth = 0.6*w - params.SDCBoxMargin;
+		var boxHeight = 40; //will need to modify this below for each box, based on text size
+
+		//destroy the plot (if it exists)
+		var parent = d3.select('#systemDesignChartSVGContainer').node();
+		while (parent.firstChild) {
+			parent.removeChild(parent.firstChild);
+		}
+
+		//plot size and margins; I may have to resize this later once I know how many entries go in each column
+		params.SDCSVGMargin = {'top':20,'bottom':20,'left':20,'right':20};
+		params.SDCSVGHeight = 0.9*window.innerHeight - params.SDCSVGMargin.top - params.SDCSVGMargin.bottom;
+		params.SDCSVGWidth = window.innerWidth-40 - params.SDCSVGMargin.left - params.SDCSVGMargin.right;
+
+		
+		params.SDCSVG = d3.select('#systemDesignChartSVGContainer').append('svg')
+			.attr('id','SDCPlotSVG')
+			.style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom)
+			.style('width',params.SDCSVGWidth + params.SDCSVGMargin.left + params.SDCSVGMargin.right)
+			.append('g')
+				.on('mouseup',resetSDCLines)
+				.attr('id','SDCPlotContainer')
+				.attr('transform', 'translate(' + params.SDCSVGMargin.left + ',' + params.SDCSVGMargin.top + ')');
+
+
+		//create a rect to capture mouse events
+		params.SDCSVG.append('rect')
+			.attr('id','SDCmouseEvents')
+			.attr('x',0)
+			.attr('y',0)
+			.attr('fill','none')
+			.attr('width',params.SDCSVGWidth)
+			.attr('height',params.SDCSVGHeight)
+			.on('mouseup',endSDCLine)
+
+		//will hold the aggregate results
+		params.SDCAggSVG = params.SDCSVG.append('g').attr('id','SDCAggregatedLinesContainer');
+
+		//will hold the aggregate results
+		params.SDCAnswersSVG = params.SDCSVG.append('g').attr('id','SDCAnswersLinesContainer');
+
+		// add the column headers
+		params.SDCSVG.selectAll('.text')
+			.data(params.options).enter().filter(function(d){return d != 'Select Category';})
+			.append('text')
+				.attr('class', function(d){ return 'text '+d+'Word'; })
+				.attr('x', function(d) { return params.SDCColumnCenters[d]; })
+				.attr('y', 0)
+				.attr('dy', '.35em')
+				.style('text-anchor', 'middle')
+				.style('opacity',1)
+				.text(function(d){return d})
+
+
+		// It looks like I need to do this in a for loop so that I can get the proper y positions
+		var SDCcolumnLocations = {};
+		params.options.forEach(function(d){
+			if (d != 'Select Category') SDCcolumnLocations[d] = params.SDCBoxMargin;
+		})
+		console.log('params.answers', params.answers)
+		var using = params.answers.filter(function(d){return (d.task == 'para');})[0];
+		console.log('using', using)
+		for (var i=0; i<params.selectionWords.length; i++){
+			var d = params.cleanString(params.selectionWords[i]);
+
+			var box = params.SDCSVG.append('g')
+				.attr('class','SDCrectContainer ' + using[d])
+				.attr('id','SDCBox_'+params.cleanString(params.selectionWords[i]))
+				.attr('selectionWords',params.cleanString(params.selectionWords[i])) //custom attribute to hold the selection words
+				.attr('x',params.SDCColumnCenters[using[d]] - params.SDCBoxWidth/2.)
+				.attr('y',SDCcolumnLocations[using[d]])
+				.attr('transform', 'translate(' + (params.SDCColumnCenters[using[d]] - params.SDCBoxWidth/2.) + ',' + SDCcolumnLocations[using[d]] + ')')
+				//.on('mouseover',function(){highlightSDCLines(this)})
+				//.on('mouseout',resetSDCLines)
+				.on('mousedown', startSDCLine)
+
+			box.append('rect')
+				.attr('class','SDCrect ' + using[d]+'Word ' + using[d])
+				.attr('x',0)
+				.attr('y', 0)
+				.attr('width', params.SDCBoxWidth)
+				.attr('height', boxHeight) //will need to update this
+
+
+			var text = box.append('text')
+				.attr('class','noSelect')
+				.attr('x', params.SDCBoxWidth/2.)
+				.attr('y', boxHeight/2.)
+				.attr('dy', '.35em')
+				.style('text-anchor', 'middle')
+				.style('opacity',1)
+				.style('fill','black')
+				.text(params.selectionWords[i].replaceAll('<sub>','_').replaceAll('</sub>','$')) //recoding so the line width is about correct
+				.call(wrapSVGtext, params.SDCBoxWidth-10)
+
+			//add the mouse event
+			//text.selectAll('tspan').on('mousedown', startSDCLine)
+
+			//fix any subcripts
+			text.selectAll('tspan').each(function(){
+				var t = d3.select(this).text()
+				d3.select(this).html(t.replaceAll('_','<tspan dy=5>').replaceAll('$','</tspan><tspan dy=-5>'));  //I'm not closing the last tspan, but it seems OK 
+
+			})
+
+
+			//get the text height and resize the box
+			var bbox = text.node().getBBox();
+			box.select('rect').attr('height',bbox.height+10)
+			SDCcolumnLocations[using[d]] += bbox.height+10 + params.SDCBoxMargin;// - boxHeight;
+
+		}
+
+		//now shift each column vertically so they are centered
+		var maxH = 0;
+		params.options.forEach(function(d,i){
+			//get the max height
+			if (d != 'Select Category') {
+				if (SDCcolumnLocations[d] > maxH) maxH = SDCcolumnLocations[d];
+			}
+			//now shift as needed
+			if (i == params.options.length-1){
+				params.options.forEach(function(dd,j){
+					if (dd != 'Select Category') {
+						if (SDCcolumnLocations[dd] < maxH){
+							var offset = (maxH - SDCcolumnLocations[dd])/2.;
+							d3.selectAll('.SDCrectContainer.'+dd).each(function(){
+								var y = parseFloat(d3.select(this).attr('y')) + offset
+								var x = d3.select(this).attr('x')
+								d3.select(this)
+									.attr('x',x)
+									.attr('y',y)
+									.attr('transform', 'translate(' + x + ','+ y + ')');
+							})
+						}
+					}
+				})
+			}
+		})
+
+		//resize height
+		params.SDCSVGHeight = maxH;
+		d3.select('#SDCPlotSVG').style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom)
+		d3.select('#SDCmouseEvents').attr('height',params.SDCSVGHeight)
+
+		useSDCURLdata();
+
+		if (params.SDCSubmitted) {
+			plotSDCAggregateLines();
+			if (params.showSDCAnswers) plotSDCAnswerLines();
+		}
+	}
+}
+
+function resizeSDCBoxes(){
+	for (var i=0; i<params.selectionWords.length; i++){
+
+		var box = d3.select('#SDCBox_'+params.cleanString(params.selectionWords[i]));
+		var text = box.select('text');
 
 		//get the text height and resize the box
 		var bbox = text.node().getBBox();
 		box.select('rect').attr('height',bbox.height+10)
-		SDCcolumnLocations[using[d]] += bbox.height+10 + params.SDCBoxMargin;// - boxHeight;
-
 	}
-
-	//now shift each column vertically so they are centered
-	var maxH = 0;
-	params.options.forEach(function(d,i){
-		//get the max height
-		if (d != 'Select Category') {
-			if (SDCcolumnLocations[d] > maxH) maxH = SDCcolumnLocations[d];
-		}
-		//now shift as needed
-		if (i == params.options.length-1){
-			params.options.forEach(function(dd,j){
-				if (dd != 'Select Category') {
-					if (SDCcolumnLocations[dd] < maxH){
-						var offset = (maxH - SDCcolumnLocations[dd])/2.;
-						d3.selectAll('.SDCrectContainer.'+dd).each(function(){
-							var y = parseFloat(d3.select(this).attr('y')) + offset
-							var x = d3.select(this).attr('x')
-							d3.select(this)
-								.attr('x',x)
-								.attr('y',y)
-								.attr('transform', 'translate(' + x + ','+ y + ')');
-						})
-					}
-				}
-			})
-		}
-	})
-
-	//resize height
-	params.SDCSVGHeight = maxH;
-	d3.select('#SDCPlotSVG').style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom)
-	d3.select('#SDCmouseEvents').attr('height',params.SDCSVGHeight)
-
-	useSDCURLdata();
-
-	if (params.SDCSubmitted) {
-		plotSDCAggregateLines();
-		if (params.showSDCAnswers) plotSDCAnswerLines();
-	}
-
 }
 
 function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords){
@@ -428,19 +440,63 @@ function resetSDCLines(){
 }
 
 function useSDCURLdata(){
-	//remove all the lines
-	d3.selectAll('.SDCLine').remove();
-	d3.selectAll('.SDCCircle0').remove();
-	d3.selectAll('.SDCCircle').remove();
+	if (!params.SDCLineHighlighted) {
 
-	//apply the form data from the URL
-	var keys = Object.keys(params.URLInputValues);
-	keys.forEach(function(k){
-		if (k.substring(0,3) == 'SDC'){
-			var startWords = k.substring(3,k.length);
-			var endWords = decodeURI(params.URLInputValues[k]).split(' ');
-			var blanks = getAllIndices(endWords,"");
-			blanks.forEach(function(b){endWords.splice(b, 1)});
+		//remove all the lines
+		d3.selectAll('.SDCLine').remove();
+		d3.selectAll('.SDCCircle0').remove();
+		d3.selectAll('.SDCCircle').remove();
+
+		//apply the form data from the URL
+		var keys = Object.keys(params.URLInputValues);
+		keys.forEach(function(k){
+			if (k.substring(0,3) == 'SDC'){
+				var startWords = k.substring(3,k.length);
+				var endWords = decodeURI(params.URLInputValues[k]).split(' ');
+				var blanks = getAllIndices(endWords,"");
+				blanks.forEach(function(b){endWords.splice(b, 1)});
+
+				endWords.forEach(function(w,i){
+					var startParent = d3.select('#SDCBox_'+startWords);
+					var endParent = d3.select('#SDCBox_'+w);
+					if (startParent.node() && endParent.node()){
+						var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth;
+						var y1 = parseFloat(startParent.attr('y')) + parseFloat(startParent.select('rect').attr('height'))/2.;
+
+						var x2 = parseFloat(endParent.attr('x'))
+						var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
+
+						//get the category from the rect class list (will this always be the last class value?)
+						var cat = startParent.node().classList[1]
+
+						if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) createSDCLine(startParent.node(), x1,y1,x2,y2,6,cat,startWords,w);
+					}
+					params.SDCLine = null;
+					params.SDCCircle0 = null;
+					params.SDCCircle = null;
+				})
+
+
+			}
+
+		})
+	}
+}
+
+function plotSDCAggregateLines(){
+
+	if (!params.SDCLineHighlighted) {
+		//destroy the plot (if it exists)
+		var parent = params.SDCAggSVG.node();
+		while (parent.firstChild) {
+			parent.removeChild(parent.firstChild);
+		}
+
+		var fracBoxSize = 20;//should this change with resize?
+
+		var SDCdata = params.aggregatedSDCResponses[params.SDCResponseVersion];
+		Object.keys(SDCdata).forEach(function(startWords, j){
+			var endWords = SDCdata[startWords].uniq;
 
 			endWords.forEach(function(w,i){
 
@@ -453,190 +509,154 @@ function useSDCURLdata(){
 				var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
 
 				//get the category from the rect class list (will this always be the last class value?)
-				var cat = startParent.node().classList[1]
+				var cat = startParent.node().classList[1];
 
-				if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) createSDCLine(startParent.node(), x1,y1,x2,y2,6,cat,startWords,w);
-				params.SDCLine = null;
-				params.SDCCircle0 = null;
-				params.SDCCircle = null;
+				//line width is based on entries
+				var frac = SDCdata[startWords].num[w]/params.aggregatedSDCResponses.nVersion[params.SDCResponseVersion];
+				var width = (params.maxSDCLineWidth - params.minSDCLineWidth)*frac + params.minSDCLineWidth;
+
+				if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
+
+					var line = params.SDCAggSVG.append('line')
+						.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
+						.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
+						.attr('fraction',frac) //custom attribute to track the fraction		
+						.attr('id','SDCAggregateLine_'+params.SDCLineIndex)
+						.attr('class','SDCAggregateLine SDCAggregateLine_'+startWords+ ' SDCAggregateLine_'+w)
+						.attr('stroke',params.colorMap(frac))
+						.attr('stroke-width',width)
+						.attr('stroke-linecap','round') 
+						.attr('x1', x1)
+						.attr('y1', y1)
+						.attr('x2', function(){
+							if (params.transitionSDCAgg) return x1;
+							return x2
+						})
+						.attr('y2', function(){
+							if (params.transitionSDCAgg) return y1;
+							return y2
+						})
+						.style('opacity',0.5)
+
+					line.transition().duration(params.transitionDuration)
+						.attr('x2', x2)
+						.attr('y2', y2)
+
+					//also create a box and text to hold the fraction
+					var textHolder = params.SDCAggSVG.append('g')
+						.attr('class','SDCAggregateFracBox SDCAggregateFracBox_'+startWords+' SDCAggregateFracBox_'+w)
+
+					var xt = (x1 + x2)/2.;
+					var yt = (y1 + y2)/2.;
+					var d = Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
+					var angle = Math.acos(Math.abs(x2 - x1)/d)*180/Math.PI;
+					var yoff = width;
+					if (y1 > y2) angle = -1.*angle;
+					
+					// textHolder.append('rect')
+					// 	.attr('fill',params.colorMap(frac))
+					// 	.attr('x',xt - fracBoxSize*2.)
+					// 	.attr('y',yt - fracBoxSize/2 - width)
+					// 	.attr('rx', fracBoxSize/4.)
+					// 	.attr('ry', fracBoxSize/4.)
+					// 	.attr('width',fracBoxSize*2.)
+					// 	.attr('height',fracBoxSize)
+					// 	.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
+					// 	.style('opacity',0)
+
+
+					textHolder.append('text')
+						.attr('x',xt - fracBoxSize)
+						.attr('y',yt - yoff)
+						.attr('dy', '.35em')
+						.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
+						.attr('fill',params.colorMap(1))
+						.style('text-anchor', 'middle')
+						.style('opacity',0)
+						.text(frac.toFixed(2))
+
+				}
+				if (i == endWords.length - 1 && j == Object.keys(SDCdata).length - 1) params.transitionSDCAgg = false;
 			})
 
-
-		}
-
-	})
-}
-
-function plotSDCAggregateLines(){
-
-	//destroy the plot (if it exists)
-	var parent = params.SDCAggSVG.node();
-	while (parent.firstChild) {
-		parent.removeChild(parent.firstChild);
-	}
-
-	var fracBoxSize = 20;//should this change with resize?
-
-	var SDCdata = params.aggregatedSDCResponses[params.SDCResponseVersion];
-	Object.keys(SDCdata).forEach(function(startWords, j){
-		var endWords = SDCdata[startWords].uniq;
-
-		endWords.forEach(function(w,i){
-
-			var startParent = d3.select('#SDCBox_'+startWords);
-			var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth;
-			var y1 = parseFloat(startParent.attr('y')) + parseFloat(startParent.select('rect').attr('height'))/2.;
-
-			var endParent = d3.select('#SDCBox_'+w);
-			var x2 = parseFloat(endParent.attr('x'))
-			var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
-
-			//get the category from the rect class list (will this always be the last class value?)
-			var cat = startParent.node().classList[1];
-
-			//line width is based on entries
-			var frac = SDCdata[startWords].num[w]/params.aggregatedSDCResponses.nVersion[params.SDCResponseVersion];
-			var width = (params.maxSDCLineWidth - params.minSDCLineWidth)*frac + params.minSDCLineWidth;
-
-			if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
-
-				var line = params.SDCAggSVG.append('line')
-					.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
-					.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
-					.attr('fraction',frac) //custom attribute to track the fraction		
-					.attr('id','SDCAggregateLine_'+params.SDCLineIndex)
-					.attr('class','SDCAggregateLine SDCAggregateLine_'+startWords+ ' SDCAggregateLine_'+w)
-					.attr('stroke',params.colorMap(frac))
-					.attr('stroke-width',width)
-					.attr('stroke-linecap','round') 
-					.attr('x1', x1)
-					.attr('y1', y1)
-					.attr('x2', function(){
-						if (params.transitionSDCAgg) return x1;
-						return x2
-					})
-					.attr('y2', function(){
-						if (params.transitionSDCAgg) return y1;
-						return y2
-					})
-					.style('opacity',0.5)
-
-				line.transition().duration(params.transitionDuration)
-					.attr('x2', x2)
-					.attr('y2', y2)
-
-				//also create a box and text to hold the fraction
-				var textHolder = params.SDCAggSVG.append('g')
-					.attr('class','SDCAggregateFracBox SDCAggregateFracBox_'+startWords+' SDCAggregateFracBox_'+w)
-
-				var xt = (x1 + x2)/2.;
-				var yt = (y1 + y2)/2.;
-				var d = Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
-				var angle = Math.acos(Math.abs(x2 - x1)/d)*180/Math.PI;
-				var yoff = width;
-				if (y1 > y2) angle = -1.*angle;
-				
-				// textHolder.append('rect')
-				// 	.attr('fill',params.colorMap(frac))
-				// 	.attr('x',xt - fracBoxSize*2.)
-				// 	.attr('y',yt - fracBoxSize/2 - width)
-				// 	.attr('rx', fracBoxSize/4.)
-				// 	.attr('ry', fracBoxSize/4.)
-				// 	.attr('width',fracBoxSize*2.)
-				// 	.attr('height',fracBoxSize)
-				// 	.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
-				// 	.style('opacity',0)
-
-
-				textHolder.append('text')
-					.attr('x',xt - fracBoxSize)
-					.attr('y',yt - yoff)
-					.attr('dy', '.35em')
-					.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
-					.attr('fill',params.colorMap(1))
-					.style('text-anchor', 'middle')
-					.style('opacity',0)
-					.text(frac.toFixed(2))
-
-			}
-			if (i == endWords.length - 1 && j == Object.keys(SDCdata).length - 1) params.transitionSDCAgg = false;
 		})
-
-	})
+	}
 
 }
 
 function plotSDCAnswerLines(){
 	//lots of the same code from plotSDCAggregate (above); could clean up the code by making a more generic function
 
-	console.log('PLOTTING ANSWERS')
-	var using = params.answers.filter(function(d){return (d.task == 'SDC');})[0];
-	Object.keys(using).forEach(function(startWords, j){
-		if (startWords != 'task'){
-			var endWords = using[startWords].split(' ');
-			var blanks = getAllIndices(endWords,"");
-			blanks.forEach(function(b){endWords.splice(b, 1)});
-			if (endWords){
-				endWords.forEach(function(w,i){
+	if (!params.SDCLineHighlighted) {
+		console.log('PLOTTING ANSWERS')
+		var using = params.answers.filter(function(d){return (d.task == 'SDC');})[0];
+		Object.keys(using).forEach(function(startWords, j){
+			if (startWords != 'task' && startWords != 'groupname'){
+				var endWords = using[startWords].split(' ');
+				var blanks = getAllIndices(endWords,"");
+				blanks.forEach(function(b){endWords.splice(b, 1)});
+				if (endWords){
+					endWords.forEach(function(w,i){
+						var startParent = d3.select('#SDCBox_'+startWords);
+						var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth;
+						var y1 = parseFloat(startParent.attr('y')) + parseFloat(startParent.select('rect').attr('height'))/2.;
 
-					var startParent = d3.select('#SDCBox_'+startWords);
-					var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth;
-					var y1 = parseFloat(startParent.attr('y')) + parseFloat(startParent.select('rect').attr('height'))/2.;
+						var endParent = d3.select('#SDCBox_'+w);
+						var x2 = parseFloat(endParent.attr('x'))
+						var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
 
-					var endParent = d3.select('#SDCBox_'+w);
-					var x2 = parseFloat(endParent.attr('x'))
-					var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
+						//get the category from the rect class list (will this always be the last class value?)
+						var cat = startParent.node().classList[1];
 
-					//get the category from the rect class list (will this always be the last class value?)
-					var cat = startParent.node().classList[1];
+						if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
 
-					if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
+							var strokeColor = 'black';
+							//check for a discrepancy and plot that in pink
+							var aggElem = d3.select('.SDCAggregateLine_'+startWords+'.SDCAggregateLine_'+w);
+							if (!aggElem) {
+								strokeColor = '#d92b9c';
+							} else {
+								var frac = parseFloat(aggElem.attr('fraction'));
+								if (frac < params.pctLim) strokeColor = '#d92b9c';
+							}
 
-						var strokeColor = 'black';
-						//check for a discrepancy and plot that in pink
-						var aggElem = d3.select('.SDCAggregateLine_'+startWords+'.SDCAggregateLine_'+w);
-						if (!aggElem) {
-							strokeColor = '#d92b9c';
-						} else {
-							var frac = parseFloat(aggElem.attr('fraction'));
-							if (frac < params.pctLim) strokeColor = '#d92b9c';
+							var line = params.SDCAnswersSVG.append('line')
+								.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
+								.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
+								.attr('id','SDCAnswerLine_'+params.SDCLineIndex)
+								.attr('class','SDCAnswerLine SDCAnswerLine_'+startWords+ ' SDCAnswerLine_'+w)
+								.attr('stroke',strokeColor)
+								.attr('stroke-width',6)
+								.attr('stroke-linecap','round') 
+								.attr('x1', x1)
+								.attr('y1', y1)
+								.attr('x2', function(){
+									if (params.transitionSDCAnswers) return x1;
+									return x2
+								})
+								.attr('y2', function(){
+									if (params.transitionSDCAnswers) return y1;
+									return y2
+								})
+								.style('opacity',1)
+
+							line.transition().duration(params.transitionDuration)
+								.attr('x2', x2)
+								.attr('y2', y2)
 						}
-
-						var line = params.SDCAnswersSVG.append('line')
-							.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
-							.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
-							.attr('id','SDCAnswerLine_'+params.SDCLineIndex)
-							.attr('class','SDCAnswerLine SDCAnswerLine_'+startWords+ ' SDCAnswerLine_'+w)
-							.attr('stroke',strokeColor)
-							.attr('stroke-width',6)
-							.attr('stroke-linecap','round') 
-							.attr('x1', x1)
-							.attr('y1', y1)
-							.attr('x2', function(){
-								if (params.transitionSDCAnswers) return x1;
-								return x2
-							})
-							.attr('y2', function(){
-								if (params.transitionSDCAnswers) return y1;
-								return y2
-							})
-							.style('opacity',1)
-
-						line.transition().duration(params.transitionDuration)
-							.attr('x2', x2)
-							.attr('y2', y2)
-					}
-					//if (i == endWords.length - 1 && j == Object.keys(using).length - 1) params.transitionSDCAnswers = false;
-				})
+						//if (i == endWords.length - 1 && j == Object.keys(using).length - 1) params.transitionSDCAnswers = false;
+					})
+				}
 			}
-		}
-		if (j == Object.keys(using).length - 1) params.transitionSDCAnswers = false; //moved here in case the inner if's are not true
+			if (j == Object.keys(using).length - 1) params.transitionSDCAnswers = false; //moved here in case the inner if's are not true
 
-	})
+		})
+	}
 
 }
 
 function recolorSDCAnswers(){
+	//is this the correct algorithm?
 	console.log('recoloring the answers')
 	d3.selectAll('.SDCAnswerLine').each(function(){
 		var elem = d3.select(this);

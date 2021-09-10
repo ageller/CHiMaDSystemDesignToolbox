@@ -33,8 +33,6 @@ function sendToGoogleSheet(data, notificationID, startInterval=true, successResp
 				params.loadInterval = setInterval(function(){loadResponses(params.surveyFile);}, params.loadIntervalDuration);
 			}
 
-			//show the previously loaded data.  This will be updated once the read completes
-			//defineBars();
 		},
 		error: function (request, status, error) {
 			console.log('failed to submit', request, status, error);
@@ -91,7 +89,14 @@ function onFormSubmit(){
 			console.log("form data", params.paraData);
 			//createEmail();
 			params.paraSubmitted = true;
-			if (submitted1) {
+			//check if the user previously submitted a second version
+			var paraVersion = 1;
+			params.responses.forEach(function(d,i){
+				if (d.username == params.username){
+					if (d.task == 'para') paraVersion = Math.max(paraVersion, parseInt(d.version));
+				}
+			});
+			if (submitted1 || paraVersion >= 2) {
 				params.paraSubmitted2 = true;
 				if (params.answers) d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
 			}
@@ -118,87 +123,96 @@ function onFormSubmit(){
 
 }
 
-function getUsername(username=null){
+function getUsernameInput(username=null){
 	//get the username data from the text input box, and fill in the responses if the username exists
-	if (this.value) {
-		params.username = this.value;
-	} else {
-		params.username = username;
-	}
-	
-	params.URLInputValues = {};
-	params.URLInputValues["username"] = params.username;
-	console.log('username ', params.username)
 
-	var ubbox = d3.select('#usernameLabel').node().getBoundingClientRect();
-	d3.select('#usernameNotification').text('');
+	if (this.value) username = this.value;
 
-	var SDCVersion = -1;
-	var paraVersion = -1;
-
-	//reset all the selection words dropdowns
-	d3.selectAll('.selectionWord').select('select').selectAll('option').property('selected',false);
-	d3.selectAll('.selectionWord').select('select').select('#disabled').property('selected',true);
-
-	params.responses.forEach(function(d,i){
-		if (d.username == params.username){
-
-			console.log('found user in database', d.username, params.username, d)
-			//show notification
-			d3.select('#usernameNotification')
-				.text('This username exists, and the responses below have been populated accordingly.  If these are not your responses, please change your username.');
-
-			//add the responses (I want to take version 2 if it exists, but I think this will happen by default since v2 will always come after v1 in order)
-			if (d.task == 'para') paraVersion = Math.max(paraVersion, parseInt(d.version));
-			if (d.task == 'SDC') SDCVersion = Math.max(SDCVersion, parseInt(d.version));
-			Object.keys(d).forEach(function(k){
-
-				if (k != 'IP' && k != 'Timestamp' && k != 'version' && k !='task' && d[k] != '' && k != 'username') {
-					var key = k;
-					if (d.task == 'SDC') key = 'SDC'+k;
-					//console.log("testing", d, key, k, params.URLInputValues[key], d[k])
-					params.URLInputValues[key] = d[k].trim();
-				}
-			})
-
-		}
-		if (i == params.responses.length - 1){
-			appendURLdata();
-			readURLdata();
-			useParaURLdata();
-			useSDCURLdata();
-		}
-	})
-
-	console.log('checking versions', paraVersion, SDCVersion)
-	if (paraVersion >= 1) params.paraSubmitted = true;
-	if (paraVersion >= 2) params.paraSubmitted2 = true;
-	if (paraVersion >= 2 && params.answersGroupnames.includes(params.groupname) ){
-		d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
-		d3.select('#SDCButton').style('visibility','visible');
-		resize();
-	} else {
-		d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
-		d3.select('#SDCButton').style('visibility','hidden');
-	}
-
-
-}
-
-
-function getGroupname(groupname=null){
-	//this will handle the write-in groupname for the editor
-	if (event.keyCode === 13 || event.which === 13) {
+	if (params.event.keyCode === 13 || params.event.which === 13) {
 		//prevent returns from triggering anything
 		event.preventDefault();
 	} else {
-	//get the group data from the text input box to define the paragraph
-	//this will eventually be a dropdown
-		if (this.value) {
-			params.groupname = this.value;
+		params.username = username;
+		if (!(typeof params.username === 'string') && !(params.username instanceof String)) params.username = '';
+
+
+		params.URLInputValues = {};
+		params.URLInputValues["username"] = params.username;
+		params.URLInputValues["groupname"] = params.groupname;
+		console.log('username ', params.username)
+
+		var ubbox = d3.select('#usernameLabel').node().getBoundingClientRect();
+		d3.select('#usernameNotification').text('');
+
+		var SDCVersion = -1;
+		var paraVersion = -1;
+
+		//reset all the selection words dropdowns
+		d3.selectAll('.selectionWord').select('select').selectAll('option').property('selected',false);
+		d3.selectAll('.selectionWord').select('select').select('#disabled').property('selected',true);
+
+		params.responses.forEach(function(d,i){
+			if (d.username == params.username){
+
+				console.log('found user in database', d.username, params.username, d)
+				//show notification
+				d3.select('#usernameNotification')
+					.text('This username exists, and the responses below have been populated accordingly.  If these are not your responses, please change your username.');
+
+				//add the responses (I want to take version 2 if it exists, but I think this will happen by default since v2 will always come after v1 in order)
+				if (d.task == 'para') paraVersion = Math.max(paraVersion, parseInt(d.version));
+				if (d.task == 'SDC') SDCVersion = Math.max(SDCVersion, parseInt(d.version));
+				Object.keys(d).forEach(function(k){
+
+					if (k != 'IP' && k != 'Timestamp' && k != 'version' && k !='task' && d[k] != '' && k != 'username') {
+						var key = k;
+						if (d.task == 'SDC') key = 'SDC'+k;
+						//console.log("testing", d, key, k, params.URLInputValues[key], d[k])
+						params.URLInputValues[key] = d[k].trim();
+					}
+				})
+
+			}
+			if (i == params.responses.length - 1){
+				appendURLdata();
+				readURLdata();
+				if ('groupname' in params.URLInputValues) params.groupname = params.URLInputValues.groupname;
+				useParaURLdata();
+				useSDCURLdata();
+			}
+		})
+
+		console.log('checking versions', paraVersion, SDCVersion)
+		// if (paraVersion >= 1) params.paraSubmitted = true;
+		// if (paraVersion >= 2) params.paraSubmitted2 = true;
+		if (paraVersion >= 2 && params.answersGroupnames.includes(params.groupname) ){
+			d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
+			d3.select('#SDCButton').style('visibility','visible');
+			d3.select('#SDCVersionOptions').style('visibility','visible');
+			resize();
 		} else {
-			params.groupname = groupname;
+			d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
+			d3.select('#SDCButton').style('visibility','hidden');
+			d3.select('#SDCVersionOptions').style('visibility','hidden');
 		}
+
+
+	}
+}
+
+
+function getGroupnameInput(groupname=null, evnt=null){
+	//get the group data from the text input box to define the paragraph
+
+	if (this.value) groupname = this.value;
+
+	//this will handle the write-in groupname for the editor
+	if (params.event.keyCode === 13 || params.event.which === 13) {
+		//prevent returns from triggering anything
+		event.preventDefault();
+	} else {
+
+		params.groupname = groupname;
 		if (!(typeof params.groupname === 'string') && !(params.groupname instanceof String)) params.groupname = '';
 
 		console.log('groupname ', params.groupname);
@@ -212,6 +226,10 @@ function getGroupname(groupname=null){
 			appendURLdata();
 		}
 	}
+}
+
+function updateSurveyFile(){
+	params.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+params.sheetID+'/values/'+params.groupname+'/?alt=json&callback=readGoogleSheet&key='+params.APIkey;
 }
 
 function createGroupnameSelect(){
@@ -248,42 +266,31 @@ function setGroupnameFromOptions(groupname=null){
 	}
 
 	console.log('setting groupname', params.groupname);
+	updateSurveyFile();
+	clearInterval(params.loadInterval);
 
 	//reset the URL
 	resetURLdata();
 
-	params.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+params.sheetID+'/values/'+params.groupname+'/?alt=json&callback=readGoogleSheet&key='+params.APIkey;
-
+	//don't show the results until the user submits responses again(?)
+	params.paraSubmitted = false;
+	params.paraSubmitted2 = false;
+	params.showingResults = false;
+	params.SDCSubmitted = false;
+	
 	//check if the answers exist, and if not, hide the answers checkboxes
-	d3.selectAll('.answerToggle').style('visibility','visible');
-	if (!(params.answersGroupnames.includes(params.groupname))) {
-		d3.selectAll('.answerToggle').style('visibility','hidden');
+	d3.selectAll('.answerToggle').style('visibility','hidden');
+	if (params.answersGroupnames.includes(params.groupname)) {
+		d3.select('#paraVersionOptions').selectAll('.answerToggle').style('visibility','visible');
 	}
 
-	//reset the paragraph
-	var newText = null;
-	params.paragraphs.forEach(function(d){
-		if (d.groupname == params.groupname) newText = d.paragraph;
-	})
-	console.log('have new text:',params.groupname, newText);
-	d3.select('#paraText').html(newText);
+	//update the URL
+	params.URLInputValues['groupname'] = params.groupname;
+	appendURLdata();
 
-	//now convert the paragraph to html markup (this also updates params.paraTextSave)
-	convertPara();
-
-	//update the selection words list
-	getSelectionWords();
-
-	//define the dropdowns
-	createDropdowns();
-
-	//re-create the chart
-	createBars();
 	loadResponses(params.surveyFile);
 
-	//re-create the system design chart
-	initSDC(); 
-
+	initPage();
 }
 
 function onSDCSubmit(){

@@ -1,9 +1,24 @@
+function updatePara(newTxt = null){
+	//update the paragraph text
+	var newText = '';
+	if (newTxt) {
+		newText = newTxt
+	} else {
+		params.paragraphs.forEach(function(d){
+			if (d.groupname == params.groupname) newText = d.paragraph;
+		})
+	}
+	console.log('have new text:',params.groupname, newText);
+	d3.select('#paraText').html(newText);
+	convertPara();
+
+}
+
 function convertPara(){
 	//take the input paragraph with tagged words and convert those tags to html markup
 
 	//first save the initial text
 	params.paraTextSave = d3.select('#paraText').html().trim();
-
 	//now modify the paragraph to 
 	// - change the '[[' to <span class="selectionWord"><text>
 	// - change the ']]' to </text></span>
@@ -21,7 +36,6 @@ function getSelectionWords(){
 
 function createDropdowns(){
 //create all the dropdowns for the selection words (and prefill based on the URL)
-
 
 	d3.selectAll('.selectionWord')
 		.on('click',function(){
