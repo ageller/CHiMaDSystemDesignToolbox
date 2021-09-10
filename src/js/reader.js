@@ -239,7 +239,7 @@ function aggregateSDCResults(){
 				console.log("aggregatedSDC", params.aggregatedSDCResponses);
 				if (params.SDCSubmitted) {
 					plotSDCAggregateLines();
-					if (params.showSDCAnswers && params.transitionSDCAnswers) plotSDCAnswerLines(); //params.transitionSDCAnswers will only be true at the start, this way we don't plot multiple answer lines on top of each other
+					if (params.transitionSDCAnswers) plotSDCAnswerLines(); //params.transitionSDCAnswers will only be true at the start, this way we don't plot multiple answer lines on top of each other
 				}
 				//for testing
 				//params.SDCSubmitted = true;
@@ -249,18 +249,6 @@ function aggregateSDCResults(){
 	}
 }
 
-function initSDC(){
-	//this is not be the best place for this function.  but I can rework this when I get the answers into the google sheet
-	d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
-	d3.select('#SDCButton').style('visibility','hidden');
-	d3.select('#SDCVersionOptions').style('visibility','hidden');
-
-	if ((params.answersGroupnames.includes(params.groupname))) {
-		if (params.haveSDC) createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
-	} else {
-		d3.selectAll('.answerToggle').style('visibility','hidden');
-	}
-}
 
 //for now I will work with a static csv file for the correct responses
 //I want to get the answers into the google sheet instead somehow

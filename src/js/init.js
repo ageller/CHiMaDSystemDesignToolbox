@@ -68,14 +68,17 @@ function initPage(){
 			createBars();
 
 			//create the system design chart
-			initSDC(); 
+			if ((params.answersGroupnames.includes(params.groupname))) {
+				if (params.haveSDC) createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
+			} 
+			checkSDCvisibility();
 
 			//I could check to see if anything changed before replotting, but I'm not sure that would offer a big speedup (since I'd need another for loop anyway)
 			if (params.paraSubmitted) defineBars();
 
 			if (params.SDCSubmitted) {
 				plotSDCAggregateLines();
-				if (params.showSDCAnswers && params.transitionSDCAnswers) plotSDCAnswerLines(); //params.transitionSDCAnswers will only be true at the start, this way we don't plot multiple answer lines on top of each other
+				if (params.transitionSDCAnswers) plotSDCAnswerLines(); //params.transitionSDCAnswers will only be true at the start, this way we don't plot multiple answer lines on top of each other
 			}
 
 			resize();

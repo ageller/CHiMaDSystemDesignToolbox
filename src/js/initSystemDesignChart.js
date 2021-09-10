@@ -179,7 +179,7 @@ function createSystemDesignChart(){
 
 		if (params.SDCSubmitted) {
 			plotSDCAggregateLines();
-			if (params.showSDCAnswers) plotSDCAnswerLines();
+			plotSDCAnswerLines();
 		}
 	}
 }
@@ -196,7 +196,7 @@ function resizeSDCBoxes(){
 	}
 }
 
-function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords){
+function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords, opacity=1){
 	params.SDCLineIndex += 1;
 
 	params.SDCLine = params.SDCSVG.append('line')
@@ -213,6 +213,7 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords){
 		.attr('y1', y1)
 		.attr('x2', x2)
 		.attr('y2', y2)
+		.style('stroke-opacity',opacity)
 		.on('mousedown', moveExistingSDCLine)
 		//.on('mouseover',function(){highlightSDCLines(elem)})
 		//.on('mouseout',resetSDCLines);
@@ -224,6 +225,7 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords){
 		.attr('cx',x1)
 		.attr('cy',y1)
 		.attr('r',r)
+		.style('opacity',opacity)
 		.on('mousedown', startSDCLine)
 		//.on('mouseover',function(){highlightSDCLines(elem)})
 		//.on('mouseout',resetSDCLines);
@@ -235,6 +237,7 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords){
 		.attr('cx',x2)
 		.attr('cy',y2)
 		.attr('r',r)
+		.style('opacity',opacity)
 		.on('mousedown', moveExistingSDCLine)
 		//.on('mouseover',function(){highlightSDCLines(elem)})
 		//.on('mouseout',resetSDCLines);
@@ -395,14 +398,8 @@ function highlightSDCLines(elem){
 		// d3.selectAll('.SDCCircle').interrupt().transition()
 		// d3.selectAll('.SDCCircle0').interrupt().transition()
 
-		d3.selectAll('.SDCLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
-		d3.selectAll('.SDCCircle').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
-		d3.selectAll('.SDCCircle0').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
-
 		var foo = d3.select(elem).attr('id')
 		var id = foo.substr(7,foo.length-7);
-		d3.selectAll('.SDCLine_'+id).interrupt().transition()
-		d3.selectAll('.SDCLine_'+id).style('opacity',1)
 
 		d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1);
 		d3.selectAll('.SDCAggregateLine_'+id).interrupt().transition()
@@ -412,6 +409,15 @@ function highlightSDCLines(elem){
 		d3.selectAll('.SDCAggregateFracBox_'+id).select('text').interrupt().transition()
 		d3.selectAll('.SDCAggregateFracBox_'+id).select('rect').transition().duration(params.transitionSDCDuration).style('opacity',0.5)
 		d3.selectAll('.SDCAggregateFracBox_'+id).select('text').transition().duration(params.transitionSDCDuration).style('opacity',1)
+
+
+		if (params.showSDCResponses){
+			d3.selectAll('.SDCLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
+			d3.selectAll('.SDCCircle').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
+			d3.selectAll('.SDCCircle0').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
+			d3.selectAll('.SDCLine_'+id).interrupt().transition()
+			d3.selectAll('.SDCLine_'+id).style('opacity',1)
+		}
 
 		if (params.showSDCAnswers){
 			d3.selectAll('.SDCAnswerLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1);
@@ -442,6 +448,9 @@ function resetSDCLines(){
 function useSDCURLdata(){
 	if (!params.SDCLineHighlighted) {
 
+		var op = 0;
+		if (params.showSDCResponses) op = 1;
+
 		//remove all the lines
 		d3.selectAll('.SDCLine').remove();
 		d3.selectAll('.SDCCircle0').remove();
@@ -469,7 +478,7 @@ function useSDCURLdata(){
 						//get the category from the rect class list (will this always be the last class value?)
 						var cat = startParent.node().classList[1]
 
-						if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) createSDCLine(startParent.node(), x1,y1,x2,y2,6,cat,startWords,w);
+						if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) createSDCLine(startParent.node(), x1,y1,x2,y2,6,cat,startWords,w, op);
 					}
 					params.SDCLine = null;
 					params.SDCCircle0 = null;
@@ -517,13 +526,16 @@ function plotSDCAggregateLines(){
 
 				if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
 
+					var strokeColor = params.colorMap(frac);
+					if (frac < params.pctLim) strokeColor = '#d92b9c';
+
 					var line = params.SDCAggSVG.append('line')
 						.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
 						.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
 						.attr('fraction',frac) //custom attribute to track the fraction		
 						.attr('id','SDCAggregateLine_'+params.SDCLineIndex)
 						.attr('class','SDCAggregateLine SDCAggregateLine_'+startWords+ ' SDCAggregateLine_'+w)
-						.attr('stroke',params.colorMap(frac))
+						.attr('stroke',strokeColor)
 						.attr('stroke-width',width)
 						.attr('stroke-linecap','round') 
 						.attr('x1', x1)
@@ -588,7 +600,9 @@ function plotSDCAnswerLines(){
 	//lots of the same code from plotSDCAggregate (above); could clean up the code by making a more generic function
 
 	if (!params.SDCLineHighlighted) {
-		console.log('PLOTTING ANSWERS')
+		var op = 0;
+		if (params.showSDCAnswers) op = 1;
+
 		var using = params.answers.filter(function(d){return (d.task == 'SDC');})[0];
 		Object.keys(using).forEach(function(startWords, j){
 			if (startWords != 'task' && startWords != 'groupname'){
@@ -610,22 +624,12 @@ function plotSDCAnswerLines(){
 
 						if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
 
-							var strokeColor = 'black';
-							//check for a discrepancy and plot that in pink
-							var aggElem = d3.select('.SDCAggregateLine_'+startWords+'.SDCAggregateLine_'+w);
-							if (!aggElem) {
-								strokeColor = '#d92b9c';
-							} else {
-								var frac = parseFloat(aggElem.attr('fraction'));
-								if (frac < params.pctLim) strokeColor = '#d92b9c';
-							}
-
 							var line = params.SDCAnswersSVG.append('line')
 								.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
 								.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
 								.attr('id','SDCAnswerLine_'+params.SDCLineIndex)
 								.attr('class','SDCAnswerLine SDCAnswerLine_'+startWords+ ' SDCAnswerLine_'+w)
-								.attr('stroke',strokeColor)
+								.attr('stroke','black')
 								.attr('stroke-width',6)
 								.attr('stroke-linecap','round') 
 								.attr('x1', x1)
@@ -638,7 +642,7 @@ function plotSDCAnswerLines(){
 									if (params.transitionSDCAnswers) return y1;
 									return y2
 								})
-								.style('opacity',1)
+								.style('stroke-opacity',op)
 
 							line.transition().duration(params.transitionDuration)
 								.attr('x2', x2)
@@ -656,7 +660,8 @@ function plotSDCAnswerLines(){
 }
 
 function recolorSDCAnswers(){
-	//is this the correct algorithm?
+	//this algorithm will color the answer lines if the corresponding line from the aggregate is less than the limit
+	//is this the correct algorithm?  I think not.  For the bars I color if the responses are less than the limit (without checking the answers)
 	console.log('recoloring the answers')
 	d3.selectAll('.SDCAnswerLine').each(function(){
 		var elem = d3.select(this);
@@ -675,6 +680,20 @@ function recolorSDCAnswers(){
 		elem.attr('stroke',strokeColor)
 	})
 }
+function recolorSDCAgg(){
+	//this algorithm will color the aggregate lines the total fraction is less than the limit (matching what is done for the bars)
+	console.log('recoloring the SDC aggregate')
+	d3.selectAll('.SDCAggregateLine').each(function(){
+		var elem = d3.select(this);
+		var frac = parseFloat(elem.attr('fraction'));
+
+		var strokeColor = params.colorMap(frac);
+		if (frac < params.pctLim) strokeColor = '#d92b9c';
+
+		elem.attr('stroke',strokeColor)
+	})
+}
+
 function toggleSDCAnswers(){
 	var op = 0;
 	if (params.showSDCAnswers) op = 1;
@@ -720,7 +739,7 @@ function switchSDCVersions(){
 				t.on('end',function(){
 					if (params.SDCSubmitted) {
 						plotSDCAggregateLines();
-						setTimeout(recolorSDCAnswers, params.transitionDuration);
+						setTimeout(recolorSDCAgg, params.transitionDuration);
 					}
 				})
 			}
@@ -735,5 +754,24 @@ function switchSDCVersions(){
 	if (this.name == "responses"){
 		params.showSDCResponses = this.checked;
 		toggleSDCResponses();
+	}
+}
+
+function checkSDCvisibility(){
+	if (params.answersGroupnames.includes(params.groupname) && params.paraSubmitted2){
+		d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
+		d3.select('#SDCButton').style('visibility','visible');
+		d3.select('#SDCVersionOptions').style('visibility','visible');
+		d3.select('#SDCVersionOptions').selectAll('.answerToggle').style('visibility','visible');
+		resize();
+	} else {
+		d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
+		d3.select('#SDCButton').style('visibility','hidden');
+		d3.select('#SDCVersionOptions').style('visibility','hidden');
+	}
+
+	//maybe not the best place for this because it also impacts the bar charts
+	if (!(params.answersGroupnames.includes(params.groupname))) {
+		d3.selectAll('.answerToggle').style('visibility','hidden');
 	}
 }
