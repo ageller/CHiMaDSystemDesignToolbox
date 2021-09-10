@@ -16,6 +16,11 @@ function defineParams(){
 		//this defines the colormap
 		this.colorMap = d3.scaleLinear().domain([0,1]).interpolate(d3.interpolateHcl).range([d3.rgb("#E0E0E0"), d3.rgb('#2C78CA')]);
 
+		//check to make sure we're ready to create the plots
+		this.haveParagraphData = false;
+		this.haveSurveyData = false;
+		this.haveAnswersData = false;
+
 		//script that will control entries into the google sheet
 		this.googleScriptURL = 'https://script.google.com/macros/s/AKfycbxyezKnh2nHg_JXXz33uYEO8ec9fus4TgK_PPjKY0e7opWEN0N3w8cZyOPwLuY1bw6F/exec';
 		
@@ -95,6 +100,7 @@ function defineParams(){
 
 		//will be set to true if initBars.js is included and will enable drawing of the bar charts
 		this.haveBars = false;
+		this.createdBars = false;
 
 		//will hold the default bar opacity
 		this.barOpacity = 1;
@@ -157,7 +163,7 @@ function defineParams(){
 		this.pctLim = 0.8;
 
 		//will hold mouse events
-		this.event = null;
+		this.event = {'keyCode':null,'clientX':0, 'clientY':0};
 
 		this.cleanString = function(s){
 			return s.replace(/sub\>/g,'').replace(/\s/g,'').replace(/[^a-zA-Z ]/g, "").toLowerCase();

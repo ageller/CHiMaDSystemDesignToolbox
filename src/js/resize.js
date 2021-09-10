@@ -1,8 +1,8 @@
 //I can improve this, especially for mobile
 function resize(){
 	
-	//remake the plot.  Is there a more efficient way to do this?
-	if (params.haveBars) createBars();
+	console.log('!!!! in resize', params.haveBars, params.createdBars)
+	if (params.haveBars && params.createdBars) resizeBarPlot();
 
 	var elem;
 
@@ -27,7 +27,7 @@ function resize(){
 
 
 	//for now I'm disabling this entire section unless we are showing the bar chart
-	if (params.haveBars) {
+	if (params.haveBars && params.createdBars) {
 		var plotBbox = d3.select('#boxGridPlotContainer').node().getBBox();
 		var boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
 		var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
@@ -85,5 +85,5 @@ function resize(){
 	// var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
 
 	d3.select('#systemDesignChart').style('top',maxH + 20 +'px');
-	if (params.answers && params.paraSubmitted2 && params.haveSDC) createSystemDesignChart();
+	if (params.answersGroupnames.includes(params.groupname) && params.paraSubmitted2 && params.haveSDC) createSystemDesignChart();
 }
