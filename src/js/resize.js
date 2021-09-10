@@ -1,7 +1,6 @@
 //I can improve this, especially for mobile
 function resize(){
 	
-	console.log('!!!! in resize', params.haveBars, params.createdBars)
 	if (params.haveBars && params.createdBars) resizeBarPlot();
 
 	var elem;

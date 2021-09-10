@@ -240,7 +240,6 @@ function updateBars(thisPlot, data, duration, easing, op){
 }
 
 function defineBars(){
-	console.log('!!!! defining bars', params.showingResults)
 	params.barOpacity = 1.;
 
 	// clearInterval(params.waveInterval);
@@ -289,6 +288,7 @@ function defineBars(){
 				params.toggleParaText = false;
 			})
 
+		//recolor based on aggregate responses
 		//instead of comparing to answers, check for discrepancies within the submitted answers and note this
 		var maxPct = 0;
 		thisPlot.selectAll('.bar').each(function(d){

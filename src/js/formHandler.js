@@ -98,7 +98,7 @@ function onFormSubmit(){
 			});
 			if (submitted1 || paraVersion >= 2) {
 				params.paraSubmitted2 = true;
-				if (params.answers) d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
+				checkSDCvisibility();
 			}
 			params.paraData['SHEET_NAME'] = params.groupname;
 			sendToGoogleSheet(params.paraData, 'paraNotification');
@@ -144,9 +144,6 @@ function getUsernameInput(username=null){
 		var ubbox = d3.select('#usernameLabel').node().getBoundingClientRect();
 		d3.select('#usernameNotification').text('');
 
-		var SDCVersion = -1;
-		var paraVersion = -1;
-
 		//reset all the selection words dropdowns
 		d3.selectAll('.selectionWord').select('select').selectAll('option').property('selected',false);
 		d3.selectAll('.selectionWord').select('select').select('#disabled').property('selected',true);
@@ -159,9 +156,6 @@ function getUsernameInput(username=null){
 				d3.select('#usernameNotification')
 					.text('This username exists, and the responses below have been populated accordingly.  If these are not your responses, please change your username.');
 
-				//add the responses (I want to take version 2 if it exists, but I think this will happen by default since v2 will always come after v1 in order)
-				if (d.task == 'para') paraVersion = Math.max(paraVersion, parseInt(d.version));
-				if (d.task == 'SDC') SDCVersion = Math.max(SDCVersion, parseInt(d.version));
 				Object.keys(d).forEach(function(k){
 
 					if (k != 'IP' && k != 'Timestamp' && k != 'version' && k !='task' && d[k] != '' && k != 'username') {
@@ -182,20 +176,7 @@ function getUsernameInput(username=null){
 			}
 		})
 
-		console.log('checking versions', paraVersion, SDCVersion)
-		// if (paraVersion >= 1) params.paraSubmitted = true;
-		// if (paraVersion >= 2) params.paraSubmitted2 = true;
-		if (paraVersion >= 2 && params.answersGroupnames.includes(params.groupname) ){
-			d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
-			d3.select('#SDCButton').style('visibility','visible');
-			d3.select('#SDCVersionOptions').style('visibility','visible');
-			resize();
-		} else {
-			d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
-			d3.select('#SDCButton').style('visibility','hidden');
-			d3.select('#SDCVersionOptions').style('visibility','hidden');
-		}
-
+		checkSDCvisibility();
 
 	}
 }
@@ -277,8 +258,8 @@ function setGroupnameFromOptions(groupname=null){
 	params.paraSubmitted2 = false;
 	params.showingResults = false;
 	params.SDCSubmitted = false;
-	
-	//check if the answers exist, and if not, hide the answers checkboxes
+
+	//check if the answers exist, and if not, hide the answers checkboxes (may want to move this to a function, like I did with SDC?)
 	d3.selectAll('.answerToggle').style('visibility','hidden');
 	if (params.answersGroupnames.includes(params.groupname)) {
 		d3.select('#paraVersionOptions').selectAll('.answerToggle').style('visibility','visible');
