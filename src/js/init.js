@@ -65,21 +65,26 @@ function initPage(){
 			createDropdowns();
 
 			//create the skeleton of the visualization (will be filled in at loadResponses for the surveyFile)
-			createBars();
-
-			//create the system design chart
-			if ((params.answersGroupnames.includes(params.groupname))) {
-				if (params.haveSDC) createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
-			} 
-			checkSDCvisibility();
-
-			//I could check to see if anything changed before replotting, but I'm not sure that would offer a big speedup (since I'd need another for loop anyway)
-			if (params.paraSubmitted) defineBars();
-
-			if (params.SDCSubmitted) {
-				plotSDCAggregateLines();
-				if (params.transitionSDCAnswers) plotSDCAnswerLines(); //params.transitionSDCAnswers will only be true at the start, this way we don't plot multiple answer lines on top of each other
+			if (params.haveBars) {
+				createBars();
+				//I could check to see if anything changed before replotting, but I'm not sure that would offer a big speedup (since I'd need another for loop anyway)
+				if (params.paraSubmitted) defineBars();
 			}
+			
+			//create the system design chart
+			if (params.haveSDC) {
+				if ((params.answersGroupnames.includes(params.groupname))) {
+					createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
+				} 
+				checkSDCvisibility();
+				if (params.SDCSubmitted) {
+					plotSDCAggregateLines();
+					if (params.transitionSDCAnswers) plotSDCAnswerLines(); //params.transitionSDCAnswers will only be true at the start, this way we don't plot multiple answer lines on top of each other
+				}
+			}
+
+
+
 
 			resize();
 		
