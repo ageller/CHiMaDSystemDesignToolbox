@@ -215,8 +215,8 @@ function updateSurveyFile(){
 
 function createGroupnameSelect(){
 
-	d3.select('#groupnameSelector').appendAll('label').remove();
-	d3.select('#groupnameSelector').appendAll('select').remove();
+	d3.select('#groupnameSelector').selectAll('label').remove();
+	d3.select('#groupnameSelector').selectAll('select').remove();
 
 	d3.select('#groupnameSelector').append('label')
 		.attr('for','groupnameSelect')
