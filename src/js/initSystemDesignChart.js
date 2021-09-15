@@ -690,7 +690,14 @@ function recolorSDCAgg(){
 		var strokeColor = params.colorMap(frac);
 		if (frac < params.pctLim) strokeColor = '#d92b9c';
 
-		elem.attr('stroke',strokeColor)
+		//line
+		elem.attr('stroke',strokeColor);
+
+		//text
+		var s = elem.attr('startSelectionWords');
+		var e = elem.attr('endSelectionWords');
+		d3.select('.SDCAggregateFracBox_'+s+'.SDCAggregateFracBox_'+e).select('text').attr('fill', strokeColor);
+
 	})
 }
 
