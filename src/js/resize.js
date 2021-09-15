@@ -27,19 +27,24 @@ function resize(){
 
 	//for now I'm disabling this entire section unless we are showing the bar chart
 	if (params.haveBars && params.createdBars) {
+
+		var boxGridWidth = 	Math.max(params.boxGridSVGWidth + params.boxGridSVGMargin.left + params.boxGridSVGMargin.right, params.minPlotWidth);
+		d3.select('#boxGrid').style('width', boxGridWidth + 'px');
+
 		var plotBbox = d3.select('#boxGridPlotContainer').node().getBBox();
 		var boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
 		var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
 	 
-		var boxGridWidth = plotBbox.width;
 		var paragraphFormWidth = window.innerWidth - boxGridWidth - 100;
 
 		//should I be more careful about this?  Or maybe resize the plot first?
 		d3.select('#boxGrid').style('width',boxGridWidth);
 
-		var plotSSWidth = plotBbox.width;
-		console.log('resize check', plotSSWidth, window.innerWidth - plotSSWidth, window.innerWidth)
-		if (plotSSWidth >= params.minPlotWidth && (window.innerWidth - plotSSWidth >= params.minParaWidth) ){
+		console.log('resize check', boxGridWidth, window.innerWidth - boxGridWidth, window.innerWidth)
+
+		//check which view we will use
+		//if (plotSSWidth >= params.minPlotWidth && (window.innerWidth - plotSSWidth >= params.minParaWidth) ){
+		if (window.innerWidth - boxGridWidth >= params.minParaWidth){
 			console.log('resize side-by-side view')
 			//side-by-side view
 			d3.select('#paragraphForm').style('width',paragraphFormWidth);
@@ -66,6 +71,7 @@ function resize(){
 			d3.select('#boxGrid')
 				.style('left',0)
 				.style('top',paragraphFormBbox.height + 50 + 'px')
+				.style('width',paragraphFormBbox.width + 'px')
 			d3.select('#verticalLine1').style('display','none');
 			d3.select('#horizontalLine1')			
 				.style('display','block')

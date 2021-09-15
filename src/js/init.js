@@ -70,7 +70,7 @@ function initPage(){
 				//I could check to see if anything changed before replotting, but I'm not sure that would offer a big speedup (since I'd need another for loop anyway)
 				if (params.paraSubmitted) defineBars();
 			}
-			
+
 			//create the system design chart
 			if (params.haveSDC) {
 				if ((params.answersGroupnames.includes(params.groupname))) {
