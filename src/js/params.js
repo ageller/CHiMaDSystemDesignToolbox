@@ -129,7 +129,7 @@ function defineParams(){
 		this.plotFraction = 0.4; //fraction of the page that will contain the plot if this is in side-by-side view
 		this.minPlotWidth = 1920*this.plotFraction/2.; //px, minimum width of the plot
 		this.minParaWidth = 1920*(1 - this.plotFraction)/2.; //px, minimum width of the paragraph
-		this.minBarHeight = 30; //px, minimum height of each row in the plot
+		this.barHeight = 30; //px, minimum height of each row in the plot
 
 		//will be set to true if initSystemDesignChart.js is included and will enable drawing of the SDC
 		this.haveSDC = false;

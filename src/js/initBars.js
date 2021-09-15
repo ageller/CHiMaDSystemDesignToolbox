@@ -25,37 +25,37 @@ function createBars(){
 	// 	params.wavingBars = false;
 	// }
 
-	var bbI = d3.select('#usernameInstructions').node().getBoundingClientRect();
+	var bbI = d3.select('#boxGridInstructions').node().getBoundingClientRect();
 	var bbV = d3.select('#paraVersionOptions').node().getBoundingClientRect();
 	var fsp = Math.min(Math.max(0.01*window.innerWidth, params.paraFSmin), params.maxPlotFont);
 
 	//check whether we are plotting this in side-by-side w/ paragraph or top-bottom
-	var offset = 4;
+	var offset = fsp;
 	var plotSSWidth = window.innerWidth*params.plotFraction;
-	var minPlotHeight = params.selectionWords.length*(params.minBarHeight + offset);
-	var totalWidth,totalHeight;
+	params.barHeight = 1.5*fsp + offset;
+	var totalWidth;
 	//console.log('check widths', window.innerWidth, plotSSWidth, window.innerWidth - plotSSWidth, params.minPlotWidth, params.minParaWidth)
 	if (plotSSWidth >= params.minPlotWidth && (window.innerWidth - plotSSWidth >= params.minParaWidth) ){
 		//side-by-side view
 		console.log('plot side-by-side view')
 		totalWidth = plotSSWidth;
-		totalHeight = Math.max(window.innerHeight - bbI.height - bbV.height - 20, minPlotHeight);
 	} else {
 		//top-bottom view
 		console.log('plot top-bottom view')
 		totalWidth = window.innerWidth -100;
-		totalHeight = minPlotHeight;
 	}
 
+	//final check on total height (because this sets the bar height, which isn't changed on resize)
+	//maybe I should just reset the barHeight to be fsp + offset?
 
 	//It would be better to determine these margins based on the plot size and font size!  I will resize this later after the text is added
-	params.boxGridSVGMargin = {"top":20,"bottom":0.2*totalHeight,"left":0.7*totalWidth,"right":20};
-	params.boxGridSVGHeight = totalHeight - params.boxGridSVGMargin.top - params.boxGridSVGMargin.bottom;
-	params.boxGridSVGHistHeight = params.boxGridSVGHeight/params.selectionWords.length - offset;
+	params.boxGridSVGMargin = {"top":20,"bottom":100,"left":0.7*totalWidth,"right":20};
+	params.boxGridSVGHeight = params.selectionWords.length*params.barHeight;
+	params.boxGridSVGHistHeight = params.barHeight - offset;
 	//make the bars squares, factor of 1.3 just judged by eye to make approximately square
-	params.boxGridSVGWidth = Math.min((params.boxGridSVGHistHeight*1.3)*(params.options.length-1), 0.5*window.innerWidth); //one option is 'Select Category'
+	params.boxGridSVGWidth = Math.min((params.boxGridSVGHistHeight*1.3)*(params.options.length - 1), 0.5*window.innerWidth); //one option is 'Select Category'
 	//params.boxGridSVGWidth = totalWidth - params.boxGridSVGMargin.left - params.boxGridSVGMargin.right;
-	console.log('check widths', window.innerWidth, plotSSWidth, window.innerWidth - plotSSWidth, params.minPlotWidth, params.minParaWidth, params.boxGridSVGHistHeight, params.boxGridSVGWidth, totalHeight)
+	console.log('check widths', window.innerWidth, plotSSWidth, window.innerWidth - plotSSWidth, params.minPlotWidth, params.minParaWidth, params.boxGridSVGHistHeight, params.boxGridSVGWidth, params.boxGridSVGHeight)
 
 	
 	params.boxGridSVG = d3.select('#boxGridSVGContainer').append('svg')
@@ -66,13 +66,17 @@ function createBars(){
 			.attr("transform", "translate(" + params.boxGridSVGMargin.left + "," + params.boxGridSVGMargin.top + ")");
 
 
+	//set the instructions bounding box
+	var boxGridWidth = 	Math.max(params.boxGridSVGWidth + params.boxGridSVGMargin.left + params.boxGridSVGMargin.right, params.minPlotWidth);
+	d3.select('#boxGrid').style('width', boxGridWidth + 'px');
+
 	params.barOpacity = 0.2;
 
 	//create the grid of histograms (using svg rects)
 	params.selectionWords.forEach(function(c,j){
 
 		//set up dummy data so that I can define the visualization ahead of time 
-		//this may be a bit of a waste of memory, but I can't think of a better way to enable the waving feature that I want :)
+		//this may be a bit of a waste of memory, but I can't think of a better way to enable the waving feature that I want :) <-- note that I'm not using the waving feature anymore.  Should I remove this??
 		params.dummyData[params.cleanString(c)] = [];
 		params.options.forEach(function(o, i){
 			if (o != 'Select Category'){
@@ -84,7 +88,7 @@ function createBars(){
 
 		var thisPlot = params.boxGridSVG.append('g')
 			.attr('id',params.cleanString(c)+'_bar')
-			.attr("transform", "translate(0," + (params.boxGridSVGHistHeight + offset)*j + ")")
+			.attr("transform", "translate(0," + params.barHeight*j + ")")
 
 		// set the ranges
 		params.boxGridxScale = d3.scaleBand()
@@ -107,7 +111,7 @@ function createBars(){
 				.style("fill",function(d){return params.colorMap(d.value);})
 				.style("opacity", params.barOpacity)
 
-		// add blank rects for hovering
+		// add blank rects for hovering; these will also be used to show the answers (currently hovering is not needed)
 		thisPlot.selectAll(".barHover")
 			.data(params.dummyData[params.cleanString(c)]).enter().append("rect")
 				.attr("class",function(d){ return "barHover " + d.category;})
@@ -136,7 +140,7 @@ function createBars(){
 		// add the x Axis
 		if (j == params.selectionWords.length-1) {
 			thisPlot.append("g")
-				.attr("transform", "translate(0," + params.boxGridSVGHistHeight + offset*j + ")")
+				.attr("transform", "translate(0," + params.boxGridSVGHistHeight + ")")
 				.call(d3.axisBottom(params.boxGridxScale))
 				.selectAll("text")
 					.attr("y", 0)
@@ -149,7 +153,7 @@ function createBars(){
 
 		}else{
 			thisPlot.append("g")
-				.attr("transform", "translate(0," + params.boxGridSVGHistHeight + offset*j + ")")
+				.attr("transform", "translate(0," + params.boxGridSVGHistHeight + ")")
 				.call(d3.axisBottom(params.boxGridxScale).tickValues([]).tickSize(0));
 		}
 
@@ -186,8 +190,10 @@ function createBars(){
 
 function resizeBarPlot(){
 	//resize the margins and plot as necessary, given the labels
-	resizeBars();
+	resizeBarContainer();
 	var fsp = Math.min(Math.max(0.01*window.innerWidth, params.paraFSmin), params.maxPlotFont);
+	var offset = fsp;
+	params.barHeight = 1.5*fsp + offset;
 
 	//check the width to see if it's larger than the window width (and shrink font if necessary)
 	var plotWidth = params.boxGridSVGWidth + params.boxGridSVGMargin.left + params.boxGridSVGMargin.right;
@@ -199,21 +205,24 @@ function resizeBarPlot(){
 		fsp = Math.max(params.minPlotFont, fsp);
 		d3.selectAll('.rowLabel').style('font-size', fsp)
 		d3.selectAll('.columnLabel').style('font-size', fsp)
-		resizeBars();
 	}
+
+	resizeBarContainer();
 
 	return fsp
 
 }
-function resizeBars(){
+function resizeBarContainer(){
+	//resize the margins and plot as necessary, given the labels
 	var maxW = 0;
 	d3.selectAll('.rowLabel').each(function(d){
 		if (this.getBoundingClientRect().width > maxW) maxW = this.getBoundingClientRect().width;
 	})
 	var maxH = 0;
-	d3.selectAll('.columnLabel').each(function(d){
+	d3.selectAll('.columnLabel').each(function(d,i){
 		if (this.getBoundingClientRect().height > maxH) maxH = this.getBoundingClientRect().height;
 	})
+
 	params.boxGridSVGMargin.left = maxW + 10;
 	params.boxGridSVGMargin.bottom = maxH + 10;
 	d3.select('#boxGridSVGContainer').select('svg')
@@ -333,7 +342,7 @@ function defineBars(){
 		}
 
 	});
-	resize();
+	resizeBarContainer();
 
 
 }
