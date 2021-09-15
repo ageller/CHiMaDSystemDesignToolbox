@@ -33,6 +33,8 @@ function sendToGoogleSheet(data, notificationID, startInterval=true, successResp
 				params.loadInterval = setInterval(function(){loadResponses(params.surveyFile);}, params.loadIntervalDuration);
 			}
 
+			resize();
+
 		},
 		error: function (request, status, error) {
 			console.log('failed to submit', request, status, error);
