@@ -122,7 +122,7 @@ function saveParaEdit(){
 		//create the new tab in the google sheet
 		var data = {'SHEET_NAME':params.groupname, 'header':['Timestamp','IP','username','version', 'task']}
 		params.selectionWords.forEach(function(d){
-			data.header.push(d);
+			data.header.push(params.cleanString(d));
 		})
 		params.nTrials = 0;
 		sendToGoogleSheet(data, 'groupnameNotification', startInterval=false, succesResponse='Paragraph updated successfully.');
@@ -135,6 +135,12 @@ function saveParaEdit(){
 		//hide the editor and show the current paragraph
 		d3.select('#paraText').style('display','block');
 		d3.select('#paraTextEditor').style('display','none');
+
+		//create blank entries for the answers
+		params.answers.push({'groupname':params.groupname, 'task':'para'});
+		params.answers.push({'groupname':params.groupname, 'task':'SDC'});
+		params.answersGroupnames.push(params.groupname);
+
 
 		//show the system design chart starter
 		createSystemDesignChart();
@@ -149,7 +155,11 @@ function onAnswersSubmit(){
 		.text('Processing...');
 
 
-	answersData =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupname,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(params.answers)}
-	sendToGoogleSheet(answersData, 'answerSubmitNotification', startInterval=false, succesResponse='Answers updated successfully.');
-	console.log('answers submitted', answersData);
+	var answersData = [];
+	params.answers.forEach(function(a){
+		if (a.groupname == params.groupname) answersData.push(a);
+	})
+	var data =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupname,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
+	sendToGoogleSheet(data, 'answerSubmitNotification', startInterval=false, succesResponse='Answers updated successfully.');
+	console.log('answers submitted', data);
 }
