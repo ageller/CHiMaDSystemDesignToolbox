@@ -85,37 +85,31 @@ function createSystemDesignChart(){
 
 
 		// It looks like I need to do this in a for loop so that I can get the proper y positions
-		var SDCcolumnLocations = {};
-		params.options.forEach(function(d){
-			if (d != 'Select Category') SDCcolumnLocations[d] = params.SDCBoxMargin;
-		})
-		console.log('params.answers', params.answers)
-		var using = params.answers.filter(function(d){return (d.task == 'para');})[0];
-		console.log('using', using)
+		//I will start with the boxes in random locations and without colors, then formatSDC will define the actual locations and colors if the answers are available
+
 		for (var i=0; i<params.selectionWords.length; i++){
 			var d = params.cleanString(params.selectionWords[i]);
 
+			var x = Math.random()*(params.SDCSVGWidth - params.SDCBoxWidth);
+			var y = Math.random()*(params.SDCSVGHeight - params.SDCBoxWidth) + 20;
 			var box = params.SDCSVG.append('g')
-				.attr('class','SDCrectContainer ' + using[d])
+				.attr('class','SDCrectContainer')
 				.attr('id','SDCBox_'+params.cleanString(params.selectionWords[i]))
 				.attr('selectionWords',params.cleanString(params.selectionWords[i])) //custom attribute to hold the selection words
-				.attr('x',params.SDCColumnCenters[using[d]] - params.SDCBoxWidth/2.)
-				.attr('y',SDCcolumnLocations[using[d]])
-				.attr('transform', 'translate(' + (params.SDCColumnCenters[using[d]] - params.SDCBoxWidth/2.) + ',' + SDCcolumnLocations[using[d]] + ')')
-				//.on('mouseover',function(){highlightSDCLines(this)})
-				//.on('mouseout',resetSDCLines)
-				.on('mousedown', startSDCLine)
+				.attr('x',x)
+				.attr('y',y)
+				.attr('transform', 'translate(' + x + ',' + y + ')')
 
 			box.append('rect')
-				.attr('class','SDCrect ' + using[d]+'Word ' + using[d])
+				.attr('class','SDCrect')
 				.attr('x',0)
 				.attr('y', 0)
 				.attr('width', params.SDCBoxWidth)
 				.attr('height', boxHeight) //will need to update this
-
+				.style('fill','white')
 
 			var text = box.append('text')
-				.attr('class','noSelect')
+				.attr('class','noSelect SDCtext')
 				.attr('x', params.SDCBoxWidth/2.)
 				.attr('y', boxHeight/2.)
 				.attr('dy', '.35em')
@@ -125,9 +119,6 @@ function createSystemDesignChart(){
 				.text(params.selectionWords[i].replaceAll('<sub>','_').replaceAll('</sub>','$')) //recoding so the line width is about correct
 				.call(wrapSVGtext, params.SDCBoxWidth-10)
 
-			//add the mouse event
-			//text.selectAll('tspan').on('mousedown', startSDCLine)
-
 			//fix any subcripts
 			text.selectAll('tspan').each(function(){
 				var t = d3.select(this).text()
@@ -135,47 +126,23 @@ function createSystemDesignChart(){
 
 			})
 
-
 			//get the text height and resize the box
 			var bbox = text.node().getBBox();
 			box.select('rect').attr('height',bbox.height+10)
-			SDCcolumnLocations[using[d]] += bbox.height+10 + params.SDCBoxMargin;// - boxHeight;
+
+			//get the maximum width of the text and reformat all the boxes to that (in case there are really long words)
+			var maxW = params.SDCBoxWidth;
+			d3.selectAll('.SDCrectContainer').each(function(){
+				var rbbox = d3.select(this).select('text').node().getBoundingClientRect();
+				maxW = Math.max(maxW, rbbox.width + 6);
+			})
+			d3.selectAll('.SDcrect').attr('width', maxW);
+			d3.selectAll('.SDCtext').selectAll('.wrappedSVGtext').attr('x', maxW/2.)
 
 		}
 
-		//now shift each column vertically so they are centered
-		var maxH = 0;
-		params.options.forEach(function(d,i){
-			//get the max height
-			if (d != 'Select Category') {
-				if (SDCcolumnLocations[d] > maxH) maxH = SDCcolumnLocations[d];
-			}
-			//now shift as needed
-			if (i == params.options.length-1){
-				params.options.forEach(function(dd,j){
-					if (dd != 'Select Category') {
-						if (SDCcolumnLocations[dd] < maxH){
-							var offset = (maxH - SDCcolumnLocations[dd])/2.;
-							d3.selectAll('.SDCrectContainer.'+dd).each(function(){
-								var y = parseFloat(d3.select(this).attr('y')) + offset
-								var x = d3.select(this).attr('x')
-								d3.select(this)
-									.attr('x',x)
-									.attr('y',y)
-									.attr('transform', 'translate(' + x + ','+ y + ')');
-							})
-						}
-					}
-				})
-			}
-		})
 
-		//resize height
-		params.SDCSVGHeight = maxH;
-		d3.select('#SDCPlotSVG').style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom)
-		d3.select('#SDCmouseEvents').attr('height',params.SDCSVGHeight)
-
-		useSDCURLdata();
+		if (params.answersGroupnames.includes(params.groupname) && (params.paraSubmitted2 || params.haveEditor)) formatSDC();
 
 		if (params.SDCSubmitted) {
 			plotSDCAggregateLines();
@@ -184,6 +151,80 @@ function createSystemDesignChart(){
 	}
 }
 
+function formatSDC(){
+	if (!params.SDCLineHighlighted){
+
+		var SDCcolumnYLocations = {};
+		params.options.forEach(function(d){
+			if (d != 'Select Category') SDCcolumnYLocations[d] = params.SDCBoxMargin;
+		})
+
+		var using = params.answers.filter(function(d){return (d.task == 'para');})[0];
+		for (var i=0; i<params.selectionWords.length; i++){
+			var d = params.cleanString(params.selectionWords[i]);
+			if (using.hasOwnProperty(d)){
+				var x = params.SDCColumnCenters[using[d]] - params.SDCBoxWidth/2.;
+				var y = SDCcolumnYLocations[using[d]];
+				var box = d3.select('#SDCBox_'+params.cleanString(params.selectionWords[i]))
+					.attr('class','SDCrectContainer ' + using[d])
+					.attr('x',x)
+					.attr('y',y)
+					.attr('transform', 'translate(' + x + ',' + y + ')')
+					.on('mousedown', startSDCLine);
+
+				box.select('rect')
+					.attr('class',using[d]+'Word ' + using[d] + ' SDCrect SDCrectDone')
+					.style('fill','');
+
+				var text = box.select('text');
+				var bbox = text.node().getBBox();
+				SDCcolumnYLocations[using[d]] += bbox.height+10 + params.SDCBoxMargin;// - boxHeight;
+			}
+		}
+
+		//now shift each column vertically so they are centered
+		var maxH = 0;
+		params.options.forEach(function(d,i){
+			//get the max height
+			if (SDCcolumnYLocations.hasOwnProperty(d)){
+				if (d != 'Select Category') {
+					if (SDCcolumnYLocations[d] > maxH) maxH = SDCcolumnYLocations[d];
+				}
+				//now shift as needed
+				if (i == params.options.length-1){
+					params.options.forEach(function(dd,j){
+						if (dd != 'Select Category' && SDCcolumnYLocations.hasOwnProperty(dd)) {
+							if (SDCcolumnYLocations[dd] < maxH){
+								var offset = (maxH - SDCcolumnYLocations[dd])/2.;
+								d3.selectAll('.SDCrectContainer.'+dd).each(function(){
+									var y = parseFloat(d3.select(this).attr('y')) + offset
+									var x = d3.select(this).attr('x')
+									d3.select(this)
+										.attr('x',x)
+										.attr('y',y)
+										.attr('transform', 'translate(' + x + ','+ y + ')');
+								})
+							}
+						}
+					})
+				}
+			}
+		})
+
+
+		//resize height if everything is done
+		var sAll = d3.selectAll('.SDCrect').size();
+		var sDone = d3.selectAll('.SDCrectDone').size();
+		if (sAll == sDone){
+			params.SDCSVGHeight = maxH;
+			d3.select('#SDCPlotSVG').style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom)
+			d3.select('#SDCmouseEvents').attr('height',params.SDCSVGHeight)
+		}
+
+		useSDCURLdata();
+	}
+
+}
 function resizeSDCBoxes(){
 	for (var i=0; i<params.selectionWords.length; i++){
 
@@ -317,6 +358,8 @@ function moveSDCLine() {
 						.attr('attached','true')
 						.attr('endCategory', cat)
 						.attr('endSelectionWords',words);
+					params.SDCLine.classed('SDCLine_null', false);
+					params.SDCLine.classed('SDCLine_'+words, true);
 				}
 			} 
 		}
@@ -364,21 +407,49 @@ function endSDCLine() {
 		window.event.returnValue = true;
 		
 		if (params.SDCLine){
+			var word1 = 'SDC'+params.SDCLine.attr('startSelectionWords');
+			var word2 = '';
 			if (params.SDCLine.attr('attached') == 'true'){
+				word2 = params.SDCLine.attr('endSelectionWords');
 				//add to URL
-				var word1 = 'SDC'+params.SDCLine.attr('startSelectionWords');
-				var word2 = params.SDCLine.attr('endSelectionWords');
-				if (word1 in params.URLInputValues){
+				if (params.URLInputValues.hasOwnProperty(word1)){
 					word2 = params.URLInputValues[word1];
 					if (!params.URLInputValues[word1].includes(params.SDCLine.attr('endSelectionWords'))) word2 += '%20'+params.SDCLine.attr('endSelectionWords');
 				} 
 				params.URLInputValues[word1] = word2;
 				appendURLdata();
 			} else {
+				var words = params.SDCLine.attr('class').replaceAll('SDCLine_','').replaceAll('SDCLine ','').split(' ');
+				var toRemove = '';
+				words.forEach(function(w){
+					if (w != 'SDC'+word1) toRemove = w; //there should only be two in here
+				})
+
 				//delete line if not attached
 				params.SDCLine.remove();
 				params.SDCCircle0.remove();
 				params.SDCCircle.remove();
+				//remove from the URLdata
+				if (params.URLInputValues.hasOwnProperty(word1)){
+					word2 = params.URLInputValues[word1].replace(toRemove,'').replace('%20%20','%20');
+					if (word2.substring(word2.length - 3) == '%20') word2 = word2.substring(0, word2.length - 3);
+					params.URLInputValues[word1] = word2;
+					if (word2 == '') delete params.URLInputValues[word1]
+				}
+				appendURLdata();
+
+			}
+
+			//add to the answers if in editor
+			if (params.haveEditor){
+				params.answers.forEach(function(a){
+					if (a.groupname == params.groupname && a.task == 'SDC') {
+						var key = word1;
+						if (word1.substring(0,3) == 'SDC') key = word1.substring(3, word1.length);
+						words = word2.replace('%20',' ').split(' ');
+						a[key] = words;
+					}
+				})
 			}
 		}
 
@@ -399,30 +470,32 @@ function highlightSDCLines(elem){
 		// d3.selectAll('.SDCCircle0').interrupt().transition()
 
 		var foo = d3.select(elem).attr('id')
-		var id = foo.substr(7,foo.length-7);
+		if (foo){
+			var id = foo.substr(7,foo.length-7);
 
-		d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1);
-		d3.selectAll('.SDCAggregateLine_'+id).interrupt().transition()
-		d3.selectAll('.SDCAggregateLine_'+id).style('opacity',0.5)
+			d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1);
+			d3.selectAll('.SDCAggregateLine_'+id).interrupt().transition()
+			d3.selectAll('.SDCAggregateLine_'+id).style('opacity',0.5)
 
-		d3.selectAll('.SDCAggregateFracBox_'+id).select('rect').interrupt().transition()
-		d3.selectAll('.SDCAggregateFracBox_'+id).select('text').interrupt().transition()
-		d3.selectAll('.SDCAggregateFracBox_'+id).select('rect').transition().duration(params.transitionSDCDuration).style('opacity',0.5)
-		d3.selectAll('.SDCAggregateFracBox_'+id).select('text').transition().duration(params.transitionSDCDuration).style('opacity',1)
+			d3.selectAll('.SDCAggregateFracBox_'+id).select('rect').interrupt().transition()
+			d3.selectAll('.SDCAggregateFracBox_'+id).select('text').interrupt().transition()
+			d3.selectAll('.SDCAggregateFracBox_'+id).select('rect').transition().duration(params.transitionSDCDuration).style('opacity',0.5)
+			d3.selectAll('.SDCAggregateFracBox_'+id).select('text').transition().duration(params.transitionSDCDuration).style('opacity',1)
 
 
-		if (params.showSDCResponses){
-			d3.selectAll('.SDCLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
-			d3.selectAll('.SDCCircle').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
-			d3.selectAll('.SDCCircle0').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
-			d3.selectAll('.SDCLine_'+id).interrupt().transition()
-			d3.selectAll('.SDCLine_'+id).style('opacity',1)
-		}
+			if (params.showSDCResponses){
+				d3.selectAll('.SDCLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
+				d3.selectAll('.SDCCircle').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
+				d3.selectAll('.SDCCircle0').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
+				d3.selectAll('.SDCLine_'+id).interrupt().transition()
+				d3.selectAll('.SDCLine_'+id).style('opacity',1)
+			}
 
-		if (params.showSDCAnswers){
-			d3.selectAll('.SDCAnswerLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1);
-			d3.selectAll('.SDCAnswerLine_'+id).interrupt().transition()
-			d3.selectAll('.SDCAnswerLine_'+id).style('opacity',1)
+			if (params.showSDCAnswers){
+				d3.selectAll('.SDCAnswerLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1);
+				d3.selectAll('.SDCAnswerLine_'+id).interrupt().transition()
+				d3.selectAll('.SDCAnswerLine_'+id).style('opacity',1)
+			}
 		}
 
 	}
@@ -431,9 +504,11 @@ function highlightSDCLines(elem){
 function resetSDCLines(){
 	params.SDCLineHighlighted = false;
 
-	d3.selectAll('.SDCLine').transition().duration(params.transitionSDCDuration).style('opacity',1);
-	d3.selectAll('.SDCCircle').transition().duration(params.transitionSDCDuration).style('opacity',1);
-	d3.selectAll('.SDCCircle0').transition().duration(params.transitionSDCDuration).style('opacity',1);
+	if (params.showSDCResponses){
+		d3.selectAll('.SDCLine').transition().duration(params.transitionSDCDuration).style('opacity',1);
+		d3.selectAll('.SDCCircle').transition().duration(params.transitionSDCDuration).style('opacity',1);
+		d3.selectAll('.SDCCircle0').transition().duration(params.transitionSDCDuration).style('opacity',1);
+	}
 
 	d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionSDCDuration).style('opacity',0.5);
 
@@ -606,9 +681,7 @@ function plotSDCAnswerLines(){
 		var using = params.answers.filter(function(d){return (d.task == 'SDC');})[0];
 		Object.keys(using).forEach(function(startWords, j){
 			if (startWords != 'task' && startWords != 'groupname'){
-				var endWords = using[startWords].split(' ');
-				var blanks = getAllIndices(endWords,"");
-				blanks.forEach(function(b){endWords.splice(b, 1)});
+				var endWords = using[startWords];
 				if (endWords){
 					endWords.forEach(function(w,i){
 						var startParent = d3.select('#SDCBox_'+startWords);
@@ -765,20 +838,22 @@ function switchSDCVersions(){
 }
 
 function checkSDCvisibility(){
-	if (params.answersGroupnames.includes(params.groupname) && params.paraSubmitted2){
-		d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
-		d3.select('#SDCButton').style('visibility','visible');
-		d3.select('#SDCVersionOptions').style('visibility','visible');
-		d3.select('#SDCVersionOptions').selectAll('.answerToggle').style('visibility','visible');
-		resize();
-	} else {
-		d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
-		d3.select('#SDCButton').style('visibility','hidden');
-		d3.select('#SDCVersionOptions').style('visibility','hidden');
-	}
+	if (!params.haveEditor){
+		if (params.answersGroupnames.includes(params.groupname) && params.paraSubmitted2){
+			d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
+			d3.select('#SDCButton').style('visibility','visible');
+			d3.select('#SDCVersionOptions').style('visibility','visible');
+			d3.select('#SDCVersionOptions').selectAll('.answerToggle').style('visibility','visible');
+			resize();
+		} else {
+			d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
+			d3.select('#SDCButton').style('visibility','hidden');
+			d3.select('#SDCVersionOptions').style('visibility','hidden');
+		}
 
-	//maybe not the best place for this because it also impacts the bar charts
-	if (!(params.answersGroupnames.includes(params.groupname))) {
-		d3.selectAll('.answerToggle').style('visibility','hidden');
+		//maybe not the best place for this because it also impacts the bar charts
+		if (!(params.answersGroupnames.includes(params.groupname))) {
+			d3.selectAll('.answerToggle').style('visibility','hidden');
+		}
 	}
 }

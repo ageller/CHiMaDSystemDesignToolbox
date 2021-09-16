@@ -12,7 +12,6 @@ d3.select('#paraVersionOptions').selectAll('input').on('change',switchParaVersio
 
 function createBars(){
 	params.createdBars = false;
-	console.log('!!! creating bars', params.selectionWords)
 	//destroy the plot (if it exists)
 	var parent = d3.select('#boxGridSVGContainer').node();
 	while (parent.firstChild) {
@@ -384,7 +383,6 @@ function waveBars(){
 
 function showParaAnswers(){
 	var using = params.answers.filter(function(d){return (d.task == 'para');})[0];
-
 	params.answers.columns.forEach(function(k,i){
 		if (k != 'task'){
 			var d = d3.select('#'+params.cleanString(k)+'_bar').select('.barHover.'+using[k])
