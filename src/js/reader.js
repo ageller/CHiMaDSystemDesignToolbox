@@ -99,6 +99,7 @@ function readGoogleSheet(json) {
 }
 function readGoogleSheetParagraphs(json) {
 //parse this json from the Google Sheet into the format that we need
+//this now also contains the answer keys
 
 	params.haveParagraphData = false;
 
@@ -115,17 +116,44 @@ function readGoogleSheetParagraphs(json) {
 			}
 			out.push(row);
 		}
-		params.paragraphs = out;
-		params.paragraphs.columns = keys
-		console.log('paragraphs', keys, out, keys.length, params.responses)
 
-		params.paragraphs.forEach(function(d){
-			params.availableGroupnames.push(d.groupname);
+
+		//reformat this so that the groupname is a key
+		params.paragraphs = {};
+		out.forEach(function(d){
+			params.paragraphs[d.groupname] = {};
+			params.paragraphs[d.groupname].paragraph = d.paragraph;
+			var a = null;
+			if (d.answersJSON != '') a = JSON.parse(d.answersJSON);
+			params.paragraphs[d.groupname].answers = a;
 		})
-		console.log('have available groupnames', params.availableGroupnames);
+
+		params.availableGroupnames = Object.keys(params.paragraphs);
+
+		params.paragraphs.columns = Object.keys(params.paragraphs[params.availableGroupnames[0]]);
+		console.log('paragraphs', params.paragraph, params.availableGroupnames, out);
+		
 		createGroupnameSelect();
 
 		params.haveParagraphData = true;
+
+		//pull out the answers into the previous object (easier than rewriting my old code!)
+		params.answers = [];
+		params.availableGroupnames.forEach(function(d){
+			var p = params.paragraphs[d];
+			if (p.answers){
+				p.answers.forEach(function(a){
+					params.answers.push(a);
+				})
+			}
+		})
+		params.answers.columns = Object.keys(params.answers[0]);
+		params.answersGroupnames = [];
+		params.answers.forEach(function(d){
+			if (!(params.answersGroupnames.includes(d.groupname))) params.answersGroupnames.push(d.groupname);
+		})
+		console.log("answers",params.answers);
+		params.haveAnswersData = true;
 
 	}
 }
@@ -247,25 +275,4 @@ function aggregateSDCResults(){
 
 		})
 	}
-}
-
-
-//for now I will work with a static csv file for the correct responses
-//I want to get the answers into the google sheet instead somehow
-function loadAnswers() {
-	params.haveAnswersData = false;
-	Promise.all([
-		d3.csv('src/data/answers_clean.csv'),
-	]).then(function(d) {
-		params.answers = d[0];
-		console.log("answers",params.answers);
-		params.answersGroupnames = [];
-		params.answers.forEach(function(d){
-			if (!(params.answersGroupnames.includes(d.groupname))) params.answersGroupnames.push(d.groupname);
-		})
-		params.haveAnswersData = true;
-	})
-	.catch(function(error){
-		console.log('ERROR:', error)
-	})
 }

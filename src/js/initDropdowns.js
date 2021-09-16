@@ -4,9 +4,7 @@ function updatePara(newTxt = null){
 	if (newTxt) {
 		newText = newTxt
 	} else {
-		params.paragraphs.forEach(function(d){
-			if (d.groupname == params.groupname) newText = d.paragraph;
-		})
+		newText = params.paragraphs[params.groupname].paragraph;
 	}
 	console.log('have new text:',params.groupname, newText);
 	d3.select('#paraText').html(newText);
@@ -66,6 +64,12 @@ function createDropdowns(){
 						var key = params.cleanString(d3.select(parent).select('text').node().innerHTML);
 						params.URLInputValues[key] = this.value;
 						appendURLdata();
+						if (params.haveEditor){
+							params.answers.forEach(function(a){
+								if (a.groupname == params.groupname && a.task == 'para') a[key] = params.URLInputValues[key];
+							})
+							if (params.haveSDC) formatSDC();
+						}
 					}
 				})
 			})

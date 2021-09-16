@@ -7,6 +7,7 @@ function resize(){
 
 	//change font sizes
 	d3.selectAll('.button').style('font-size', Math.max(0.009*window.innerWidth, params.buttonFSmin) + 'px');
+	d3.selectAll('.secondaryButton').style('font-size', Math.max(0.009*window.innerWidth, params.buttonFSmin) + 'px');
 	var fsp = Math.max(0.01*window.innerWidth, params.paraFSmin);
 	d3.selectAll('.para')
 		.style('font-size', fsp + 'px')
@@ -24,6 +25,8 @@ function resize(){
 		.style('font-size', fsv + 'px')
 		.style('line-height', (fsv+2)+'px');
 
+	var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
+	var maxH = paragraphFormBbox.height;
 
 	//for now I'm disabling this entire section unless we are showing the bar chart
 	if (params.haveBars && params.createdBars) {
@@ -33,7 +36,6 @@ function resize(){
 
 		var plotBbox = d3.select('#boxGridPlotContainer').node().getBBox();
 		var boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
-		var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
 	 
 		var paragraphFormWidth = window.innerWidth - boxGridWidth - 100;
 
@@ -52,7 +54,7 @@ function resize(){
 				.style('left',paragraphFormWidth)
 				.style('top',0);
 			boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
-			var maxH = Math.max(Math.max(plotBbox.height, boxGridBbox.height), paragraphFormBbox.height);
+			maxH = Math.max(Math.max(plotBbox.height, boxGridBbox.height), paragraphFormBbox.height);
 			d3.select('#verticalLine1')
 				.style('display','block')
 				.style('left',paragraphFormWidth)
@@ -90,5 +92,5 @@ function resize(){
 	// var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
 
 	d3.select('#systemDesignChart').style('top',maxH + 20 +'px');
-	if (params.answersGroupnames.includes(params.groupname) && params.paraSubmitted2 && params.haveSDC) createSystemDesignChart();
+	if ((params.answersGroupnames.includes(params.groupname) && params.paraSubmitted2 && params.haveSDC) || params.haveEditor) createSystemDesignChart();
 }

@@ -1,21 +1,68 @@
 //add edit button
-var parentEl = document.getElementById('paraForm');
-var btn = document.createElement('button');
-btn.className = 'secondaryButton';
-btn.id = 'paraEditButton';
-btn.textContent = 'edit';
-btn.style = 'margin-bottom:10px;'
-btn.onclick = beginParaEdit;
-parentEl.insertBefore(btn, document.getElementById('paraText'));
+// var parentEl = document.getElementById('paraForm');
+// var btn = document.createElement('button');
+// btn.className = 'secondaryButton';
+// btn.id = 'paraEditButton';
+// btn.textContent = 'edit';
+// btn.style = 'margin-bottom:10px;'
+// btn.onclick = beginParaEdit;
+// parentEl.insertBefore(btn, document.getElementById('paraText'));
 
 //add save button (and hide it)
-btn2 = document.createElement('button');
-btn2.className = 'secondaryButton';
-btn2.id = 'paraSaveButton';
-btn2.textContent = 'save';
-btn2.style = 'margin-bottom:10px; display:none;'
-btn2.onclick = saveParaEdit;
-parentEl.insertBefore(btn2, document.getElementById('paraText'));
+// btn2 = document.createElement('button');
+// btn2.className = 'secondaryButton';
+// btn2.id = 'paraSaveButton';
+// btn2.textContent = 'save';
+// btn2.style = 'margin-bottom:10px; display:none;'
+// btn2.onclick = saveParaEdit;
+// parentEl.insertBefore(btn2, document.getElementById('paraText'));
+
+//attach function to buttons
+document.getElementById('paraEditButton').onclick = beginParaEdit;
+document.getElementById('paraSaveButton').onclick = saveParaEdit;
+params.haveEditor = true;
+
+//should I do this, or do I want to read in all the answers from the form first (once that is set up)?
+//for now I will populate from URL
+populateAnswersFromURL();
+
+//use the URL data if it exists to define the answers
+function populateAnswersFromURL(){
+	readURLdata();
+	var keys = Object.keys(params.URLInputValues);
+	var aPara= {}
+	var aSDC = {}
+	keys.forEach(function(k){
+		if (k.substring(0,3) == 'SDC'){
+			//not sure if this is correct
+			var startWords = k.substring(3,k.length);
+			var endWords = decodeURI(params.URLInputValues[k]).split(' ');
+			var blanks = getAllIndices(endWords,"");
+			blanks.forEach(function(b){endWords.splice(b, 1)});
+			aSDC[startWords] = endWords
+		} else {
+			aPara[k] = decodeURI(params.URLInputValues[k])
+		}
+	});
+
+	params.answers.forEach(function(a){
+		if (a.groupname == params.groupname){
+			if (a.task == 'para'){
+				Object.keys(aPara).forEach(function(k){
+					a[k] = aPara[k];
+				})
+			}
+			if (a.task == 'SDC'){
+				Object.keys(aSDC).forEach(function(k){
+					a[k] = aSDC[k];
+				})
+			}
+		}
+	})
+
+	params.answersGroupnames = [params.groupname];
+
+}
 
 function beginParaEdit(){
 	console.log('editing paragraph');
@@ -72,20 +119,37 @@ function saveParaEdit(){
 		//define the dropdowns
 		createDropdowns();
 
-		//update the google sheet
+		//create the new tab in the google sheet
 		var data = {'SHEET_NAME':params.groupname, 'header':['Timestamp','IP','username','version', 'task']}
 		params.selectionWords.forEach(function(d){
 			data.header.push(d);
 		})
-		sendToGoogleSheet(data, 'groupnameNotification', startInterval=false, succesResponse='Paragraph updated successfully.');
-		data =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupname,'paragraph':newText,'answersJSON':''}
+		params.nTrials = 0;
 		sendToGoogleSheet(data, 'groupnameNotification', startInterval=false, succesResponse='Paragraph updated successfully.');
 
-		//how will we deal with the answers?
+		//add to the paragraphs tab in the google sheet (answers will come later with the onAnswersSubmit)
+		data =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupname,'paragraph':newText,'answersJSON':''};
+		params.nTrials = 0; //this may not work properly since I have a submit up above...
+		sendToGoogleSheet(data, 'groupnameNotification', startInterval=false, succesResponse='Paragraph updated successfully.');
 
 		//hide the editor and show the current paragraph
 		d3.select('#paraText').style('display','block');
 		d3.select('#paraTextEditor').style('display','none');
+
+		//show the system design chart starter
+		createSystemDesignChart();
 	} 
 }
 
+function onAnswersSubmit(){
+	params.nTrials = 0;
+	d3.select('#answerSubmitNotification')
+		.classed('blink_me', true)
+		.classed('error', false)
+		.text('Processing...');
+
+
+	answersData =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupname,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(params.answers)}
+	sendToGoogleSheet(answersData, 'answerSubmitNotification', startInterval=false, succesResponse='Answers updated successfully.');
+	console.log('answers submitted', answersData);
+}

@@ -22,6 +22,7 @@ function defineParams(){
 		this.haveAnswersData = false;
 
 		//script that will control entries into the google sheet
+		//note: I may have to approve this every so often... I seem to occasionally get CORS errors, but then it is fixed if I deplay a new script (which asks if I approve)
 		this.googleScriptURL = 'https://script.google.com/macros/s/REDACTED/exec';
 		
 //the URL of the json getter of the sheet, for the visualization of results
@@ -69,7 +70,9 @@ function defineParams(){
 		this.transitionParaAnswers = true; //controls whether to use transition for answers.  Will be true at first.
 
 		//this will hold the answers from the static data file
-		this.answers;
+		this.answers = [{'groupname':'default', 'task':'para'},
+						{'groupname':'default', 'task':'SDC'}];
+
 		this.answersGroupnames = [];
 		this.showParaAnswers = true; //can be toggled with checkbox
 		this.showSDCAnswers = true; //can be toggled with checkbox
@@ -171,6 +174,8 @@ function defineParams(){
 
 
 		this.isMobile = false; //initiate as false
+
+		this.haveEditor = false; //will be true if the editor is active
 
 	};
 

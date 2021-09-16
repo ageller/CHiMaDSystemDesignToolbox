@@ -22,7 +22,7 @@ window.addEventListener('mousemove', function(){
 });
 
 //hide the system design chart at load (will be displayed when user submits the second response)
-d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
+if (!params.haveEditor) d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
 
 //move the tooltip
 // window.addEventListener('mousemove', function(){
@@ -38,12 +38,11 @@ if ('groupname' in params.URLInputValues) params.groupname = params.URLInputValu
 updateSurveyFile();
 
 //load in all the data
-//get the paragraphs, and this also calls functions to update the paragraph (based on the groupname of the url), define the selection words and create the dropdowns
+//get the paragraphs and answer key
 loadResponses(params.paragraphFile);
-//the visualization will not fill in until the user submits (this is now a recurring call and only executed after the first submit)
+//load in the survey responses
+//but note: the visualization will not fill in until the user submits a response (this is now a recurring call and only executed after the first submit)
 loadResponses(params.surveyFile);
-//this will be replaced by a call to the google sheet (answers should be within the paragraphFile)
-loadAnswers();
 
 initPage();
 
@@ -73,7 +72,7 @@ function initPage(){
 
 			//create the system design chart
 			if (params.haveSDC) {
-				if ((params.answersGroupnames.includes(params.groupname))) {
+				if (params.answersGroupnames.includes(params.groupname) || params.haveEditor) {
 					createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
 				} 
 				checkSDCvisibility();

@@ -37,9 +37,9 @@ function sendToGoogleSheet(data, notificationID, startInterval=true, successResp
 
 		},
 		error: function (request, status, error) {
-			console.log('failed to submit', request, status, error);
+			console.log('failed to submit', request, status, error, notificationID);
 			if (params.nTrials < params.maxTrials){
-				sendToGoogleSheet(data);
+				sendToGoogleSheet(data, notificationID);
 			} else {
 				if (notificationID){
 					d3.select('#'+notificationID)
@@ -318,6 +318,7 @@ function onSDCSubmit(){
 	})
 
 }
+
 
 function createEmail(){
 	//if we want to send an email, this could be a way to start one for the user
