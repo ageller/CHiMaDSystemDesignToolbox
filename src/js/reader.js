@@ -53,7 +53,7 @@ function readGoogleSheet(json) {
 		console.log('responses', keys, out, keys.length, params.responses)
 		aggregateParaResults();
 		aggregateSDCResults(); 
-		if (params.URLInputValues.hasOwnProperty('username')) getUsernameInput(params.URLInputValues.username, {'keyCode':null});
+//		if (params.URLInputValues.hasOwnProperty('username')) getUsernameInput(params.URLInputValues.username, {'keyCode':null});
 	}
 
 	//old format (prior to Sept. 2021)
@@ -119,12 +119,22 @@ function readGoogleSheetParagraphs(json) {
 
 
 		//reformat this so that the groupname is a key
+		//also check for avilable answers
+		params.answersGroupnames = {'para':[],'SDC':[]};
 		params.paragraphs = {};
 		out.forEach(function(d){
 			params.paragraphs[d.groupname] = {};
 			params.paragraphs[d.groupname].paragraph = d.paragraph;
 			var a = null;
-			if (d.answersJSON != '') a = JSON.parse(d.answersJSON);
+			if (d.answersJSON == ''){
+				a = [{'groupname':d.groupname, 'task':'para'},{'groupname':d.groupname, 'task':'SDC'}]; //blank answer
+			} else {
+				a = JSON.parse(d.answersJSON);
+				a.forEach(function(aa){
+					var check = objectWithoutProperties(aa, ['task', 'groupname'])
+					if (!params.answersGroupnames[aa.task].includes(aa.groupname) && Object.keys(check).length > 0) params.answersGroupnames[aa.task].push(aa.groupname);
+				})
+			}
 			params.paragraphs[d.groupname].answers = a;
 		})
 
@@ -147,15 +157,70 @@ function readGoogleSheetParagraphs(json) {
 				})
 			}
 		})
-		params.answers.columns = Object.keys(params.answers[0]);
-		params.answersGroupnames = [];
-		params.answers.forEach(function(d){
-			if (!(params.answersGroupnames.includes(d.groupname))) params.answersGroupnames.push(d.groupname);
-		})
 		console.log("answers",params.answers);
-		params.haveAnswersData = true;
 
+		//for editing mode, populate the URL so that all the answers can be displayed
+		if (params.haveEditor){
+			if (Object.keys(params.URLInputValues).length == 0) {
+				setURLFromAnswers();
+			} else {
+				setAnswersFromURL();
+			}
+		}
 	}
+	params.haveAnswersData = true;
+
+}
+
+function setURLFromAnswers(){
+	params.URLInputValues.groupname = params.groupname;
+	if (params.paragraphs[params.groupname].answers) {
+		params.paragraphs[params.groupname].answers.forEach(function(a){
+			if (a.task == 'para'){
+				Object.keys(a).forEach(function(d){
+					if (d != 'task' && d != 'groupname') params.URLInputValues[d] = a[d];
+				})
+			}
+			if (a.task == 'SDC'){
+				Object.keys(a).forEach(function(d){
+					if (d != 'task' && d != 'groupname') params.URLInputValues['SDC'+d] = a[d].join('%20');
+				})
+			}
+		})
+		appendURLdata();
+	}
+}
+
+function setAnswersFromURL(){
+	console.log('!!! setting URL from answers')
+	//I will clear out the answers here and only use the URL data (this should only be used within the editor)
+	params.answers.forEach(function(a){
+		if (a.groupname == params.groupname) {
+			Object.keys(a).forEach(function(d){
+				if (d != 'groupname' && d != 'task') delete a[d];
+			})
+		}
+	})
+	//now repopulate the answers
+	var keys = Object.keys(params.URLInputValues);
+	keys.forEach(function(k){
+		if (k != 'groupname' && k != 'username'){
+			var kUse = k;
+			var val = params.URLInputValues[k];
+			var task = 'para';
+			if (k.substring(0,3) == 'SDC'){
+				kUse = k.substring(3,k.length);
+				task = 'SDC';
+				val = params.URLInputValues[k].replaceAll('%20',' ').split(' ');
+			} 
+			params.answers.forEach(function(a){
+				if (a.task == task && a.groupname == params.groupname) {
+					a[kUse] = val;
+				}
+			})
+		}
+	})
+
 }
 
 function getAvailableSheets(json){
@@ -266,6 +331,7 @@ function aggregateSDCResults(){
 			if (i == params.responses.columns.length - 1 && version == params.SDCResponseVersion){
 				console.log("aggregatedSDC", params.aggregatedSDCResponses);
 				if (params.SDCSubmitted) {
+					params.transitionSDCAgg = false;
 					plotSDCAggregateLines();
 					if (params.transitionSDCAnswers) plotSDCAnswerLines(); //params.transitionSDCAnswers will only be true at the start, this way we don't plot multiple answer lines on top of each other
 				}

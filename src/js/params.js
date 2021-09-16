@@ -73,7 +73,7 @@ function defineParams(){
 		this.answers = [{'groupname':'default', 'task':'para'},
 						{'groupname':'default', 'task':'SDC'}];
 
-		this.answersGroupnames = [];
+		this.answersGroupnames = {'para':[],'SDC':[]};
 		this.showParaAnswers = true; //can be toggled with checkbox
 		this.showSDCAnswers = true; //can be toggled with checkbox
 

@@ -19,7 +19,7 @@ window.addEventListener('mousedown', function(){
 
 function createSystemDesignChart(){
 	if (!params.SDCLineHighlighted){
-		console.log('creating system design chart ...');
+		console.log('creating system design chart ...', params.answersGroupnames);
 
 		//get the column centers
 		var n = params.options.length - 1;
@@ -142,7 +142,7 @@ function createSystemDesignChart(){
 		}
 
 
-		if (params.answersGroupnames.includes(params.groupname) && (params.paraSubmitted2 || params.haveEditor)) formatSDC();
+		if (params.answersGroupnames.para.includes(params.groupname) && (params.paraSubmitted2 || params.haveEditor)) formatSDC();
 
 		if (params.SDCSubmitted) {
 			plotSDCAggregateLines();
@@ -159,69 +159,71 @@ function formatSDC(){
 			if (d != 'Select Category') SDCcolumnYLocations[d] = params.SDCBoxMargin;
 		})
 
-		var using = params.answers.filter(function(d){return (d.task == 'para');})[0];
-		for (var i=0; i<params.selectionWords.length; i++){
-			var d = params.cleanString(params.selectionWords[i]);
-			if (using.hasOwnProperty(d)){
-				var x = params.SDCColumnCenters[using[d]] - params.SDCBoxWidth/2.;
-				var y = SDCcolumnYLocations[using[d]];
-				var box = d3.select('#SDCBox_'+params.cleanString(params.selectionWords[i]))
-					.attr('class','SDCrectContainer ' + using[d])
-					.attr('x',x)
-					.attr('y',y)
-					.attr('transform', 'translate(' + x + ',' + y + ')')
-					.on('mousedown', startSDCLine);
+		var using = params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
+		if (using){
+			for (var i=0; i<params.selectionWords.length; i++){
+				var d = params.cleanString(params.selectionWords[i]);
+				if (using.hasOwnProperty(d)){
+					var x = params.SDCColumnCenters[using[d]] - params.SDCBoxWidth/2.;
+					var y = SDCcolumnYLocations[using[d]];
+					var box = d3.select('#SDCBox_'+params.cleanString(params.selectionWords[i]))
+						.attr('class','SDCrectContainer ' + using[d])
+						.attr('x',x)
+						.attr('y',y)
+						.attr('transform', 'translate(' + x + ',' + y + ')')
+						.on('mousedown', startSDCLine);
 
-				box.select('rect')
-					.attr('class',using[d]+'Word ' + using[d] + ' SDCrect SDCrectDone')
-					.style('fill','');
+					box.select('rect')
+						.attr('class',using[d]+'Word ' + using[d] + ' SDCrect SDCrectDone')
+						.style('fill','');
 
-				var text = box.select('text');
-				var bbox = text.node().getBBox();
-				SDCcolumnYLocations[using[d]] += bbox.height+10 + params.SDCBoxMargin;// - boxHeight;
-			}
-		}
-
-		//now shift each column vertically so they are centered
-		var maxH = 0;
-		params.options.forEach(function(d,i){
-			//get the max height
-			if (SDCcolumnYLocations.hasOwnProperty(d)){
-				if (d != 'Select Category') {
-					if (SDCcolumnYLocations[d] > maxH) maxH = SDCcolumnYLocations[d];
+					var text = box.select('text');
+					var bbox = text.node().getBBox();
+					SDCcolumnYLocations[using[d]] += bbox.height+10 + params.SDCBoxMargin;// - boxHeight;
 				}
-				//now shift as needed
-				if (i == params.options.length-1){
-					params.options.forEach(function(dd,j){
-						if (dd != 'Select Category' && SDCcolumnYLocations.hasOwnProperty(dd)) {
-							if (SDCcolumnYLocations[dd] < maxH){
-								var offset = (maxH - SDCcolumnYLocations[dd])/2.;
-								d3.selectAll('.SDCrectContainer.'+dd).each(function(){
-									var y = parseFloat(d3.select(this).attr('y')) + offset
-									var x = d3.select(this).attr('x')
-									d3.select(this)
-										.attr('x',x)
-										.attr('y',y)
-										.attr('transform', 'translate(' + x + ','+ y + ')');
-								})
+			}
+
+			//now shift each column vertically so they are centered
+			var maxH = 0;
+			params.options.forEach(function(d,i){
+				//get the max height
+				if (SDCcolumnYLocations.hasOwnProperty(d)){
+					if (d != 'Select Category') {
+						if (SDCcolumnYLocations[d] > maxH) maxH = SDCcolumnYLocations[d];
+					}
+					//now shift as needed
+					if (i == params.options.length-1){
+						params.options.forEach(function(dd,j){
+							if (dd != 'Select Category' && SDCcolumnYLocations.hasOwnProperty(dd)) {
+								if (SDCcolumnYLocations[dd] < maxH){
+									var offset = (maxH - SDCcolumnYLocations[dd])/2.;
+									d3.selectAll('.SDCrectContainer.'+dd).each(function(){
+										var y = parseFloat(d3.select(this).attr('y')) + offset
+										var x = d3.select(this).attr('x')
+										d3.select(this)
+											.attr('x',x)
+											.attr('y',y)
+											.attr('transform', 'translate(' + x + ','+ y + ')');
+									})
+								}
 							}
-						}
-					})
+						})
+					}
 				}
+			})
+
+
+			//resize height if everything is done
+			var sAll = d3.selectAll('.SDCrect').size();
+			var sDone = d3.selectAll('.SDCrectDone').size();
+			if (sAll == sDone){
+				params.SDCSVGHeight = maxH;
+				d3.select('#SDCPlotSVG').style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom)
+				d3.select('#SDCmouseEvents').attr('height',params.SDCSVGHeight)
 			}
-		})
 
-
-		//resize height if everything is done
-		var sAll = d3.selectAll('.SDCrect').size();
-		var sDone = d3.selectAll('.SDCrectDone').size();
-		if (sAll == sDone){
-			params.SDCSVGHeight = maxH;
-			d3.select('#SDCPlotSVG').style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom)
-			d3.select('#SDCmouseEvents').attr('height',params.SDCSVGHeight)
+			useSDCURLdata();
 		}
-
-		useSDCURLdata();
 	}
 
 }
@@ -300,14 +302,19 @@ function startSDCLine() {
 	if (params.showSDCResponses){
 
 		elem = d3.select(elem);
-		var x = parseFloat(elem.attr('x')) + params.SDCBoxWidth;
-		var y = parseFloat(elem.attr('y')) + parseFloat(elem.select('rect').attr('height'))/2.;
+		if (elem){
+			if (elem.select('rect')){
+				var x = parseFloat(elem.attr('x')) + params.SDCBoxWidth;
+				var y = parseFloat(elem.attr('y')) + parseFloat(elem.select('rect').attr('height'))/2.;
 
-		//get the category from the rect class list (will this always be the last class value?)
-		var cat = elem.node().classList[1]
-		var words = elem.attr('selectionWords')
-		var i = params.options.indexOf(cat);
-		if (i < params.options.length-1 && !isNaN(x) && !isNaN(y)) createSDCLine(elem, x,y,x,y,6,cat,words,'null');
+				//get the category from the rect class list (will this always be the last class value?)
+				var cat = elem.node().classList[1]
+				var words = elem.attr('selectionWords')
+				var i = params.options.indexOf(cat);
+				if (i < params.options.length-1 && !isNaN(x) && !isNaN(y)) createSDCLine(elem, x,y,x,y,6,cat,words,'null');	
+			}
+		}
+
 	}
 
 }
@@ -342,7 +349,7 @@ function moveSDCLine() {
 				var cat = parent.node().classList[1];
 				var cat0 = params.SDCLine.attr('startCategory');
 				
-				var words = parent.attr('selectionWords')
+				var endWords = parent.attr('selectionWords')
 
 				//check if this is an adjacent category to the starting point
 				var adjacent = false;
@@ -357,9 +364,13 @@ function moveSDCLine() {
 					params.SDCLine
 						.attr('attached','true')
 						.attr('endCategory', cat)
-						.attr('endSelectionWords',words);
+						.attr('endSelectionWords',endWords);
 					params.SDCLine.classed('SDCLine_null', false);
-					params.SDCLine.classed('SDCLine_'+words, true);
+					params.SDCLine.classed('SDCLine_'+endWords, true);
+					params.SDCCircle.classed('SDCLine_null', false);
+					params.SDCCircle.classed('SDCLine_'+endWords, true);
+					params.SDCCircle0.classed('SDCLine_null', false);
+					params.SDCCircle0.classed('SDCLine_'+endWords, true);
 				}
 			} 
 		}
@@ -411,13 +422,23 @@ function endSDCLine() {
 			var word2 = '';
 			if (params.SDCLine.attr('attached') == 'true'){
 				word2 = params.SDCLine.attr('endSelectionWords');
-				//add to URL
-				if (params.URLInputValues.hasOwnProperty(word1)){
-					word2 = params.URLInputValues[word1];
-					if (!params.URLInputValues[word1].includes(params.SDCLine.attr('endSelectionWords'))) word2 += '%20'+params.SDCLine.attr('endSelectionWords');
-				} 
-				params.URLInputValues[word1] = word2;
-				appendURLdata();
+				//check to make sure that this line doesn't already exist
+				var check = d3.selectAll('.SDCLine.SDCLine_'+word1.substring(3,word1.length)+'.SDCLine_'+word2);
+				if (check.size() <= 1){
+					//add to URL
+					if (params.URLInputValues.hasOwnProperty(word1)){
+						word2 = params.URLInputValues[word1];
+						if (!params.URLInputValues[word1].includes(params.SDCLine.attr('endSelectionWords'))) word2 += '%20'+params.SDCLine.attr('endSelectionWords');
+					} 
+					params.URLInputValues[word1] = word2;
+					appendURLdata();
+				} else {
+					console.log('!! duplicate line', check.size(), word1, word2);
+					params.SDCLine.remove();
+					params.SDCCircle.remove();
+					params.SDCCircle0.remove();
+					//do I need to reset these?
+				}
 			} else {
 				var words = params.SDCLine.attr('class').replaceAll('SDCLine_','').replaceAll('SDCLine ','').split(' ');
 				var toRemove = '';
@@ -431,6 +452,7 @@ function endSDCLine() {
 				params.SDCCircle.remove();
 				//remove from the URLdata
 				if (params.URLInputValues.hasOwnProperty(word1)){
+					console.log('!!!!!!!!!!!! removing from URL', word1, word2, toRemove)
 					word2 = params.URLInputValues[word1].replace(toRemove,'').replace('%20%20','%20');
 					if (word2.substring(word2.length - 3) == '%20') word2 = word2.substring(0, word2.length - 3);
 					params.URLInputValues[word1] = word2;
@@ -446,7 +468,7 @@ function endSDCLine() {
 					if (a.groupname == params.groupname && a.task == 'SDC') {
 						var key = word1;
 						if (word1.substring(0,3) == 'SDC') key = word1.substring(3, word1.length);
-						words = word2.replace('%20',' ').split(' ');
+						words = word2.replaceAll('%20',' ').split(' ');
 						a[key] = words;
 					}
 				})
@@ -678,7 +700,7 @@ function plotSDCAnswerLines(){
 		var op = 0;
 		if (params.showSDCAnswers) op = 1;
 
-		var using = params.answers.filter(function(d){return (d.task == 'SDC');})[0];
+		var using = params.answers.filter(function(d){return (d.task == 'SDC' && d.groupname == params.groupname);})[0];
 		Object.keys(using).forEach(function(startWords, j){
 			if (startWords != 'task' && startWords != 'groupname'){
 				var endWords = using[startWords];
@@ -839,11 +861,10 @@ function switchSDCVersions(){
 
 function checkSDCvisibility(){
 	if (!params.haveEditor){
-		if (params.answersGroupnames.includes(params.groupname) && params.paraSubmitted2){
+		if (params.answersGroupnames.para.includes(params.groupname) && params.paraSubmitted2){
 			d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
 			d3.select('#SDCButton').style('visibility','visible');
 			d3.select('#SDCVersionOptions').style('visibility','visible');
-			d3.select('#SDCVersionOptions').selectAll('.answerToggle').style('visibility','visible');
 			resize();
 		} else {
 			d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
@@ -851,9 +872,6 @@ function checkSDCvisibility(){
 			d3.select('#SDCVersionOptions').style('visibility','hidden');
 		}
 
-		//maybe not the best place for this because it also impacts the bar charts
-		if (!(params.answersGroupnames.includes(params.groupname))) {
-			d3.selectAll('.answerToggle').style('visibility','hidden');
-		}
+		checkAnswerTogglesVisibility();
 	}
 }

@@ -72,7 +72,7 @@ function initPage(){
 
 			//create the system design chart
 			if (params.haveSDC) {
-				if (params.answersGroupnames.includes(params.groupname) || params.haveEditor) {
+				if (params.answersGroupnames.para.includes(params.groupname) || params.haveEditor) {
 					createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
 				} 
 				checkSDCvisibility();

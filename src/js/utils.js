@@ -142,3 +142,13 @@ function getPrevSibling(elem, selector) {
 function insertAfter(newNode, existingNode) {
     existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
 }
+
+function objectWithoutProperties(obj, keys) {
+	var target = {};
+	for (var i in obj) {
+		if (keys.indexOf(i) >= 0) continue;
+		if (!obj.hasOwnProperty(i)) continue;
+		target[i] = obj[i];
+	}
+	return target;
+}

@@ -30,6 +30,7 @@ function sendToGoogleSheet(data, notificationID, startInterval=true, successResp
 			//show the aggregated responses (now showing after reading in the data within aggregateParaResults)
 			if (startInterval && d.result != 'error') {
 				loadResponses(params.surveyFile);
+				clearInterval(params.loadInterval);
 				params.loadInterval = setInterval(function(){loadResponses(params.surveyFile);}, params.loadIntervalDuration);
 			}
 
@@ -53,7 +54,7 @@ function sendToGoogleSheet(data, notificationID, startInterval=true, successResp
 
 }
 
-function onFormSubmit(){
+function onParaSubmit(){
 	//when form is submitted, compile responses and send the Google sheet
 	console.log('username',params.username);
 	var submitted1 = params.paraSubmitted;
@@ -100,6 +101,7 @@ function onFormSubmit(){
 			});
 			if (submitted1 || paraVersion >= 2) {
 				params.paraSubmitted2 = true;
+				formatSDC();
 				checkSDCvisibility();
 			}
 			params.paraData['SHEET_NAME'] = params.groupname;
@@ -264,14 +266,11 @@ function setGroupnameFromOptions(groupname=null){
 	params.showingResults = false;
 	params.SDCSubmitted = false;
 
-	//check if the answers exist, and if not, hide the answers checkboxes (may want to move this to a function, like I did with SDC?)
-	d3.selectAll('.answerToggle').style('visibility','hidden');
-	if (params.answersGroupnames.includes(params.groupname)) {
-		d3.select('#paraVersionOptions').selectAll('.answerToggle').style('visibility','visible');
-	}
+	checkAnswerTogglesVisibility();
 
 	//update the URL
 	params.URLInputValues['groupname'] = params.groupname;
+	if (params.haveEditor) setURLFromAnswers();
 	appendURLdata();
 
 	loadResponses(params.surveyFile);
@@ -292,6 +291,7 @@ function onSDCSubmit(){
 	//add the IP, username and task (not using IP anymore)
 	params.SDCData['IP'] = params.userIP;
 	params.SDCData['username'] = params.username;
+	params.SDCData['SHEET_NAME'] = params.groupname;
 	params.SDCData['task'] = 'SDC';
 	params.selectionWords.forEach(function(w,i){
 		//initialize to empty
@@ -318,7 +318,16 @@ function onSDCSubmit(){
 	})
 
 }
-
+function checkAnswerTogglesVisibility(){
+	//check if the answers exist, and if not, hide the answers checkboxes (may want to move this to a function, like I did with SDC?)
+	d3.selectAll('.answerToggle').style('visibility','hidden');
+	if (params.answersGroupnames.para.includes(params.groupname)) {
+		d3.select('#paraVersionOptions').selectAll('.answerToggle').style('visibility','visible');
+	}
+	if (params.answersGroupnames.SDC.includes(params.groupname) && params.paraSubmitted2) {
+		d3.select('#SDCVersionOptions').selectAll('.answerToggle').style('visibility','visible');
+	}
+}
 
 function createEmail(){
 	//if we want to send an email, this could be a way to start one for the user
