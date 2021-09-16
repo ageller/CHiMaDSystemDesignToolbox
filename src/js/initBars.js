@@ -382,9 +382,9 @@ function waveBars(){
 }
 
 function showParaAnswers(){
-	var using = params.answers.filter(function(d){return (d.task == 'para');})[0];
-	params.answers.columns.forEach(function(k,i){
-		if (k != 'task'){
+	var using = params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
+	Object.keys(using).forEach(function(k,i){
+		if (k != 'task' && k != 'groupname'){
 			var d = d3.select('#'+params.cleanString(k)+'_bar').select('.barHover.'+using[k])
 				.style('stroke','black')
 				.style('stroke-width',2)
@@ -394,7 +394,7 @@ function showParaAnswers(){
 				})
 				.classed('answerBorder', true)
 		}
-		if (i == params.answers.columns.length - 1) {
+		if (i == Object.keys(using).length - 1) {
 			toggleParaAnswers();
 			params.transitionParaAnswers = false;
 		}
