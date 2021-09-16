@@ -60,7 +60,8 @@ function getAllIndices(arr, val) {
 function wrapSVGtext(text, width) {
 	text.each(function () {
 		var text = d3.select(this),
-			words = text.text().split(/\s+/).reverse(),
+			words = text.text().replace('/','/ ').split(/\s+/).reverse(),
+			//words = text.text().split(/\s+/).reverse(),
 			word,
 			line = [],
 			lineNumber = 0,
@@ -70,21 +71,23 @@ function wrapSVGtext(text, width) {
 			dy = 0, //parseFloat(text.attr("dy")),
 			tspan = text.text(null)
 						.append("tspan")
+						.attr('class','wrappedSVGtext')
 						.attr("x", x)
 						.attr("y", y)
 						.attr("dy", dy + "em");
 		while (word = words.pop()) {
 			line.push(word);
-			tspan.text(line.join(" "));
+			tspan.text(line.join(" ").replace('/ ','/'));
 			if (tspan.node().getComputedTextLength() > width && line.length > 1) {
 				line.pop();
-				tspan.text(line.join(" "));
+				tspan.text(line.join(" ").replace('/ ','/'));
 				line = [word];
 				tspan = text.append("tspan")
+							.attr('class','wrappedSVGtext')
 							.attr("x", x)
 							.attr("y", y)
 							.attr("dy", ++lineNumber * lineHeight + dy + "em")
-							.text(word);
+							.text(word.replace('/ ','/'));
 			}
 		}
 		

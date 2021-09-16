@@ -12,7 +12,6 @@
 
 		<!-- default is for this on the left -->
 		<div id='paragraphForm' style="width:100%">
-			<!-- standard html form -->
 
 			<div id='paraForm' class='para'>
 
@@ -20,19 +19,16 @@
 					<div id="groupnameInstructions" class="instructions">&#9450; Select your paragraph. </div>
 				</div>
 
-<!-- 					<div id="usernameInstructions" class="instructions">&#9312; Enter a unique user name below (e.g., your full name plus birthdate). </div>
-				<label for="username" id="usernameLabel">user name:</label>
-				<input type="text" id="usernameInput" name="username">
-				<div id="usernameNotification" class="notifications" style="margin:20"></div>
-				<br><br><br> -->
 
-				<!-- eventually this should become a drop down -->
-				<div id="groupnameInstructions" class="instructions">Enter the paragraph name. </div>
-				<label for="groupname" id="groupnameLabel">paragraph name:</label>
+				<div id="groupnameInstructions" class="instructions">&#9312; (Optional) Enter a new name if you want to edit this paragraph.  This must be a unique name, that does not already appear in the dropdown menu above.  Next, you can edit and save a new paragraph with this button.  When editing, use double square brakets to indicate a word or phrase that is meant to be classified, e.g., [[classify this]]</div>
+				<label for="groupname" id="groupnameLabel">new paragraph name:</label>
 				<input type="text" id="groupnameInput" name="groupname" value=''>
+				<br/>
+				<button class='secondaryButton' id='paraEditButton' style='margin-bottom:10px'>edit</button>
+				<button class='secondaryButton' id='paraSaveButton' style='margin-bottom:10px; display:none'>save</button>
+
 				<div id="groupnameNotification" class="notifications" style="margin:20"></div>
 
-<!-- 					<div id="paraInstructions" class="instructions">&#9313; Classify each term below that is within a gray box.  The possible categories are <span class="processingWord">Processing</span>, <span class="structureWord">Structure</span>, <span class="propertyWord">Property</span> or <span class="performanceWord">Performance</span>.  When you are finished please click the submit button.</div> -->
 
 				<div id='paraText'>
 					Polymer matrix composites are traditionally valued for use in [[lightweight mechanical]] applications (aerospace, automotive, etc.) due to their attractive combination of mechanical properties ([[toughness]], [[strength/stiffness]]) and [[low density]]. For use in [[extreme environments]], these materials must possess [[slow degradation rates when exposed to O<sub>2</sub>, H<sub>2</sub>O, and salts]]. Moreover, maintaining structural integrity over a wide temperature range requires a low [[thermal expansion coefficient mismatch]] between matrix/reinforcement and a high [[glass transition temperature (T<sub>g</sub>)]]. Composites must also demonstrate excellent [[resistance to fracture]], determined in part by the mechanical properties (described above) and by the preferred [[failure mode]], which is a function of the [[reinforcement architecture]] and [[fiber/matrix interface]]. The [[polymer matrix]] [[is prepared]] by combining epoxy, crosslinker, and filler (as-needed), which controls the [[crosslinking density]] and [[heterogeneity]] within the matrix structure. [[The choice and preparation of reinforcement]] sets the [[morphology]] and [[microstructure of the reinforcement phase]].  The architecture of the reinforcement (and therefore, composite) is set during [[layup and curing]] and is defined by the [[dispersion]], [[aggregation]], and [[orientation of the reinforcement]]. [[Post-layup annealing and aging]] can improve the [[matrix/reinforcement interface]], and is critical to the mechanical properties, particularly the failure mode and toughness.
@@ -43,64 +39,25 @@
 			</div>
 
 
-<!-- 			<button class="button" style="margin-left:20px" onclick="onFormSubmit()">Submit</button>
-			<div id="paraNotification" class="notifications" style="margin:20px">Please click the Submit button above when you have completed your work.</div> -->
 		</div>
 
-<!-- 		<div class="verticalLine" id='verticalLine1'></div>
-		<div class="horizontalLine" id='horizontalLine1' style='display:none'></div>
- -->
-		<!-- default is for this on the right -->
-<!-- 		<div id="boxGrid">
+
+		<div id="systemDesignChart">
 			<div class="para">
 
-				<div id="boxGridInstructions" class="instructions">&#9314; After you submit your responses, this visualization will populate with the aggregate results from the group. </div>
-
-				<form id="paraVersionOptions" class='versionOptions'>
-					<div>Select which version of the responses to display, and whether to show the answers (black boxes).</div>
-					<input type="radio" id="paraVersion1" name="version" value="1" class="radio" checked>
-					<label for="paraVersion1">Version 1</label><br>
-					<input type="radio" id="paraVersion2" name="version" value="2" class="radio">
-					<label for="paraVersion2">Version 2</label><br>
-					<input type="checkbox" id="paraAnswerToggle" class='answerToggle' name="answers" value="1" class="radio" checked>
-					<label for="paraAnswerToggle" class='answerToggle'>Show answers</label><br>
-				</form>
-
-				<div id="boxGridSVGContainer"></div>
-			</div>
-		</div>
- -->
-		<!-- default is for this on the bottom -->
-		<!-- <div class="horizontalLine" id='horizontalLine2'></div> -->
-
-<!-- 		<div id="systemDesignChart">
-			<div class="para">
-
-				<div id="SDCInstructions" class="instructions">&#9315; After you submit your second response to Part 2 (above), this visualize will populate and allow you to construct a system design chart.  Click+drag lines to connect boxes in each column with the adjacent column(s).  When you have completed your chart, click the submit button below.  After clicking submit, the results from the rest of your group will also be shown.  </div>
-
-				<form id="SDCVersionOptions" class='versionOptions'>
-					<div>Select which version of the responses to display, and whether to show the answers (black lines).</div>
-					<input type="radio" id="SDCVersion1" name="version" value="1" class="radio" checked>
-					<label for="SDCVersion1">Version 1</label><br>
-					<input type="radio" id="SDCVersion2" name="version" value="2" class="radio">
-					<label for="SDCVersion2">Version 2</label><br>
-					<input type="checkbox" id="SDCResponseToggle" name="responses" value="1" class="radio" checked>
-					<label for="SDCResponseToggle">Your responses on/off</label><br>
-					<input type="checkbox" id="SDCAnswerToggle" class='answerToggle' name="answers" value="1" class="radio" checked>
-					<label for="SDCAnswerToggle" class='answerToggle'>Show answers</label><br>
-				</form>
+				<div id="SDCInstructions" class="instructions">&#9313; After you have selected (or created) your paragraph, you can use the dropdown menus within the paragraph to classify each word.  This will create a system design chart below.  Once the system design chart is created, you can define the connections between boxes.  After you have defined these connections, please click the Submit button below to save (or update) this answer key.  </div>
 
 
 				<div id="systemDesignChartSVGContainer"></div>
 
-					<div id="SDCButton">
-						<button class="button" style="margin-left:20px" onclick="onSDCSubmit()">Submit</button>
-						<div id="SDCNotification" class="notifications" style="margin:20px">Please click the Submit button above when you have completed your work.</div>
+					<div id="answerSubmitButton">
+						<button class="button" style="margin-left:20px" onclick="onAnswersSubmit()">Submit</button>
+						<div id="answerSubmitNotification" class="notifications" style="margin:20px">Please click the Submit button above when you have completed your work.</div>
 					</div>
 
 			</div>
 		</div>
- -->
+
 
 		<!-- Libraries -->
 		<script src='src/lib/d3.v6.min.js'></script>
@@ -113,11 +70,11 @@
 		<script src="src/js/formHandler.js"></script>
 		<script src="src/js/reader.js"></script>
 		<script src="src/js/initDropdowns.js"></script>
-<!-- 		<script src="src/js/initBars.js"></script>
-		<script src="src/js/initSystemDesignChart.js"></script> -->
+<!-- 		<script src="src/js/initBars.js"></script> -->
+		<script src="src/js/initSystemDesignChart.js"></script>
 		<script src="src/js/resize.js"></script>
-		<script src="src/js/init.js"></script>
 		<script src="src/js/editPara.js"></script>
+		<script src="src/js/init.js"></script>
 
 		<!-- to get the IP address of the user -->
 		<!-- <script type="application/javascript" src="https://api.ipify.org?format=jsonp&callback=getIP"></script> -->

@@ -22,7 +22,8 @@ function defineParams(){
 		this.haveAnswersData = false;
 
 		//script that will control entries into the google sheet
-		this.googleScriptURL = 'https://script.google.com/macros/s/AKfycbxyezKnh2nHg_JXXz33uYEO8ec9fus4TgK_PPjKY0e7opWEN0N3w8cZyOPwLuY1bw6F/exec';
+		//note: I may have to approve this every so often... I seem to occasionally get CORS errors, but then it is fixed if I deplay a new script (which asks if I approve)
+		this.googleScriptURL = 'https://script.google.com/macros/s/AKfycbykau9PHjxs5XhE88G0yS4TBEI1BQhc-X2YNpJ7SKSY70mFEtqdRSUXd17MJNoowwIJ/exec';
 		
 //the URL of the json getter of the sheet, for the visualization of results
 //sometime near Sept. 2021, Google stopped allowing the simle JSON alt type variant.  Now we need an api_key
@@ -69,7 +70,9 @@ function defineParams(){
 		this.transitionParaAnswers = true; //controls whether to use transition for answers.  Will be true at first.
 
 		//this will hold the answers from the static data file
-		this.answers;
+		this.answers = [{'groupname':'default', 'task':'para'},
+						{'groupname':'default', 'task':'SDC'}];
+
 		this.answersGroupnames = [];
 		this.showParaAnswers = true; //can be toggled with checkbox
 		this.showSDCAnswers = true; //can be toggled with checkbox
@@ -171,6 +174,8 @@ function defineParams(){
 
 
 		this.isMobile = false; //initiate as false
+
+		this.haveEditor = false; //will be true if the editor is active
 
 	};
 
