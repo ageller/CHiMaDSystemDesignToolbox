@@ -153,3 +153,9 @@ function objectWithoutProperties(obj, keys) {
 	}
 	return target;
 }
+
+function parseTranslateAttr(elem){
+	var trans = d3.select(elem).attr('transform').replace('translate(','').replace(')','').split(',');
+	return {'x': trans[0], 'y':trans[1]};
+
+}

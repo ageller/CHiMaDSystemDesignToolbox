@@ -599,7 +599,7 @@ function useSDCURLdata(){
 
 function plotSDCAggregateLines(){
 
-	if (!params.SDCLineHighlighted) {
+	if (!params.SDCLineHighlighted && params.SDCAggSVG) {
 		//destroy the plot (if it exists)
 		var parent = params.SDCAggSVG.node();
 		while (parent.firstChild) {
@@ -615,83 +615,85 @@ function plotSDCAggregateLines(){
 			endWords.forEach(function(w,i){
 
 				var startParent = d3.select('#SDCBox_'+startWords);
-				var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth;
-				var y1 = parseFloat(startParent.attr('y')) + parseFloat(startParent.select('rect').attr('height'))/2.;
-
 				var endParent = d3.select('#SDCBox_'+w);
-				var x2 = parseFloat(endParent.attr('x'))
-				var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
+				if (startParent.node() && endParent.node()){
+					var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth;
+					var y1 = parseFloat(startParent.attr('y')) + parseFloat(startParent.select('rect').attr('height'))/2.;
 
-				//get the category from the rect class list (will this always be the last class value?)
-				var cat = startParent.node().classList[1];
+					var x2 = parseFloat(endParent.attr('x'))
+					var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
 
-				//line width is based on entries
-				var frac = SDCdata[startWords].num[w]/params.aggregatedSDCResponses.nVersion[params.SDCResponseVersion];
-				var width = (params.maxSDCLineWidth - params.minSDCLineWidth)*frac + params.minSDCLineWidth;
+					//get the category from the rect class list (will this always be the last class value?)
+					var cat = startParent.node().classList[1];
 
-				if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
+					//line width is based on entries
+					var frac = SDCdata[startWords].num[w]/params.aggregatedSDCResponses.nVersion[params.SDCResponseVersion];
+					var width = (params.maxSDCLineWidth - params.minSDCLineWidth)*frac + params.minSDCLineWidth;
 
-					var strokeColor = params.colorMap(frac);
-					if (frac < params.pctLim) strokeColor = '#d92b9c';
+					if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
 
-					var line = params.SDCAggSVG.append('line')
-						.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
-						.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
-						.attr('fraction',frac) //custom attribute to track the fraction		
-						.attr('id','SDCAggregateLine_'+params.SDCLineIndex)
-						.attr('class','SDCAggregateLine SDCAggregateLine_'+startWords+ ' SDCAggregateLine_'+w)
-						.attr('stroke',strokeColor)
-						.attr('stroke-width',width)
-						.attr('stroke-linecap','round') 
-						.attr('x1', x1)
-						.attr('y1', y1)
-						.attr('x2', function(){
-							if (params.transitionSDCAgg) return x1;
-							return x2
-						})
-						.attr('y2', function(){
-							if (params.transitionSDCAgg) return y1;
-							return y2
-						})
-						.style('opacity',0.5)
+						var strokeColor = params.colorMap(frac);
+						if (frac < params.pctLim) strokeColor = '#d92b9c';
 
-					line.transition().duration(params.transitionDuration)
-						.attr('x2', x2)
-						.attr('y2', y2)
+						var line = params.SDCAggSVG.append('line')
+							.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
+							.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
+							.attr('fraction',frac) //custom attribute to track the fraction		
+							.attr('id','SDCAggregateLine_'+params.SDCLineIndex)
+							.attr('class','SDCAggregateLine SDCAggregateLine_'+startWords+ ' SDCAggregateLine_'+w)
+							.attr('stroke',strokeColor)
+							.attr('stroke-width',width)
+							.attr('stroke-linecap','round') 
+							.attr('x1', x1)
+							.attr('y1', y1)
+							.attr('x2', function(){
+								if (params.transitionSDCAgg) return x1;
+								return x2
+							})
+							.attr('y2', function(){
+								if (params.transitionSDCAgg) return y1;
+								return y2
+							})
+							.style('opacity',0.5)
 
-					//also create a box and text to hold the fraction
-					var textHolder = params.SDCAggSVG.append('g')
-						.attr('class','SDCAggregateFracBox SDCAggregateFracBox_'+startWords+' SDCAggregateFracBox_'+w)
+						line.transition().duration(params.transitionDuration)
+							.attr('x2', x2)
+							.attr('y2', y2)
 
-					var xt = (x1 + x2)/2.;
-					var yt = (y1 + y2)/2.;
-					var d = Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
-					var angle = Math.acos(Math.abs(x2 - x1)/d)*180/Math.PI;
-					var yoff = width;
-					if (y1 > y2) angle = -1.*angle;
-					
-					// textHolder.append('rect')
-					// 	.attr('fill',params.colorMap(frac))
-					// 	.attr('x',xt - fracBoxSize*2.)
-					// 	.attr('y',yt - fracBoxSize/2 - width)
-					// 	.attr('rx', fracBoxSize/4.)
-					// 	.attr('ry', fracBoxSize/4.)
-					// 	.attr('width',fracBoxSize*2.)
-					// 	.attr('height',fracBoxSize)
-					// 	.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
-					// 	.style('opacity',0)
+						//also create a box and text to hold the fraction
+						var textHolder = params.SDCAggSVG.append('g')
+							.attr('class','SDCAggregateFracBox SDCAggregateFracBox_'+startWords+' SDCAggregateFracBox_'+w)
+
+						var xt = (x1 + x2)/2.;
+						var yt = (y1 + y2)/2.;
+						var d = Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
+						var angle = Math.acos(Math.abs(x2 - x1)/d)*180/Math.PI;
+						var yoff = width;
+						if (y1 > y2) angle = -1.*angle;
+						
+						// textHolder.append('rect')
+						// 	.attr('fill',params.colorMap(frac))
+						// 	.attr('x',xt - fracBoxSize*2.)
+						// 	.attr('y',yt - fracBoxSize/2 - width)
+						// 	.attr('rx', fracBoxSize/4.)
+						// 	.attr('ry', fracBoxSize/4.)
+						// 	.attr('width',fracBoxSize*2.)
+						// 	.attr('height',fracBoxSize)
+						// 	.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
+						// 	.style('opacity',0)
 
 
-					textHolder.append('text')
-						.attr('x',xt - fracBoxSize)
-						.attr('y',yt - yoff)
-						.attr('dy', '.35em')
-						.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
-						.attr('fill',params.colorMap(1))
-						.style('text-anchor', 'middle')
-						.style('opacity',0)
-						.text(frac.toFixed(2))
+						textHolder.append('text')
+							.attr('x',xt - fracBoxSize)
+							.attr('y',yt - yoff)
+							.attr('dy', '.35em')
+							.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
+							.attr('fill',params.colorMap(1))
+							.style('text-anchor', 'middle')
+							.style('opacity',0)
+							.text(frac.toFixed(2))
 
+					}
 				}
 				if (i == endWords.length - 1 && j == Object.keys(SDCdata).length - 1) params.transitionSDCAgg = false;
 			})
@@ -715,43 +717,45 @@ function plotSDCAnswerLines(){
 				if (endWords){
 					endWords.forEach(function(w,i){
 						var startParent = d3.select('#SDCBox_'+startWords);
-						var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth;
-						var y1 = parseFloat(startParent.attr('y')) + parseFloat(startParent.select('rect').attr('height'))/2.;
-
 						var endParent = d3.select('#SDCBox_'+w);
-						var x2 = parseFloat(endParent.attr('x'))
-						var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
+						if (startParent.node() && endParent.node()){
+							var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth;
+							var y1 = parseFloat(startParent.attr('y')) + parseFloat(startParent.select('rect').attr('height'))/2.;
 
-						//get the category from the rect class list (will this always be the last class value?)
-						var cat = startParent.node().classList[1];
+							var x2 = parseFloat(endParent.attr('x'))
+							var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
 
-						if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
+							//get the category from the rect class list (will this always be the last class value?)
+							var cat = startParent.node().classList[1];
 
-							var line = params.SDCAnswersSVG.append('line')
-								.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
-								.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
-								.attr('id','SDCAnswerLine_'+params.SDCLineIndex)
-								.attr('class','SDCAnswerLine SDCAnswerLine_'+startWords+ ' SDCAnswerLine_'+w)
-								.attr('stroke','black')
-								.attr('stroke-width',6)
-								.attr('stroke-linecap','round') 
-								.attr('x1', x1)
-								.attr('y1', y1)
-								.attr('x2', function(){
-									if (params.transitionSDCAnswers) return x1;
-									return x2
-								})
-								.attr('y2', function(){
-									if (params.transitionSDCAnswers) return y1;
-									return y2
-								})
-								.style('stroke-opacity',op)
+							if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
 
-							line.transition().duration(params.transitionDuration)
-								.attr('x2', x2)
-								.attr('y2', y2)
+								var line = params.SDCAnswersSVG.append('line')
+									.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
+									.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
+									.attr('id','SDCAnswerLine_'+params.SDCLineIndex)
+									.attr('class','SDCAnswerLine SDCAnswerLine_'+startWords+ ' SDCAnswerLine_'+w)
+									.attr('stroke','black')
+									.attr('stroke-width',6)
+									.attr('stroke-linecap','round') 
+									.attr('x1', x1)
+									.attr('y1', y1)
+									.attr('x2', function(){
+										if (params.transitionSDCAnswers) return x1;
+										return x2
+									})
+									.attr('y2', function(){
+										if (params.transitionSDCAnswers) return y1;
+										return y2
+									})
+									.style('stroke-opacity',op)
+
+								line.transition().duration(params.transitionDuration)
+									.attr('x2', x2)
+									.attr('y2', y2)
+							}
+							//if (i == endWords.length - 1 && j == Object.keys(using).length - 1) params.transitionSDCAnswers = false;
 						}
-						//if (i == endWords.length - 1 && j == Object.keys(using).length - 1) params.transitionSDCAnswers = false;
 					})
 				}
 			}
