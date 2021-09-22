@@ -113,6 +113,7 @@ function createSystemDesignChart(){
 				.attr('x', params.SDCBoxWidth/2.)
 				.attr('y', boxHeight/2.)
 				.attr('dy', '.35em')
+				.attr('orgText',params.selectionWords[i].replaceAll('<sub>','_').replaceAll('</sub>','$')) //recoding so the line width is about correct
 				.style('text-anchor', 'middle')
 				.style('opacity',1)
 				.style('fill','black')
@@ -123,7 +124,6 @@ function createSystemDesignChart(){
 			text.selectAll('tspan').each(function(){
 				var t = d3.select(this).text()
 				d3.select(this).html(t.replaceAll('_','<tspan dy=5>').replaceAll('$','</tspan><tspan dy=-5>'));  //I'm not closing the last tspan, but it seems OK 
-
 			})
 
 			//get the text height and resize the box
@@ -142,9 +142,9 @@ function createSystemDesignChart(){
 		}
 
 
-		if (params.answersGroupnames.para.includes(params.groupname) && (params.paraSubmitted2 || params.haveEditor)) formatSDC();
+		if (params.answersGroupnames.para.includes(params.groupname) && (params.paraSubmitted2 || params.haveParaEditor || params.haveSDCEditor)) formatSDC();
 
-		if (params.SDCSubmitted) {
+		if (params.SDCSubmitted || params.haveSDCEditor) {
 			plotSDCAggregateLines();
 			plotSDCAnswerLines();
 		}
@@ -153,6 +153,7 @@ function createSystemDesignChart(){
 
 function formatSDC(){
 	if (!params.SDCLineHighlighted){
+		resizeSDCBoxes();
 
 		var SDCcolumnYLocations = {};
 		params.options.forEach(function(d){
@@ -232,6 +233,13 @@ function resizeSDCBoxes(){
 
 		var box = d3.select('#SDCBox_'+params.cleanString(params.selectionWords[i]));
 		var text = box.select('text');
+		text.call(wrapSVGtext, params.SDCBoxWidth-10, text.attr('orgText'));
+
+		//fix any subcripts
+		text.selectAll('tspan').each(function(){
+			var t = d3.select(this).text()
+			d3.select(this).html(t.replaceAll('_','<tspan dy=5>').replaceAll('$','</tspan><tspan dy=-5>'));  //I'm not closing the last tspan, but it seems OK 
+		})
 
 		//get the text height and resize the box
 		var bbox = text.node().getBBox();
@@ -463,7 +471,7 @@ function endSDCLine() {
 			}
 
 			//add to the answers if in editor
-			if (params.haveEditor){
+			if (params.haveParaEditor){
 				params.answers.forEach(function(a){
 					if (a.groupname == params.groupname && a.task == 'SDC') {
 						var key = word1;
@@ -839,7 +847,7 @@ function switchSDCVersions(){
 				.attr('y1', el.attr('y2'))
 			if (i == params.SDCAggSVG.selectAll('line').size() -1){
 				t.on('end',function(){
-					if (params.SDCSubmitted) {
+					if (params.SDCSubmitted || params.haveSDCEditor) {
 						plotSDCAggregateLines();
 						setTimeout(recolorSDCAgg, params.transitionDuration);
 					}
@@ -860,7 +868,7 @@ function switchSDCVersions(){
 }
 
 function checkSDCvisibility(){
-	if (!params.haveEditor){
+	if (!params.haveParaEditor && !params.haveSDCEditor){
 		if (params.answersGroupnames.para.includes(params.groupname) && params.paraSubmitted2){
 			d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
 			d3.select('#SDCButton').style('visibility','visible');

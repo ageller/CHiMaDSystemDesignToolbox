@@ -57,10 +57,11 @@ function getAllIndices(arr, val) {
 
 //https://bl.ocks.org/mbostock/7555321
 //https://stackoverflow.com/questions/24784302/wrapping-text-in-d3/24785497
-function wrapSVGtext(text, width) {
+function wrapSVGtext(text, width, textToUse) {
 	text.each(function () {
+		if (!textToUse) textToUse = d3.select(this).text();
 		var text = d3.select(this),
-			words = text.text().replace('/','/ ').split(/\s+/).reverse(),
+			words = textToUse.replace('/','/ ').split(/\s+/).reverse(),
 			//words = text.text().split(/\s+/).reverse(),
 			word,
 			line = [],

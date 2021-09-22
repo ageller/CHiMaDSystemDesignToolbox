@@ -20,7 +20,7 @@
 //attach function to buttons
 document.getElementById('paraEditButton').onclick = beginParaEdit;
 document.getElementById('paraSaveButton').onclick = saveParaEdit;
-params.haveEditor = true;
+params.haveParaEditor = true;
 
 //should I do this, or do I want to read in all the answers from the form first (once that is set up)?
 //for now I will populate from URL
