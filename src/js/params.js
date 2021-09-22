@@ -175,8 +175,8 @@ function defineParams(){
 
 		this.isMobile = false; //initiate as false
 
-		this.haveEditor = false; //will be true if the editor is active
-
+		this.haveParaEditor = false; //will be true if the paragraph editor is active
+		this.haveSDCEditor = false; //will be true if the SDC editor is active
 	};
 
 	//check for mobile

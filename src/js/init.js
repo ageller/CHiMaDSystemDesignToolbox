@@ -22,7 +22,7 @@ window.addEventListener('mousemove', function(){
 });
 
 //hide the system design chart at load (will be displayed when user submits the second response)
-if (!params.haveEditor) d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
+if (!params.haveParaEditor && !params.haveSDCEditor) d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
 
 //move the tooltip
 // window.addEventListener('mousemove', function(){
@@ -72,7 +72,7 @@ function initPage(){
 
 			//create the system design chart
 			if (params.haveSDC) {
-				if (params.answersGroupnames.para.includes(params.groupname) || params.haveEditor) {
+				if (params.answersGroupnames.para.includes(params.groupname) || params.haveParaEditor || params.haveSDCEditor) {
 					createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
 				} 
 				checkSDCvisibility();
