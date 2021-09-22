@@ -64,7 +64,7 @@ function createDropdowns(){
 						var key = params.cleanString(d3.select(parent).select('text').node().innerHTML);
 						params.URLInputValues[key] = this.value;
 						appendURLdata();
-						if (params.haveEditor){
+						if (params.haveParaEditor){
 							params.answers.forEach(function(a){
 								if (a.groupname == params.groupname && a.task == 'para') a[key] = params.URLInputValues[key];
 							})

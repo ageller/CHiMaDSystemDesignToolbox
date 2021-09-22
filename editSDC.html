@@ -1,7 +1,7 @@
 <html>
 	<head>  
 		<meta charset='UTF-8' name='viewport' content='width=device-width, user-scalable=no'> 
-		<title>testing</title>
+		<title>CHiMaD</title>
 		<link rel='stylesheet' type='text/css' href='src/css/index.css' />
 
 	</head>
@@ -10,51 +10,47 @@
 
 		<div id='tooltip'>1.0</div>
 
-		<!-- default is for this on the left -->
-		<div id='paragraphForm' style="width:100%">
+		<!-- including this but hidden so that the other functions that compile the selection words can work as usual -->
+		<div id='paragraphForm' style="width:100%; display:none;">
 
 			<div id='paraForm' class='para'>
 
-				<div id='groupnameSelector' style='margin-bottom:20px'>
-					<div id="groupnameInstructions" class="instructions">&#9450; Select your paragraph. </div>
-				</div>
-
-
-				<div id="groupnameInstructions" class="instructions">&#9312; (Optional) Enter a new name if you want to edit this paragraph.  This must be a unique name, that does not already appear in the dropdown menu above.  Next, you can edit and save a new paragraph with this button.  When editing, use double square brakets to indicate a word or phrase that is meant to be classified, e.g., [[classify this]]</div>
-				<label for="groupname" id="groupnameLabel">new paragraph name:</label>
-				<input type="text" id="groupnameInput" name="groupname" value=''>
-				<br/>
-				<button class='secondaryButton' id='paraEditButton' style='margin-bottom:10px'>edit</button>
-				<button class='secondaryButton' id='paraSaveButton' style='margin-bottom:10px; display:none'>save</button>
-
-				<div id="groupnameNotification" class="notifications" style="margin:20"></div>
-
-
 				<div id='paraText'>
 					Polymer matrix composites are traditionally valued for use in [[lightweight mechanical]] applications (aerospace, automotive, etc.) due to their attractive combination of mechanical properties ([[toughness]], [[strength/stiffness]]) and [[low density]]. For use in [[extreme environments]], these materials must possess [[slow degradation rates when exposed to O<sub>2</sub>, H<sub>2</sub>O, and salts]]. Moreover, maintaining structural integrity over a wide temperature range requires a low [[thermal expansion coefficient mismatch]] between matrix/reinforcement and a high [[glass transition temperature (T<sub>g</sub>)]]. Composites must also demonstrate excellent [[resistance to fracture]], determined in part by the mechanical properties (described above) and by the preferred [[failure mode]], which is a function of the [[reinforcement architecture]] and [[fiber/matrix interface]]. The [[polymer matrix]] [[is prepared]] by combining epoxy, crosslinker, and filler (as-needed), which controls the [[crosslinking density]] and [[heterogeneity]] within the matrix structure. [[The choice and preparation of reinforcement]] sets the [[morphology]] and [[microstructure of the reinforcement phase]].  The architecture of the reinforcement (and therefore, composite) is set during [[layup and curing]] and is defined by the [[dispersion]], [[aggregation]], and [[orientation of the reinforcement]]. [[Post-layup annealing and aging]] can improve the [[matrix/reinforcement interface]], and is critical to the mechanical properties, particularly the failure mode and toughness.
-				</div>
-				<div id='paraTextEditor' style='display:none'>
-					<textarea id='paraTextEditorInput' name='editor' style='width:100%'></textarea>
 				</div>
 			</div>
 
 
 		</div>
-
-
 		<div id="systemDesignChart">
 			<div class="para">
 
-				<div id="SDCInstructions" class="instructions">&#9313; After you have selected (or created) your paragraph, you can use the dropdown menus within the paragraph to classify each word.  This will create a system design chart below.  Once the system design chart is created, you can define the connections between boxes.  After you have defined these connections, please click the Submit button below to save (or update) this answer key.  </div>
+				<div id='groupnameSelector' style='margin-bottom:20px'>
+					<div id="groupnameInstructions" class="instructions">&#9450; Select your paragraph. </div>
+				</div>
+
+				<div id="SDCInstructions" class="instructions">&#9312; Click the edit button below to alter the system design chart.  In edit mode, you can click+drag to move the boxes around.  If you double click in a box, you can edit the text.   </div>
+
+
+
+				<form id="SDCVersionOptions" class='versionOptions'>
+					<div>Select which version of the responses to display, and whether to show the answers (black lines).</div>
+					<input type="radio" id="SDCVersion1" name="version" value="1" class="radio" checked>
+					<label for="SDCVersion1">Version 1</label><br>
+					<input type="radio" id="SDCVersion2" name="version" value="2" class="radio">
+					<label for="SDCVersion2">Version 2</label><br>
+					<input type="checkbox" id="SDCResponseToggle" name="responses" value="1" class="radio" checked>
+					<label for="SDCResponseToggle">Your responses on/off</label><br>
+					<input type="checkbox" id="SDCAnswerToggle" class='answerToggle' name="answers" value="1" class="radio" checked>
+					<label for="SDCAnswerToggle" class='answerToggle'>Show answers</label><br>
+				</form>
 
 
 				<div id="systemDesignChartSVGContainer"></div>
 
-					<div id="answerSubmitButton">
-						<button class="button" style="margin-left:20px" onclick="onAnswersSubmit()">Submit</button>
-						<div id="answerSubmitNotification" class="notifications" style="margin:20px">Please click the Submit button above when you have completed your work.</div>
-					</div>
-
+				<button class='secondaryButton' id='SDCEditButton' style='margin-bottom:10px'>edit</button>
+				<button class='secondaryButton' id='SDCDoneButton' style='margin-bottom:10px; display:none'>done</button>
+				
 			</div>
 		</div>
 
@@ -70,10 +66,9 @@
 		<script src="src/js/formHandler.js"></script>
 		<script src="src/js/reader.js"></script>
 		<script src="src/js/initDropdowns.js"></script>
-<!-- 		<script src="src/js/initBars.js"></script> -->
 		<script src="src/js/initSystemDesignChart.js"></script>
 		<script src="src/js/resize.js"></script>
-		<script src="src/js/editPara.js"></script>
+		<script src="src/js/editSDC.js"></script>
 		<script src="src/js/init.js"></script>
 
 		<!-- to get the IP address of the user -->

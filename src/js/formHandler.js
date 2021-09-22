@@ -270,7 +270,7 @@ function setGroupnameFromOptions(groupname=null){
 
 	//update the URL
 	params.URLInputValues['groupname'] = params.groupname;
-	if (params.haveEditor) setURLFromAnswers();
+	if (params.haveParaEditor) setURLFromAnswers();
 	appendURLdata();
 
 	loadResponses(params.surveyFile);

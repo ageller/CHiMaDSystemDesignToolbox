@@ -141,7 +141,7 @@ function readGoogleSheetParagraphs(json) {
 		params.availableGroupnames = Object.keys(params.paragraphs);
 
 		params.paragraphs.columns = Object.keys(params.paragraphs[params.availableGroupnames[0]]);
-		console.log('paragraphs', params.paragraph, params.availableGroupnames, out);
+		console.log('paragraphs', params.paragraphs, params.availableGroupnames, out);
 		
 		createGroupnameSelect();
 
@@ -160,7 +160,7 @@ function readGoogleSheetParagraphs(json) {
 		console.log("answers",params.answers);
 
 		//for editing mode, populate the URL so that all the answers can be displayed
-		if (params.haveEditor){
+		if (params.haveParaEditor){
 			if (Object.keys(params.URLInputValues).length == 0) {
 				setURLFromAnswers();
 			} else {
