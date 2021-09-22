@@ -330,7 +330,7 @@ function aggregateSDCResults(){
 			//plot the results
 			if (i == params.responses.columns.length - 1 && version == params.SDCResponseVersion){
 				console.log("aggregatedSDC", params.aggregatedSDCResponses);
-				if (params.SDCSubmitted) {
+				if (params.SDCSubmitted || params.haveSDCEditor) {
 					params.transitionSDCAgg = false;
 					plotSDCAggregateLines();
 					if (params.transitionSDCAnswers) plotSDCAnswerLines(); //params.transitionSDCAnswers will only be true at the start, this way we don't plot multiple answer lines on top of each other

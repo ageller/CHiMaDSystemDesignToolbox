@@ -324,7 +324,7 @@ function checkAnswerTogglesVisibility(){
 	if (params.answersGroupnames.para.includes(params.groupname)) {
 		d3.select('#paraVersionOptions').selectAll('.answerToggle').style('visibility','visible');
 	}
-	if (params.answersGroupnames.SDC.includes(params.groupname) && params.paraSubmitted2) {
+	if (params.answersGroupnames.SDC.includes(params.groupname) && (params.paraSubmitted2 || params.haveSDCEditor)) {
 		d3.select('#SDCVersionOptions').selectAll('.answerToggle').style('visibility','visible');
 	}
 }
