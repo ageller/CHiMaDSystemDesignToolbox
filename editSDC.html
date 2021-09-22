@@ -32,25 +32,27 @@
 				<div id="SDCInstructions" class="instructions">&#9312; Click the edit button below to alter the system design chart.  In edit mode, you can click+drag to move the boxes around.  If you double click in a box, you can edit the text.   </div>
 
 
+				<button class='secondaryButton' id='SDCEditButton' style='margin-bottom:20px;'>edit</button>
+				<button class='secondaryButton' id='SDCDoneButton' style='margin-bottom:20px; display:none'>done</button>
 
 				<form id="SDCVersionOptions" class='versionOptions'>
 					<div>Select which version of the responses to display, and whether to show the answers (black lines).</div>
-					<input type="radio" id="SDCVersion1" name="version" value="1" class="radio" checked>
-					<label for="SDCVersion1">Version 1</label><br>
-					<input type="radio" id="SDCVersion2" name="version" value="2" class="radio">
-					<label for="SDCVersion2">Version 2</label><br>
 					<input type="checkbox" id="SDCResponseToggle" name="responses" value="1" class="radio" checked>
-					<label for="SDCResponseToggle">Your responses on/off</label><br>
+					<label for="SDCResponseToggle" id="SSDCResponseToggleLabel">Your responses on/off</label><br>
 					<input type="checkbox" id="SDCAnswerToggle" class='answerToggle' name="answers" value="1" class="radio" checked>
-					<label for="SDCAnswerToggle" class='answerToggle'>Show answers</label><br>
+					<label for="SDCAnswerToggle" id="SDCAnswerToggleLabel" class='answerToggle'>Show answers</label><br>
+					<input type="radio" id="SDCVersion1" name="version" value="1" class="radio" checked>
+					<label for="SDCVersion1" id="SDCVersion1Label">Version 1</label><br>
+					<input type="radio" id="SDCVersion2" name="version" value="2" class="radio">
+					<label for="SDCVersion2" id="SDCVersion2Label">Version 2</label><br>
 				</form>
+
+
 
 
 				<div id="systemDesignChartSVGContainer"></div>
 
-				<button class='secondaryButton' id='SDCEditButton' style='margin-bottom:10px'>edit</button>
-				<button class='secondaryButton' id='SDCDoneButton' style='margin-bottom:10px; display:none'>done</button>
-				
+
 			</div>
 		</div>
 
