@@ -139,6 +139,7 @@ function defineParams(){
 
 		//settings for the system design chart (SDC)
 		this.SDCColumnCenters; //will hold the central x locations for the columns
+		this.SDCColumnYTops = {}; //will hold the top y locations of each column 
 		this.SDCSVG = null;
 		this.SDCAggSVG = null;
 		this.SDCAnswersSVG = null;

@@ -222,6 +222,11 @@ html,body {
 	stroke-width: 1;
 	stroke-opacity: 1;
 }
+
+.blankRect{
+	fill: white;
+}
+
 .notifications{
 	color:gray;
 	font-style:italic;
