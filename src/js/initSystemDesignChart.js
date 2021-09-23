@@ -33,6 +33,11 @@ function createSystemDesignChart(){
 		params.SDCBoxWidth = 0.6*w - params.SDCBoxMargin;
 		var boxHeight = 40; //will need to modify this below for each box, based on text size
 
+		params.SDCColumnYTops = {};
+		params.options.forEach(function(d){
+			if (d != 'Select Category') params.SDCColumnYTops[d] = params.SDCBoxMargin; //will be reset in formatSDC()
+		})
+
 		//destroy the plot (if it exists)
 		var parent = d3.select('#systemDesignChartSVGContainer').node();
 		while (parent.firstChild) {
@@ -75,7 +80,7 @@ function createSystemDesignChart(){
 		params.SDCSVG.selectAll('.text')
 			.data(params.options).enter().filter(function(d){return d != 'Select Category';})
 			.append('text')
-				.attr('class', function(d){ return 'text '+d+'Word'; })
+				.attr('class', function(d){ return 'text SDCheader '+d+'Word'; })
 				.attr('x', function(d) { return params.SDCColumnCenters[d]; })
 				.attr('y', 0)
 				.attr('dy', '.35em')
@@ -151,13 +156,13 @@ function createSystemDesignChart(){
 	}
 }
 
-function formatSDC(){
+function formatSDC(duration=0){
 	if (!params.SDCLineHighlighted){
 		resizeSDCBoxes();
 
 		var SDCcolumnYLocations = {};
 		params.options.forEach(function(d){
-			if (d != 'Select Category') SDCcolumnYLocations[d] = params.SDCBoxMargin;
+			if (d != 'Select Category') SDCcolumnYLocations[d] = params.SDCColumnYTops[d];
 		})
 
 		var using = params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
@@ -171,12 +176,14 @@ function formatSDC(){
 						.attr('class','SDCrectContainer ' + using[d])
 						.attr('x',x)
 						.attr('y',y)
-						.attr('transform', 'translate(' + x + ',' + y + ')')
-						.on('mousedown', startSDCLine);
+						.on('mousedown', startSDCLine)
 
 					box.select('rect')
 						.attr('class',using[d]+'Word ' + using[d] + ' SDCrect SDCrectDone')
 						.style('fill','');
+
+					box.transition().duration(duration)
+						.attr('transform', 'translate(' + x + ',' + y + ')')
 
 					var text = box.select('text');
 					var bbox = text.node().getBBox();
@@ -186,28 +193,33 @@ function formatSDC(){
 
 			//now shift each column vertically so they are centered
 			var maxH = 0;
-			params.options.forEach(function(d,i){
+			params.options.forEach(function(d){
 				//get the max height
 				if (SDCcolumnYLocations.hasOwnProperty(d)){
 					if (d != 'Select Category') {
-						if (SDCcolumnYLocations[d] > maxH) maxH = SDCcolumnYLocations[d];
+						var h = SDCcolumnYLocations[d] - params.SDCColumnYTops[d];
+						if (h > maxH) maxH = h;
 					}
-					//now shift as needed
-					if (i == params.options.length-1){
-						params.options.forEach(function(dd,j){
-							if (dd != 'Select Category' && SDCcolumnYLocations.hasOwnProperty(dd)) {
-								if (SDCcolumnYLocations[dd] < maxH){
-									var offset = (maxH - SDCcolumnYLocations[dd])/2.;
-									d3.selectAll('.SDCrectContainer.'+dd).each(function(){
-										var y = parseFloat(d3.select(this).attr('y')) + offset
-										var x = d3.select(this).attr('x')
-										d3.select(this)
-											.attr('x',x)
-											.attr('y',y)
-											.attr('transform', 'translate(' + x + ','+ y + ')');
-									})
-								}
-							}
+				}
+			})
+
+			//now shift as needed
+			params.options.forEach(function(d){
+				if (d != 'Select Category' && SDCcolumnYLocations.hasOwnProperty(d)) {
+					if (SDCcolumnYLocations[d] < maxH){
+						var h = SDCcolumnYLocations[d] - params.SDCColumnYTops[d]; 
+						var offset = (maxH - h)/2.;
+						console.log("offset",offset, maxH, h)
+						params.SDCColumnYTops[d] = params.SDCBoxMargin + offset;
+						console.log('tops', params.SDCColumnYTops)
+						d3.selectAll('.SDCrectContainer.'+d).each(function(){
+							var y = parseFloat(d3.select(this).attr('y')) + offset
+							var x = d3.select(this).attr('x')
+							d3.select(this)
+								.attr('x',x)
+								.attr('y',y)
+							d3.select(this).transition().duration(duration)
+								.attr('transform', 'translate(' + x + ','+ y + ')');
 						})
 					}
 				}
