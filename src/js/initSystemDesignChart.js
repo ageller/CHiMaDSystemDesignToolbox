@@ -118,17 +118,17 @@ function createSystemDesignChart(){
 				.attr('x', params.SDCBoxWidth/2.)
 				.attr('y', boxHeight/2.)
 				.attr('dy', '.35em')
-				.attr('orgText',params.selectionWords[i].replaceAll('<sub>','_').replaceAll('</sub>','$')) //recoding so the line width is about correct
+				.attr('orgText',params.selectionWords[i])
 				.style('text-anchor', 'middle')
 				.style('opacity',1)
 				.style('fill','black')
-				.text(params.selectionWords[i].replaceAll('<sub>','_').replaceAll('</sub>','$')) //recoding so the line width is about correct
+				.text(params.selectionWords[i])
 				.call(wrapSVGtext, params.SDCBoxWidth-10)
 
 			//fix any subcripts
 			text.selectAll('tspan').each(function(){
 				var t = d3.select(this).text()
-				d3.select(this).html(t.replaceAll('_','<tspan dy=5>').replaceAll('$','</tspan><tspan dy=-5>'));  //I'm not closing the last tspan, but it seems OK 
+				d3.select(this).html(t.replaceAll('_{','<tspan dy=5>').replaceAll('}_','</tspan><tspan dy=-5>'));  //I'm not closing the last tspan, but it seems OK 
 			})
 
 			//get the text height and resize the box
@@ -240,7 +240,6 @@ function formatSDC(duration=0){
 }
 function resizeSDCBoxes(){
 	for (var i=0; i<params.selectionWords.length; i++){
-
 		var box = d3.select('#SDCBox_'+params.cleanString(params.selectionWords[i]));
 		var text = box.select('text');
 		text.call(wrapSVGtext, params.SDCBoxWidth-10, text.attr('orgText'));
@@ -248,7 +247,7 @@ function resizeSDCBoxes(){
 		//fix any subcripts
 		text.selectAll('tspan').each(function(){
 			var t = d3.select(this).text()
-			d3.select(this).html(t.replaceAll('_','<tspan dy=5>').replaceAll('$','</tspan><tspan dy=-5>'));  //I'm not closing the last tspan, but it seems OK 
+			d3.select(this).html(t.replaceAll('_{','<tspan dy=5>').replaceAll('}_','</tspan><tspan dy=-5>'));  //I'm not closing the last tspan, but it seems OK 
 		})
 
 		//get the text height and resize the box

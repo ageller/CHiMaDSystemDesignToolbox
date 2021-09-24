@@ -82,7 +82,7 @@ function beginParaEdit(){
 
 	//populate the editor
 	var txtarea = d3.select('#paraTextEditor').select('textarea');
-	txtarea.style('height',d3.select('#paraText').node().getBoundingClientRect().height);
+	txtarea.style('height',d3.select('#paraText').node().getBoundingClientRect().height + 'px');
 	txtarea.node().value = params.paraTextSave;
 
 
