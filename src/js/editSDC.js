@@ -13,6 +13,8 @@ var columnWords = params.options.filter(function(d){return d != 'Select Category
 
 function beginSDCEdit(){
 	console.log('editing SDC');
+	params.editingSDC = true;
+	params.edittedSDC = true
 
 	//change button to done
 	d3.select('#SDCEditButton').style('display','none');
@@ -293,6 +295,7 @@ function beginSDCEdit(){
 
 function endSDCEdit(){
 	console.log('done editing SDC');
+	params.editingSDC = false;
 
 	//change button to edit
 	d3.select('#SDCEditButton').style('display','block');
