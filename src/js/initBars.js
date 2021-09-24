@@ -170,7 +170,7 @@ function createBars(){
 			//.attr("dy", "-1em")
 			.style("text-anchor", "end")
 			.style("font-size",fsp)
-			.html(c.replaceAll("<sub>","<tspan dy=5>").replaceAll("</sub>","</tspan><tspan dy=-5>"));  //I'm not closing the last tspan, but it seems OK 
+			.html(c.replaceAll("_{","<tspan dy=5>").replaceAll("}_","</tspan><tspan dy=-5>"));  //I'm not closing the last tspan, but it seems OK 
 
 
 	});

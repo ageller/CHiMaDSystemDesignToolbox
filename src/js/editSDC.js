@@ -4,6 +4,9 @@ document.getElementById('SDCDoneButton').onclick = endSDCEdit;
 params.haveSDCEditor = true;
 //params.SDCSubmitted = true;
 
+//add a handler for the textarea boxes
+window.addEventListener('click', useTextArea);
+
 //need a button to change the view from the "answers" to the most popular
 
 var columnWords = params.options.filter(function(d){return d != 'Select Category'});
@@ -60,6 +63,11 @@ function beginSDCEdit(){
 
 	//functions supporting dragging
 	function dragStart(){
+
+		if(event.detail > 1){ //to avoid the double clicks
+			return;
+		}
+
 		var elem = this;
 		var trans = parseTranslateAttr(elem);
 		elem.x = trans.x;
@@ -69,13 +77,6 @@ function beginSDCEdit(){
 		offsetX = event.x - trans.x;
 		offsetY = event.y - trans.y;
 
-		//take away the color so it's obvious this is selected
-		columnWords.forEach(function(w){
-			d3.select(elem).select('rect').classed(w, false);
-			d3.select(elem).select('rect').classed(w+'Word', false);
-		})
-		d3.select(this).select('rect').classed('blankRect', true);
-
 		//it would be nice to move the selected element to the front, but you can't easily do this in d3
 	}
 
@@ -83,12 +84,23 @@ function beginSDCEdit(){
 		//add back the color
 		d3.select(this).select('rect').classed('blankRect', false);
 		d3.select(this).select('rect').classed(columnWords[iX]+'Word', true);
-		d3.select(this).select('rect').classed(columnWords[iX], true)
+		d3.select(this).select('rect').classed(columnWords[iX], true);
 	}
 
 	function dragMove(){
+		var elem = this;
+
+		//take away the color so it's obvious this is selected
+		if (!d3.select(this).select('rect').classed('blankRect')){
+			columnWords.forEach(function(w,i){
+				if (w == elem.column) iX = i;
+				d3.select(elem).select('rect').classed(w, false);
+				d3.select(elem).select('rect').classed(w+'Word', false);
+			})
+			d3.select(this).select('rect').classed('blankRect', true);
+		}
+
 		if (!d3.select(this).classed('rectMoving')){
-			var elem = this;
 			var x = Math.max(event.x - offsetX, 0.);
 			var y = Math.max(event.y - offsetY, 0.);
 			var needReorder = false;
@@ -116,6 +128,7 @@ function beginSDCEdit(){
 					elems[columnWords[iX]].push(elem);
 				}
 				elem.column = columnWords[iX];
+				d3.select(elem).attr('column', elem.column);
 				needReorder = true;
 			}
 
@@ -196,7 +209,7 @@ function beginSDCEdit(){
 		var wordsY = [];
 		columnWords.forEach(function(column){
 			elems[column].forEach(function(d){
-				words.push(d3.select(d).select('text').attr('orgText')); //note that this will have recoded <sub> to $
+				words.push(d3.select(d).select('text').attr('orgText')); 
 				wordsY.push(parseFloat(d.y));
 			})
 		})
@@ -223,12 +236,56 @@ function beginSDCEdit(){
 				this.width = params.SDCBoxWidth;
 				this.column = column;
 
+				d3.select(this).attr('column', column)
+
 				e[column].push(this);
 			})
 		})
 
 		return e;
 	}
+
+	//add the ability to edit the text in each box on double click
+	params.SDCSVG.selectAll('.SDCrectContainer').on('dblclick', editSDCtext);
+	function editSDCtext(){
+		console.log('editting text', this);
+
+		var elem = this;
+		//take away the color so it's obvious this is selected
+		columnWords.forEach(function(w,i){
+			if (w == elem.column) iX = i;
+			d3.select(elem).select('rect').classed(w, false);
+			d3.select(elem).select('rect').classed(w+'Word', false);
+		})
+		d3.select(elem).select('rect').classed('blankRect', true);
+
+		//remove the current text
+		d3.select(elem).select('text').selectAll('tspan').remove();
+
+		//create a text box with the original text
+		var bbox = elem.getBoundingClientRect();
+
+		var textarea = d3.select('#systemDesignChart').append('textarea')
+			.attr('class', 'SDCTextEditorInput')
+			.attr('name', 'editor')
+			.attr('selector','#'+elem.id)
+			.style('width',elem.width + 'px')
+			.style('height',elem.height + 'px')
+			.style('z-index',10)
+			.style('position', 'absolute')
+			.style('top', (bbox.top - params.SDCSVGMargin.top)+ 'px') //not sure why this subtraction is needed for y and not x...
+			.style('left',bbox.left + 'px')
+
+		textarea.node().value = d3.select(elem).select('text').attr('orgText');
+		// var txtarea = d3.select('#paraTextEditor').select('textarea');
+		// txtarea.style('height',d3.select('#paraText').node().getBoundingClientRect().height);
+		// txtarea.node().value = params.paraTextSave;
+
+
+
+	}
+
+
 }
 
 
@@ -249,4 +306,64 @@ function endSDCEdit(){
 	//remove the availity to drag the rects
 	params.SDCSVG.selectAll('.SDCrectContainer').on('mousedown.drag', null);
 
+	//remove the ability to edit the text
+	params.SDCSVG.selectAll('.SDCrectContainer').on('dblclick', null);
+
+
+}
+
+function useTextArea(){
+	if (event.target.nodeName != 'TEXTAREA'){
+		var changed = false;
+		d3.selectAll('.SDCTextEditorInput').each(function(){
+			var thisElem = this
+			var parentElem = d3.select(d3.select(thisElem).attr('selector'));
+			parentElem.attr('id','SDCBox_' + params.cleanString(thisElem.value))
+			var text = parentElem.select('text')
+
+			//save the original text
+			var orgText = text.attr('orgText');
+
+			//now reset things
+			text
+				.attr('orgText',thisElem.value)
+				.text(thisElem.value)
+				.call(wrapSVGtext, params.SDCBoxWidth-10);
+
+			//fix any subcripts
+			text.selectAll('tspan').each(function(){
+				var t = d3.select(this).text()
+				d3.select(this).html(t.replaceAll('_{','<tspan dy=5>').replaceAll('}_','</tspan><tspan dy=-5>'));  //I'm not closing the last tspan, but it seems OK 
+			})
+
+
+
+			if (orgText != thisElem.value){
+				changed = true;
+				console.log('changed')
+
+				//update the selectionWords
+				var index = -1;
+				index = params.selectionWords.indexOf(orgText);
+				if (index != -1) params.selectionWords[index] = thisElem.value;
+
+				//update the answers
+				if (params.cleanString(orgText) != params.cleanString(thisElem.value)){
+					var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
+					var response = answersGroup[params.cleanString(orgText)];
+					answersGroup[params.cleanString(thisElem.value)] = response;
+					delete answersGroup[params.cleanString(orgText)];
+				}
+			}
+
+			//remove the textarea
+			d3.select(thisElem).remove();
+
+			//set the color back
+			parentElem.select('rect').classed('blankRect', false);
+			parentElem.select('rect').classed(parentElem.attr('column')+'Word', true);
+			parentElem.select('rect').classed(parentElem.attr('column'), true)
+		})
+		if (changed) formatSDC();
+	}
 }
