@@ -264,6 +264,7 @@ function beginSDCEdit(){
 
 		//create a text box with the original text
 		var bbox = elem.getBoundingClientRect();
+		console.log(bbox)
 
 		var textarea = d3.select('#systemDesignChart').append('textarea')
 			.attr('class', 'SDCTextEditorInput')
@@ -273,8 +274,8 @@ function beginSDCEdit(){
 			.style('height',elem.height + 'px')
 			.style('z-index',10)
 			.style('position', 'absolute')
-			.style('top', (bbox.top - params.SDCSVGMargin.top)+ 'px') //not sure why this subtraction is needed for y and not x...
-			.style('left',bbox.left + 'px')
+			.style('top', (bbox.top + window.scrollY - params.SDCSVGMargin.top)+ 'px') //not sure why this subtraction is needed for y and not x...
+			.style('left',(bbox.left + window.scrollX) + 'px')
 
 		textarea.node().value = d3.select(elem).select('text').attr('orgText');
 		// var txtarea = d3.select('#paraTextEditor').select('textarea');
