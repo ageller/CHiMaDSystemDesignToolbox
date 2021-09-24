@@ -208,10 +208,8 @@ function formatSDC(duration=0){
 				if (d != 'Select Category' && SDCcolumnYLocations.hasOwnProperty(d)) {
 					if (SDCcolumnYLocations[d] < maxH){
 						var h = SDCcolumnYLocations[d] - params.SDCColumnYTops[d]; 
-						var offset = (maxH - h)/2.;
-						console.log("offset",offset, maxH, h)
+						var offset = (maxH - h)/2. - params.SDCColumnYTops[d];
 						params.SDCColumnYTops[d] = params.SDCBoxMargin + offset;
-						console.log('tops', params.SDCColumnYTops)
 						d3.selectAll('.SDCrectContainer.'+d).each(function(){
 							var y = parseFloat(d3.select(this).attr('y')) + offset
 							var x = d3.select(this).attr('x')
