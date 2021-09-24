@@ -149,7 +149,7 @@ function createSystemDesignChart(){
 
 		if (params.answersGroupnames.para.includes(params.groupname) && (params.paraSubmitted2 || params.haveParaEditor || params.haveSDCEditor)) formatSDC();
 
-		if (params.SDCSubmitted || params.haveSDCEditor) {
+		if ((params.SDCSubmitted || params.haveSDCEditor) && !params.edittedSDC) {
 			plotSDCAggregateLines();
 			plotSDCAnswerLines();
 		}
