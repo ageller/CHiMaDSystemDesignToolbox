@@ -139,7 +139,8 @@ function saveParaEdit(){
 		//create blank entries for the answers
 		params.answers.push({'groupname':params.groupname, 'task':'para'});
 		params.answers.push({'groupname':params.groupname, 'task':'SDC'});
-		params.answersGroupnames.push(params.groupname);
+		params.answersGroupnames['para'].push(params.groupname);
+		params.answersGroupnames['SDC'].push(params.groupname);
 
 
 		//show the system design chart starter

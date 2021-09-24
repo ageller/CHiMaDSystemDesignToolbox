@@ -23,7 +23,7 @@ function defineParams(){
 
 		//script that will control entries into the google sheet
 		//note: I may have to approve this every so often... I seem to occasionally get CORS errors, but then it is fixed if I deplay a new script (which asks if I approve)
-		this.googleScriptURL = 'https://script.google.com/macros/s/AKfycbykau9PHjxs5XhE88G0yS4TBEI1BQhc-X2YNpJ7SKSY70mFEtqdRSUXd17MJNoowwIJ/exec';
+		this.googleScriptURL = 'https://script.google.com/macros/s/AKfycbxJV_xdTWfaZryhWiALwN2eqht9Y9u_b8R2fme_iB6BxM6OLpgVpF9I0zhLTKqNRhdj/exec';
 		
 //the URL of the json getter of the sheet, for the visualization of results
 //sometime near Sept. 2021, Google stopped allowing the simle JSON alt type variant.  Now we need an api_key
@@ -172,8 +172,16 @@ function defineParams(){
 		this.cleanString = function(s){
 			return s.replace(/sub\>/g,'').replace(/\s/g,'').replace(/[^a-zA-Z ]/g, "").toLowerCase();
 		}
-
-
+		this.applySubSuperStringSVG = function(s){
+			return s.replaceAll('_{','<tspan dy="5px">').replaceAll('}_','</tspan><tspan dy="-5px">').replaceAll('^{','<tspan dy="-5px">').replaceAll('}^','</tspan><tspan dy="5px">');
+		}
+		this.applySubSuperStringHTML = function(s){
+			return s.replaceAll('_{','<sub>').replaceAll('}_','</sub>').replaceAll('^{','<sup>').replaceAll('}^','</sup>');
+		}
+		this.removeSubSuperString = function(s){
+			return s.replaceAll('<tspan dy="5px">','_{').replaceAll('</tspan><tspan dy="-5px">','}_').replaceAll('<tspan dy="-5px">','^{').replaceAll('</tspan><tspan dy="5px">','}^').replaceAll('<sub>','_{').replaceAll('</sub>','}_').replaceAll('<sup>','^{').replaceAll('</sup>','}^');
+			//return s.replaceAll('<tspan dy="5px">','').replaceAll('<tspan dy="-5px">','').replaceAll('<tspan>','').replaceAll('</tspan>','').replaceAll('<sub>','').replaceAll('</sub>','').replaceAll('<sup>','').replaceAll('</sup>','');
+		}
 		this.isMobile = false; //initiate as false
 
 		this.haveParaEditor = false; //will be true if the paragraph editor is active

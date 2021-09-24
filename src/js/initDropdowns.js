@@ -20,7 +20,8 @@ function convertPara(){
 	//now modify the paragraph to 
 	// - change the '[[' to <span class="selectionWord"><text>
 	// - change the ']]' to </text></span>
-	d3.select('#paraText').html(params.paraTextSave.replaceAll('[[','<span class="selectionWord"><text>').replaceAll(']]','</text></span>'));	
+	var useText = params.applySubSuperStringHTML(params.paraTextSave.replaceAll('[[','<span class="selectionWord"><text>').replaceAll(']]','</text></span>'))
+	d3.select('#paraText').html(useText);	
 }
 
 function getSelectionWords(){
@@ -28,7 +29,7 @@ function getSelectionWords(){
 
 	params.selectionWords = [];
 	d3.selectAll('.selectionWord').select('text').each(function(d){
-		params.selectionWords.push(this.innerHTML);
+		params.selectionWords.push(params.removeSubSuperString(this.innerHTML));
 	})
 }
 
@@ -53,7 +54,7 @@ function createDropdowns(){
 		})
 		.append('select')
 			.attr('id',function(){
-				return params.cleanString(d3.select(this.parentNode).select('text').node().innerHTML);})
+				return params.cleanString(params.removeSubSuperString(d3.select(this.parentNode).select('text').node().innerHTML));})
 			.on('change',function(){
 				var parent = this.parentNode;
 				d3.select(this).selectAll('option').each(function(dd, j){
@@ -61,7 +62,7 @@ function createDropdowns(){
 						var wrong = d3.select(parent).classed('wrongBorder');
 						d3.select(parent).attr('class','selectionWord '+this.value.toLowerCase()+'Word');
 						d3.select(parent).classed('wrongBorder', wrong);
-						var key = params.cleanString(d3.select(parent).select('text').node().innerHTML);
+						var key = params.cleanString(params.removeSubSuperString(d3.select(parent).select('text').node().innerHTML));
 						params.URLInputValues[key] = this.value;
 						appendURLdata();
 						if (params.haveParaEditor){
