@@ -7,7 +7,6 @@ params.haveSDCEditor = true;
 //need a button to change the view from the "answers" to the most popular
 
 var columnWords = params.options.filter(function(d){return d != 'Select Category'});
-params.forceSimulation = null;
 
 function beginSDCEdit(){
 	console.log('editing SDC');
@@ -41,6 +40,7 @@ function beginSDCEdit(){
 	//add the ability to move the rects
 	//the transform defines the position (so that I can move the rect and text)
 	//the x,y attributes are used to connect the lines
+	//note: most of the visible movement occurs by calling formatSDC()
 
 	var elems = populateElems();
 	var leftsX = [];
@@ -106,20 +106,12 @@ function beginSDCEdit(){
 			})
 			x = leftsX[iX];
 			if (elem.column != columnWords[iX]){
-				console.log('changing columns');
-				//set the y location to be at the top of the new group;
-				// var top = 1e10;
-				// elems[columnWords[iX]].forEach(function(d){
-				// 	if (d.y < top) top = d.y;
-				// })
-				// console.log(columnWords[iX], top, y)
-				// y = top - elem.height - 10.;
-				// elem.y0 = y;
+				//console.log('changing columns');
 
 				//shift the groups up and down to keep things centered
 				const index = elems[elem.column].indexOf(elem);
 				if (index > -1) {
-					console.log('found elem in column list')
+					//console.log('found elem in column list')
 					elems[elem.column].splice(index, 1);
 					elems[columnWords[iX]].push(elem);
 				}
@@ -131,7 +123,6 @@ function beginSDCEdit(){
 			var yNew = handleOverlaps(elems, elem, y);
 
 			if (yNew != elem.y0) needReorder = true;
-
 
 
 			//now update the position of the selected box
@@ -157,14 +148,6 @@ function beginSDCEdit(){
 				d3.select(this).select('rect').classed('blankRect', true);
 
 			}
-			// d3.select(elem).transition().duration(100)
-			// 	.on('start',function(){
-			// 		d3.select(this).classed('rectMoving', true)
-			// 	})
-			// 	.on('end', function(){
-			// 		d3.select(this).classed('rectMoving', false)
-			// 	})
-			// 	.attr('transform', 'translate(' + elem.x + ',' + elem.y + ')')
 		}
 
 	}
@@ -174,11 +157,9 @@ function beginSDCEdit(){
 		var yNew = y;
 
 		//now move the adjacent rects
-		console.log(elem.column)
 		elems[elem.column].filter(function(d){return d != elem;}).forEach(function(t,i){
-			//console.log('checking overlap', i, t.y, t.height, y, elem.height, y + elem.height, t.y + t.height, d3.select(t).text());
 			if ( (y + elem.height/2.) > t.y && y < (t.y + t.height) && !d3.select(t).classed('rectMoving')){
-				console.log('overlap', i, t.y, t.height, y, elem.height, y + elem.height, t.y + t.height);
+				//console.log('overlap', i, t.y, t.height, y, elem.height, y + elem.height, t.y + t.height);
 				var yOther;
 				if (elem.y0 < y){
 					//console.log('moving down');
@@ -192,19 +173,8 @@ function beginSDCEdit(){
 				t.y = yOther;
 				this.y = yOther
 				d3.select(t).attr('y',yOther);
-				// d3.select(t).transition().duration(100)
-				// 	.on('start',function(){
-				// 		d3.select(this).classed('rectMoving', true)
-				// 		handleOverlaps(elems, this, yOther);
-				// 		this.y = yOther;
-				// 	})
-				// 	.on('end', function(){
-				// 		d3.select(this).classed('rectMoving', false)
-				// 	})
-				// 	.attr('transform','translate(' + t.x + ',' + yOther + ')')
 			}
 		})
-		//console.log(y, yNew)
 		if (yNew != y){
 			y = Math.min(Math.max(yNew, 20.), parseFloat(d3.select('#SDCPlotSVG').style('height')) - elem.height); //keep it within the box (just in case something goes wrong)
 		} else {
@@ -279,6 +249,4 @@ function endSDCEdit(){
 	//remove the availity to drag the rects
 	params.SDCSVG.selectAll('.SDCrectContainer').on('mousedown.drag', null);
 
-	//end the force simulation
-	if (params.forceSimulation) params.forceSimulation.stop();
 }
