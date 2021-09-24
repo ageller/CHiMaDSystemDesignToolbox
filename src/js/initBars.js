@@ -165,12 +165,13 @@ function createBars(){
 		//add the labels for the y axis
 		thisPlot.append("text")
 			.attr('class','rowLabel')
+			.attr('orgText',c)
 			.attr("x","-5px")
 			.attr("y",params.boxGridSVGHistHeight)
 			//.attr("dy", "-1em")
 			.style("text-anchor", "end")
 			.style("font-size",fsp)
-			.html(c.replaceAll("_{","<tspan dy=5>").replaceAll("}_","</tspan><tspan dy=-5>"));  //I'm not closing the last tspan, but it seems OK 
+			.html(params.applySubSuperStringSVG(c))
 
 
 	});
@@ -305,8 +306,8 @@ function defineBars(){
 		if (maxPct < params.pctLim){
 			//change color on the visualization
 			var elem = d3.select('#'+params.cleanString(c)+'_bar').select('.rowLabel')
-			var txt = elem.text().replaceAll('*','');
-			elem.text('**'+txt+'**')
+			var txt = params.applySubSuperStringSVG(elem.attr('orgText').replaceAll('*',''));
+			elem.html('**'+txt+'**')
 				.style('font-style', 'italic')
 				.style('fill','#d92b9c');
 

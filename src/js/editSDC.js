@@ -332,8 +332,8 @@ function useTextArea(){
 
 			//fix any subcripts
 			text.selectAll('tspan').each(function(){
-				var t = d3.select(this).text()
-				d3.select(this).html(t.replaceAll('_{','<tspan dy=5>').replaceAll('}_','</tspan><tspan dy=-5>'));  //I'm not closing the last tspan, but it seems OK 
+				var t = d3.select(this).text();
+				d3.select(this).html(params.applySubSuperStringSVG(t));
 			})
 
 
