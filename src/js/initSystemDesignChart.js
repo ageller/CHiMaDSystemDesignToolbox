@@ -204,14 +204,15 @@ function formatSDC(duration=0){
 			})
 
 			//if any of the ytops end up negative, I need to shift the entire block downards
-			var minY = 0;
+			var minY = 0.;
 			Object.keys(params.SDCColumnYTops).forEach(function(d){
 				minY = Math.min(minY, params.SDCColumnYTops[d]); 
 			})
 			if (minY < 0){
+				console.log('adjusting')
 				Object.keys(params.SDCColumnYTops).forEach(function(d){
 					d3.selectAll('.SDCrectContainer.'+d).each(function(){
-						var y = parseFloat(d3.select(this).attr('y')) - minY
+						var y = parseFloat(d3.select(this).attr('y')) - minY + params.SDCBoxMargin;
 						var x = d3.select(this).attr('x')
 						d3.select(this)
 							.attr('x',x)
@@ -230,7 +231,7 @@ function formatSDC(duration=0){
 						var offset = (maxH - h)/2. - params.SDCColumnYTops[d];
 						params.SDCColumnYTops[d] =  offset + params.SDCBoxMargin;
 						d3.selectAll('.SDCrectContainer.'+d).each(function(){
-							var y = parseFloat(d3.select(this).attr('y')) + offset
+							var y = parseFloat(d3.select(this).attr('y')) + offset ;
 							var x = d3.select(this).attr('x')
 							d3.select(this)
 								.attr('x',x)
@@ -261,17 +262,19 @@ function resizeSDCBoxes(){
 	for (var i=0; i<params.selectionWords.length; i++){
 		var box = d3.select('#SDCBox_'+params.cleanString(params.selectionWords[i]));
 		var text = box.select('text');
-		text.call(wrapSVGtext, params.SDCBoxWidth-10, text.attr('orgText'));
+		if (text.node()){
+			text.call(wrapSVGtext, params.SDCBoxWidth-10, text.attr('orgText'));
 
-		//fix any subcripts
-		text.selectAll('tspan').each(function(){
-			var t = d3.select(this).text()
-			d3.select(this).html(params.applySubSuperStringSVG(t))
-		})
+			//fix any subcripts
+			text.selectAll('tspan').each(function(){
+				var t = d3.select(this).text()
+				d3.select(this).html(params.applySubSuperStringSVG(t))
+			})
 
-		//get the text height and resize the box
-		var bbox = text.node().getBBox();
-		box.select('rect').attr('height',bbox.height+10)
+			//get the text height and resize the box
+			var bbox = text.node().getBBox();
+			box.select('rect').attr('height',bbox.height+10);
+		}
 	}
 }
 
