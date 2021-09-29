@@ -455,7 +455,7 @@ function useTextArea(){
 
 			if (orgText != thisElem.value){
 				changed = true;
-				console.log('changed')
+				//console.log('changed')
 
 				//update the selectionWords
 				var index = -1;
