@@ -1,0 +1,41 @@
+<html>
+	<head>  
+		<meta charset='UTF-8' name='viewport' content='width=device-width, user-scalable=no'> 
+		<title>CHiMaD</title>
+		<link rel='stylesheet' type='text/css' href='src/css/index.css' />
+
+	</head>
+
+	<body>
+		<script src='src/lib/d3.v6.min.js'></script>
+
+		<div id='paragraphForm' style="width:100%">
+
+			<div id='paraForm' class='para'>
+
+				<div id="paraTextEditor" style="display:block">
+					<textarea id="paraTextEditorInput" name="editor" style="width:100%; height:420px;"></textarea>
+				</div>
+
+			</div>
+		</div>
+
+
+				<!-- my codes -->
+		<script src="src/js/params.js"></script>
+		<script src="src/js/utils.js"></script>
+		<script src="src/js/formHandler.js"></script>
+		<script src="src/js/reader.js"></script>
+		<script src="src/js/initDropdowns.js"></script>
+		<script src="src/js/initSystemDesignChart.js"></script>
+		<!-- <script src="src/js/resize.js"></script> -->
+		<!-- <script src="src/js/editPara.js"></script> -->
+		<!-- <script src="src/js/init.js"></script> -->
+
+		
+		<script>
+			//d3.select('#paraTextEditorInput').text("testing lots of test asdf ;lkajsdf;lk ad;ljfk asdpoiuadsf  asd;lfkjasd asd;flj")
+			d3.select('#paraTextEditorInput').node().value = "testing lots of test asdf ;lkajsdf;lk ad;ljfk asdpoiuadsf  asd;lfkjasd asd;flj";
+		</script>
+	</body>
+</html>
