@@ -83,7 +83,8 @@ function beginParaEdit(){
 	//populate the editor
 	var txtarea = d3.select('#paraTextEditor').select('textarea');
 	txtarea.style('height',d3.select('#paraText').node().getBoundingClientRect().height + 'px');
-	txtarea.node().value = params.paraTextSave;
+	//txtarea.node().value = params.paraTextSave;
+	txtarea.text(params.paraTextSave);
 
 
 	//hide the current paragraph and show the editor
