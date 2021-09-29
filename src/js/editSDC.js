@@ -7,6 +7,13 @@ params.haveSDCEditor = true;
 //add a handler for the textarea boxes
 window.addEventListener('click', useTextArea);
 
+//attach a function to the save as png button
+d3.select('#saveAsPNG').on('click',function(){
+	var node = d3.select('#SDCPlotSVG').node();
+	var bbox = node.getBoundingClientRect();
+	saveImage(node, bbox.width, bbox.height, 'SystemDesignChart.png')
+})
+
 //need a button to change the view from the "answers" to the most popular
 
 var columnWords = params.options.filter(function(d){return d != 'Select Category'});
@@ -87,8 +94,8 @@ function beginSDCEdit(){
 		//add back the color
 		d3.select(this).select('rect').classed('blankRect', false);
 		if (columnWords[iX]){
-			d3.select(this).select('rect').classed(columnWords[iX]+'Word', true);
-			d3.select(this).select('rect').classed(columnWords[iX], true);
+			d3.select(this).select('rect').classed(columnWords[iX].toLowerCase()+'Word', true);
+			d3.select(this).select('rect').classed(columnWords[iX].toLowerCase(), true);
 		}
 	}
 
@@ -99,8 +106,8 @@ function beginSDCEdit(){
 		if (!d3.select(this).select('rect').classed('blankRect')){
 			columnWords.forEach(function(w,i){
 				if (w == elem.column) iX = i;
-				d3.select(elem).select('rect').classed(w, false);
-				d3.select(elem).select('rect').classed(w+'Word', false);
+				d3.select(elem).select('rect').classed(w.toLowerCase(), false);
+				d3.select(elem).select('rect').classed(w.toLowerCase()+'Word', false);
 			})
 			d3.select(this).select('rect').classed('blankRect', true);
 		}
@@ -160,8 +167,8 @@ function beginSDCEdit(){
 
 				//take away the color so it's obvious this is selected (redo, since it was reset with formatSDC)
 				columnWords.forEach(function(w){
-					d3.select(elem).select('rect').classed(w, false);
-					d3.select(elem).select('rect').classed(w+'Word', false);
+					d3.select(elem).select('rect').classed(w.toLowerCase(), false);
+					d3.select(elem).select('rect').classed(w.toLowerCase()+'Word', false);
 				})
 				d3.select(this).select('rect').classed('blankRect', true);
 
@@ -259,8 +266,8 @@ function beginSDCEdit(){
 		//take away the color so it's obvious this is selected
 		columnWords.forEach(function(w,i){
 			if (w == elem.column) iX = i;
-			d3.select(elem).select('rect').classed(w, false);
-			d3.select(elem).select('rect').classed(w+'Word', false);
+			d3.select(elem).select('rect').classed(w.toLowerCase(), false);
+			d3.select(elem).select('rect').classed(w.toLowerCase()+'Word', false);
 		})
 		d3.select(elem).select('rect').classed('blankRect', true);
 
@@ -343,7 +350,9 @@ function beginSDCEdit(){
 
 
 	//add a button to create a new box
-	var adder = d3.select('#systemDesignChart').select('.para').append('button')
+	adderNode = document.createElement('button');
+	//var adder = d3.select('#systemDesignChart').select('.para').append('button')
+	d3.select(adderNode)
 		.attr('id','boxAdder')
 		.attr('class','secondaryButton')
 		.style('font-size',d3.select('#SDCDoneButton').style('font-size'))
@@ -361,7 +370,7 @@ function beginSDCEdit(){
 
 			//create the box
 			var bbox = d3.select('#systemDesignChartSVGContainer').node().getBoundingClientRect();
-			var box = createSDCbox(0., bbox.height - 2.*params.SDCInitBoxHeight, params.SDCBoxWidth, params.SDCInitBoxHeight, text);
+			var box = createSDCbox(0., 1.5*params.SDCBoxMargin, params.SDCBoxWidth, params.SDCInitBoxHeight, text);
 			box.classed('blankRect', true);
 
 			//add dragging
@@ -384,14 +393,16 @@ function beginSDCEdit(){
 			answersGroup[params.cleanString(text)] = 'null'
 
 		})
+	insertAfter(adderNode, d3.select('#SDCVersionOptions').node())
 
 	//resize the font of the adder button
-	var bbox = adder.node().getBoundingClientRect();
-	adder.style('width', bbox.height + 'px')
+	var bbox = adderNode.getBoundingClientRect();
+	d3.select(adderNode).style('width', bbox.height + 'px')
 		.style('height', bbox.height + 'px')
 		.style('padding', 0 + 'px')
 		.style('font-size',bbox.height + 'px')
 		.style('line-height',bbox.height + 'px')
+		.style('position','absolute')
 
 
 
@@ -478,8 +489,8 @@ function useTextArea(){
 			parentElem.select('rect').classed('blankRect', false);
 			var word = parentElem.attr('column');
 			if (word){
-				parentElem.select('rect').classed(word+'Word', true);
-				parentElem.select('rect').classed(word, true);
+				parentElem.select('rect').classed(word.toLowerCase()+'Word', true);
+				parentElem.select('rect').classed(word.toLowerCase(), true);
 			}
 		})
 		if (changed) formatSDC();

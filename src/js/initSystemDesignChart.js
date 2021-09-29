@@ -59,16 +59,6 @@ function createSystemDesignChart(){
 				.attr('transform', 'translate(' + params.SDCSVGMargin.left + ',' + params.SDCSVGMargin.top + ')');
 
 
-		//create a rect to capture mouse events
-		params.SDCSVG.append('rect')
-			.attr('id','SDCmouseEvents')
-			.attr('x',0)
-			.attr('y',0)
-			.attr('fill','none')
-			.attr('width',params.SDCSVGWidth)
-			.attr('height',params.SDCSVGHeight)
-			.on('mouseup',endSDCLine)
-
 		//will hold the aggregate results
 		params.SDCAggSVG = params.SDCSVG.append('g').attr('id','SDCAggregatedLinesContainer');
 
@@ -79,7 +69,7 @@ function createSystemDesignChart(){
 		params.SDCSVG.selectAll('.text')
 			.data(params.options).enter().filter(function(d){return d != 'Select Category';})
 			.append('text')
-				.attr('class', function(d){ return 'text SDCheader '+d+'Word'; })
+				.attr('class', function(d){ return 'text SDCheader '+d.toLowerCase()+'Word'; })
 				.attr('x', function(d) { return params.SDCColumnCenters[d]; })
 				.attr('y', 0)
 				.attr('dy', '.35em')
@@ -185,7 +175,7 @@ function formatSDC(duration=0){
 							.on('mousedown', startSDCLine)
 
 						box.select('rect')
-							.attr('class',using[d]+'Word ' + using[d] + ' SDCrect SDCrectDone')
+							.attr('class',using[d].toLowerCase()+'Word ' + using[d].toLowerCase() + ' SDCrect SDCrectDone')
 							.style('fill','');
 
 						box.transition().duration(duration)
@@ -261,7 +251,6 @@ function formatSDC(duration=0){
 			if (sAll == sDone){
 				params.SDCSVGHeight = maxH;
 				d3.select('#SDCPlotSVG').style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom + params.SDCBoxMargin)
-				d3.select('#SDCmouseEvents').attr('height',params.SDCSVGHeight)
 			}
 
 			useSDCURLdata();
