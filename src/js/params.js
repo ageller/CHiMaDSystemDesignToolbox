@@ -148,6 +148,8 @@ function defineParams(){
 		this.SDCSVGWidth;
 		this.SDCBoxMargin = 20;
 		this.SDCBoxWidth;
+		this.SDCInitBoxHeight = 40; 
+
 		this.SDCLine = null;
 		this.SDCCircle0 = null;
 		this.SDCCircle = null;
@@ -170,7 +172,7 @@ function defineParams(){
 		this.event = {'keyCode':null,'clientX':0, 'clientY':0};
 
 		this.cleanString = function(s){
-			return s.replace(/sub\>/g,'').replace(/\s/g,'').replace(/[^a-zA-Z ]/g, "").toLowerCase();
+			return s.replace(/sub\>/g,'').replace(/\s/g,'').replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 		}
 		this.applySubSuperStringSVG = function(s){
 			return s.replaceAll('_{','<tspan dy="5px">').replaceAll('}_','</tspan><tspan dy="-5px">').replaceAll('^{','<tspan dy="-5px">').replaceAll('}^','</tspan><tspan dy="5px">');
