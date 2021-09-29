@@ -6,7 +6,7 @@ d3.select('#SDCVersionOptions').selectAll('input').on('change',switchSDCVersions
 
 //for line drawing
 window.addEventListener('mousemove', function(){
-	moveSDCLine();
+	if (params.mouseDown) moveSDCLine();
 });
 window.addEventListener('mouseup', function(){
 	endSDCLine();
@@ -165,7 +165,6 @@ function formatSDC(duration=0){
 			if (d != 'Select Category') SDCcolumnYLocations[d] = params.SDCColumnYTops[d];
 		})
 
-		console.log('formatting',params.SDCColumnYTops);
 		var using = params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
 		if (using){
 			for (var i=0; i<params.selectionWords.length; i++){
@@ -222,7 +221,6 @@ function formatSDC(duration=0){
 				})
 			}
 
-			console.log('format checking', maxH, minY, params.SDCColumnYTops, SDCcolumnYLocations)
 			//now shift as needed
 			params.options.forEach(function(d){
 				if (d != 'Select Category' && SDCcolumnYLocations.hasOwnProperty(d)) {
@@ -230,7 +228,6 @@ function formatSDC(duration=0){
 					if (h < maxH){
 						var h = SDCcolumnYLocations[d] - params.SDCColumnYTops[d]; 
 						var offset = (maxH - h)/2. - params.SDCColumnYTops[d];
-						console.log('checking offset', d, h, offset)
 						params.SDCColumnYTops[d] =  offset + params.SDCBoxMargin;
 						d3.selectAll('.SDCrectContainer.'+d).each(function(){
 							var y = parseFloat(d3.select(this).attr('y')) + offset
@@ -359,83 +356,97 @@ function startSDCLine() {
 }
 
 function moveSDCLine() {
-	//stop text highlighting
-	window.event.cancelBubble = true;
-	window.event.returnValue = false;
+	//make sure the mouse is within the SDC container
 
-	//for highlighting
-	if (params.SDCLine){
-		var id = 'SDCBox_'+params.SDCLine.attr('startSelectionWords')
-		highlightSDCLines(d3.select('#'+id).node());
-	} 
+	var elem = document.elementFromPoint(params.event.clientX, params.event.clientY);
+	var proceed = false;
 
-	if (params.SDCLine && params.showSDCResponses){
-
-		var x = params.event.layerX - params.SDCSVGMargin.left;
-		var y = params.event.layerY - params.SDCSVGMargin.top;
-
-		//snap to object if close enough
-		var elem = document.elementFromPoint(params.event.clientX + 20, params.event.clientY);
-		var attached = false;
-		if (elem){
-			//check parents for tspan
-			if (elem.nodeName == 'tspan') elem = elem.parentNode;
-			var parent = d3.select(elem.parentNode);
-			if (parent.classed('SDCrectContainer')){
-
-
-				//get the category from the rect class list (will this always be the last class value?)
-				var cat = parent.node().classList[1];
-				var cat0 = params.SDCLine.attr('startCategory');
-				
-				var endWords = parent.attr('selectionWords')
-
-				//check if this is an adjacent category to the starting point
-				var adjacent = false;
-				var i = params.options.indexOf(cat);
-				var i0 = params.options.indexOf(cat0);
-				if (i - i0 == 1) adjacent = true;
-				if (adjacent){
-					attached = true;
-					//get left side of box
-					x = parseFloat(parent.attr('x'));
-					y = parseFloat(parent.attr('y')) + parseFloat(parent.select('.SDCrect').attr('height'))/2.;
-					params.SDCLine
-						.attr('attached','true')
-						.attr('endCategory', cat)
-						.attr('endSelectionWords',endWords);
-					params.SDCLine.classed('SDCLine_null', false);
-					params.SDCLine.classed('SDCLine_'+endWords, true);
-					params.SDCCircle.classed('SDCLine_null', false);
-					params.SDCCircle.classed('SDCLine_'+endWords, true);
-					params.SDCCircle0.classed('SDCLine_null', false);
-					params.SDCCircle0.classed('SDCLine_'+endWords, true);
-				}
-			} 
+	if (elem){
+		while (elem) {
+			if (elem.id == "SDCPlotSVG") proceed = true;
+			elem = elem.parentNode;
 		}
-		if (!attached){
+
+	}
+
+	if (proceed){
+		//stop text highlighting
+		window.event.cancelBubble = true;
+		window.event.returnValue = false;
+
+		//for highlighting
+		if (params.SDCLine){
+			var id = 'SDCBox_'+params.SDCLine.attr('startSelectionWords')
+			highlightSDCLines(d3.select('#'+id).node());
+		} 
+
+		if (params.SDCLine && params.showSDCResponses){
+			var x = params.event.layerX - params.SDCSVGMargin.left;
+			var y = params.event.layerY - params.SDCSVGMargin.top;
+
+			//snap to object if close enough
+		 	elem = document.elementFromPoint(params.event.clientX + 20, params.event.clientY);
+			var attached = false;
+			if (elem){
+				//check parents for tspan
+				if (elem.nodeName == 'tspan') elem = elem.parentNode;
+				var parent = d3.select(elem.parentNode);
+				if (parent.classed('SDCrectContainer')){
+
+
+					//get the category from the rect class list (will this always be the last class value?)
+					var cat = parent.node().classList[1];
+					var cat0 = params.SDCLine.attr('startCategory');
+					
+					var endWords = parent.attr('selectionWords')
+
+					//check if this is an adjacent category to the starting point
+					var adjacent = false;
+					var i = params.options.indexOf(cat);
+					var i0 = params.options.indexOf(cat0);
+					if (i - i0 == 1) adjacent = true;
+					if (adjacent){
+						attached = true;
+						//get left side of box
+						x = parseFloat(parent.attr('x'));
+						y = parseFloat(parent.attr('y')) + parseFloat(parent.select('.SDCrect').attr('height'))/2.;
+						params.SDCLine
+							.attr('attached','true')
+							.attr('endCategory', cat)
+							.attr('endSelectionWords',endWords);
+						params.SDCLine.classed('SDCLine_null', false);
+						params.SDCLine.classed('SDCLine_'+endWords, true);
+						params.SDCCircle.classed('SDCLine_null', false);
+						params.SDCCircle.classed('SDCLine_'+endWords, true);
+						params.SDCCircle0.classed('SDCLine_null', false);
+						params.SDCCircle0.classed('SDCLine_'+endWords, true);
+					}
+				} 
+			}
+			if (!attached){
+				params.SDCLine
+					.attr('attached','false')
+					.attr('endCategory', 'null')
+					.attr('endSelectionWords','null');
+
+			}
+			
+
+			var x1 = params.SDCLine.attr('x1')
+			var y1 = params.SDCLine.attr('y1')
+			if (x < x1){
+				x = x1;
+				y = y1
+			}
 			params.SDCLine
-				.attr('attached','false')
-				.attr('endCategory', 'null')
-				.attr('endSelectionWords','null');
+				.attr('x2', x)
+				.attr('y2', y);
+
+			params.SDCCircle
+				.attr('cx', x)
+				.attr('cy', y);
 
 		}
-		
-
-		var x1 = params.SDCLine.attr('x1')
-		var y1 = params.SDCLine.attr('y1')
-		if (x < x1){
-			x = x1;
-			y = y1
-		}
-		params.SDCLine
-			.attr('x2', x)
-			.attr('y2', y);
-
-		params.SDCCircle
-			.attr('cx', x)
-			.attr('cy', y);
-
 	}
 
 }
