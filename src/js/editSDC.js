@@ -10,6 +10,7 @@ window.addEventListener('click', useTextArea);
 //need a button to change the view from the "answers" to the most popular
 
 var columnWords = params.options.filter(function(d){return d != 'Select Category'});
+columnWords.push('blankRect');
 
 function beginSDCEdit(){
 	console.log('editing SDC');
@@ -85,8 +86,10 @@ function beginSDCEdit(){
 	function dragEnd(){
 		//add back the color
 		d3.select(this).select('rect').classed('blankRect', false);
-		d3.select(this).select('rect').classed(columnWords[iX]+'Word', true);
-		d3.select(this).select('rect').classed(columnWords[iX], true);
+		if (columnWords[iX]){
+			d3.select(this).select('rect').classed(columnWords[iX]+'Word', true);
+			d3.select(this).select('rect').classed(columnWords[iX], true);
+		}
 	}
 
 	function dragMove(){
@@ -265,8 +268,7 @@ function beginSDCEdit(){
 		d3.select(elem).select('text').selectAll('tspan').remove();
 
 		//create a text box with the original text
-		var bbox = elem.getBoundingClientRect();
-		console.log(bbox)
+		var bbox = d3.select(elem).select('rect').node().getBoundingClientRect();
 
 		var textarea = d3.select('#systemDesignChart').append('textarea')
 			.attr('class', 'SDCTextEditorInput')
@@ -290,11 +292,9 @@ function beginSDCEdit(){
 
 	//add circles with x's to delete boxes
 	//writing as a function so that I can use it when I create new boxes
-	function addDeleters(){
-		d3.selectAll('.SDCdeleter').remove();
-
+	function addDeleter(base){
 		var r = Math.max(params.SDCBoxWidth/20., 8.);
-		var deleter = d3.select('#SDCPlotSVG').selectAll('.SDCrectContainer').append('g')
+		var deleter = base.append('g')
 			.attr('class','SDCdeleter')
 			.on('click', function(){
 				//remove the node
@@ -338,7 +338,60 @@ function beginSDCEdit(){
 				.style('cursor','pointer')
 				.text('X')
 	}
-	addDeleters();
+	d3.selectAll('.SDCdeleter').remove();
+	d3.select('#SDCPlotSVG').selectAll('.SDCrectContainer').each(function(){addDeleter(d3.select(this))})
+
+
+	//add a button to create a new box
+	var adder = d3.select('#systemDesignChart').select('.para').append('button')
+		.attr('id','boxAdder')
+		.attr('class','secondaryButton')
+		.style('font-size',d3.select('#SDCDoneButton').style('font-size'))
+		.text('+')
+		.on('click', function(){
+			//get a new name
+			var num = 1;
+			var text = 'new container '+num;
+			var check = d3.select('#SDCBox_'+params.cleanString(text)).node();
+			while (check){
+				num += 1;
+				text = 'new container '+num;
+				check = d3.select('#SDCBox_'+params.cleanString(text)).node();
+			}
+
+			//create the box
+			var bbox = d3.select('#systemDesignChartSVGContainer').node().getBoundingClientRect();
+			var box = createSDCbox(0., bbox.height - 2.*params.SDCInitBoxHeight, params.SDCBoxWidth, params.SDCInitBoxHeight, text);
+			box.classed('blankRect', true);
+
+			//add dragging
+			dragHandler(box);
+
+			//add the ability to edit text
+			box.on('dblclick', editSDCtext);
+
+			//add the deleter
+			addDeleter(box);
+
+			//recreate elems (to include this one)
+			elems = populateElems();
+
+			//add to selectionWords
+			params.selectionWords.push(text);
+
+			//add to answers
+			var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
+			answersGroup[params.cleanString(text)] = 'null'
+
+		})
+
+	//resize the font of the adder button
+	var bbox = adder.node().getBoundingClientRect();
+	adder.style('width', bbox.height + 'px')
+		.style('height', bbox.height + 'px')
+		.style('padding', 0 + 'px')
+		.style('font-size',bbox.height + 'px')
+		.style('line-height',bbox.height + 'px')
 
 
 
@@ -368,6 +421,9 @@ function endSDCEdit(){
 
 	//remove the circles
 	d3.selectAll('.SDCdeleter').remove();
+
+	//remove the adder button
+	d3.select('#boxAdder').remove();
 
 }
 
@@ -420,8 +476,11 @@ function useTextArea(){
 
 			//set the color back
 			parentElem.select('rect').classed('blankRect', false);
-			parentElem.select('rect').classed(parentElem.attr('column')+'Word', true);
-			parentElem.select('rect').classed(parentElem.attr('column'), true)
+			var word = parentElem.attr('column');
+			if (word){
+				parentElem.select('rect').classed(word+'Word', true);
+				parentElem.select('rect').classed(word, true);
+			}
 		})
 		if (changed) formatSDC();
 	}
