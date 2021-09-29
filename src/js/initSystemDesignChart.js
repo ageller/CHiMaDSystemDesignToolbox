@@ -31,7 +31,6 @@ function createSystemDesignChart(){
 		})
 
 		params.SDCBoxWidth = 0.6*w - params.SDCBoxMargin;
-		var boxHeight = 40; //will need to modify this below for each box, based on text size
 
 		params.SDCColumnYTops = {};
 		params.options.forEach(function(d){
@@ -92,48 +91,12 @@ function createSystemDesignChart(){
 		// It looks like I need to do this in a for loop so that I can get the proper y positions
 		//I will start with the boxes in random locations and without colors, then formatSDC will define the actual locations and colors if the answers are available
 
-		for (var i=0; i<params.selectionWords.length; i++){
-			var d = params.cleanString(params.selectionWords[i]);
+		params.selectionWords.forEach(function(d){
 
 			var x = Math.random()*(params.SDCSVGWidth - params.SDCBoxWidth);
 			var y = Math.random()*(params.SDCSVGHeight - params.SDCBoxWidth) + 20;
-			var box = params.SDCSVG.append('g')
-				.attr('class','SDCrectContainer')
-				.attr('id','SDCBox_'+params.cleanString(params.selectionWords[i]))
-				.attr('selectionWords',params.cleanString(params.selectionWords[i])) //custom attribute to hold the selection words
-				.attr('x',x)
-				.attr('y',y)
-				.attr('transform', 'translate(' + x + ',' + y + ')')
 
-			box.append('rect')
-				.attr('class','SDCrect')
-				.attr('x',0)
-				.attr('y', 0)
-				.attr('width', params.SDCBoxWidth)
-				.attr('height', boxHeight) //will need to update this
-				.style('fill','white')
-
-			var text = box.append('text')
-				.attr('class','noSelect SDCtext')
-				.attr('x', params.SDCBoxWidth/2.)
-				.attr('y', boxHeight/2.)
-				.attr('dy', '.35em')
-				.attr('orgText',params.selectionWords[i])
-				.style('text-anchor', 'middle')
-				.style('opacity',1)
-				.style('fill','black')
-				.text(params.selectionWords[i])
-				.call(wrapSVGtext, params.SDCBoxWidth-10)
-
-			//fix any subcripts
-			text.selectAll('tspan').each(function(){
-				var t = d3.select(this).text()
-				d3.select(this).html(params.applySubSuperStringSVG(t));
-			})
-
-			//get the text height and resize the box
-			var bbox = text.node().getBBox();
-			box.select('rect').attr('height',bbox.height+10)
+			createSDCbox(x, y, params.SDCBoxWidth, params.SDCInitBoxHeight, d);
 
 			//get the maximum width of the text and reformat all the boxes to that (in case there are really long words)
 			var maxW = params.SDCBoxWidth;
@@ -144,7 +107,7 @@ function createSystemDesignChart(){
 			d3.selectAll('.SDcrect').attr('width', maxW);
 			d3.selectAll('.SDCtext').selectAll('.wrappedSVGtext').attr('x', maxW/2.)
 
-		}
+		})
 
 
 		if (params.answersGroupnames.para.includes(params.groupname) && (params.paraSubmitted2 || params.haveParaEditor || params.haveSDCEditor)) formatSDC();
@@ -154,6 +117,48 @@ function createSystemDesignChart(){
 			plotSDCAnswerLines();
 		}
 	}
+}
+
+function createSDCbox(x,y,w,h,text){
+	var box = params.SDCSVG.append('g')
+		.attr('class','SDCrectContainer')
+		.attr('id','SDCBox_'+params.cleanString(text))
+		.attr('selectionWords',params.cleanString(text)) //custom attribute to hold the selection words
+		.attr('x',x)
+		.attr('y',y)
+		.attr('transform', 'translate(' + x + ',' + y + ')')
+
+	box.append('rect')
+		.attr('class','SDCrect')
+		.attr('x',0)
+		.attr('y', 0)
+		.attr('width', w)
+		.attr('height', h) //will need to update this
+		.style('fill','white')
+
+	var text = box.append('text')
+		.attr('class','noSelect SDCtext')
+		.attr('x', w/2.)
+		.attr('y', h/2.)
+		.attr('dy', '.35em')
+		.attr('orgText',text)
+		.style('text-anchor', 'middle')
+		.style('opacity',1)
+		.style('fill','black')
+		.text(text)
+		.call(wrapSVGtext, w - 10)
+
+	//fix any subcripts
+	text.selectAll('tspan').each(function(){
+		var t = d3.select(this).text()
+		d3.select(this).html(params.applySubSuperStringSVG(t));
+	})
+
+	//get the text height and resize the box
+	var bbox = text.node().getBBox();
+	box.select('rect').attr('height',bbox.height+10)
+
+	return box;
 }
 
 function formatSDC(duration=0){
@@ -172,22 +177,24 @@ function formatSDC(duration=0){
 				if (using.hasOwnProperty(d)){
 					var x = params.SDCColumnCenters[using[d]] - params.SDCBoxWidth/2.;
 					var y = SDCcolumnYLocations[using[d]];
-					var box = d3.select('#SDCBox_'+params.cleanString(params.selectionWords[i]))
-						.attr('class','SDCrectContainer ' + using[d])
-						.attr('x',x)
-						.attr('y',y)
-						.on('mousedown', startSDCLine)
+						if (x && y){
+						var box = d3.select('#SDCBox_'+params.cleanString(params.selectionWords[i]))
+							.attr('class','SDCrectContainer ' + using[d])
+							.attr('x',x)
+							.attr('y',y)
+							.on('mousedown', startSDCLine)
 
-					box.select('rect')
-						.attr('class',using[d]+'Word ' + using[d] + ' SDCrect SDCrectDone')
-						.style('fill','');
+						box.select('rect')
+							.attr('class',using[d]+'Word ' + using[d] + ' SDCrect SDCrectDone')
+							.style('fill','');
 
-					box.transition().duration(duration)
-						.attr('transform', 'translate(' + x + ',' + y + ')')
+						box.transition().duration(duration)
+							.attr('transform', 'translate(' + x + ',' + y + ')')
 
-					var text = box.select('text');
-					var bbox = text.node().getBBox();
-					SDCcolumnYLocations[using[d]] += bbox.height+10 + params.SDCBoxMargin;// - boxHeight;
+						var text = box.select('text');
+						var bbox = text.node().getBBox();
+						SDCcolumnYLocations[using[d]] += bbox.height+10 + params.SDCBoxMargin;// - boxHeight;
+					}
 				}
 			}
 
@@ -214,9 +221,11 @@ function formatSDC(duration=0){
 					d3.selectAll('.SDCrectContainer.'+d).each(function(){
 						var y = parseFloat(d3.select(this).attr('y')) - minY + params.SDCBoxMargin;
 						var x = d3.select(this).attr('x')
-						d3.select(this)
-							.attr('x',x)
-							.attr('y',y)
+						if (x && y){
+							d3.select(this)
+								.attr('x',x)
+								.attr('y',y)
+						}
 					})
 					params.SDCColumnYTops[d] -= minY;
 				})
@@ -233,11 +242,13 @@ function formatSDC(duration=0){
 						d3.selectAll('.SDCrectContainer.'+d).each(function(){
 							var y = parseFloat(d3.select(this).attr('y')) + offset ;
 							var x = d3.select(this).attr('x')
-							d3.select(this)
-								.attr('x',x)
-								.attr('y',y)
-							d3.select(this).transition().duration(duration)
-								.attr('transform', 'translate(' + x + ','+ y + ')');
+							if (x && y){
+								d3.select(this)
+									.attr('x',x)
+									.attr('y',y)
+								d3.select(this).transition().duration(duration)
+									.attr('transform', 'translate(' + x + ','+ y + ')');
+							}
 						})
 					}
 				}
