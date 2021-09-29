@@ -165,6 +165,7 @@ function formatSDC(duration=0){
 			if (d != 'Select Category') SDCcolumnYLocations[d] = params.SDCColumnYTops[d];
 		})
 
+		console.log('formatting',params.SDCColumnYTops);
 		var using = params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
 		if (using){
 			for (var i=0; i<params.selectionWords.length; i++){
@@ -203,13 +204,34 @@ function formatSDC(duration=0){
 				}
 			})
 
+			//if any of the ytops end up negative, I need to shift the entire block downards
+			var minY = 0;
+			Object.keys(params.SDCColumnYTops).forEach(function(d){
+				minY = Math.min(minY, params.SDCColumnYTops[d]); 
+			})
+			if (minY < 0){
+				Object.keys(params.SDCColumnYTops).forEach(function(d){
+					d3.selectAll('.SDCrectContainer.'+d).each(function(){
+						var y = parseFloat(d3.select(this).attr('y')) - minY
+						var x = d3.select(this).attr('x')
+						d3.select(this)
+							.attr('x',x)
+							.attr('y',y)
+					})
+					params.SDCColumnYTops[d] -= minY;
+				})
+			}
+
+			console.log('format checking', maxH, minY, params.SDCColumnYTops, SDCcolumnYLocations)
 			//now shift as needed
 			params.options.forEach(function(d){
 				if (d != 'Select Category' && SDCcolumnYLocations.hasOwnProperty(d)) {
-					if (SDCcolumnYLocations[d] < maxH){
+					var h = SDCcolumnYLocations[d] - params.SDCColumnYTops[d];
+					if (h < maxH){
 						var h = SDCcolumnYLocations[d] - params.SDCColumnYTops[d]; 
 						var offset = (maxH - h)/2. - params.SDCColumnYTops[d];
-						params.SDCColumnYTops[d] = params.SDCBoxMargin + offset;
+						console.log('checking offset', d, h, offset)
+						params.SDCColumnYTops[d] =  offset + params.SDCBoxMargin;
 						d3.selectAll('.SDCrectContainer.'+d).each(function(){
 							var y = parseFloat(d3.select(this).attr('y')) + offset
 							var x = d3.select(this).attr('x')
@@ -229,7 +251,7 @@ function formatSDC(duration=0){
 			var sDone = d3.selectAll('.SDCrectDone').size();
 			if (sAll == sDone){
 				params.SDCSVGHeight = maxH;
-				d3.select('#SDCPlotSVG').style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom)
+				d3.select('#SDCPlotSVG').style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom + params.SDCBoxMargin)
 				d3.select('#SDCmouseEvents').attr('height',params.SDCSVGHeight)
 			}
 
@@ -720,57 +742,59 @@ function plotSDCAnswerLines(){
 		if (params.showSDCAnswers) op = 1;
 
 		var using = params.answers.filter(function(d){return (d.task == 'SDC' && d.groupname == params.groupname);})[0];
-		Object.keys(using).forEach(function(startWords, j){
-			if (startWords != 'task' && startWords != 'groupname'){
-				var endWords = using[startWords];
-				if (endWords){
-					endWords.forEach(function(w,i){
-						var startParent = d3.select('#SDCBox_'+startWords);
-						var endParent = d3.select('#SDCBox_'+w);
-						if (startParent.node() && endParent.node()){
-							var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth;
-							var y1 = parseFloat(startParent.attr('y')) + parseFloat(startParent.select('rect').attr('height'))/2.;
+		if (using){
+			Object.keys(using).forEach(function(startWords, j){
+				if (startWords != 'task' && startWords != 'groupname'){
+					var endWords = using[startWords];
+					if (endWords){
+						endWords.forEach(function(w,i){
+							var startParent = d3.select('#SDCBox_'+startWords);
+							var endParent = d3.select('#SDCBox_'+w);
+							if (startParent.node() && endParent.node()){
+								var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth;
+								var y1 = parseFloat(startParent.attr('y')) + parseFloat(startParent.select('rect').attr('height'))/2.;
 
-							var x2 = parseFloat(endParent.attr('x'))
-							var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
+								var x2 = parseFloat(endParent.attr('x'))
+								var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
 
-							//get the category from the rect class list (will this always be the last class value?)
-							var cat = startParent.node().classList[1];
+								//get the category from the rect class list (will this always be the last class value?)
+								var cat = startParent.node().classList[1];
 
-							if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
+								if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
 
-								var line = params.SDCAnswersSVG.append('line')
-									.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
-									.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
-									.attr('id','SDCAnswerLine_'+params.SDCLineIndex)
-									.attr('class','SDCAnswerLine SDCAnswerLine_'+startWords+ ' SDCAnswerLine_'+w)
-									.attr('stroke','black')
-									.attr('stroke-width',6)
-									.attr('stroke-linecap','round') 
-									.attr('x1', x1)
-									.attr('y1', y1)
-									.attr('x2', function(){
-										if (params.transitionSDCAnswers) return x1;
-										return x2
-									})
-									.attr('y2', function(){
-										if (params.transitionSDCAnswers) return y1;
-										return y2
-									})
-									.style('stroke-opacity',op)
+									var line = params.SDCAnswersSVG.append('line')
+										.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
+										.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
+										.attr('id','SDCAnswerLine_'+params.SDCLineIndex)
+										.attr('class','SDCAnswerLine SDCAnswerLine_'+startWords+ ' SDCAnswerLine_'+w)
+										.attr('stroke','black')
+										.attr('stroke-width',6)
+										.attr('stroke-linecap','round') 
+										.attr('x1', x1)
+										.attr('y1', y1)
+										.attr('x2', function(){
+											if (params.transitionSDCAnswers) return x1;
+											return x2
+										})
+										.attr('y2', function(){
+											if (params.transitionSDCAnswers) return y1;
+											return y2
+										})
+										.style('stroke-opacity',op)
 
-								line.transition().duration(params.transitionDuration)
-									.attr('x2', x2)
-									.attr('y2', y2)
+									line.transition().duration(params.transitionDuration)
+										.attr('x2', x2)
+										.attr('y2', y2)
+								}
+								//if (i == endWords.length - 1 && j == Object.keys(using).length - 1) params.transitionSDCAnswers = false;
 							}
-							//if (i == endWords.length - 1 && j == Object.keys(using).length - 1) params.transitionSDCAnswers = false;
-						}
-					})
+						})
+					}
 				}
-			}
-			if (j == Object.keys(using).length - 1) params.transitionSDCAnswers = false; //moved here in case the inner if's are not true
+				if (j == Object.keys(using).length - 1) params.transitionSDCAnswers = false; //moved here in case the inner if's are not true
 
-		})
+			})
+		}
 	}
 
 }
