@@ -61,7 +61,7 @@ function wrapSVGtext(text, width, textToUse) {
 	text.each(function () {
 		if (!textToUse) textToUse = d3.select(this).text();
 		var text = d3.select(this),
-			words = textToUse.replace('/','/ ').split(/\s+/).reverse(),
+			words = textToUse.replaceAll('/','/ ').split(/\s+/).reverse(),
 			//words = text.text().split(/\s+/).reverse(),
 			word,
 			line = [],
@@ -78,23 +78,42 @@ function wrapSVGtext(text, width, textToUse) {
 						.attr("dy", dy + "em");
 		while (word = words.pop()) {
 			line.push(word);
-			tspan.text(line.join(" ").replace('/ ','/'));
+			//check for my special characters, save the locations and remove them
+			tspan.text(params.removeAllSubSuperString(line.join(" ").replaceAll('/ ','/')));
 			if (tspan.node().getComputedTextLength() > width && line.length > 1) {
 				line.pop();
-				tspan.text(line.join(" ").replace('/ ','/'));
+				tspan.text(line.join(" ").replaceAll('/ ','/'));
 				line = [word];
 				tspan = text.append("tspan")
 							.attr('class','wrappedSVGtext')
 							.attr("x", x)
 							.attr("y", y)
 							.attr("dy", ++lineNumber * lineHeight + dy + "em")
-							.text(word.replace('/ ','/'));
+							.text(word.replaceAll('/ ','/'));
 			}
 		}
-		
+		//fix the last line in case it had sub- or super-script tags
+		tspan.text(line.join(" ").replaceAll('/ ','/'));
 	});
 }
 
+//https://stackoverflow.com/questions/3410464/how-to-find-indices-of-all-occurrences-of-one-string-in-another-in-javascript
+function getStrIndicesOf(searchStr, str, caseSensitive) {
+	var searchStrLen = searchStr.length;
+	if (searchStrLen == 0) {
+		return [];
+	}
+	var startIndex = 0, index, indices = [];
+	if (!caseSensitive) {
+		str = str.toLowerCase();
+		searchStr = searchStr.toLowerCase();
+	}
+	while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+		indices.push(index);
+		startIndex = index + searchStrLen;
+	}
+	return indices;
+}
 function eventFire(el, etype){
 	//console.log('trying to click', el, etype)
 	if (el){
@@ -141,7 +160,7 @@ function getPrevSibling(elem, selector) {
 };
 
 function insertAfter(newNode, existingNode) {
-    existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
+	existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
 }
 
 function objectWithoutProperties(obj, keys) {
