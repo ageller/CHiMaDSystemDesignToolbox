@@ -288,6 +288,59 @@ function beginSDCEdit(){
 
 	}
 
+	//add circles with x's to delete boxes
+	//writing as a function so that I can use it when I create new boxes
+	function addDeleters(){
+		d3.selectAll('.SDCdeleter').remove();
+
+		var r = Math.max(params.SDCBoxWidth/20., 8.);
+		var deleter = d3.select('#SDCPlotSVG').selectAll('.SDCrectContainer').append('g')
+			.attr('class','SDCdeleter')
+			.on('click', function(){
+				//remove the node
+				var orgText = params.cleanString(d3.select(this.parentNode).select('text').attr('orgText'));
+				d3.select(this.parentNode).remove();
+
+				//remove it from the selection words
+				var index = -1;
+				params.selectionWords.forEach(function(d, i){
+					if (params.cleanString(d) == orgText) index = i;
+				})
+				if (index > -1) params.selectionWords.splice(index, 1);
+
+				//remove it from the answers
+				var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
+				delete answersGroup[orgText];
+
+				//console.log('removing', orgText, index, params.selectionWords, params.answers)
+
+				//reformat
+				formatSDC();
+			})
+
+		deleter.append('circle')
+				.attr('class','SDCdeleter')
+				.attr('cx', '0px')
+				.attr('cy', '0px')
+				.attr('r', r + 'px')
+				.style('fill', 'lightgray')
+				.style('stroke', 'gray')
+
+		deleter.append('text')
+				.attr('class','SDCdeleter')
+				.attr('x', '0px')
+				.attr('y', '0px')
+				.attr('text-anchor','middle')
+				.attr('alignment-baseline','central')
+				.style('font-size', (2.*r) + 'px')
+				.style('line-height', (2.*r) + 'px')
+				.style('fill','gray')
+				.style('cursor','pointer')
+				.text('X')
+	}
+	addDeleters();
+
+
 
 }
 
@@ -313,6 +366,8 @@ function endSDCEdit(){
 	//remove the ability to edit the text
 	params.SDCSVG.selectAll('.SDCrectContainer').on('dblclick', null);
 
+	//remove the circles
+	d3.selectAll('.SDCdeleter').remove();
 
 }
 
