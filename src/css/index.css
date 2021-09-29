@@ -217,6 +217,10 @@ html,body {
 	font-weight:bold;
 }
 
+#SDCPlotSVG{
+	font-family: sans-serif;
+	background-color : white;
+}
 .SDCrect{
 	stroke: black;
 	stroke-width: 1;
