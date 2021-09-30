@@ -228,6 +228,8 @@
     }
   };
 
+//AMG added scaleX and scaleY -- originally, only allowed for a single scale
+//AMG added transform keyword
   out$.prepareSvg = (el, options, done) => {
     requireDomNode(el);
     const {
@@ -235,9 +237,11 @@
       top = 0,
       width: w,
       height: h,
-      scale = 1,
+      scaleX = 1,
+      scaleY = 1,
       responsive = false,
       excludeCss = false,
+      transform = null,
     } = options || {};
 
     return inlineImages(el).then(() => {
@@ -269,8 +273,14 @@
         clone.removeAttribute('height');
         clone.setAttribute('preserveAspectRatio', 'xMinYMin meet');
       } else {
-        clone.setAttribute('width', width * scale);
-        clone.setAttribute('height', height * scale);
+        clone.setAttribute('width', width * scaleX); //AMG added scaleX
+        clone.setAttribute('height', height * scaleY); //AMG added scaleY
+      }
+
+      //AMG for transform
+      if (transform) {
+        clone.style.transform = transform;
+        clone.style.transformOrigin = "0px 0px";
       }
 
       Array.from(clone.querySelectorAll('foreignObject > *')).forEach(foreignObject => {
@@ -327,7 +337,9 @@
     const convertToPng = ({src, width, height}) => {
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
-      const pixelRatio = window.devicePixelRatio || 1;
+      //const pixelRatio = window.devicePixelRatio || 1;
+      //AMG edited to keep the true pixel scale that the user inputs
+      const pixelRatio = 1;
 
       canvas.width = width * pixelRatio;
       canvas.height = height * pixelRatio;
