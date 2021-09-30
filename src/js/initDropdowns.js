@@ -4,7 +4,7 @@ function updatePara(newTxt = null){
 	if (newTxt) {
 		newText = newTxt
 	} else {
-		newText = params.paragraphs[params.groupname].paragraph;
+		if (params.paragraphs.hasOwnProperty(params.groupname)) newText = params.paragraphs[params.groupname].paragraph;
 	}
 	console.log('have new text:',params.groupname, newText);
 	d3.select('#paraText').html(newText);
