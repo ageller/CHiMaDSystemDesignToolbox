@@ -7,11 +7,27 @@ params.haveSDCEditor = true;
 //add a handler for the textarea boxes
 window.addEventListener('click', useTextArea);
 
+//add a blank option to the groupname dropdown, but need to wait until the original is created
+// var gInterval = window.setInterval(function(){
+// 	var check = d3.select('#groupnameSelect').node();
+// 	if (check){
+// 		clearInterval(gInterval);
+// 		params.availableGroupnames.push('blank');
+// 		//create blank entries for the answers
+// 		addEmptyAnswers('blank');
+// 		console.log('!!! checking groupnames',params.availableGroupnames)
+// 		createGroupnameSelect();
+// 	}
+// }, 100)
+
+
 //attach a function to the save as png button
 d3.select('#saveAsPNG').on('click',function(){
 	var node = d3.select('#SDCPlotSVG').node();
 	var bbox = node.getBoundingClientRect();
-	saveImage(node, bbox.width, bbox.height, 'SystemDesignChart.png')
+	// saveImage(node, bbox.width, bbox.height, 'SystemDesignChart.png');
+
+	saveSvgAsPng(node, 'SystemDesignChart.png');
 })
 
 //need a button to change the view from the "answers" to the most popular

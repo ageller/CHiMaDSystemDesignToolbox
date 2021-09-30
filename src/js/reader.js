@@ -54,6 +54,9 @@ function readGoogleSheet(json) {
 		aggregateParaResults();
 		aggregateSDCResults(); 
 //		if (params.URLInputValues.hasOwnProperty('username')) getUsernameInput(params.URLInputValues.username, {'keyCode':null});
+	} else {
+		console.log('WARNING: no values in the google sheet');
+		params.haveSurveyData = true;
 	}
 
 	//old format (prior to Sept. 2021)
@@ -137,6 +140,10 @@ function readGoogleSheetParagraphs(json) {
 			}
 			params.paragraphs[d.groupname].answers = a;
 		})
+
+
+		//remove the blank unless the SDC editor is active
+		if (params.paragraphs.hasOwnProperty('blank') > -1 && !params.haveSDCEditor) delete params.paragraphs.blank;
 
 		params.availableGroupnames = Object.keys(params.paragraphs);
 

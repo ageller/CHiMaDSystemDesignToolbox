@@ -138,11 +138,7 @@ function saveParaEdit(){
 		d3.select('#paraTextEditor').style('display','none');
 
 		//create blank entries for the answers
-		params.answers.push({'groupname':params.groupname, 'task':'para'});
-		params.answers.push({'groupname':params.groupname, 'task':'SDC'});
-		params.answersGroupnames['para'].push(params.groupname);
-		params.answersGroupnames['SDC'].push(params.groupname);
-
+		addEmptyAnswers(params.groupname);
 
 		//show the system design chart starter
 		createSystemDesignChart();

@@ -329,6 +329,13 @@ function checkAnswerTogglesVisibility(){
 	}
 }
 
+function addEmptyAnswers(name){
+	params.answers.push({'groupname':name, 'task':'para'});
+	params.answers.push({'groupname':name, 'task':'SDC'});
+	params.answersGroupnames['para'].push(name);
+	params.answersGroupnames['SDC'].push(name);
+}
+
 function createEmail(){
 	//if we want to send an email, this could be a way to start one for the user
 	var url = window.location.href;
