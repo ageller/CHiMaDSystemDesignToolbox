@@ -79,6 +79,7 @@ function defineParams(){
 		this.answersGroupnames = {'para':[],'SDC':[]};
 		this.showParaAnswers = true; //can be toggled with checkbox
 		this.showSDCAnswers = true; //can be toggled with checkbox
+		this.showSDCAggregate = true; //can be toggled with checkbox
 
 		//this will hold the selection words (and is filled within populateBoxes)
 		this.selectionWords = [];
@@ -166,7 +167,7 @@ function defineParams(){
 		this.SDCResponseVersion = 1;
 		this.showSDCResponses = true;
 		this.firstSDCplot = true; //will be set to false after the first plotting.  This will allow an initial animation, but not during the regular re-read+re-draw cycle.
-		 
+
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
 
@@ -182,11 +183,11 @@ function defineParams(){
 		this.applySubSuperStringHTML = function(s){
 			return s.replaceAll('_{','<sub>').replaceAll('}_','</sub>').replaceAll('^{','<sup>').replaceAll('}^','</sup>');
 		}
-		this.removeSubSuperString = function(s){
+		this.revertSubSuperString = function(s){
 			return s.replaceAll('<tspan dy="5px">','_{').replaceAll('</tspan><tspan dy="-5px">','}_').replaceAll('<tspan dy="-5px">','^{').replaceAll('</tspan><tspan dy="5px">','}^').replaceAll('<sub>','_{').replaceAll('</sub>','}_').replaceAll('<sup>','^{').replaceAll('</sup>','}^');
 			//return s.replaceAll('<tspan dy="5px">','').replaceAll('<tspan dy="-5px">','').replaceAll('<tspan>','').replaceAll('</tspan>','').replaceAll('<sub>','').replaceAll('</sub>','').replaceAll('<sup>','').replaceAll('</sup>','');
 		}
-		this.removeAllSubSuperString = function(s){
+		this.removeSubSuperString = function(s){
 			return s.replaceAll('_{','').replaceAll('}_','').replaceAll('^{','').replaceAll('}^','');
 		}
 
