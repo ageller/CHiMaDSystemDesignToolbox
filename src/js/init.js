@@ -76,9 +76,9 @@ function initPage(){
 					createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
 				} 
 				checkSDCvisibility();
-				if (params.SDCSubmitted) {
+				if (params.SDCSubmitted) { //will this ever happen?
 					plotSDCAggregateLines();
-					if (params.transitionSDCAnswers) plotSDCAnswerLines(); //params.transitionSDCAnswers will only be true at the start, this way we don't plot multiple answer lines on top of each other
+					plotSDCAnswerLines(); 
 				}
 			}
 

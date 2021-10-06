@@ -23,7 +23,7 @@ function defineParams(){
 
 		//script that will control entries into the google sheet
 		//note: I may have to approve this every so often... I seem to occasionally get CORS errors, but then it is fixed if I deplay a new script (which asks if I approve)
-		this.googleScriptURL = 'https://script.google.com/macros/s/AKfycbxJV_xdTWfaZryhWiALwN2eqht9Y9u_b8R2fme_iB6BxM6OLpgVpF9I0zhLTKqNRhdj/exec';
+		this.googleScriptURL = 'https://script.google.com/macros/s/AKfycbwLI_EqgDet2yYkAF5tflYYyx7sTU4eBAmIb4KBjbSc9u_tEWuu1go7yPw5XKjVizNK/exec';
 		
 //the URL of the json getter of the sheet, for the visualization of results
 //sometime near Sept. 2021, Google stopped allowing the simle JSON alt type variant.  Now we need an api_key
@@ -71,6 +71,9 @@ function defineParams(){
 
 		//this will hold the answers from the static data file
 		this.answers = [{'groupname':'default', 'task':'para'},
+						{'groupname':'default', 'task':'SDC'}];
+		//this will just be a copy of the answers, since in some cases I will want to change the answers and revert back
+		this.anwersOrg =  [{'groupname':'default', 'task':'para'},
 						{'groupname':'default', 'task':'SDC'}];
 
 		this.answersGroupnames = {'para':[],'SDC':[]};
@@ -161,10 +164,9 @@ function defineParams(){
 		this.maxSDCLineWidth = 20;
 		this.minSDCLineWidth = 5;
 		this.SDCResponseVersion = 1;
-		this.transitionSDCAgg = true; //controls whether to show the transitions in the vis.  Will be true at first and then when version is changed 
-		this.transitionSDCAnswers = true; //controls whether to show the transitions in the vis.  Will be true at first.
 		this.showSDCResponses = true;
-
+		this.firstSDCplot = true; //will be set to false after the first plotting.  This will allow an initial animation, but not during the regular re-read+re-draw cycle.
+		 
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
 

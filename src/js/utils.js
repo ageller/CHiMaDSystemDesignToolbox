@@ -178,3 +178,22 @@ function parseTranslateAttr(elem){
 	return {'x': trans[0], 'y':trans[1]};
 
 }
+
+//https://stackoverflow.com/questions/728360/how-do-i-correctly-clone-a-javascript-object
+//the simple version to clone an object (but note that this will not handle descendants)
+function cloneObject(obj) {
+	if (null == obj || "object" != typeof obj) return obj;
+	var copy = obj.constructor();
+	for (var attr in obj) {
+		if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+	}
+	return copy;
+}
+
+function lowerArray(arr){
+	arrl = [];
+	arr.forEach(function(d){
+		arrl.push(d.toLowerCase());
+	})
+	return arrl;
+}
