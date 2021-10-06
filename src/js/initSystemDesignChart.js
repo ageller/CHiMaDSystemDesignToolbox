@@ -646,6 +646,9 @@ function useSDCURLdata(){
 
 function plotSDCAggregateLines(transitionSDCAgg = false, duration = 0){
 
+	var op = 0.5;
+	if (!params.showSDCAggregate) op = 0;
+
 	if (!params.SDCLineHighlighted && params.SDCAggSVG) {
 		//destroy the plot (if it exists)
 		var parent = params.SDCAggSVG.node();
@@ -702,7 +705,8 @@ function plotSDCAggregateLines(transitionSDCAgg = false, duration = 0){
 									if (transitionSDCAgg) return y1;
 									return y2
 								})
-								.style('opacity',0.5)
+								.style('opacity',1)
+								.style('stroke-opacity',op)
 
 							line.transition().duration(duration)
 								.attr('x2', x2)
@@ -867,6 +871,12 @@ function toggleSDCAnswers(){
 	d3.selectAll('.SDCAnswerLine').transition().duration(params.transitionDuration).style('stroke-opacity',op);
 }
 
+function toggleSDCAggregate(){
+	var op = 0;
+	if (params.showSDCAggregate) op = 0.5;
+	d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionDuration).style('stroke-opacity',op);
+}
+
 function toggleSDCResponses(){
 	var op = 0;
 	if (params.showSDCResponses) {
@@ -920,6 +930,11 @@ function switchSDCVersions(){
 	if (this.name == "responses"){
 		params.showSDCResponses = this.checked;
 		toggleSDCResponses();
+	}
+
+	if (this.name == "aggregate"){
+		params.showSDCAggregate = this.checked;
+		toggleSDCAggregate();
 	}
 }
 

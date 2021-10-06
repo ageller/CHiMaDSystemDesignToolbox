@@ -33,7 +33,8 @@ d3.select('#saveAsPNG').on('click',function(){
 	saveSvgAsPng(node, 'SystemDesignChart.png');
 })
 
-//need a button to change the view from the "answers" to the most popular
+//attach a funciton to the save as pptx button
+d3.select('#saveAsPPTX').on('click',saveAsPPTX);
 
 var columnWords = lowerArray(params.options.filter(function(d){return d != 'Select Category'}));
 
@@ -611,4 +612,55 @@ function switchSDCCompiler(){
 
 
 	}
+}
+
+function saveAsPPTX(){
+	//https://gitbrent.github.io/PptxGenJS/docs/api-shapes.html
+
+	console.log('saving as .pptx');
+
+	var pptx = new PptxGenJS();
+	var slide = pptx.addSlide();
+
+	//I will need to convert all my measurements to percentages
+	var bbox = d3.select('#SDCPlotSVG').node().getBoundingClientRect()
+
+	//get all the colors from the css file
+	var colorWords = {}
+	lowerArray(params.options.filter(function(d){return d != 'Select Category'})).forEach(function(d){
+		colorWords[d] = getComputedStyle(document.body).getPropertyValue('--' + d + '-color');
+	})
+
+
+	//add all the rects
+	d3.select('#SDCPlotContainer').selectAll('.SDCrectContainer').each(function(){
+		var elem = d3.select(this);
+		var text = elem.select('text').attr('orgText');
+		var x = parseFloat(elem.attr('x'))/bbox.width*100.;
+		var y = parseFloat(elem.attr('y'))/bbox.height*100.;
+		var w = parseFloat(elem.select('rect').attr('width'))/bbox.width*100.;
+		var h = parseFloat(elem.select('rect').attr('height'))/bbox.height*100.;
+		var c = colorWords[this.classList[1]];
+		var fs = 8; //not sure what to set the font size to
+
+		console.log(this.classList[1],c, x, y, w, h)
+
+		//I may have to do something special to get the subscripts to show up... for now I will just remove the encoding
+		slide.addText(params.removeSubSuperString(text), {
+			shape: pptx.shapes.RECTANGLE,
+			x: x+'%',
+			y: y+'%',
+			w: w+'%',
+			h: h+'%',
+			fill: { color:  c },
+			line: { color: '#000000'},
+			align: 'center',
+			fontSize: fs,
+			fontFace: 'Helvetica'
+		});
+	})
+
+	//add all the response lines (should I add the other lines as well?)
+
+	pptx.writeFile({ fileName: "SystemDesignChart.pptx" });
 }

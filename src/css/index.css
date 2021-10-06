@@ -1,8 +1,8 @@
 :root {
-	--processing-color: #F1CCB1;
-	--structure-color: #B1D095;
-	--properties-color: #B8C7E4;
-	--performance-color: #B8A0E9;
+	--processing-color:#F1CCB1;
+	--structure-color:#B1D095;
+	--property-color:#B8C7E4;
+	--performance-color:#B8A0E9;
 }
 
 html,body {
@@ -206,8 +206,8 @@ html,body {
 	/*transition:  fill 500ms;*/
 }
 .propertyWord{
-	color: var(--properties-color);
-	fill: var(--properties-color);
+	color: var(--property-color);
+	fill: var(--property-color);
 	text-decoration: underline;
 	font-weight:bold;
 	/*transition:  fill 500ms;*/
