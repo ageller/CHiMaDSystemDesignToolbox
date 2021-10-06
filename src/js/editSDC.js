@@ -619,6 +619,61 @@ function saveAsPPTX(){
 
 	console.log('saving as .pptx');
 
+	function getLineOpts(elem){
+		//it looks like lines are defined a bit strangely here using the w and h values (which must be positive)
+		//So I will alwyas start with the left-most point, then I will flip vertically if necessary 
+		var x1 =  parseFloat(elem.attr('x1'))/bbox.width*100.;
+		var x2 =  parseFloat(elem.attr('x2'))/bbox.width*100.;
+		var y1 =  parseFloat(elem.attr('y1'))/bbox.height*100.;
+		var y2 =  parseFloat(elem.attr('y2'))/bbox.height*100.;
+
+		if (x2 < x1){
+			var x2tmp = x2;
+			var y2tmp = y2;
+			x2 = x1;
+			y2 = y1;
+			x1 = x2tmp;
+			y1 = y2tmp;
+		}
+
+		var w = (x2 - x1);
+		var h = (y2 - y1);
+
+		var flipV = false;
+		if (h < 0){
+			h = Math.abs(h);
+			y1 = y2;
+			flipV = true;
+		}
+
+		var c = elem.attr('stroke');
+		var sw = Math.round(parseFloat(elem.attr('stroke-width'))/2.); //not sure how to normalize
+		var op = parseFloat(elem.style('opacity'))*parseFloat(elem.style('stroke-opacity'))*100;
+
+		if (c.substr(0,3) == 'rgb'){
+			var cc = c.substr(4, c.length - 5);
+			var rgb = cc.split(',');
+			var c = rgbToHex(parseFloat(rgb[0]), parseFloat(rgb[1]), parseFloat(rgb[2]));
+		}
+		
+		var lineopts = {
+			x: x1+'%',
+			y: y1+'%',
+			w: w+'%',
+			h: h+'%',
+			flipV: flipV,
+			line: { color: c, width: sw,  transparency: (100. - op)},
+		}
+
+		if (elem.classed('SDCLine')){
+			lineopts.lineHead = 'oval';
+			lineopts.lineTail = 'oval';
+		}
+
+		return lineopts;
+	}
+
+
 	var pptx = new PptxGenJS();
 	var slide = pptx.addSlide();
 
@@ -632,6 +687,17 @@ function saveAsPPTX(){
 	})
 
 
+	//adding from back to front
+
+
+	//add the answers and response lines lines that are visible
+	d3.select('#SDCPlotContainer').selectAll('.SDCAnswerLine,.SDCAggregateLine').each(function(){
+		var elem = d3.select(this);
+		if (elem.style('opacity') > 0 && elem.style('stroke-opacity') > 0){
+			slide.addShape(pptx.shapes.LINE, getLineOpts(elem)); 
+		}
+	})
+	
 	//add all the rects
 	d3.select('#SDCPlotContainer').selectAll('.SDCrectContainer').each(function(){
 		var elem = d3.select(this);
@@ -642,8 +708,6 @@ function saveAsPPTX(){
 		var h = parseFloat(elem.select('rect').attr('height'))/bbox.height*100.;
 		var c = colorWords[this.classList[1]];
 		var fs = 8; //not sure what to set the font size to
-
-		console.log(this.classList[1],c, x, y, w, h)
 
 		//I may have to do something special to get the subscripts to show up... for now I will just remove the encoding
 		slide.addText(params.removeSubSuperString(text), {
@@ -660,7 +724,13 @@ function saveAsPPTX(){
 		});
 	})
 
-	//add all the response lines (should I add the other lines as well?)
-
+	//add the user response lines on top
+	d3.select('#SDCPlotContainer').selectAll('.SDCLine').each(function(){
+		var elem = d3.select(this);
+		if (elem.style('opacity') > 0 && elem.style('stroke-opacity') > 0){
+			slide.addShape(pptx.shapes.LINE, getLineOpts(elem)); 
+		}
+	})
+	
 	pptx.writeFile({ fileName: "SystemDesignChart.pptx" });
 }
