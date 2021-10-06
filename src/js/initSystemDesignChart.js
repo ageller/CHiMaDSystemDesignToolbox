@@ -27,14 +27,14 @@ function createSystemDesignChart(){
 		var offset = w/2;
 		params.SDCColumnCenters = {};
 		params.options.forEach(function(d,i){
-			if (d != 'Select Category') params.SDCColumnCenters[d] = (i-1)*w + offset
+			if (d != 'Select Category') params.SDCColumnCenters[params.cleanString(d)] = (i-1)*w + offset
 		})
 
 		params.SDCBoxWidth = 0.6*w - params.SDCBoxMargin;
 
 		params.SDCColumnYTops = {};
 		params.options.forEach(function(d){
-			if (d != 'Select Category') params.SDCColumnYTops[d] = params.SDCBoxMargin; //will be reset in formatSDC()
+			if (d != 'Select Category') params.SDCColumnYTops[params.cleanString(d)] = params.SDCBoxMargin; //will be reset in formatSDC()
 		})
 
 		//destroy the plot (if it exists)
@@ -69,8 +69,8 @@ function createSystemDesignChart(){
 		params.SDCSVG.selectAll('.text')
 			.data(params.options).enter().filter(function(d){return d != 'Select Category';})
 			.append('text')
-				.attr('class', function(d){ return 'text SDCheader '+d.toLowerCase()+'Word'; })
-				.attr('x', function(d) { return params.SDCColumnCenters[d]; })
+				.attr('class', function(d){ return 'text SDCheader '+params.cleanString(d)+'Word'; })
+				.attr('x', function(d) { return params.SDCColumnCenters[params.cleanString(d)]; })
 				.attr('y', 0)
 				.attr('dy', '.35em')
 				.style('text-anchor', 'middle')
@@ -102,7 +102,8 @@ function createSystemDesignChart(){
 
 		if (params.answersGroupnames.para.includes(params.groupname) && (params.paraSubmitted2 || params.haveParaEditor || params.haveSDCEditor)) formatSDC();
 
-		if ((params.SDCSubmitted || params.haveSDCEditor) && !params.edittedSDC) {
+		//the first bit in here is only call it once and with animation, from aggregateSDCResults() in reader.js
+		if (((params.SDCSubmitted && !params.firstSDCplot) || params.haveSDCEditor) && !params.edittedSDC) {
 			plotSDCAggregateLines();
 			plotSDCAnswerLines();
 		}
@@ -157,7 +158,7 @@ function formatSDC(duration=0){
 
 		var SDCcolumnYLocations = {};
 		params.options.forEach(function(d){
-			if (d != 'Select Category') SDCcolumnYLocations[d] = params.SDCColumnYTops[d];
+			if (d != 'Select Category') SDCcolumnYLocations[params.cleanString(d)] = params.SDCColumnYTops[params.cleanString(d)];
 		})
 
 		var using = params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
@@ -167,7 +168,7 @@ function formatSDC(duration=0){
 				if (using.hasOwnProperty(d)){
 					var x = params.SDCColumnCenters[using[d]] - params.SDCBoxWidth/2.;
 					var y = SDCcolumnYLocations[using[d]];
-						if (x && y){
+					if (x && y && !isNaN(x) && !isNaN(y)){
 						var box = d3.select('#SDCBox_'+params.cleanString(params.selectionWords[i]))
 							.attr('class','SDCrectContainer ' + using[d])
 							.attr('x',x)
@@ -192,9 +193,9 @@ function formatSDC(duration=0){
 			var maxH = 0;
 			params.options.forEach(function(d){
 				//get the max height
-				if (SDCcolumnYLocations.hasOwnProperty(d)){
+				if (SDCcolumnYLocations.hasOwnProperty(params.cleanString(d))){
 					if (d != 'Select Category') {
-						var h = SDCcolumnYLocations[d] - params.SDCColumnYTops[d];
+						var h = SDCcolumnYLocations[params.cleanString(d)] - params.SDCColumnYTops[params.cleanString(d)];
 						if (h > maxH) maxH = h;
 					}
 				}
@@ -223,13 +224,14 @@ function formatSDC(duration=0){
 
 			//now shift as needed
 			params.options.forEach(function(d){
-				if (d != 'Select Category' && SDCcolumnYLocations.hasOwnProperty(d)) {
-					var h = SDCcolumnYLocations[d] - params.SDCColumnYTops[d];
+				var dd = params.cleanString(d);
+				if (d != 'Select Category' && SDCcolumnYLocations.hasOwnProperty(dd)) {
+					var h = SDCcolumnYLocations[dd] - params.SDCColumnYTops[dd];
 					if (h < maxH){
-						var h = SDCcolumnYLocations[d] - params.SDCColumnYTops[d]; 
-						var offset = (maxH - h)/2. - params.SDCColumnYTops[d];
-						params.SDCColumnYTops[d] =  offset + params.SDCBoxMargin;
-						d3.selectAll('.SDCrectContainer.'+d).each(function(){
+						var h = SDCcolumnYLocations[dd] - params.SDCColumnYTops[dd]; 
+						var offset = (maxH - h)/2. - params.SDCColumnYTops[dd];
+						params.SDCColumnYTops[dd] =  offset + params.SDCBoxMargin;
+						d3.selectAll('.SDCrectContainer.'+dd).each(function(){
 							var y = parseFloat(d3.select(this).attr('y')) + offset ;
 							var x = d3.select(this).attr('x')
 							if (x && y){
@@ -349,8 +351,8 @@ function startSDCLine() {
 				//get the category from the rect class list (will this always be the last class value?)
 				var cat = elem.node().classList[1]
 				var words = elem.attr('selectionWords')
-				var i = params.options.indexOf(cat);
-				if (i < params.options.length-1 && !isNaN(x) && !isNaN(y)) createSDCLine(elem, x,y,x,y,6,cat,words,'null');	
+				var i = lowerArray(params.options).indexOf(cat);
+				if (i > -1 && i < params.options.length-1 && !isNaN(x) && !isNaN(y)) createSDCLine(elem, x,y,x,y,6,cat,words,'null');	
 			}
 		}
 
@@ -405,8 +407,8 @@ function moveSDCLine() {
 
 					//check if this is an adjacent category to the starting point
 					var adjacent = false;
-					var i = params.options.indexOf(cat);
-					var i0 = params.options.indexOf(cat0);
+					var i = lowerArray(params.options).indexOf(cat);
+					var i0 = lowerArray(params.options).indexOf(cat0);
 					if (i - i0 == 1) adjacent = true;
 					if (adjacent){
 						attached = true;
@@ -642,7 +644,7 @@ function useSDCURLdata(){
 	}
 }
 
-function plotSDCAggregateLines(){
+function plotSDCAggregateLines(transitionSDCAgg = false, duration = 0){
 
 	if (!params.SDCLineHighlighted && params.SDCAggSVG) {
 		//destroy the plot (if it exists)
@@ -693,16 +695,16 @@ function plotSDCAggregateLines(){
 								.attr('x1', x1)
 								.attr('y1', y1)
 								.attr('x2', function(){
-									if (params.transitionSDCAgg) return x1;
+									if (transitionSDCAgg) return x1;
 									return x2
 								})
 								.attr('y2', function(){
-									if (params.transitionSDCAgg) return y1;
+									if (transitionSDCAgg) return y1;
 									return y2
 								})
 								.style('opacity',0.5)
 
-							line.transition().duration(params.transitionDuration)
+							line.transition().duration(duration)
 								.attr('x2', x2)
 								.attr('y2', y2)
 
@@ -750,12 +752,15 @@ function plotSDCAggregateLines(){
 
 }
 
-function plotSDCAnswerLines(){
+function plotSDCAnswerLines(transitionSDCAnswers = false, duration = 0){
 	//lots of the same code from plotSDCAggregate (above); could clean up the code by making a more generic function
 
 	if (!params.SDCLineHighlighted) {
 		var op = 0;
 		if (params.showSDCAnswers) op = 1;
+
+		//remove the answer lines if they exist
+		d3.selectAll('.SDCAnswerLine').remove();
 
 		var using = params.answers.filter(function(d){return (d.task == 'SDC' && d.groupname == params.groupname);})[0];
 		if (using){
@@ -789,16 +794,16 @@ function plotSDCAnswerLines(){
 										.attr('x1', x1)
 										.attr('y1', y1)
 										.attr('x2', function(){
-											if (params.transitionSDCAnswers) return x1;
+											if (transitionSDCAnswers) return x1;
 											return x2
 										})
 										.attr('y2', function(){
-											if (params.transitionSDCAnswers) return y1;
+											if (transitionSDCAnswers) return y1;
 											return y2
 										})
 										.style('stroke-opacity',op)
 
-									line.transition().duration(params.transitionDuration)
+									line.transition().duration(duration)
 										.attr('x2', x2)
 										.attr('y2', y2)
 								}
@@ -807,7 +812,6 @@ function plotSDCAnswerLines(){
 						})
 					}
 				}
-				if (j == Object.keys(using).length - 1) params.transitionSDCAnswers = false; //moved here in case the inner if's are not true
 
 			})
 		}
@@ -890,7 +894,6 @@ function toggleSDCResponses(){
 }
 function switchSDCVersions(){
 	if (this.name == 'version'){
-		params.transitionSDCAgg = true
 		params.SDCResponseVersion = this.value;
 
 		params.SDCAggSVG.selectAll('line').each(function(d,i){
@@ -901,7 +904,7 @@ function switchSDCVersions(){
 			if (i == params.SDCAggSVG.selectAll('line').size() -1){
 				t.on('end',function(){
 					if (params.SDCSubmitted || params.haveSDCEditor) {
-						plotSDCAggregateLines();
+						plotSDCAggregateLines(true, params.transitionDuration);
 						setTimeout(recolorSDCAgg, params.transitionDuration);
 					}
 				})

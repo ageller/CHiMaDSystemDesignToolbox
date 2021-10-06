@@ -7,6 +7,9 @@ params.haveSDCEditor = true;
 //add a handler for the textarea boxes
 window.addEventListener('click', useTextArea);
 
+//compile options
+d3.select('#SDCCompileOptions').selectAll('input').on('change',switchSDCCompiler);
+
 //add a blank option to the groupname dropdown, but need to wait until the original is created
 // var gInterval = window.setInterval(function(){
 // 	var check = d3.select('#groupnameSelect').node();
@@ -32,7 +35,8 @@ d3.select('#saveAsPNG').on('click',function(){
 
 //need a button to change the view from the "answers" to the most popular
 
-var columnWords = params.options.filter(function(d){return d != 'Select Category'});
+var columnWords = lowerArray(params.options.filter(function(d){return d != 'Select Category'}));
+
 columnWords.push('blankRect');
 
 function beginSDCEdit(){
@@ -52,6 +56,7 @@ function beginSDCEdit(){
 	d3.select('#SDCAnswerToggle').style('visibility','hidden');
 	d3.select('#SDCAnswerToggleLabel').style('visibility','hidden');
 	d3.select('#SDCVersionOptions').style('visibility','hidden');
+	d3.select('#SDCCompileOptions').style('visibility','hidden');
 	d3.selectAll('line').remove();
 	d3.selectAll('circle').remove();
 	d3.selectAll('.SDCAggregateFracBox').remove();
@@ -406,7 +411,9 @@ function beginSDCEdit(){
 
 			//add to answers
 			var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
-			answersGroup[params.cleanString(text)] = 'null'
+			answersGroup[params.cleanString(text)] = null;
+			var answersGroupOrg = params.answersOrg.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
+			answersGroupOrg[params.cleanString(text)] = null;
 
 		})
 	insertAfter(adderNode, d3.select('#SDCVersionOptions').node())
@@ -434,8 +441,9 @@ function endSDCEdit(){
 	d3.select('#SDCEditButton').style('display','block');
 	d3.select('#SDCDoneButton').style('display','none');
 
-	//allow the user to make new responses, but not show any of the other options
+	//allow the user to make new responses and change the compile method, but not show any of the other options
 	d3.select('#SDCVersionOptions').style('visibility','visible');
+	d3.select('#SDCCompileOptions').style('visibility','visible');
 
 	//allow the user to add lines
 	d3.selectAll('.SDCrectContainer').on('mousedown', startSDCLine);
@@ -510,5 +518,97 @@ function useTextArea(){
 			}
 		})
 		if (changed) formatSDC();
+	}
+}
+
+function switchSDCCompiler(){
+
+	if (this.value == 'answers'){
+		console.log('building from answers');
+
+		//show these (in case they are hidden)
+		d3.select('#SDCVersionOptions').style('visibility','visible');
+		d3.select('#SDCVersion1').style('visibility','visible');
+		d3.select('#SDCVersion1label').style('visibility','visible');
+		d3.select('#SDCVersion2').style('visibility','visible');
+		d3.select('#SDCVersion2Label').style('visibility','visible');
+		d3.select('#SDCAnswerToggle').style('visibility','visible');
+		d3.select('#SDCAnswerToggleLabel').style('visibility','visible');
+
+		//before resetting the answers check if there are any boxes that have null values in the original answers (these would have been added later)
+		//if so, update to the current value in answers
+		var answersGroupOrg = params.answersOrg.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
+		var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
+		Object.keys(answersGroupOrg).forEach(function(key){
+			if (!answersGroupOrg[key]) answersGroupOrg[key] = answersGroup[key];
+		})
+
+		//reset the answers
+		params.answers = [];
+		params.answersOrg.forEach(function(d){params.answers.push(cloneObject(d));});
+
+
+		//reset the SDC
+		formatSDC(500);
+		setTimeout(function(){
+			plotSDCAggregateLines(true, 500);
+			plotSDCAnswerLines(true, 500);
+		}, 500)
+
+	}
+	if (this.value == 'consensus1' || this.value == 'consensus2'){
+		var version = parseInt(this.value.substr(9));
+		console.log('building from consensus version ', version);
+
+		//similar to when you start editing, here you won't be able to show answers, versions, or responses
+		//d3.select('#SDCVersionOptions').style('visibility','hidden'); //should I hide the entire thing, or do I want to allow user responses to be
+		d3.select('#SDCVersion1').style('visibility','hidden');
+		d3.select('#SDCVersion1label').style('visibility','hidden');
+		d3.select('#SDCVersion2').style('visibility','hidden');
+		d3.select('#SDCVersion2Label').style('visibility','hidden');
+		d3.select('#SDCAnswerToggle').style('visibility','hidden');
+		d3.select('#SDCAnswerToggleLabel').style('visibility','hidden');
+		d3.selectAll('line').remove();
+		d3.selectAll('circle').remove();
+		d3.selectAll('.SDCAggregateFracBox').remove();
+
+		//build the new answers (could just do this once and save the results in case the user toggles a lot)
+		if (!params.answersConsensus) params.answersConsensus = {};
+		if (!params.answersConsensus.hasOwnProperty(version)){
+
+			//create the consensus answers (start from the true answers)
+			params.answersConsensus[version] = [];
+			params.answers.forEach(function(d){params.answersConsensus[version].push(cloneObject(d));});
+
+			//now go through the answers and aggregated responses for this group
+			var answersGroup = params.answersConsensus[version].filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
+			Object.keys(answersGroup).forEach(function(key){
+				if (key != 'groupname' && key != 'task'){
+					//find the consensus response
+					var topResult;
+					var maxValue = 0;
+					if (params.aggregatedParaResponses[version][key]){
+						var agg = params.aggregatedParaResponses[version][key].num;
+						Object.keys(agg).forEach(function(word, i){
+							if (agg[word] > maxValue){
+								maxValue = agg[word];
+								topResult = word;
+							}
+							if (i == Object.keys(agg).length-1) answersGroup[key] = topResult;
+						})
+					} 
+
+				}
+			})
+
+		}
+
+		params.answers = [];
+		params.answersConsensus[version].forEach(function(d){params.answers.push(cloneObject(d));});
+
+		//reset the SDC
+		formatSDC(500);
+
+
 	}
 }

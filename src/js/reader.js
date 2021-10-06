@@ -156,14 +156,25 @@ function readGoogleSheetParagraphs(json) {
 
 		//pull out the answers into the previous object (easier than rewriting my old code!)
 		params.answers = [];
-		params.availableGroupnames.forEach(function(d){
+		params.availableGroupnames.forEach(function(d, i){
 			var p = params.paragraphs[d];
 			if (p.answers){
 				p.answers.forEach(function(a){
-					params.answers.push(a);
+					var ans = {};
+					Object.keys(a).forEach(function(akey){
+						//annoyingly, I've been saving the dropdown answers without applying my cleanstring.  I will do it here...
+						val = a[akey];
+						if (a['task'] == 'para' && akey != 'groupname' && akey != 'task') val = params.cleanString(a[akey]);
+						ans[akey] = val;
+
+					})
+					params.answers.push(ans);
 				})
 			}
 		})
+		params.answersOrg = [];
+		params.answers.forEach(function(d){params.answersOrg.push(cloneObject(d));});
+
 		console.log("answers",params.answers);
 
 		//for editing mode, populate the URL so that all the answers can be displayed
@@ -244,12 +255,13 @@ function getAvailableSheets(json){
 	createGroupnameSelect();
 }
 
-function countUniq(arr){
+function countUniq(arr, clean=true){
 //count the uniq elements in an array and return both the counts and the unique array
 	var out = {'uniq':[], 'num':{}, 'total':0};
 
 	arr.forEach(function(a,i){
-		ac = params.cleanString(a);
+		ac = a;
+		if (clean) ac = params.cleanString(a);
 		if (!out.uniq.includes(ac)){
 			out.uniq.push(ac);
 			out.num[ac] = 1;
@@ -338,9 +350,15 @@ function aggregateSDCResults(){
 			if (i == params.responses.columns.length - 1 && version == params.SDCResponseVersion){
 				console.log("aggregatedSDC", params.aggregatedSDCResponses);
 				if (params.SDCSubmitted || params.haveSDCEditor) {
-					params.transitionSDCAgg = false;
-					plotSDCAggregateLines();
-					if (params.transitionSDCAnswers) plotSDCAnswerLines(); //params.transitionSDCAnswers will only be true at the start, this way we don't plot multiple answer lines on top of each other
+					var trans = false;
+					var dur = 0;
+					if (params.firstSDCplot){
+						trans = true;
+						dur = params.transitionDuration;
+						params.firstSDCplot = false;
+					}
+					plotSDCAggregateLines(trans, dur);
+					plotSDCAnswerLines(trans, dur); 
 				}
 				//for testing
 				//params.SDCSubmitted = true;

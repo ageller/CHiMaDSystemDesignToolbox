@@ -35,6 +35,16 @@
 				<button class='secondaryButton' id='SDCEditButton' style='margin-bottom:20px;'>edit</button>
 				<button class='secondaryButton' id='SDCDoneButton' style='margin-bottom:20px; display:none'>done</button>
 
+				<form id="SDCCompileOptions" class='versionOptions'>
+					<div>Select which method to build the initial systems design chart.</div>
+					<input type="radio" id="SDCAnswersBuild" name="compile" value="answers" class="radio" checked>
+					<label for="SDCAnswersBuild" id="SDCAnswersBuildLabel">Build from answers.</label><br>
+					<input type="radio" id="SDCConsensusBuild1" name="compile" value="consensus1" class="radio">
+					<label for="SDCConsensusBuild1" id="SDCConsensusBuild1Label">Build from version 1 consensus.</label><br>
+					<input type="radio" id="SDCConsensusBuild2" name="compile" value="consensus2" class="radio">
+					<label for="SDCConsensusBuild2" id="SDCConsensusBuild2Label">Build from version 2 consensus.</label><br>
+				</form>
+
 				<form id="SDCVersionOptions" class='versionOptions'>
 					<div>Select which version of the responses to display, and whether to show the answers (black lines).</div>
 					<input type="checkbox" id="SDCResponseToggle" name="responses" value="1" class="radio" checked>

@@ -80,7 +80,7 @@ function createBars(){
 		params.options.forEach(function(o, i){
 			if (o != 'Select Category'){
 				//var v = (j/params.selectionWords.length + i/params.options.length) % 1;
-				var dat = {"category":o, "value":0}
+				var dat = {"category":params.cleanString(o), "value":0}
 				params.dummyData[params.cleanString(c)].push(dat);
 			}
 		});
@@ -277,7 +277,7 @@ function defineBars(){
 				var agg = params.aggregatedParaResponses[params.paraResponseVersion][params.cleanString(c)]
 				var v = 0;
 				if (agg) v = agg.num[params.cleanString(o)]/agg.total || 0;
-				var dat = {"category":o, "value":v}
+				var dat = {"category":params.cleanString(o), "value":v}
 				realData.push(dat);
 			}
 		});
@@ -373,7 +373,7 @@ function waveBars(){
 					if (vPrev == 0){
 						v = 1;
 					}
-					var dat = {"category":o, "value":v}
+					var dat = {"category":params.cleanString(o), "value":v}
 					params.dummyData[params.cleanString(c)][i-1] = dat
 				}
 			});

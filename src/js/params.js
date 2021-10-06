@@ -72,6 +72,9 @@ function defineParams(){
 		//this will hold the answers from the static data file
 		this.answers = [{'groupname':'default', 'task':'para'},
 						{'groupname':'default', 'task':'SDC'}];
+		//this will just be a copy of the answers, since in some cases I will want to change the answers and revert back
+		this.anwersOrg =  [{'groupname':'default', 'task':'para'},
+						{'groupname':'default', 'task':'SDC'}];
 
 		this.answersGroupnames = {'para':[],'SDC':[]};
 		this.showParaAnswers = true; //can be toggled with checkbox
@@ -161,10 +164,9 @@ function defineParams(){
 		this.maxSDCLineWidth = 20;
 		this.minSDCLineWidth = 5;
 		this.SDCResponseVersion = 1;
-		this.transitionSDCAgg = true; //controls whether to show the transitions in the vis.  Will be true at first and then when version is changed 
-		this.transitionSDCAnswers = true; //controls whether to show the transitions in the vis.  Will be true at first.
 		this.showSDCResponses = true;
-
+		this.firstSDCplot = true; //will be set to false after the first plotting.  This will allow an initial animation, but not during the regular re-read+re-draw cycle.
+		 
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
 

@@ -197,17 +197,20 @@ html,body {
 	fill: var(--processing-color);
 	font-style: italic;
 	font-weight:bold;
+	/*transition:  fill 500ms;*/
 }
 .structureWord{
 	color: var(--structure-color);
 	fill: var(--structure-color);
 	font-weight:bold;
+	/*transition:  fill 500ms;*/
 }
 .propertyWord{
 	color: var(--properties-color);
 	fill: var(--properties-color);
 	text-decoration: underline;
 	font-weight:bold;
+	/*transition:  fill 500ms;*/
 }
 .performanceWord{
 	color: var(--performance-color);
@@ -215,6 +218,7 @@ html,body {
 	font-style: italic;
 	text-decoration: underline;
 	font-weight:bold;
+	/*transition:  fill 500ms;*/
 }
 
 #SDCPlotSVG{
