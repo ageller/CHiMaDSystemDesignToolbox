@@ -79,7 +79,7 @@ function wrapSVGtext(text, width, textToUse) {
 		while (word = words.pop()) {
 			line.push(word);
 			//check for my special characters, save the locations and remove them
-			tspan.text(params.removeAllSubSuperString(line.join(" ").replaceAll('/ ','/')));
+			tspan.text(params.removeSubSuperString(line.join(" ").replaceAll('/ ','/')));
 			if (tspan.node().getComputedTextLength() > width && line.length > 1) {
 				line.pop();
 				tspan.text(line.join(" ").replaceAll('/ ','/'));
