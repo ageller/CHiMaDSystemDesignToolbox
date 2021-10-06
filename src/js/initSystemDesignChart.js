@@ -792,7 +792,7 @@ function plotSDCAnswerLines(transitionSDCAnswers = false, duration = 0){
 										.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
 										.attr('id','SDCAnswerLine_'+params.SDCLineIndex)
 										.attr('class','SDCAnswerLine SDCAnswerLine_'+startWords+ ' SDCAnswerLine_'+w)
-										.attr('stroke','black')
+										.attr('stroke','#000000')
 										.attr('stroke-width',6)
 										.attr('stroke-linecap','round') 
 										.attr('x1', x1)
