@@ -873,8 +873,14 @@ function toggleSDCAnswers(){
 
 function toggleSDCAggregate(){
 	var op = 0;
-	if (params.showSDCAggregate) op = 0.5;
+	var vis = 'hidden';
+	if (params.showSDCAggregate) {
+		op = 0.5;
+		vis = 'visible';
+	}
 	d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionDuration).style('stroke-opacity',op);
+	d3.selectAll('.SDCAggregateFracBox').transition().duration(params.transitionDuration).style('visibility',vis);
+
 }
 
 function toggleSDCResponses(){
