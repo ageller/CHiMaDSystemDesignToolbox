@@ -56,6 +56,8 @@ function beginSDCEdit(){
 	d3.select('#SDCVersion2Label').style('visibility','hidden');
 	d3.select('#SDCAnswerToggle').style('visibility','hidden');
 	d3.select('#SDCAnswerToggleLabel').style('visibility','hidden');
+	d3.select('#SDCAggToggle').style('visibility','hidden');
+	d3.select('#SDCAggToggleLabel').style('visibility','hidden');
 	d3.select('#SDCVersionOptions').style('visibility','hidden');
 	d3.select('#SDCCompileOptions').style('visibility','hidden');
 	d3.selectAll('line').remove();
@@ -673,6 +675,29 @@ function saveAsPPTX(){
 		return lineopts;
 	}
 
+	function pptxSubSup(text){
+		//here is what the pptx xml coding looks like (rename to *.pptx.zip, extract, find files in ppt/slides/slide1.xml):
+		//for a line like begin_{sub}_^{sup}^
+		// <a:p><a:r><a:rPr lang="en-US" dirty="0" err="1"/><a:t>begin</a:t></a:r>
+		// <a:r><a:rPr lang="en-US" baseline="-25000" dirty="0" err="1"/><a:t>sub</a:t></a:r>
+		// <a:r><a:rPr lang="en-US" baseline="30000" dirty="0" err="1"/><a:t>sup</a:t></a:r>
+		// <a:r><a:rPr lang="en-US" dirty="0" err="1"/><a:t>end</a:t></a:r>
+		//
+		//but .. it looks like the library converts these characters... so I can't simply write this as text.
+
+		var out = text.replace('_{','<a:r><a:rPr lang="en-US" baseline="-25000" dirty="0" err="1"/><a:t>').replace('}_','</a:t></a:r>').replace('^{','<a:r><a:rPr lang="en-US" baseline="30000" dirty="0" err="1"/><a:t>').replace('}^','</a:t></a:r>')
+
+		var p1 = text.indexOf('_{');
+		var p2 = text.indexOf('^{');
+		if (p1 > 0 || p2 > 0) out = '</a:t></a:r>' + out;
+
+		p1 = text.indexOf('}_');
+		p2 = text.indexOf('}^');
+		if ((p1 >= 0 || p2 >= 0) && (p1 < text.length-2 && p2 < text.length-2)) out = out + '<a:r><a:rPr lang="en-US" dirty="0" err="1"/><a:t>';
+
+		console.log(out);
+		return out;
+	}
 
 	var pptx = new PptxGenJS();
 	var slide = pptx.addSlide();
@@ -742,13 +767,11 @@ function saveAsPPTX(){
 		var c = colorWords[this.classList[1]]; //will this always be in the correct order?
 		var fs = 8; //not sure what to set the font size to
 
-		//I may have to do something special to get the subscripts to show up... for now I will just remove the encoding
-		//here is what the pptx xml coding looks like (rename to *.pptx.zip, extract, find files in ppt/slides/slide1.xml):
-		// <a:p><a:r><a:rPr lang="en-US" dirty="0" err="1"/><a:t>begin</a:t></a:r>
-		// <a:r><a:rPr lang="en-US" baseline="-25000" dirty="0" err="1"/><a:t>sub</a:t></a:r>
-		// <a:r><a:rPr lang="en-US" baseline="30000" dirty="0" err="1"/><a:t>sup</a:t></a:r>
-		// <a:r><a:rPr lang="en-US" dirty="0" err="1"/><a:t>end</a:t></a:r>
+		//susbscripts are supported in pptxgenjs, but I can't understand how to make them work in the same line
+		//I tried to write a converter that encodes the xml, but that encoding is changed in the pptxgenjs library
+		//so... for now I will simply remove the sub/super-scripts
 		slide.addText(params.removeSubSuperString(text), {
+		//slide.addText(pptxSubSup(text), {
 			shape: pptx.shapes.RECTANGLE,
 			x: x+'%',
 			y: y+'%',
