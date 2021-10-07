@@ -624,8 +624,8 @@ function saveAsPPTX(){
 		//So I will alwyas start with the left-most point, then I will flip vertically if necessary 
 		var x1 =  parseFloat(elem.attr('x1'))/bbox.width*100.;
 		var x2 =  parseFloat(elem.attr('x2'))/bbox.width*100.;
-		var y1 =  parseFloat(elem.attr('y1'))/bbox.height*100.;
-		var y2 =  parseFloat(elem.attr('y2'))/bbox.height*100.;
+		var y1 =  (parseFloat(elem.attr('y1')) + topMargin)/bbox.height*100.;
+		var y2 =  (parseFloat(elem.attr('y2')) + topMargin)/bbox.height*100.;
 
 		if (x2 < x1){
 			var x2tmp = x2;
@@ -687,8 +687,41 @@ function saveAsPPTX(){
 	})
 
 
+	//I need some margin at the top
+	var topMargin = 20;
+
 	//adding from back to front
 
+	//add the column titles 
+	d3.select('#SDCPlotContainer').selectAll('.SDCheader').each(function(){
+		var elem = d3.select(this);
+		var text = elem.text();
+		var tbbox = this.getBoundingClientRect();
+		var x = (parseFloat(elem.attr('x')) - params.SDCBoxWidth/2.)/bbox.width*100.;
+		var y = (parseFloat(elem.attr('y')) + topMargin)/bbox.height*100.;
+
+		var c = colorWords[this.classList[2].replace('Word','')]; //will this always be in the correct order?
+		var fs = 10; //not sure what to set the font size to
+
+		var italic = false;
+		if (elem.style('font-style') == 'italic') italic = true;
+
+		var underline = false;
+		if (elem.style('text-decoration').indexOf('underline') >= 0) underline = true;
+
+		slide.addText(text, {
+			x: x+'%',
+			y: y+'%',
+			w: (params.SDCBoxWidth/bbox.width*100.)+'%',
+			align: 'center',
+			fontSize: fs,
+			fontFace: 'Helvetica',
+			color: c,
+			bold: true,
+			italic: italic,
+			underline: underline,
+		});
+	})
 
 	//add the answers and response lines lines that are visible
 	d3.select('#SDCPlotContainer').selectAll('.SDCAnswerLine,.SDCAggregateLine').each(function(){
@@ -703,13 +736,18 @@ function saveAsPPTX(){
 		var elem = d3.select(this);
 		var text = elem.select('text').attr('orgText');
 		var x = parseFloat(elem.attr('x'))/bbox.width*100.;
-		var y = parseFloat(elem.attr('y'))/bbox.height*100.;
+		var y = (parseFloat(elem.attr('y')) + topMargin)/bbox.height*100.;
 		var w = parseFloat(elem.select('rect').attr('width'))/bbox.width*100.;
 		var h = parseFloat(elem.select('rect').attr('height'))/bbox.height*100.;
-		var c = colorWords[this.classList[1]];
+		var c = colorWords[this.classList[1]]; //will this always be in the correct order?
 		var fs = 8; //not sure what to set the font size to
 
 		//I may have to do something special to get the subscripts to show up... for now I will just remove the encoding
+		//here is what the pptx xml coding looks like (rename to *.pptx.zip, extract, find files in ppt/slides/slide1.xml):
+		// <a:p><a:r><a:rPr lang="en-US" dirty="0" err="1"/><a:t>begin</a:t></a:r>
+		// <a:r><a:rPr lang="en-US" baseline="-25000" dirty="0" err="1"/><a:t>sub</a:t></a:r>
+		// <a:r><a:rPr lang="en-US" baseline="30000" dirty="0" err="1"/><a:t>sup</a:t></a:r>
+		// <a:r><a:rPr lang="en-US" dirty="0" err="1"/><a:t>end</a:t></a:r>
 		slide.addText(params.removeSubSuperString(text), {
 			shape: pptx.shapes.RECTANGLE,
 			x: x+'%',
