@@ -4,10 +4,12 @@
 // additional functionality added by AMG
 
 function doGet(e){
+  //return handleResponse(JSON.parse(e));
   return handleResponse(e);
 }
 
 //  Enter sheet name where data is to be written below
+//AMG: this can be updated based on the input
 var SHEET_NAME = "default";
 
 var SCRIPT_PROP = PropertiesService.getScriptProperties(); // new property service
@@ -28,9 +30,8 @@ function handleResponse(e) {
     // next set where we write the data - you could write to multiple/alternate destinations
     var doc = SpreadsheetApp.openById(SCRIPT_PROP.getProperty("key"));
   
-      //reset the sheet name based on the input
+    //reset the sheet name based on the input
     if ('SHEET_NAME' in e.parameter) SHEET_NAME = e.parameter['SHEET_NAME'];
-    //SHEET_NAME = e.parameter['SHEET_NAME'];
 
     var sheet = doc.getSheetByName(SHEET_NAME);
     if (!sheet) {
@@ -50,28 +51,39 @@ function handleResponse(e) {
       var useRow = -1;
       var version = 1;
 
-      // //AMG added to check if IP already exists and then set that as the row to use
+dded to check if IP already exists and then set that as the row to use
       // var foundIP = hasIP(sheet, e.parameter['IP']);
-      // if (foundIP == 1){
-      //   var version = 2;
+      // if (foun //   var versiodIP == 1){
+     n = 2;
       //   useRow = searchIPv2(sheet, e.parameter['IP']);
       //   if (useRow != -1){
       //     nextRow = useRow;
       //   }
       // }
 
-      //AMG added to check if username already exists and then set that as the row to use
-      var foundUN = hasUsername(sheet, e.parameter['username'], e.parameter['task']);
-      if (foundUN == 1){
-        var version = 2;
-        useRow = searchUsernamev2(sheet, e.parameter['username'], e.parameter['task']);
-        if (useRow != -1){
-          nextRow = useRow;
+      //if we have a sheet name of paragraphs, then we search for the groupname, otherwise we search for the username
+      if (SHEET_NAME == 'paragraphs'){
+        //check if groupname already exists and then set that as the row to use
+        var foundGN = hasGroupname(sheet, e.parameter['groupname']);
+        if (foundGN == 1){
+          useRow = searchGroupname(sheet, e.parameter['groupname']);
+        }
+      } else {
+        //check if username already exists and then set that as the row to use (this also check the version)
+        var foundUN = hasUsername(sheet, e.parameter['username'], e.parameter['task']);
+        if (foundUN == 1){
+          var version = 2;
+          useRow = searchUsernamev2(sheet, e.parameter['username'], e.parameter['task']);
         }
       }
 
-      var row = []; 
+      //if we found a username or groupname above, reset the entry row
+      if (useRow != -1){
+        nextRow = useRow;
+      }
+
       // loop through the header columns
+      var row = []; 
       for (i in headers){
         if (headers[i] == "Timestamp"){ // special case if you include a 'Timestamp' column
           row.push(new Date());
@@ -98,7 +110,7 @@ function handleResponse(e) {
     // if error return this
     return ContentService
           .createTextOutput(JSON.stringify({"result":"error", "error": err, "input":e}))
-          .setMimeType(ContentService.MimeType.JSON);
+          .setMimeType(Contype.JSON);
   } finally { //release lock
     lock.releaseLock();
   }
@@ -139,7 +151,7 @@ function hasUsername(sheet, UNstring, Tstring) {
   }
   return 0;
 }
-//AMG added to search for the IP and version number
+//AMG added to search for the username and version number
 function searchUsernamev2(sheet, UNstring, Tstring) {
   //assumes that the username is the 3rd column, and version is the 4th column
   var values = sheet.getDataRange().getValues();
@@ -150,6 +162,32 @@ function searchUsernamev2(sheet, UNstring, Tstring) {
   }
   return -1;
 }
+
+//AMG added to search for a groupname in the paragraphs
+function hasGroupname(sheet, Pstring) {
+  //assumes that the groupname is the 1st column
+  var values = sheet.getDataRange().getValues();
+
+  for(var i=0, iLen=values.length; i<iLen; i++) {
+    if(values[i][0] == Pstring) { //check for groupname
+      return 1;
+    } 
+  }
+  return 0;
+}
+//AMG added to search for the groupname in the paragrapsh tab
+function searchGroupname(sheet, Pstring) {
+  //assumes that the groupname is the 1st column
+  var values = sheet.getDataRange().getValues();
+
+  for(var i=0, iLen=values.length; i<iLen; i++) {
+    if(values[i][0] == Pstring) { //check for groupname
+      return i+1;
+    } 
+  }
+  return -1;
+}
+
 
 function setup() {
     var doc = SpreadsheetApp.getActiveSpreadsheet();
