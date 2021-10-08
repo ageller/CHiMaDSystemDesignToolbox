@@ -64,6 +64,8 @@ function beginSDCEdit(){
 	d3.selectAll('circle').remove();
 	d3.selectAll('.SDCAggregateFracBox').remove();
 
+	//add back the arrows 
+	drawProcessingArrows();
 
 	//update the url to remove all the connections
 	params.URLInputValues = {};
@@ -440,6 +442,9 @@ function endSDCEdit(){
 	console.log('done editing SDC');
 	params.editingSDC = false;
 
+	//add back the arrows in case there was no call to formatSDC()
+	drawProcessingArrows();
+
 	//change button to edit
 	d3.select('#SDCEditButton').style('display','block');
 	d3.select('#SDCDoneButton').style('display','none');
@@ -629,6 +634,9 @@ function saveAsPPTX(){
 		var y1 =  (parseFloat(elem.attr('y1')) + topMargin)/bbox.height*100.;
 		var y2 =  (parseFloat(elem.attr('y2')) + topMargin)/bbox.height*100.;
 
+		//if this is an arrow line from Processing, then I need to extend the y length by 10
+		if (elem.classed('SDCArrowLine')) y2 = (parseFloat(elem.attr('y2')) - 10 + topMargin)/bbox.height*100.;
+
 		if (x2 < x1){
 			var x2tmp = x2;
 			var y2tmp = y2;
@@ -667,9 +675,14 @@ function saveAsPPTX(){
 			line: { color: c, width: sw,  transparency: (100. - op)},
 		}
 
-		if (elem.classed('SDCLine')){
+		if (elem.classed('SDCLine')){ //not sure why these only work outside of the line object
 			lineopts.lineHead = 'oval';
 			lineopts.lineTail = 'oval';
+		}
+
+		if (elem.classed('SDCArrowLine')) {
+			lineopts.line.lineTail = 'arrow';
+			lineopts.line.endArrowType = 'triangle';
 		}
 
 		return lineopts;
@@ -756,6 +769,14 @@ function saveAsPPTX(){
 		}
 	})
 	
+	//add the Processing arrows
+	d3.select('#SDCPlotContainer').selectAll('.SDCArrowLine').each(function(){
+		var elem = d3.select(this);
+		if (elem.style('opacity') > 0 && elem.style('stroke-opacity') > 0){
+			slide.addShape(pptx.shapes.LINE, getLineOpts(elem)); 
+		}
+	})
+
 	//add all the rects
 	d3.select('#SDCPlotContainer').selectAll('.SDCrectContainer').each(function(){
 		var elem = d3.select(this);
@@ -793,5 +814,6 @@ function saveAsPPTX(){
 		}
 	})
 	
+
 	pptx.writeFile({ fileName: "SystemDesignChart.pptx" });
 }
