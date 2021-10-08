@@ -251,13 +251,15 @@ function formatSDC(duration=0){
 			var sAll = d3.selectAll('.SDCrect').size();
 			var sDone = d3.selectAll('.SDCrectDone').size();
 			if (sAll == sDone){
-				params.SDCSVGHeight = maxH;
+				params.SDCSVGHeight = maxH + 40; //to be safe
 				d3.select('#SDCPlotSVG').style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom + params.SDCBoxMargin)
 			}
 
 			useSDCURLdata();
 		}
 	}
+
+	if (params.haveSDCEditor) drawProcessingArrows(duration=duration)
 
 }
 function resizeSDCBoxes(){
@@ -368,7 +370,7 @@ function moveSDCLine() {
 
 	if (elem){
 		while (elem) {
-			if (elem.id == "SDCPlotSVG") proceed = true;
+			if (elem.id == 'SDCPlotSVG') proceed = true;
 			elem = elem.parentNode;
 		}
 
@@ -959,4 +961,86 @@ function checkSDCvisibility(){
 
 		checkAnswerTogglesVisibility();
 	}
+}
+
+function drawProcessingArrows(duration = 0){
+
+
+	//remove the answer lines if they exist
+	d3.select('#SDCArrowsContainer').remove();
+
+	d3.select('#SDCPlotContainer').append('g').attr('id', 'SDCArrowsContainer');
+
+	//add the arrowhead marker
+	d3.select('#SDCArrowsContainer').append('svg:defs').append('svg:marker')
+		.attr('id', 'triangle')
+		.attr('viewBox','0 -5 10 10')
+		.attr('refX', 0)
+		.attr('refY', 0)
+		.attr('markerWidth', 3)
+		.attr('markerHeight', 3)
+		.attr('orient', 'auto')
+		.append('path')
+			.attr('d', 'M0,-5L10,0L0,5')
+			.style('fill', 'black');
+
+	//get all the elements and sort them from bottom to top
+	var elems = [];
+	d3.selectAll('.SDCrectContainer.processing').each(function(elem){
+		elems.push(this);
+	});
+	if (elems.length > 0){
+		//reverse sort by y location
+		elems.sort(function(a, b){  
+			return d3.select(b).attr('y') - d3.select(a).attr('y');
+		});
+		elems.forEach(function(elem, i){
+			if (i+1 < elems.length){
+				var startParent = d3.select(elem);
+				var endParent = d3.select(elems[i+1]);
+				if (startParent.node() && endParent.node()){
+					var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth/2.;
+					var y1 = parseFloat(startParent.attr('y'));
+
+					var x2 = parseFloat(endParent.attr('x')) + params.SDCBoxWidth/2.;
+					var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height')) + 10; //for the arrow head
+
+					startWords = startParent.attr('selectionWords');
+					endWords = endParent.attr('selectionWords');
+					//get the category from the rect class list (will this always be the last class value?)
+					var cat = startParent.node().classList[1];
+
+					if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
+
+						var line = d3.select('#SDCArrowsContainer').append('line')
+							.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
+							.attr('endSelectionWords',endWords) //custom attribute to track the ending word(s)			
+							.attr('id','SDCArrowLine_'+i)
+							.attr('class','SDCArrowLine SDCArrowLine_'+startWords+ ' SDCArrowLine_'+endWords)
+							.attr('stroke','#000000')
+							.attr('stroke-width',3)
+							.attr('stroke-linecap','flat') 
+							.attr('x1', x1)
+							.attr('y1', y1)
+							.attr('marker-end', 'url(#triangle)')
+							.attr('x2', function(){
+								if (duration > 0) return x1;
+								return x2
+							})
+							.attr('y2', function(){
+								if (duration > 0) return y1;
+								return y2
+							})
+							.style('stroke-opacity',1)
+
+						line.transition().duration(duration)
+							.attr('x2', x2)
+							.attr('y2', y2)
+					}
+				}
+			}
+		})
+	}
+
+
 }
