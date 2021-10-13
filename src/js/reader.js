@@ -142,8 +142,8 @@ function readGoogleSheetParagraphs(json) {
 		})
 
 
-		//remove the blank unless the SDC editor is active
-		if (params.paragraphs.hasOwnProperty('blank') > -1 && !params.haveSDCEditor) delete params.paragraphs.blank;
+		//remove the blank unless the editor is active
+		if (params.paragraphs.hasOwnProperty('blank') > -1 && !params.haveSDCEditor && !params.haveParaEditor) delete params.paragraphs.blank;
 
 		params.availableGroupnames = Object.keys(params.paragraphs);
 
@@ -161,7 +161,8 @@ function readGoogleSheetParagraphs(json) {
 			if (p.answers){
 				p.answers.forEach(function(a){
 					var ans = {};
-					Object.keys(a).forEach(function(akey){
+					Object.keys(a).forEach(function(atmp){
+						akey = params.cleanString(atmp)
 						//annoyingly, I've been saving the dropdown answers without applying my cleanstring.  I will do it here...
 						val = a[akey];
 						if (a['task'] == 'para' && akey != 'groupname' && akey != 'task') val = params.cleanString(a[akey]);
@@ -179,7 +180,7 @@ function readGoogleSheetParagraphs(json) {
 
 		//for editing mode, populate the URL so that all the answers can be displayed
 		if (params.haveParaEditor){
-			if (Object.keys(params.URLInputValues).length == 0) {
+			if (Object.keys(params.URLInputValues).filter(function(d){return (d != 'groupname' && d !='username')}).length == 0) {
 				setURLFromAnswers();
 			} else {
 				setAnswersFromURL();

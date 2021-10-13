@@ -24,7 +24,7 @@ params.haveParaEditor = true;
 
 //should I do this, or do I want to read in all the answers from the form first (once that is set up)?
 //for now I will populate from URL
-populateAnswersFromURL();
+//populateAnswersFromURL();
 
 //use the URL data if it exists to define the answers
 function populateAnswersFromURL(){
