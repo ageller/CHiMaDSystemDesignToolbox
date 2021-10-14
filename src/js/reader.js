@@ -351,15 +351,13 @@ function aggregateSDCResults(){
 			if (i == params.responses.columns.length - 1 && version == params.SDCResponseVersion){
 				console.log("aggregatedSDC", params.aggregatedSDCResponses);
 				if (params.SDCSubmitted || params.haveSDCEditor) {
-					var trans = false;
 					var dur = 0;
 					if (params.firstSDCplot){
-						trans = true;
 						dur = params.transitionDuration;
 						params.firstSDCplot = false;
 					}
-					plotSDCAggregateLines(trans, dur);
-					plotSDCAnswerLines(trans, dur); 
+					plotSDCAggregateLines(dur);
+					plotSDCAnswerLines(dur); 
 				}
 				//for testing
 				//params.SDCSubmitted = true;
