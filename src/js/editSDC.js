@@ -559,8 +559,8 @@ function switchSDCCompiler(){
 		//reset the SDC
 		formatSDC(500);
 		setTimeout(function(){
-			plotSDCAggregateLines(true, 500);
-			plotSDCAnswerLines(true, 500);
+			plotSDCAggregateLines(500);
+			plotSDCAnswerLines(500);
 		}, 500)
 
 	}
