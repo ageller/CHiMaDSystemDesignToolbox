@@ -24,6 +24,9 @@ window.addEventListener('mousemove', function(){
 //hide the system design chart at load (will be displayed when user submits the second response)
 if (!params.haveParaEditor && !params.haveSDCEditor) d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
 
+//connect the web socket
+connectSocket()
+
 //move the tooltip
 // window.addEventListener('mousemove', function(){
 // 	d3.select('#tooltip')
@@ -39,10 +42,10 @@ updateSurveyFile();
 
 //load in all the data
 //get the paragraphs and answer key
-loadResponses(params.paragraphFile);
+loadFile(params.paragraphFile, 'compileParagraphData'); 
 //load in the survey responses
 //but note: the visualization will not fill in until the user submits a response (this is now a recurring call and only executed after the first submit)
-loadResponses(params.surveyFile);
+loadFile(params.surveyFile, 'aggregateResults');
 
 initPage();
 
@@ -63,7 +66,7 @@ function initPage(){
 			//define the dropdowns
 			createDropdowns();
 
-			//create the skeleton of the visualization (will be filled in at loadResponses for the surveyFile)
+			//create the skeleton of the visualization (will be filled in at later)
 			if (params.haveBars) {
 				createBars();
 				//I could check to see if anything changed before replotting, but I'm not sure that would offer a big speedup (since I'd need another for loop anyway)
