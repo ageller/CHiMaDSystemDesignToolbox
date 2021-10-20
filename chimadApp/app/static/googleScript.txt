@@ -51,10 +51,10 @@ function handleResponse(e) {
       var useRow = -1;
       var version = 1;
 
-dded to check if IP already exists and then set that as the row to use
+      // //AMG added to check if IP already exists and then set that as the row to use
       // var foundIP = hasIP(sheet, e.parameter['IP']);
-      // if (foun //   var versiodIP == 1){
-     n = 2;
+      // if (foundIP == 1){
+      //   var version = 2;
       //   useRow = searchIPv2(sheet, e.parameter['IP']);
       //   if (useRow != -1){
       //     nextRow = useRow;
@@ -110,7 +110,7 @@ dded to check if IP already exists and then set that as the row to use
     // if error return this
     return ContentService
           .createTextOutput(JSON.stringify({"result":"error", "error": err, "input":e}))
-          .setMimeType(Contype.JSON);
+          .setMimeType(ContentService.MimeType.JSON);
   } finally { //release lock
     lock.releaseLock();
   }
