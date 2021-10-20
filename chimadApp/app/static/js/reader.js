@@ -1,12 +1,27 @@
 function loadFile(file, callback){
 //a bit of a round-about way of doing things, but I will take "callback" as the string name of the callback to flask, and then call it from sockets.js
 
-	var out = {'filename': file, 'callback': callback};
+	var out = {'filename': file};
 	console.log('loading file ', out)
 
-	//send the file name to flask.  I will read in the data there, and then it will be sent back via sockets.js
-	params.socket.emit('load_file', out);
+	//send the file name to flask.  I will read in the data there, and then it will be sent back via POST
+	$.ajax({
+			url: '/load_file',
+			contentType: 'application/json; charset=utf-8"',
+			dataType: 'json',
+			data: JSON.stringify(out),
+			type: 'POST',
+			success: function(d) {
+				console.log('loaded file',d);
+				var data = JSON.parse(d.data);
+				data.columns = d.columns;
+				callback(data)
 
+			},
+			error: function(d) {
+				console.log('!!! WARNING: file did not load', d);
+			}
+		});
 }
 
 
@@ -162,20 +177,6 @@ function setAnswersFromURL(){
 
 }
 
-function getAvailableSheets(json){
-	//not used anymore (set in readGoogleSheetParagraphs)
-	params.availableGroupnames = [];
-	console.log('in getAvailableSheets', json)
-	if (json.hasOwnProperty('sheets')){
-		json.sheets.forEach(function(d){
-			params.availableGroupnames.push(d.properties.title);
-		})
-	}
-	params.availableGroupnames = params.availableGroupnames.sort();
-	console.log('have available groupnames', params.availableGroupnames);
-	createGroupnameSelect();
-}
-
 function countUniq(arr, clean=true){
 //count the uniq elements in an array and return both the counts and the unique array
 	var out = {'uniq':[], 'num':{}, 'total':0};
@@ -197,7 +198,6 @@ function countUniq(arr, clean=true){
 }
 
 function aggregateParaResults(){
-
 
 	//count up all the responses for each column and return the aggregate numbers
 	//in order to keep things a bit more simple, I will push a blank entry for version 0 (I may want to clean this up later)
