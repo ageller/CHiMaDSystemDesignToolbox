@@ -125,13 +125,12 @@ function saveParaEdit(){
 		params.selectionWords.forEach(function(d){
 			data.header.push(params.cleanString(d));
 		})
-		params.nTrials = 0;
-		sendToGoogleSheet(data, 'groupnameNotification', startInterval=false, succesResponse='Paragraph updated successfully.');
+		sendResponsesToFlask(data, 'groupnameNotification', false, 'Paragraph updated successfully.');
 
 		//add to the paragraphs tab in the google sheet (answers will come later with the onAnswersSubmit)
 		data =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupname,'paragraph':newText,'answersJSON':''};
 		params.nTrials = 0; //this may not work properly since I have a submit up above...
-		sendToGoogleSheet(data, 'groupnameNotification', startInterval=false, succesResponse='Paragraph updated successfully.');
+		sendResponsesToFlask(data, 'groupnameNotification', false, 'Paragraph updated successfully.');
 
 		//hide the editor and show the current paragraph
 		d3.select('#paraText').style('display','block');
@@ -158,6 +157,6 @@ function onAnswersSubmit(){
 		if (a.groupname == params.groupname) answersData.push(a);
 	})
 	var data =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupname,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
-	sendToGoogleSheet(data, 'answerSubmitNotification', startInterval=false, succesResponse='Answers updated successfully.');
+	sendResponsesToFlask(data, 'answerSubmitNotification', false, 'Answers updated successfully.');
 	console.log('answers submitted', data);
 }

@@ -3,6 +3,7 @@ from flask_socketio import SocketIO, emit
 from threading import Lock
 
 import pandas as pd
+import os
 
 # Set this variable to "threading", "eventlet" ,"gevent" or "gevent_uwsgi" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -47,6 +48,18 @@ def save_responses(message):
 	print('======= save_responses', message)
 	# I will need to perform all the checks that I had in the google script but now in python
 	# For now, I will save the values to a csv file
+	data = message['data']
+	filename = data['SHEET_NAME'] + '.csv'
+	print('!!! check', filename)
+
+	# if this is an existing file, then read it in and see if we have the username already
+	if (os.path.exists(os.path.abspath('static/data/'+filename))):
+		print('!!! have file')
+
+	# if this is a new paragraph then we will need to create a file (from editPara)
+	else:
+		print('!!! creating new file')
+
 
 	message['error'] = False
 	emit('responses_saved',message, namespace=namespace)
