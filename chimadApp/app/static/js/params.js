@@ -148,20 +148,20 @@ function defineParams(){
 		//will hold mouse events
 		this.event = {'keyCode':null,'clientX':0, 'clientY':0};
 
-        //flask + socketio
-        // Use a "/test" namespace.
-        // An application can open a connection on multiple namespaces, and
-        // Socket.IO will multiplex all those connections on a single
-        // physical channel. If you don't care about multiple channels, you
-        // can set the namespace to an empty string.
-        this.namespace = '/CHiMaD';
-        // Connect to the Socket.IO server.
-        // The connection URL has the following format:
-        //     http[s]://<domain>:<port>[/<namespace>]
-        this.socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + this.namespace);//, {
-        //  'reconnectionDelay': 10000,
-        //  'reconnectionDelayMax': 20000,
-        // });
+        // //flask + socketio
+        // // Use a "/test" namespace.
+        // // An application can open a connection on multiple namespaces, and
+        // // Socket.IO will multiplex all those connections on a single
+        // // physical channel. If you don't care about multiple channels, you
+        // // can set the namespace to an empty string.
+        // this.namespace = '/CHiMaD';
+        // // Connect to the Socket.IO server.
+        // // The connection URL has the following format:
+        // //     http[s]://<domain>:<port>[/<namespace>]
+        // this.socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + this.namespace);//, {
+        // //  'reconnectionDelay': 10000,
+        // //  'reconnectionDelayMax': 20000,
+        // // });
 
 		this.cleanString = function(s){
 			return s.replace(/sub\>/g,'').replace(/\s/g,'').replace(/[^a-zA-Z0-9]/g, "").toLowerCase();

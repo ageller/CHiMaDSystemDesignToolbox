@@ -1,4 +1,3 @@
-
 //hide dropdowns when you click out
 d3.select('body').on('click',function(){
 	//if (!event.target.parentNode.classList.contains('selectionWord') && !event.target.parentNode.classList.contains('selectionWordDropdown')){ 
@@ -25,7 +24,7 @@ window.addEventListener('mousemove', function(){
 if (!params.haveParaEditor && !params.haveSDCEditor) d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
 
 //connect the web socket
-connectSocket()
+//connectSocket()
 
 //move the tooltip
 // window.addEventListener('mousemove', function(){
@@ -42,10 +41,10 @@ updateSurveyFile();
 
 //load in all the data
 //get the paragraphs and answer key
-loadFile(params.paragraphFile, 'compileParagraphData'); 
+loadFile(params.paragraphFile, compileParagraphData); 
 //load in the survey responses
 //but note: the visualization will not fill in until the user submits a response (this is now a recurring call and only executed after the first submit)
-loadFile(params.surveyFile, 'aggregateResults');
+loadFile(params.surveyFile, aggregateResults);
 
 initPage();
 

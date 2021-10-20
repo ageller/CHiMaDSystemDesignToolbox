@@ -98,7 +98,8 @@ function saveParaEdit(){
 	console.log('saving paragraph');
 
 	//get the available tabs in the Google sheet
-	loadFile(params.sheetRequest); //in case another edit was made by another user (but will this complete in time for the following if statement??)
+	//loadFile(params.paragraphFile, compileParagraphData);  //in case another edit was made by another user (but will this complete in time for the following if statement??)
+
 	//check that the group name is not already used
 	if (params.availableGroupnames.includes(params.groupname) || params.groupname == ''){
 		d3.select('#groupnameNotification')
