@@ -1,61 +1,21 @@
-function sendToGoogleSheet(data, notificationID, startInterval=true, successResponse=null, failResponse=null){
-	//send a javascript Object to the Google form accessed by the url below. 
-	//that url points to a google script attached to the google sheet, and will also append a timestamp
+function sendResponsesToFlask(data, notificationID, startInterval=true, successResponse=null, failResponse=null){
+
+	if (!successResponse) successResponse = 'Responses submitted successfully.  The chart will update automatically when new data are available.  You can change your responses anytime by re-submitting.';
+	if (!failResponse) failResponse = 'Responses failed to be submitted.  Please refresh your browser and try again.'
 
 	d3.selectAll('.error').classed('error', false);
 	d3.selectAll('.errorBorder').classed('errorBorder', false);
 
-	if (!successResponse) successResponse = 'Responses submitted successfully.  The chart will update automatically when new data are available.  You can change your responses anytime by re-submitting.';
-	if (!failResponse) failResponse = 'Responses failed to be submitted.  Please refresh your browser and try again.'
-	console.log('sending to Google');
-	params.nTrials += 1;
+	var out = {'data':data, 'notificationID':notificationID, 'startInterval':startInterval, 'successResponse':successResponse, 'failResponse':failResponse};
 
-	var jqxhr = $.ajax({
-		url: params.googleScriptURL,
-		method: "GET",
-		dataType: "json",
-		data: data,
-		success:function(d){
-			var resp = successResponse;
-			if (d.result == 'error') {
-				resp = failResponse
-				d3.select('#'+notificationID).classed('error', true)
-			}
-			console.log('submitted data', JSON.stringify(data), d);
-			if (notificationID){
-				d3.select('#'+notificationID)
-					.classed('blink_me', false)
-					.text(resp);
-			}
-			//show the aggregated responses (now showing after reading in the data within aggregateParaResults)
-			if (startInterval && d.result != 'error') {
-				loadResponses(params.surveyFile);
-				clearInterval(params.loadInterval);
-				params.loadInterval = setInterval(function(){loadResponses(params.surveyFile);}, params.loadIntervalDuration);
-			}
-
-			resize();
-
-		},
-		error: function (request, status, error) {
-			console.log('failed to submit', request, status, error, notificationID);
-			if (params.nTrials < params.maxTrials){
-				sendToGoogleSheet(data, notificationID);
-			} else {
-				if (notificationID){
-					d3.select('#'+notificationID)
-						.classed('blink_me', false)
-						.classed('error', true)
-						.text(failResponse);
-				}
-			}
-		}
-	});
+	console.log('sending responses to Flask', out);
+	params.socket.emit('save_responses', out);
 
 }
 
 function onParaSubmit(){
-	//when form is submitted, compile responses and send the Google sheet
+	//when form is submitted, compile responses and send the flask
+
 	console.log('username',params.username);
 	var submitted1 = params.paraSubmitted;
 	params.paraSubmitted = false;
@@ -64,13 +24,12 @@ function onParaSubmit(){
 	if (params.username != "" && typeof params.username !== 'undefined'){
 		d3.select('#usernameInput').property('disabled', true);
 
-		params.nTrials = 0;
 		d3.select('#paraNotification')
 			.classed('blink_me', true)
 			.classed('error', false)
 			.text('Processing...');
 
-		//gather the values from the form and sendToGoogleSheet (function above)
+		//gather the values from the form
 		d3.select('#paraForm').selectAll('select').each(function(d,i){
 			var id = this.id;
 			var options = d3.select(this).selectAll('option')
@@ -105,7 +64,10 @@ function onParaSubmit(){
 				checkSDCvisibility();
 			}
 			params.paraData['SHEET_NAME'] = params.groupname;
-			sendToGoogleSheet(params.paraData, 'paraNotification');
+
+			//send to flask -- this will then return to the sockets.js to start the load interval
+			sendResponsesToFlask(params.paraData, 'paraNotification');
+
 		} else {
 			console.log("missing", missing)
 			d3.select('#paraNotification')
@@ -124,6 +86,48 @@ function onParaSubmit(){
 		d3.select('#usernameLabel').classed('error', true);
 
 	}
+
+}
+
+function onSDCSubmit(){
+	//gather all the data from the lines that were drawn, and send them to flask
+
+	params.nTrials = 0;
+	d3.select('#SDCNotification')
+		.classed('blink_me', true)
+		.classed('error', false)
+		.text('Processing...');
+
+	params.SDCData = {};
+	//add the IP, username and task (not using IP anymore)
+	params.SDCData['IP'] = params.userIP;
+	params.SDCData['username'] = params.username;
+	params.SDCData['SHEET_NAME'] = params.groupname;
+	params.SDCData['task'] = 'SDC';
+	params.selectionWords.forEach(function(w,i){
+		//initialize to empty
+		params.SDCData[params.cleanString(w)] = '';
+		if (i == params.selectionWords.length - 1){
+			//gather all the data and combine into aggregated lists when necessary
+			d3.selectAll('.SDCLine').each(function(d,j){
+				var elem = d3.select(this)
+				var word1 = elem.attr('startSelectionWords');
+				var word2 = '';
+				if (!params.SDCData[word1].includes(elem.attr('endSelectionWords'))){
+					if (params.SDCData[word1] != '') word2 = ' ';
+					word2 += elem.attr('endSelectionWords');
+					params.SDCData[word1] += word2;
+				}
+
+				if (j == d3.selectAll('.SDCLine').size() - 1){
+					//send to flask -- this will then return to the sockets.js to start the load interval
+					sendResponsesToFlask(params.SDCData, 'SDCNotification');
+					params.SDCSubmitted = true;
+					console.log('submitted SDC form', params.SDCData);
+				}
+			})
+		}
+	})
 
 }
 
@@ -214,7 +218,7 @@ function getGroupnameInput(groupname=null, evnt=null){
 }
 
 function updateSurveyFile(){
-	params.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+params.sheetID+'/values/'+params.groupname+'/?alt=json&callback=readGoogleSheet&key='+params.APIkey;
+	params.surveyFile = 'static/data/'+params.groupname+'.csv';
 }
 
 function createGroupnameSelect(){
@@ -247,6 +251,8 @@ function createGroupnameSelect(){
 function setGroupnameFromOptions(groupname=null){
 	//this will handle the dropdown menu for the paragraph
 
+	params.switchedGroupname = true; //will be reset in aggregateResults (called after loadFile returns from flask)
+
 	if (this.value) {
 		params.groupname = this.value;
 	} else {
@@ -266,6 +272,9 @@ function setGroupnameFromOptions(groupname=null){
 	params.showingResults = false;
 	params.SDCSubmitted = false;
 
+	//enable username editing
+	d3.select('#usernameInput').property('disabled', false);
+
 	checkAnswerTogglesVisibility();
 
 	//update the URL
@@ -273,51 +282,12 @@ function setGroupnameFromOptions(groupname=null){
 	if (params.haveParaEditor) setURLFromAnswers();
 	appendURLdata();
 
-	loadResponses(params.surveyFile);
+	loadFile(params.surveyFile, 'aggregateResults');
 
 	initPage();
 }
 
-function onSDCSubmit(){
-	//gather all the data from the lines that were drawn, and send them to a Google form
 
-	params.nTrials = 0;
-	d3.select('#SDCNotification')
-		.classed('blink_me', true)
-		.classed('error', false)
-		.text('Processing...');
-
-	params.SDCData = {};
-	//add the IP, username and task (not using IP anymore)
-	params.SDCData['IP'] = params.userIP;
-	params.SDCData['username'] = params.username;
-	params.SDCData['SHEET_NAME'] = params.groupname;
-	params.SDCData['task'] = 'SDC';
-	params.selectionWords.forEach(function(w,i){
-		//initialize to empty
-		params.SDCData[params.cleanString(w)] = '';
-		if (i == params.selectionWords.length - 1){
-			//gather all the data and combine into aggregated lists when necessary
-			d3.selectAll('.SDCLine').each(function(d,j){
-				var elem = d3.select(this)
-				var word1 = elem.attr('startSelectionWords');
-				var word2 = '';
-				if (!params.SDCData[word1].includes(elem.attr('endSelectionWords'))){
-					if (params.SDCData[word1] != '') word2 = ' ';
-					word2 += elem.attr('endSelectionWords');
-					params.SDCData[word1] += word2;
-				}
-
-				if (j == d3.selectAll('.SDCLine').size() - 1){
-					sendToGoogleSheet(params.SDCData, 'SDCNotification');
-					params.SDCSubmitted = true;
-					console.log('submitted SDC form', params.SDCData);
-				}
-			})
-		}
-	})
-
-}
 function checkAnswerTogglesVisibility(){
 	//check if the answers exist, and if not, hide the answers checkboxes (may want to move this to a function, like I did with SDC?)
 	d3.selectAll('.answerToggle').style('visibility','hidden');
