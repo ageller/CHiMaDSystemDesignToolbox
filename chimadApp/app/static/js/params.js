@@ -21,34 +21,11 @@ function defineParams(){
 		this.haveSurveyData = false;
 		this.haveAnswersData = false;
 
-		//script that will control entries into the google sheet
-		//note: I may have to approve this every so often... I seem to occasionally get CORS errors, but then it is fixed if I deplay a new script (which asks if I approve)
-		this.googleScriptURL = 'https://script.google.com/macros/s/AKfycbzhCvXMNWyorc_rV6t-3uUEYpxWOt4yGsy8HSidbegVfyuNIiAqNW87VFYsD6PsmNgt/exec';
-		
-//the URL of the json getter of the sheet, for the visualization of results
-//sometime near Sept. 2021, Google stopped allowing the simle JSON alt type variant.  Now we need an api_key
-//see here: https://stackoverflow.com/questions/68854198/did-google-sheets-stop-allowing-json-access
-
-//in order to get this URL:
-// 1. make the sheet public to the web (File / Publish to Web /)
-// -- good walk through here: https://github.com/bpk68/g-sheets-api#readme
-// 2. use the URL from the share feature to get the ID (between the /d/ and next / in the URL)
-// -- here : https://docs.google.com/spreadsheets/d/1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q/edit?usp=sharing
-// 3. the url will look like : https://sheets.googleapis.com/v4/spreadsheets/'+worksheet_id+'/values/'+tab_name+'?alt=json&key='+key-value
-// -- to worksheet_id is the string in between /d/ and /edit? above
-// -- tab_name is the string name of the tab I want (Sheet1)
-// -- key-value is the API key (NOTE: this is a restricted key and only works on this github repo.  In a full deployment, security would need to be improved. Better to store the API key only on the server side, and only run the calls to google sheets on the server side.)
-// 4. to set up the API key : https://support.google.com/googleapi/answer/6158862?hl=en
-// 5. I shearched within the Google console cloud for Sheets, and then clicked Enable
-
 		this.groupname = 'default';
-		this.sheetID = '1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q';
-		this.APIkey = 'AIzaSyDQkhXUUtjzbG61dvodYiIjnr-5JhYdn9s';
-		this.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/values/'+this.groupname+'/?alt=json&callback=readGoogleSheet&key='+this.APIkey;
-		this.paragraphFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/values/paragraphs/?alt=json&callback=readGoogleSheetParagraphs&key='+this.APIkey;
+		this.surveyFile = 'static/data/'+this.groupname+'.csv';
+		this.paragraphFile = 'static/data/paragraphs.csv';
 
 		//use this to get the available sheets
-		this.sheetRequest = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/?alt=json&callback=getAvailableSheets&key='+this.APIkey;
 		this.availableGroupnames = []; //this will hold the available sheets
 
 		//will save the initial input text before adding dropdown tags
@@ -56,6 +33,9 @@ function defineParams(){
 		
 		//will hold the paragraphs that are saved in the google sheet
 		this.paragraphs;
+
+		//a check to see if the groupname was switche
+		this.switchedGroupname = false;
 
 		//this will hold the responses downloaded from the google sheet
 		this.responses;
@@ -89,12 +69,6 @@ function defineParams(){
 
 		//if the url contains form data, this will store it
 		this.URLInputValues = {};
-
-		//will store the number of trials for submitting
-		this.nTrials = 0;
-
-		//maximum number of trials allows for submitting
-		this.maxTrials = 5;
 
 		//holds the svg element
 		this.boxGridSVG;
@@ -173,6 +147,21 @@ function defineParams(){
 
 		//will hold mouse events
 		this.event = {'keyCode':null,'clientX':0, 'clientY':0};
+
+        //flask + socketio
+        // Use a "/test" namespace.
+        // An application can open a connection on multiple namespaces, and
+        // Socket.IO will multiplex all those connections on a single
+        // physical channel. If you don't care about multiple channels, you
+        // can set the namespace to an empty string.
+        this.namespace = '/CHiMaD';
+        // Connect to the Socket.IO server.
+        // The connection URL has the following format:
+        //     http[s]://<domain>:<port>[/<namespace>]
+        this.socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + this.namespace);//, {
+        //  'reconnectionDelay': 10000,
+        //  'reconnectionDelayMax': 20000,
+        // });
 
 		this.cleanString = function(s){
 			return s.replace(/sub\>/g,'').replace(/\s/g,'').replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
