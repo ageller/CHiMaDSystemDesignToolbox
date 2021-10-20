@@ -9,7 +9,46 @@ function sendResponsesToFlask(data, notificationID, startInterval=true, successR
 	var out = {'data':data, 'notificationID':notificationID, 'startInterval':startInterval, 'successResponse':successResponse, 'failResponse':failResponse};
 
 	console.log('sending responses to Flask', out);
-	params.socket.emit('save_responses', out);
+
+	//send to flask
+	$.ajax({
+			url: '/save_responses',
+			contentType: 'application/json; charset=utf-8"',
+			dataType: 'json',
+			data: JSON.stringify(out),
+			type: 'POST',
+			success: function(d) {
+				console.log('responses saved',d);
+				if (d.notificationID){
+					d3.select('#'+d.notificationID)
+						.classed('blink_me', false)
+						.classed('error', false)
+						.text(d.successResponse);
+				}
+
+				//show the aggregated responses (now showing after reading in the data within aggregateParaResults)
+				if (d.startInterval && !d.error) {
+					loadFile(params.surveyFile, aggregateResults);
+
+					clearInterval(params.loadInterval);
+					params.loadInterval = setInterval(function(){
+						loadFile(params.surveyFile, aggregateResults);
+					}, params.loadIntervalDuration);
+				}
+
+				resize();
+
+			},
+			error: function(d) {
+				console.log('!!! WARNING: responses did not save', d);
+				if (d.notificationID){
+					d3.select('#'+d.notificationID)
+						.classed('blink_me', false)
+						.classed('error', true)
+						.text(d.failResponse);
+				}
+			}
+		});
 
 }
 
@@ -282,7 +321,7 @@ function setGroupnameFromOptions(groupname=null){
 	if (params.haveParaEditor) setURLFromAnswers();
 	appendURLdata();
 
-	loadFile(params.surveyFile, 'aggregateResults');
+	loadFile(params.surveyFile, aggregateResults);
 
 	initPage();
 }
