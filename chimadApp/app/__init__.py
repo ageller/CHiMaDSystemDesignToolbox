@@ -133,6 +133,14 @@ def test():
 def training():
 	return render_template("training.html")
 
+@app.route("/editPara")
+def editPara():
+	return render_template("editPara.html")
+
+@app.route("/editSDC")
+def editSDC():
+	return render_template("editSDC.html")
+
 # comment this part out when adding it to the production server
 if __name__ == "__main__":
 	socketio.run(app, host='0.0.0.0', port=5000, use_reloader=True)
