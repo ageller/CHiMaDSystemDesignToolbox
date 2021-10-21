@@ -70,14 +70,12 @@
 10. Set up the flask environment.  I mostly followed this youTube video: https://www.youtube.com/watch?v=w0QDAg85Oow
 	- within /var/www/html , I created the following directory structure (replace [appName] with the actual desired name of the app)
 ```
-
 		[appName]/
 		-- logs/
 		-- app/
-			-- static/
-			-- templates/
+		  -- static/
+		  -- templates/
 ```
-
 	-The usual flask files will live in the /var/www/html/[appName]/app/ directory.  The main python file is named __init__.py and contains all the usual code except for the app.run part
 	- within /var/www/html/[appNane]/ I created the following files
 		- wsgi.py : this is the file that apache will see first and updates the system path and imports the application
