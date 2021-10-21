@@ -1,5 +1,11 @@
 # Instructions for setting up a server on RHEL7
 
+0.  It is probably wise to create at least one non-sudo user (replace [username] below with the actual user name).  Many of the installs below should be done as root, but the website files themselves can be created and maintained by a non-sudo user.
+```
+$ useradd [username]
+$ passwd [username]
+```
+
 1.  I am going to try using anaconda to manage python.  This is a bit messy because (through trial and error), it appears that mod_wsgi only works when installed via pip3, but I can still use the pip3 from anaconda. 
 ``` 
 $ wget https://repo.anaconda.com/archive/Anaconda3-2021.05-Linux-x86_64.sh
