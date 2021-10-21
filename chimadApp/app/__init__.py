@@ -1,8 +1,9 @@
 from flask import Flask, jsonify, request, render_template
-
 import pandas as pd
 import os
 from datetime import datetime
+
+
 
 app = Flask(__name__)
 #app.config['SECRET_KEY'] = 'CHiMaD!App3_'
@@ -15,11 +16,9 @@ app = Flask(__name__)
 @app.route('/load_file', methods=['GET', 'POST'])
 def load_file():
 	message = request.get_json()
-	here = os.path.dirname(__file__)
-	filename = os.path.join(here, message['filename'])
-	print('======= load_file', here, message['filename'], filename)
+	print('======= load_file', os.path.abspath(message['filename']))
 
-	df = pd.read_csv(filename)
+	df = pd.read_csv(os.path.abspath(message['filename']))
 	out = {'data': df.fillna('').to_json(orient='records'), 'columns':df.columns.tolist()}
 	return jsonify(out)
 
@@ -31,8 +30,7 @@ def save_responses():
 	# I will need to perform all the checks that I had in the google script but now in python
 	# For now, I will save the values to a csv file
 	data = message['data']
-	here = os.path.dirname(__file__)
-	filename = os.path.join(here, 'static/data/' + data['SHEET_NAME'] + '.csv')
+	filename = os.path.abspath('static/data/' + data['SHEET_NAME'] + '.csv')
 	print('!!! filename', filename)
 
 	if (os.path.exists(filename)):
