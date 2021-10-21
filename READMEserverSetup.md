@@ -1,6 +1,6 @@
 # Instructions for setting up a server on RHEL7
 
-### 1.  I am going to try using anaconda to manage python.  This is a bit messy because (through trial and error), it appears that mod_wsgi only works when installed via pip3, but I can still use the pip3 from anaconda. 
+1.  I am going to try using anaconda to manage python.  This is a bit messy because (through trial and error), it appears that mod_wsgi only works when installed via pip3, but I can still use the pip3 from anaconda. 
 ``` 
 $ wget https://repo.anaconda.com/archive/Anaconda3-2021.05-Linux-x86_64.sh
 $ bash Anaconda3-2021.05-Linux-x86_64.sh
@@ -76,7 +76,7 @@ $ usermod -a -G www [username]
   -- static/
   -- templates/
 ```
--The usual flask files will live in the /var/www/html/[appName]/app/ directory.  The main python file is named __init__.py and contains all the usual code except for the app.run part
+- The usual flask files will live in the /var/www/html/[appName]/app/ directory.  The main python file is named __init__.py and contains all the usual code except for the app.run part
 - within /var/www/html/[appNane]/ I created the following files
 	- wsgi.py : this is the file that apache will see first and updates the system path and imports the application
 	- run.py : this includes the app.run (or socketio.run) bit that is usually in my standalone python flask (dev) script
