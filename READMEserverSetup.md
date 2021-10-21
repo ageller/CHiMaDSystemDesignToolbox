@@ -1,6 +1,6 @@
 # Instructions for setting up a server on RHEL7
 
-0.  It is probably wise to create at least one non-sudo user (replace [username] below with the actual user name).  Many of the installs below should be done as root, but the website files themselves can be created and maintained by a non-sudo user.
+0.  It is probably wise to create at least one non-sudo user (replace [username] below with the actual user name).  Many of the installs below should be done as root, but the website files themselves (step 10) can be created and maintained by a non-sudo user.
 ```
 $ useradd [username]
 $ passwd [username]
@@ -63,7 +63,7 @@ Stop the server
 $ systemctl stop httpd
 ```
 
-8. I'm going to add a www group, making that the group for the var/www directory and adding chimad to that group
+8. I'm going to add a www group, making that the group for the var/www directory and adding [username] to that group
 ```
 $ groupadd www
 $ chgrp -R www /var/www
