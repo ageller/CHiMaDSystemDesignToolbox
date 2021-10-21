@@ -76,10 +76,10 @@
 		  -- static/
 		  -- templates/
 ```
-	-The usual flask files will live in the /var/www/html/[appName]/app/ directory.  The main python file is named __init__.py and contains all the usual code except for the app.run part
-	- within /var/www/html/[appNane]/ I created the following files
-		- wsgi.py : this is the file that apache will see first and updates the system path and imports the application
-		- run.py : this includes the app.run (or socketio.run) bit that is usually in my standalone python flask (dev) script
-		- flask-app.conf : this has the apache configuration info that loads the flask app.  
-			- I added a symbolic link to this conf file in the directory /etc/httpd/conf.d 
-			- I set errors to appear in the logs/error.log file 
+-The usual flask files will live in the /var/www/html/[appName]/app/ directory.  The main python file is named __init__.py and contains all the usual code except for the app.run part
+- within /var/www/html/[appNane]/ I created the following files
+	- wsgi.py : this is the file that apache will see first and updates the system path and imports the application
+	- run.py : this includes the app.run (or socketio.run) bit that is usually in my standalone python flask (dev) script
+	- flask-app.conf : this has the apache configuration info that loads the flask app.  
+		- I added a symbolic link to this conf file in the directory /etc/httpd/conf.d 
+		- I set errors to appear in the logs/error.log file 
