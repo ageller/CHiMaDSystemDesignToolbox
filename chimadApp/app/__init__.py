@@ -1,16 +1,8 @@
 from flask import Flask, jsonify, request, render_template
-# from flask_socketio import SocketIO, emit
-# from threading import Lock
 
 import pandas as pd
 import os
 from datetime import datetime
-import json
-
-# Set this variable to 'threading', 'eventlet' ,'gevent' or 'gevent_uwsgi' to test the
-# different async modes, or leave it set to None for the application to choose
-# the best option based on installed packages.
-#async_mode = 'eventlet' #'eventlet' is WAY better than 'threading'
 
 app = Flask(__name__)
 #app.config['SECRET_KEY'] = 'CHiMaD!App3_'
@@ -23,9 +15,11 @@ app = Flask(__name__)
 @app.route('/load_file', methods=['GET', 'POST'])
 def load_file():
 	message = request.get_json()
-	print('======= load_file', message)
+	here = os.path.dirname(__file__)
+	filename = os.path.join(here, message['filename'])
+	print('======= load_file', here, message['filename'], filename)
 
-	df = pd.read_csv(message['filename'])
+	df = pd.read_csv(filename)
 	out = {'data': df.fillna('').to_json(orient='records'), 'columns':df.columns.tolist()}
 	return jsonify(out)
 
@@ -37,7 +31,8 @@ def save_responses():
 	# I will need to perform all the checks that I had in the google script but now in python
 	# For now, I will save the values to a csv file
 	data = message['data']
-	filename = os.path.abspath('static/data/' + data['SHEET_NAME'] + '.csv')
+	here = os.path.dirname(__file__)
+	filename = os.path.join(here, 'static/data/' + data['SHEET_NAME'] + '.csv')
 	print('!!! filename', filename)
 
 	if (os.path.exists(filename)):
