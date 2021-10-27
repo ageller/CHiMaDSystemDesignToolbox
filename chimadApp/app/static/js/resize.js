@@ -25,6 +25,13 @@ function resize(){
 		.style('font-size', fsv + 'px')
 		.style('line-height', (fsv+2)+'px');
 
+	d3.select('#boxGridNResponses')
+		.style('font-size', fsi + 'px')
+		.style('line-height', (fsi+4)+'px');
+	d3.select('#SDCNResponses')
+		.style('font-size', fsi + 'px')
+		.style('line-height', (fsi+4)+'px');
+			
 	var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
 	var maxH = paragraphFormBbox.height;
 
