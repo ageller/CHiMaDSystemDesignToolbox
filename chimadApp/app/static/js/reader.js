@@ -59,28 +59,38 @@ function compileParagraphData(data) {
 	//also check for avilable answers
 	params.answersGroupnames = {'para':[],'SDC':[]};
 	params.paragraphs = {};
+	params.availableGroupnames = [];
+	params.availableGroupnamesOrg = [];
 	data.forEach(function(d){
-		params.paragraphs[d.groupname] = {};
-		params.paragraphs[d.groupname].paragraph = d.paragraph;
+		params.availableGroupnamesOrg.push(d.groupname);
+		params.availableGroupnames.push(params.cleanString(d.groupname));
+		params.paragraphs[params.cleanString(d.groupname)] = {};
+		params.paragraphs[params.cleanString(d.groupname)].paragraph = d.paragraph;
 		var a = null;
 		d.answersJSON
 		if (d.answersJSON == '' || d.answersJSON == null){
-			a = [{'groupname':d.groupname, 'task':'para'},{'groupname':d.groupname, 'task':'SDC'}]; //blank answer
+			a = [{'groupname':params.cleanString(d.groupname), 'task':'para'},{'groupname':params.cleanString(d.groupname), 'task':'SDC'}]; //blank answer
 		} else {
 			a = JSON.parse(d.answersJSON);
 			a.forEach(function(aa){
 				var check = objectWithoutProperties(aa, ['task', 'groupname'])
-				if (!params.answersGroupnames[aa.task].includes(aa.groupname) && Object.keys(check).length > 0) params.answersGroupnames[aa.task].push(aa.groupname);
+				if (!params.answersGroupnames[aa.task].includes(params.cleanString(aa.groupname)) && Object.keys(check).length > 0) params.answersGroupnames[aa.task].push(params.cleanString(aa.groupname));
 			})
 		}
-		params.paragraphs[d.groupname].answers = a;
+		params.paragraphs[params.cleanString(d.groupname)].answers = a;
 	})
 
 
 	//remove the blank unless the editor is active
-	if (params.paragraphs.hasOwnProperty('blank') > -1 && !params.haveSDCEditor && !params.haveParaEditor) delete params.paragraphs.blank;
+	if (params.paragraphs.hasOwnProperty('blank') > -1 && !params.haveSDCEditor && !params.haveParaEditor) {
+		delete params.paragraphs.blank;
 
-	params.availableGroupnames = Object.keys(params.paragraphs);
+		var index = params.availableGroupnames.indexOf('blank');
+		if (index > 0) params.availableGroupnames.splice(index, 1);
+		
+		index = params.availableGroupnamesOrg.indexOf('blank');
+		if (index > 0) params.availableGroupnamesOrg.splice(index, 1);
+	}
 
 	params.paragraphs.columns = Object.keys(params.paragraphs[params.availableGroupnames[0]]);
 	console.log('paragraphs', params.paragraphs, params.availableGroupnames, params.answersGroupnames, data);
@@ -127,9 +137,9 @@ function compileParagraphData(data) {
 }
 
 function setURLFromAnswers(){
-	params.URLInputValues.groupname = params.groupname;
-	if (params.paragraphs[params.groupname].answers) {
-		params.paragraphs[params.groupname].answers.forEach(function(a){
+	params.URLInputValues.groupname = params.cleanString(params.groupname);
+	if (params.paragraphs[params.cleanString(params.groupname)].answers) {
+		params.paragraphs[params.cleanString(params.groupname)].answers.forEach(function(a){
 			if (a.task == 'para'){
 				Object.keys(a).forEach(function(d){
 					if (d != 'task' && d != 'groupname') params.URLInputValues[d] = a[d];
@@ -149,7 +159,7 @@ function setAnswersFromURL(){
 	console.log('!!! setting URL from answers')
 	//I will clear out the answers here and only use the URL data (this should only be used within the editor)
 	params.answers.forEach(function(a){
-		if (a.groupname == params.groupname) {
+		if (params.cleanString(a.groupname) == params.cleanString(params.groupname)) {
 			Object.keys(a).forEach(function(d){
 				if (d != 'groupname' && d != 'task') delete a[d];
 			})
@@ -168,7 +178,7 @@ function setAnswersFromURL(){
 				val = params.URLInputValues[k].replaceAll('%20',' ').split(' ');
 			} 
 			params.answers.forEach(function(a){
-				if (a.task == task && a.groupname == params.groupname) {
+				if (a.task == task && params.cleanString(a.groupname) == params.cleanString(params.groupname)) {
 					a[kUse] = val;
 				}
 			})
