@@ -41,7 +41,7 @@ function defineParams(){
 // 4. to set up the API key : https://support.google.com/googleapi/answer/6158862?hl=en
 // 5. I shearched within the Google console cloud for Sheets, and then clicked Enable
 
-		this.groupname = 'default';
+		this.groupname = 'Polymer%20Composite%20Example';
 		this.sheetID = '1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q';
 		this.APIkey = 'AIzaSyDQkhXUUtjzbG61dvodYiIjnr-5JhYdn9s';
 		this.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/values/'+this.groupname+'/?alt=json&callback=readGoogleSheet&key='+this.APIkey;
@@ -70,11 +70,11 @@ function defineParams(){
 		this.transitionParaAnswers = true; //controls whether to use transition for answers.  Will be true at first.
 
 		//this will hold the answers from the static data file
-		this.answers = [{'groupname':'default', 'task':'para'},
-						{'groupname':'default', 'task':'SDC'}];
+		this.answers = [{'groupname':this.groupname, 'task':'para'},
+						{'groupname':this.groupname, 'task':'SDC'}];
 		//this will just be a copy of the answers, since in some cases I will want to change the answers and revert back
-		this.anwersOrg =  [{'groupname':'default', 'task':'para'},
-						{'groupname':'default', 'task':'SDC'}];
+		this.anwersOrg =  [{'groupname':this.groupname, 'task':'para'},
+						{'groupname':this.groupname, 'task':'SDC'}];
 
 		this.answersGroupnames = {'para':[],'SDC':[]};
 		this.showParaAnswers = true; //can be toggled with checkbox
