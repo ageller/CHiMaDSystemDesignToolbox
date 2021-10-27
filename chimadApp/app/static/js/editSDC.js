@@ -70,7 +70,7 @@ function beginSDCEdit(){
 	//update the url to remove all the connections
 	params.URLInputValues = {};
 	resetURLdata();
-	params.URLInputValues['groupname'] = params.groupname;
+	params.URLInputValues['groupname'] = params.cleanString(params.groupname);
 	appendURLdata();
 
 	//turn off the ability to draw lines
@@ -240,7 +240,7 @@ function beginSDCEdit(){
 
 		//reset the answer for this word (in case the column changed)
 		var word = params.cleanString(d3.select(elem).select('text').attr('orgText'));
-		params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0][word] = elem.column;
+		params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0][word] = elem.column;
 
 		//reorder params.selectionWords so that I can use formatSDC
 		var words = [];
@@ -342,7 +342,7 @@ function beginSDCEdit(){
 				if (index > -1) params.selectionWords.splice(index, 1);
 
 				//remove it from the answers
-				var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
+				var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
 				delete answersGroup[orgText];
 
 				//console.log('removing', orgText, index, params.selectionWords, params.answers)
@@ -415,9 +415,9 @@ function beginSDCEdit(){
 			params.selectionWords.push(text);
 
 			//add to answers
-			var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
+			var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
 			answersGroup[params.cleanString(text)] = null;
-			var answersGroupOrg = params.answersOrg.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
+			var answersGroupOrg = params.answersOrg.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
 			answersGroupOrg[params.cleanString(text)] = null;
 
 		})
@@ -507,7 +507,7 @@ function useTextArea(){
 
 				//update the answers
 				if (params.cleanString(orgText) != params.cleanString(thisElem.value)){
-					var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
+					var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
 					var response = answersGroup[params.cleanString(orgText)];
 					answersGroup[params.cleanString(thisElem.value)] = response;
 					delete answersGroup[params.cleanString(orgText)];
@@ -545,8 +545,8 @@ function switchSDCCompiler(){
 
 		//before resetting the answers check if there are any boxes that have null values in the original answers (these would have been added later)
 		//if so, update to the current value in answers
-		var answersGroupOrg = params.answersOrg.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
-		var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
+		var answersGroupOrg = params.answersOrg.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
+		var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
 		Object.keys(answersGroupOrg).forEach(function(key){
 			if (!answersGroupOrg[key]) answersGroupOrg[key] = answersGroup[key];
 		})
@@ -589,7 +589,7 @@ function switchSDCCompiler(){
 			params.answers.forEach(function(d){params.answersConsensus[version].push(cloneObject(d));});
 
 			//now go through the answers and aggregated responses for this group
-			var answersGroup = params.answersConsensus[version].filter(function(d){return (d.task == 'para' && d.groupname == params.groupname);})[0];
+			var answersGroup = params.answersConsensus[version].filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
 			Object.keys(answersGroup).forEach(function(key){
 				if (key != 'groupname' && key != 'task'){
 					//find the consensus response
