@@ -34,7 +34,7 @@ if (!params.haveParaEditor && !params.haveSDCEditor) d3.select('#systemDesignCha
 
 //load data from the URL to define the form input
 readURLdata();
-if ('groupname' in params.URLInputValues) params.groupname = params.URLInputValues.groupname;
+if ('groupname' in params.URLInputValues) params.groupname = params.cleanString(params.URLInputValues.groupname);
 updateSurveyFile();
 
 //load in all the data
@@ -72,7 +72,7 @@ function initPage(){
 
 			//create the system design chart
 			if (params.haveSDC) {
-				if (params.answersGroupnames.para.includes(params.groupname) || params.haveParaEditor || params.haveSDCEditor) {
+				if (params.answersGroupnames.para.includes(params.cleanString(params.groupname)) || params.haveParaEditor || params.haveSDCEditor) {
 					createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
 				} 
 				checkSDCvisibility();

@@ -41,7 +41,7 @@ function defineParams(){
 // 4. to set up the API key : https://support.google.com/googleapi/answer/6158862?hl=en
 // 5. I shearched within the Google console cloud for Sheets, and then clicked Enable
 
-		this.groupname = 'Polymer Composite Example';
+		this.groupname = 'polymercompositeexample';
 		this.sheetID = '1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q';
 		this.APIkey = 'AIzaSyDQkhXUUtjzbG61dvodYiIjnr-5JhYdn9s';
 		this.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/values/'+this.groupname+'/?alt=json&callback=readGoogleSheet&key='+this.APIkey;
@@ -50,6 +50,7 @@ function defineParams(){
 		//use this to get the available sheets
 		this.sheetRequest = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/?alt=json&callback=getAvailableSheets&key='+this.APIkey;
 		this.availableGroupnames = []; //this will hold the available sheets
+		this.availableGroupnamesOrg = []; //this will hold the available sheets without changing the characters
 
 		//will save the initial input text before adding dropdown tags
 		this.paraTextSave = '';
