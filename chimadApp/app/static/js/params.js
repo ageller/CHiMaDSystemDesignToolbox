@@ -21,7 +21,7 @@ function defineParams(){
 		this.haveSurveyData = false;
 		this.haveAnswersData = false;
 
-		this.groupname = 'default';
+		this.groupname = 'polymercompositeexample';
 		this.surveyFile = 'static/data/'+this.groupname+'.csv';
 		this.paragraphFile = 'static/data/paragraphs.csv';
 
@@ -50,11 +50,11 @@ function defineParams(){
 		this.transitionParaAnswers = true; //controls whether to use transition for answers.  Will be true at first.
 
 		//this will hold the answers from the static data file
-		this.answers = [{'groupname':'default', 'task':'para'},
-						{'groupname':'default', 'task':'SDC'}];
+		this.answers = [{'groupname':this.groupname, 'task':'para'},
+						{'groupname':this.groupname, 'task':'SDC'}];
 		//this will just be a copy of the answers, since in some cases I will want to change the answers and revert back
-		this.anwersOrg =  [{'groupname':'default', 'task':'para'},
-						{'groupname':'default', 'task':'SDC'}];
+		this.anwersOrg =  [{'groupname':this.groupname, 'task':'para'},
+						{'groupname':this.groupname, 'task':'SDC'}];
 
 		this.answersGroupnames = {'para':[],'SDC':[]};
 		this.showParaAnswers = true; //can be toggled with checkbox
