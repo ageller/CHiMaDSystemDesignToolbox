@@ -53,6 +53,7 @@ function readGoogleSheet(json) {
 		console.log('responses', keys, out, keys.length, params.responses)
 		aggregateParaResults();
 		aggregateSDCResults(); 
+		updateNresponses();
 //		if (params.URLInputValues.hasOwnProperty('username')) getUsernameInput(params.URLInputValues.username, {'keyCode':null});
 	} else {
 		console.log('WARNING: no values in the google sheet');
@@ -287,6 +288,15 @@ function countUniq(arr, clean=true){
 
 
 	return out;
+}
+
+function updateNresponses(){
+	//update the number of responses
+	var NPara = params.responses.filter(function(d){return (d.task == 'para' && d.version == params.paraResponseVersion);}).length;
+	d3.select('#boxGridNResponses').text('Number of Responses : '+NPara)
+
+	var NSDC = params.responses.filter(function(d){return (d.task == 'SDC' && d.version == params.SDCResponseVersion);}).length;
+	d3.select('#SDCNResponses').text('Number of Responses : '+NSDC)
 }
 
 function aggregateParaResults(){
