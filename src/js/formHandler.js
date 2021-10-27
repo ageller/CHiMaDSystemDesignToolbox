@@ -104,7 +104,7 @@ function onParaSubmit(){
 				formatSDC();
 				checkSDCvisibility();
 			}
-			params.paraData['SHEET_NAME'] = params.groupname;
+			params.paraData['SHEET_NAME'] = params.cleanString(params.groupname);
 			sendToGoogleSheet(params.paraData, 'paraNotification');
 		} else {
 			console.log("missing", missing)
@@ -142,7 +142,7 @@ function getUsernameInput(username=null){
 
 		params.URLInputValues = {};
 		params.URLInputValues["username"] = params.username;
-		params.URLInputValues["groupname"] = params.groupname;
+		params.URLInputValues["groupname"] = params.cleanString(params.groupname);
 		console.log('username ', params.username)
 
 		var ubbox = d3.select('#usernameLabel').node().getBoundingClientRect();
@@ -174,7 +174,7 @@ function getUsernameInput(username=null){
 			if (i == params.responses.length - 1){
 				appendURLdata();
 				readURLdata();
-				if ('groupname' in params.URLInputValues) params.groupname = params.URLInputValues.groupname;
+				if ('groupname' in params.URLInputValues) params.groupname = params.cleanString(params.URLInputValues.groupname);
 				useParaURLdata();
 				useSDCURLdata();
 			}
@@ -189,7 +189,7 @@ function getUsernameInput(username=null){
 function getGroupnameInput(groupname=null, evnt=null){
 	//get the group data from the text input box to define the paragraph
 
-	if (this.value) groupname = this.value;
+	if (this.value) groupname = params.cleanString(this.value);
 
 	//this will handle the write-in groupname for the editor
 	if (params.event.keyCode === 13 || params.event.which === 13) {
@@ -197,7 +197,7 @@ function getGroupnameInput(groupname=null, evnt=null){
 		event.preventDefault();
 	} else {
 
-		params.groupname = groupname;
+		params.groupname = params.cleanString(groupname);
 		if (!(typeof params.groupname === 'string') && !(params.groupname instanceof String)) params.groupname = '';
 
 		console.log('groupname ', params.groupname);
@@ -214,7 +214,7 @@ function getGroupnameInput(groupname=null, evnt=null){
 }
 
 function updateSurveyFile(){
-	params.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+params.sheetID+'/values/'+params.groupname+'/?alt=json&callback=readGoogleSheet&key='+params.APIkey;
+	params.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+params.sheetID+'/values/'+params.cleanString(params.groupname)+'/?alt=json&callback=readGoogleSheet&key='+params.APIkey;
 }
 
 function createGroupnameSelect(){
@@ -231,14 +231,14 @@ function createGroupnameSelect(){
 		.attr('name','groupnameSelect')
 		.on('change',setGroupnameFromOptions)
 
-	slct.selectAll('option').data(params.availableGroupnames).enter().filter(function(d){return d != 'paragraphs'}).append('option')
-		.attr('id',function(d){return 'groupname'+d;})
-		.attr('value',function(d){return d;})
+	slct.selectAll('option').data(params.availableGroupnamesOrg).enter().filter(function(d){return d != 'paragraphs'}).append('option')
+		.attr('id',function(d){return 'groupname'+params.cleanString(d);})
+		.attr('value',function(d){return params.cleanString(d);})
 		.text(function(d){return d;})
 	
 	var index = -1;
-	params.availableGroupnames.filter(function(d){return d != 'paragraphs'}).forEach(function(d,i){
-		if (d == params.groupname) index = i;
+	params.availableGroupnamesOrg.filter(function(d){return d != 'paragraphs'}).forEach(function(d,i){
+		if (params.cleanString(d) == params.cleanString(params.groupname)) index = i;
 	})
 	slct.node().selectedIndex = index;
 
@@ -248,9 +248,9 @@ function setGroupnameFromOptions(groupname=null){
 	//this will handle the dropdown menu for the paragraph
 
 	if (this.value) {
-		params.groupname = this.value;
+		params.groupname = params.cleanString(this.value);
 	} else {
-		params.groupname = groupname;
+		params.groupname = params.cleanString(groupname);
 	}
 
 	console.log('setting groupname', params.groupname);
@@ -269,7 +269,7 @@ function setGroupnameFromOptions(groupname=null){
 	checkAnswerTogglesVisibility();
 
 	//update the URL
-	params.URLInputValues['groupname'] = params.groupname;
+	params.URLInputValues['groupname'] = params.cleanString(params.groupname);
 	if (params.haveParaEditor) setURLFromAnswers();
 	appendURLdata();
 
@@ -291,7 +291,7 @@ function onSDCSubmit(){
 	//add the IP, username and task (not using IP anymore)
 	params.SDCData['IP'] = params.userIP;
 	params.SDCData['username'] = params.username;
-	params.SDCData['SHEET_NAME'] = params.groupname;
+	params.SDCData['SHEET_NAME'] = params.cleanString(params.groupname);
 	params.SDCData['task'] = 'SDC';
 	params.selectionWords.forEach(function(w,i){
 		//initialize to empty
@@ -321,19 +321,19 @@ function onSDCSubmit(){
 function checkAnswerTogglesVisibility(){
 	//check if the answers exist, and if not, hide the answers checkboxes (may want to move this to a function, like I did with SDC?)
 	d3.selectAll('.answerToggle').style('visibility','hidden');
-	if (params.answersGroupnames.para.includes(params.groupname)) {
+	if (params.answersGroupnames.para.includes(params.cleanString(params.groupname))) {
 		d3.select('#paraVersionOptions').selectAll('.answerToggle').style('visibility','visible');
 	}
-	if (params.answersGroupnames.SDC.includes(params.groupname) && (params.paraSubmitted2 || params.haveSDCEditor)) {
+	if (params.answersGroupnames.SDC.includes(params.cleanString(params.groupname)) && (params.paraSubmitted2 || params.haveSDCEditor)) {
 		d3.select('#SDCVersionOptions').selectAll('.answerToggle').style('visibility','visible');
 	}
 }
 
 function addEmptyAnswers(name){
-	params.answers.push({'groupname':name, 'task':'para'});
-	params.answers.push({'groupname':name, 'task':'SDC'});
-	params.answersGroupnames['para'].push(name);
-	params.answersGroupnames['SDC'].push(name);
+	params.answers.push({'groupname':params.cleanString(name), 'task':'para'});
+	params.answers.push({'groupname':params.cleanString(name), 'task':'SDC'});
+	params.answersGroupnames['para'].push(params.cleanString(name));
+	params.answersGroupnames['SDC'].push(params.cleanString(name));
 }
 
 function createEmail(){

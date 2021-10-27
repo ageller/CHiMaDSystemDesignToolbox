@@ -46,7 +46,7 @@ function populateAnswersFromURL(){
 	});
 
 	params.answers.forEach(function(a){
-		if (a.groupname == params.groupname){
+		if (params.cleanString(a.groupname) == params.cleanString(params.groupname)){
 			if (a.task == 'para'){
 				Object.keys(aPara).forEach(function(k){
 					a[k] = aPara[k];
@@ -60,7 +60,7 @@ function populateAnswersFromURL(){
 		}
 	})
 
-	params.answersGroupnames = [params.groupname];
+	params.answersGroupnames = [params.cleanString(params.groupname)];
 
 }
 
@@ -100,7 +100,7 @@ function saveParaEdit(){
 	//get the available tabs in the Google sheet
 	loadResponses(params.sheetRequest); //in case another edit was made by another user (but will this complete in time for the following if statement??)
 	//check that the group name is not already used
-	if (params.availableGroupnames.includes(params.groupname) || params.groupname == ''){
+	if (params.availableGroupnames.includes(params.cleanString(params.groupname)) || params.groupname == ''){
 		d3.select('#groupnameNotification')
 			.classed('error', true)
 			.text('Please choose a different group name.  ');
@@ -121,7 +121,7 @@ function saveParaEdit(){
 		createDropdowns();
 
 		//create the new tab in the google sheet
-		var data = {'SHEET_NAME':params.groupname, 'header':['Timestamp','IP','username','version', 'task']}
+		var data = {'SHEET_NAME':params.cleanString(params.groupname), 'header':['Timestamp','IP','username','version', 'task']}
 		params.selectionWords.forEach(function(d){
 			data.header.push(params.cleanString(d));
 		})
@@ -129,7 +129,7 @@ function saveParaEdit(){
 		sendToGoogleSheet(data, 'groupnameNotification', startInterval=false, succesResponse='Paragraph updated successfully.');
 
 		//add to the paragraphs tab in the google sheet (answers will come later with the onAnswersSubmit)
-		data =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupname,'paragraph':newText,'answersJSON':''};
+		data =  {'SHEET_NAME':'paragraphs', 'groupname':params.cleanString(params.groupname),'paragraph':newText,'answersJSON':''};
 		params.nTrials = 0; //this may not work properly since I have a submit up above...
 		sendToGoogleSheet(data, 'groupnameNotification', startInterval=false, succesResponse='Paragraph updated successfully.');
 
@@ -138,7 +138,7 @@ function saveParaEdit(){
 		d3.select('#paraTextEditor').style('display','none');
 
 		//create blank entries for the answers
-		addEmptyAnswers(params.groupname);
+		addEmptyAnswers(params.cleanString(params.groupname));
 
 		//show the system design chart starter
 		createSystemDesignChart();
@@ -155,9 +155,9 @@ function onAnswersSubmit(){
 
 	var answersData = [];
 	params.answers.forEach(function(a){
-		if (a.groupname == params.groupname) answersData.push(a);
+		if (params.cleanString(a.groupname) == params.cleanString(params.groupname)) answersData.push(a);
 	})
-	var data =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupname,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
+	var data =  {'SHEET_NAME':'paragraphs', 'groupname':params.cleanString(params.groupname),'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
 	sendToGoogleSheet(data, 'answerSubmitNotification', startInterval=false, succesResponse='Answers updated successfully.');
 	console.log('answers submitted', data);
 }
