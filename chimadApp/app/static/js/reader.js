@@ -25,6 +25,14 @@ function loadFile(file, callback){
 }
 
 
+function updateNresponses(){
+	//update the number of responses
+	var NPara = params.responses.filter(function(d){return (d.task == 'para' && d.version == params.paraResponseVersion);}).length;
+	d3.select('#boxGridNResponses').text('Number of Responses : '+NPara)
+
+	var NSDC = params.responses.filter(function(d){return (d.task == 'SDC' && d.version == params.SDCResponseVersion);}).length;
+	d3.select('#SDCNResponses').text('Number of Responses : '+NSDC)
+}
 
 function aggregateResults(data) {
 //store the data and aggregate the results
@@ -43,8 +51,7 @@ function aggregateResults(data) {
 	aggregateParaResults();
 	aggregateSDCResults(); 
 
-
-
+	updateNresponses();
 }
 
 function compileParagraphData(data) {

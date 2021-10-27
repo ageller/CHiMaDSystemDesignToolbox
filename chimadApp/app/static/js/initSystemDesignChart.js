@@ -930,7 +930,7 @@ function switchSDCVersions(){
 				})
 			}
 		})
-			
+		updateNresponses();
 	}
 
 	if (this.name == "answers"){

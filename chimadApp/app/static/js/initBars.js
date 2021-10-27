@@ -418,6 +418,7 @@ function switchParaVersions(){
 		params.paraResponseVersion = this.value;
 		params.toggleParaText = true;
 		if (params.paraSubmitted) defineBars();
+		updateNresponses();
 	}
 	if (this.name == "answers"){
 		params.showParaAnswers = this.checked;
