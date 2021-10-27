@@ -23,7 +23,7 @@ function defineParams(){
 
 		//script that will control entries into the google sheet
 		//note: I may have to approve this every so often... I seem to occasionally get CORS errors, but then it is fixed if I deplay a new script (which asks if I approve)
-		this.googleScriptURL = 'https://script.google.com/macros/s/AKfycbzhCvXMNWyorc_rV6t-3uUEYpxWOt4yGsy8HSidbegVfyuNIiAqNW87VFYsD6PsmNgt/exec';
+		this.googleScriptURL = 'https://script.google.com/macros/s/AKfycbwvec5P2s5E4I0E7Wwy9Ej3a-sqAJFZbJEdzJyRVpSZ_yfaHkYUrMx7TMA5yexSvW0/exec';
 		
 //the URL of the json getter of the sheet, for the visualization of results
 //sometime near Sept. 2021, Google stopped allowing the simle JSON alt type variant.  Now we need an api_key
