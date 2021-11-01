@@ -199,6 +199,9 @@ function defineParams(){
 		this.haveSDCEditor = false; //will be true if the SDC editor is active
 		this.editingSDC = false; //will be true if user is currently editting SDC
 		this.edittedSDC = false; //will be true if user is has editted SDC (so that we don't show the aggregate lines of answers)
+
+		this.triedLoadingAgain = false;
+
 	};
 
 	//check for mobile

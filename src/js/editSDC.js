@@ -209,7 +209,6 @@ function beginSDCEdit(){
 		var yNew = y;
 		//now move the adjacent rects
 		elems[elem.column].filter(function(d){return d != elem;}).forEach(function(t,i){
-			//if ( (y + elem.height/2.) > t.y && y < (t.y + t.height) && !d3.select(t).classed('rectMoving')){
 			if ( (y + elem.height/2.) > t.y && y < (t.y + t.height) && !d3.select(t).classed('rectMoving')){
 				//console.log('overlap', i, t.y, t.height, y, elem.height, y + elem.height, t.y + t.height);
 				var yOther;
