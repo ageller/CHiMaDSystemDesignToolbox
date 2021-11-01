@@ -163,7 +163,8 @@ function beginSDCEdit(){
 				if (index > -1) {
 					//console.log('found elem in column list')
 					elems[elem.column].splice(index, 1);
-					elems[columnWords[iX]].push(elem);
+					//elems[columnWords[iX]].push(elem);
+					elems[columnWords[iX]].unshift(elem);
 				}
 				elem.column = columnWords[iX];
 				d3.select(elem).attr('column', elem.column);
@@ -206,9 +207,9 @@ function beginSDCEdit(){
 
 	function handleOverlaps(elems, elem, y){
 		var yNew = y;
-
 		//now move the adjacent rects
 		elems[elem.column].filter(function(d){return d != elem;}).forEach(function(t,i){
+			//if ( (y + elem.height/2.) > t.y && y < (t.y + t.height) && !d3.select(t).classed('rectMoving')){
 			if ( (y + elem.height/2.) > t.y && y < (t.y + t.height) && !d3.select(t).classed('rectMoving')){
 				//console.log('overlap', i, t.y, t.height, y, elem.height, y + elem.height, t.y + t.height);
 				var yOther;
@@ -254,7 +255,8 @@ function beginSDCEdit(){
 		words.sort(function(a, b){  
 			var i1 = words.indexOf(a);
 			var i2 = words.indexOf(b);
-			return wordsY[i1] - wordsY[i2];
+			//return wordsY[i1] - wordsY[i2];
+			return wordsY[i2] - wordsY[i1]; //in reverse now
 		});
 		params.selectionWords = words;
 	}
@@ -278,6 +280,7 @@ function beginSDCEdit(){
 
 				e[column].push(this);
 			})
+
 		})
 
 		return e;
