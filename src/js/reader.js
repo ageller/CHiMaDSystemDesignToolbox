@@ -37,6 +37,7 @@ function readGoogleSheet(json) {
 	params.haveSurveyData = false;
 
 	if (json.hasOwnProperty('values')){
+		params.triedLoadingAgain = false;
 		keys = json.values[0];
 		out = [];
 		for (var i = 1; i < json.values.length; i++){
@@ -58,9 +59,12 @@ function readGoogleSheet(json) {
 	} else {
 		console.log('WARNING: no values in the google sheet');
 		//possibly from bad URL input
-		params.groupname = params.cleanString(params.groupnameOrg);
-		updateSurveyFile()
-		loadResponses(params.surveyFile);
+		if (!params.triedLoadingAgain){
+			params.groupname = params.cleanString(params.groupnameOrg);
+			updateSurveyFile()
+			loadResponses(params.surveyFile);
+			params.triedLoadingAgain = true;
+		}
 		//params.haveSurveyData = true;
 	}
 
