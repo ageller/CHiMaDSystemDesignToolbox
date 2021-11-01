@@ -11,7 +11,6 @@ d3.select('body').on('click',function(){
 
 //bind the username getter
 d3.select('#usernameInput').on("keyup",getUsernameInput);
-d3.select('#groupnameInput').on("keyup",getGroupnameInput);
 
 //resize events
 window.addEventListener('resize', resize);

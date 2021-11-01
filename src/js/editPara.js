@@ -17,10 +17,12 @@
 // btn2.onclick = saveParaEdit;
 // parentEl.insertBefore(btn2, document.getElementById('paraText'));
 
-//attach function to buttons
+//attach function to buttons and input
+d3.select('#groupnameInput').on("keyup",getGroupnameInput);
 document.getElementById('paraEditButton').onclick = beginParaEdit;
 document.getElementById('paraSaveButton').onclick = saveParaEdit;
 params.haveParaEditor = true;
+
 
 //should I do this, or do I want to read in all the answers from the form first (once that is set up)?
 //for now I will populate from URL
@@ -129,7 +131,7 @@ function saveParaEdit(){
 		sendToGoogleSheet(data, 'groupnameNotification', startInterval=false, succesResponse='Paragraph updated successfully.');
 
 		//add to the paragraphs tab in the google sheet (answers will come later with the onAnswersSubmit)
-		data =  {'SHEET_NAME':'paragraphs', 'groupname':params.cleanString(params.groupname),'paragraph':newText,'answersJSON':''};
+		data =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupnameOrg,'paragraph':newText,'answersJSON':''};
 		params.nTrials = 0; //this may not work properly since I have a submit up above...
 		sendToGoogleSheet(data, 'groupnameNotification', startInterval=false, succesResponse='Paragraph updated successfully.');
 
@@ -160,4 +162,32 @@ function onAnswersSubmit(){
 	var data =  {'SHEET_NAME':'paragraphs', 'groupname':params.cleanString(params.groupname),'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
 	sendToGoogleSheet(data, 'answerSubmitNotification', startInterval=false, succesResponse='Answers updated successfully.');
 	console.log('answers submitted', data);
+}
+
+function getGroupnameInput(groupname=null, evnt=null){
+	//get the group data from the text input box to define the paragraph
+
+	if (this.value) groupname = this.value;
+
+	//this will handle the write-in groupname for the editor
+	if (params.event.keyCode === 13 || params.event.which === 13) {
+		//prevent returns from triggering anything
+		event.preventDefault();
+	} else {
+
+		params.groupname = params.cleanString(groupname);
+		params.groupnameOrg = groupname;
+		if (!(typeof params.groupname === 'string') && !(params.groupname instanceof String)) params.groupname = '';
+
+		console.log('groupname ', params.groupname);
+		if (params.availableGroupnames.includes(params.groupname) || params.groupname == '') {
+			d3.select('#groupnameNotification')
+				.classed('error', true)
+				.text('Please choose a different group name. ');
+		} else {
+			d3.select('#groupnameNotification').text('');
+			params.URLInputValues["groupname"] = params.groupname;
+			appendURLdata();
+		}
+	}
 }

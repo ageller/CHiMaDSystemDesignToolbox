@@ -42,6 +42,7 @@ function defineParams(){
 // 5. I shearched within the Google console cloud for Sheets, and then clicked Enable
 
 		this.groupname = 'polymercompositeexample';
+		this.groupnameOrg = 'Polymer Composite Example';
 		this.sheetID = 'REDACTED';
 		this.APIkey = 'REDACTED_GOOGLE_API_KEY';
 		this.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/values/'+this.groupname+'/?alt=json&callback=readGoogleSheet&key='+this.APIkey;
