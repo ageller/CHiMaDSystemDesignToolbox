@@ -436,8 +436,8 @@ function moveSDCLine() {
 				params.SDCLine
 					.attr('attached','false')
 					.attr('endCategory', 'null')
-					.attr('endSelectionWords','null');
-
+					.attr('endSelectionWords','null')
+					.attr('class','SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords'))
 			}
 			
 
@@ -471,7 +471,6 @@ function moveExistingSDCLine(){
 
 function endSDCLine() {
 	if (params.showSDCResponses){
-
 		//restart text highlighting
 		window.event.cancelBubble = false;
 		window.event.returnValue = true;
@@ -568,6 +567,7 @@ function highlightSDCLines(elem){
 				d3.selectAll('.SDCLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
 				d3.selectAll('.SDCCircle').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
 				d3.selectAll('.SDCCircle0').transition().duration(params.transitionSDCDuration).style('opacity',0.1)
+				console.log('checking', id)
 				d3.selectAll('.SDCLine_'+id).interrupt().transition()
 				d3.selectAll('.SDCLine_'+id).style('opacity',1)
 			}
