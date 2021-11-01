@@ -266,6 +266,7 @@ function setAnswersFromURL(){
 function getAvailableSheets(json){
 	//not used anymore (set in readGoogleSheetParagraphs)
 	params.availableGroupnames = [];
+	params.availableGroupnamesOrg = [];
 	console.log('in getAvailableSheets', json)
 	if (json.hasOwnProperty('sheets')){
 		json.sheets.forEach(function(d){
@@ -274,8 +275,9 @@ function getAvailableSheets(json){
 		})
 	}
 	params.availableGroupnames = params.availableGroupnames.sort();
+	params.availableGroupnamesOrg = params.availableGroupnamesOrg.sort();
 	console.log('have available groupnames', params.availableGroupnames);
-	createGroupnameSelect();
+	//createGroupnameSelect();
 }
 
 function countUniq(arr, clean=true){
