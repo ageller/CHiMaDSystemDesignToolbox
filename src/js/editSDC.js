@@ -64,8 +64,18 @@ function beginSDCEdit(){
 	d3.selectAll('circle').remove();
 	d3.selectAll('.SDCAggregateFracBox').remove();
 
+	//add blankRect to any rectangles that don't have the category
 	//add back the arrows 
 	drawProcessingArrows();
+	d3.selectAll('.SDCrectContainer').each(function(){
+		var el = d3.select(this);
+		var hasClass = false;
+		var classList = el.node().classList;
+		columnWords.forEach(function(column){
+			if (el.classed(column)) hasClass = true;
+		})
+		if (!hasClass) el.classed('blankRect', true);
+	})
 
 	//update the url to remove all the connections
 	params.URLInputValues = {};
@@ -156,7 +166,7 @@ function beginSDCEdit(){
 			})
 			x = leftsX[iX];
 			if (elem.column != columnWords[iX]){
-				//console.log('changing columns');
+				console.log('changing columns', elem, elems);
 
 				//shift the groups up and down to keep things centered
 				const index = elems[elem.column].indexOf(elem);
