@@ -15,11 +15,19 @@ function loadFile(file, callback){
 				console.log('loaded file',d);
 				var data = JSON.parse(d.data);
 				data.columns = d.columns;
+				params.triedLoadingAgain = false;
 				callback(data)
 
 			},
 			error: function(d) {
 				console.log('!!! WARNING: file did not load', d);
+				//possibly from bad URL input 
+				if (!params.triedLoadingAgain){
+					params.groupname = params.cleanString(params.groupnameOrg);
+					updateSurveyFile();
+					loadFile(params.surveyFile, aggregateResults);
+					params.triedLoadingAgain = true;
+				}
 			}
 		});
 }
