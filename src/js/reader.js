@@ -57,7 +57,11 @@ function readGoogleSheet(json) {
 //		if (params.URLInputValues.hasOwnProperty('username')) getUsernameInput(params.URLInputValues.username, {'keyCode':null});
 	} else {
 		console.log('WARNING: no values in the google sheet');
-		params.haveSurveyData = true;
+		//possibly from bad URL input
+		params.groupname = params.cleanString(params.groupnameOrg);
+		updateSurveyFile()
+		loadResponses(params.surveyFile);
+		//params.haveSurveyData = true;
 	}
 
 	//old format (prior to Sept. 2021)
