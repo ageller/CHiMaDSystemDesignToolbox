@@ -63,6 +63,17 @@ function beginSDCEdit(){
 	d3.selectAll('line').remove();
 	d3.selectAll('circle').remove();
 	d3.selectAll('.SDCAggregateFracBox').remove();
+	
+	//add blankRect to any rectangles that don't have the category
+	d3.selectAll('.SDCrectContainer').each(function(){
+		var el = d3.select(this);
+		var hasClass = false;
+		var classList = el.node().classList;
+		columnWords.forEach(function(column){
+			if (el.classed(column)) hasClass = true;
+		})
+		if (!hasClass) el.classed('blankRect', true);
+	})
 
 	//add back the arrows 
 	drawProcessingArrows();
