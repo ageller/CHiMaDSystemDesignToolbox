@@ -65,8 +65,6 @@ function beginSDCEdit(){
 	d3.selectAll('.SDCAggregateFracBox').remove();
 
 	//add blankRect to any rectangles that don't have the category
-	//add back the arrows 
-	drawProcessingArrows();
 	d3.selectAll('.SDCrectContainer').each(function(){
 		var el = d3.select(this);
 		var hasClass = false;
@@ -76,6 +74,9 @@ function beginSDCEdit(){
 		})
 		if (!hasClass) el.classed('blankRect', true);
 	})
+
+	//add back the arrows 
+	drawProcessingArrows();
 
 	//update the url to remove all the connections
 	params.URLInputValues = {};
