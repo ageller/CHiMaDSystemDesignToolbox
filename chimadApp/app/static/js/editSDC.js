@@ -163,7 +163,8 @@ function beginSDCEdit(){
 				if (index > -1) {
 					//console.log('found elem in column list')
 					elems[elem.column].splice(index, 1);
-					elems[columnWords[iX]].push(elem);
+					//elems[columnWords[iX]].push(elem);
+					elems[columnWords[iX]].unshift(elem);
 				}
 				elem.column = columnWords[iX];
 				d3.select(elem).attr('column', elem.column);
@@ -254,7 +255,8 @@ function beginSDCEdit(){
 		words.sort(function(a, b){  
 			var i1 = words.indexOf(a);
 			var i2 = words.indexOf(b);
-			return wordsY[i1] - wordsY[i2];
+			//return wordsY[i1] - wordsY[i2];
+			return wordsY[i2] - wordsY[i1]; //in reverse now
 		});
 		params.selectionWords = words;
 	}

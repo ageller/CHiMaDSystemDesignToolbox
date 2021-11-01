@@ -229,33 +229,6 @@ function getUsernameInput(username=null){
 }
 
 
-function getGroupnameInput(groupname=null, evnt=null){
-	//get the group data from the text input box to define the paragraph
-
-	if (this.value) groupname = params.cleanString(this.value);
-
-	//this will handle the write-in groupname for the editor
-	if (params.event.keyCode === 13 || params.event.which === 13) {
-		//prevent returns from triggering anything
-		event.preventDefault();
-	} else {
-
-		params.groupname = params.cleanString(groupname);
-		if (!(typeof params.groupname === 'string') && !(params.groupname instanceof String)) params.groupname = '';
-
-		console.log('groupname ', params.groupname);
-		if (params.availableGroupnames.includes(params.groupname) || params.groupname == '') {
-			d3.select('#groupnameNotification')
-				.classed('error', true)
-				.text('Please choose a different group name. ');
-		} else {
-			d3.select('#groupnameNotification').text('');
-			params.URLInputValues["groupname"] = params.groupname;
-			appendURLdata();
-		}
-	}
-}
-
 function updateSurveyFile(){
 	params.surveyFile = 'static/data/'+params.cleanString(params.groupname)+'.csv';
 }
