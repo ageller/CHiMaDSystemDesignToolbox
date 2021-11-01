@@ -436,8 +436,8 @@ function moveSDCLine() {
 				params.SDCLine
 					.attr('attached','false')
 					.attr('endCategory', 'null')
-					.attr('endSelectionWords','null');
-
+					.attr('endSelectionWords','null')
+					.attr('class','SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords'));
 			}
 			
 
