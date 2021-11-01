@@ -159,7 +159,7 @@ function onAnswersSubmit(){
 	params.answers.forEach(function(a){
 		if (params.cleanString(a.groupname) == params.cleanString(params.groupname)) answersData.push(a);
 	})
-	var data =  {'SHEET_NAME':'paragraphs', 'groupname':params.cleanString(params.groupname),'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
+	var data =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupnameOrg,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
 	sendToGoogleSheet(data, 'answerSubmitNotification', startInterval=false, succesResponse='Answers updated successfully.');
 	console.log('answers submitted', data);
 }
