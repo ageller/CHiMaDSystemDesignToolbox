@@ -84,7 +84,8 @@ function beginParaEdit(){
 
 	//populate the editor
 	var txtarea = d3.select('#paraTextEditor').select('textarea');
-	txtarea.style('height',d3.select('#paraText').node().getBoundingClientRect().height + 'px');
+	var height = Math.max(100., d3.select('#paraText').node().getBoundingClientRect().height);
+	txtarea.style('height',height + 'px');
 	//txtarea.node().value = params.paraTextSave;
 	txtarea.text(params.paraTextSave);
 
@@ -93,6 +94,7 @@ function beginParaEdit(){
 	d3.select('#paraText').style('display','none');
 	d3.select('#paraTextEditor').style('display','block');
 
+	resize();
 
 }
 
