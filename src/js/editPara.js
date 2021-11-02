@@ -107,7 +107,7 @@ function saveParaEdit(){
 	if (params.availableGroupnames.includes(params.cleanString(params.groupname)) || params.groupname == ''){
 		d3.select('#groupnameNotification')
 			.classed('error', true)
-			.text('Please choose a different group name.  ');
+			.text('Please choose a different paragraph name.  ');
 	} else {
 		
 		//change button to save
@@ -185,7 +185,7 @@ function getGroupnameInput(groupname=null, evnt=null){
 		if (params.availableGroupnames.includes(params.groupname) || params.groupname == '') {
 			d3.select('#groupnameNotification')
 				.classed('error', true)
-				.text('Please choose a different group name. ');
+				.text('Please choose a different paragraph name. ');
 		} else {
 			d3.select('#groupnameNotification').text('');
 			params.URLInputValues["groupname"] = params.groupname;
