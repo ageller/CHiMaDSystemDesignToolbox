@@ -6,6 +6,9 @@ from datetime import datetime
 
 
 app = Flask(__name__)
+app.config.update(
+	TEMPLATES_AUTO_RELOAD=True
+)
 #app.config['SECRET_KEY'] = 'CHiMaD!App3_'
 
 		
@@ -104,11 +107,11 @@ def save_responses():
 	return jsonify(message)
 
 
-@app.route('/test')
+@app.route('/')
 def test():
 	return render_template('index.html')
 
-@app.route('/')
+@app.route('/training')
 def training():
 	return render_template('training.html')
 
