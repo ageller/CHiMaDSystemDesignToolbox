@@ -4,7 +4,6 @@ import os
 from datetime import datetime
 
 
-
 app = Flask(__name__)
 app.config.update(
 	TEMPLATES_AUTO_RELOAD=True
@@ -108,29 +107,33 @@ def save_responses():
 
 	return jsonify(message)
 
+#input=json.dumps({'fps':fps})
+# window.onload = initFPS( {{ input|tojson|safe }} );
+inDesktopApp = True
+
 @app.route('/')
 def default():
-	return render_template('index.html')
+	return render_template('index.html', inDesktopApp=inDesktopApp)
 
 @app.route('/home')
 def home():
-	return render_template('index.html')
+	return render_template('index.html', inDesktopApp=inDesktopApp)
 
 @app.route('/index')
 def index():
-	return render_template('index.html')
+	return render_template('index.html', inDesktopApp=inDesktopApp)
 
 @app.route('/training')
 def training():
-	return render_template('training.html')
+	return render_template('training.html', inDesktopApp=inDesktopApp)
 
 @app.route('/editPara')
 def editPara():
-	return render_template('editPara.html')
+	return render_template('editPara.html', inDesktopApp=inDesktopApp)
 
 @app.route('/editSDC')
 def editSDC():
-	return render_template('editSDC.html')
+	return render_template('editSDC.html', inDesktopApp=inDesktopApp)
 
 # comment this part out when adding it to the production server
 if __name__ == '__main__':

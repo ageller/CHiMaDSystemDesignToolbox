@@ -37,6 +37,13 @@
 
 
 		<script>
+			if ({{ inDesktopApp|tojson|safe }}){
+				console.log('running in desktop app')
+				var script = document.createElement("script");  
+				script.src = 'static/js/forFlaskWebGUI.js';
+				document.body.appendChild(script);  
+			}
+
 			document.onload = resize();
 			window.addEventListener('resize', resize);
 			function resize(){
