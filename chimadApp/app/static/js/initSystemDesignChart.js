@@ -168,8 +168,9 @@ function formatSDC(duration=0){
 			for (var i=0; i<reversedSelectionWords.length; i++){
 				var d = params.cleanString(reversedSelectionWords[i]);
 				if (using.hasOwnProperty(d)){
-					var x = params.SDCColumnCenters[using[d]] - params.SDCBoxWidth/2.;
-					var y = SDCcolumnYLocations[using[d]];
+					var dd = params.cleanString(using[d]);
+					var x = params.SDCColumnCenters[dd] - params.SDCBoxWidth/2.;
+					var y = SDCcolumnYLocations[dd];
 					if (x && y && !isNaN(x) && !isNaN(y)){
 						var box = d3.select('#SDCBox_'+params.cleanString(reversedSelectionWords[i]))
 							.attr('class','SDCrectContainer ' + using[d])
@@ -178,7 +179,7 @@ function formatSDC(duration=0){
 							.on('mousedown', startSDCLine)
 
 						box.select('rect')
-							.attr('class',using[d].toLowerCase()+'Word ' + using[d].toLowerCase() + ' SDCrect SDCrectDone')
+							.attr('class',dd+'Word ' + dd + ' SDCrect SDCrectDone')
 							.style('fill','');
 
 						box.transition().duration(duration)
@@ -186,7 +187,7 @@ function formatSDC(duration=0){
 
 						var text = box.select('text');
 						var bbox = text.node().getBBox();
-						SDCcolumnYLocations[using[d]] += bbox.height+10 + params.SDCBoxMargin;// - boxHeight;
+						SDCcolumnYLocations[dd] += bbox.height+10 + params.SDCBoxMargin;// - boxHeight;
 					}
 				}
 			}

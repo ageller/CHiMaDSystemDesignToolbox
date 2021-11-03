@@ -1,6 +1,9 @@
 //I can improve this, especially for mobile
 function resize(){
 	
+	var topH = d3.select('#branding').node().getBoundingClientRect().height + 20;
+
+
 	if (params.haveBars && params.createdBars) resizeBarPlot();
 
 	var elem;
@@ -32,8 +35,9 @@ function resize(){
 		.style('font-size', fsi + 'px')
 		.style('line-height', (fsi+4)+'px');
 			
+	d3.select('#paragraphForm').style('margin-top',topH + 'px');
 	var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
-	var maxH = paragraphFormBbox.height;
+	var maxH = paragraphFormBbox.height + topH;
 
 	//for now I'm disabling this entire section unless we are showing the bar chart
 	if (params.haveBars && params.createdBars) {
@@ -58,15 +62,17 @@ function resize(){
 			//side-by-side view
 			d3.select('#paragraphForm').style('width',paragraphFormWidth);
 			d3.select('#boxGrid')
-				.style('left',paragraphFormWidth)
-				.style('top',0);
+				.style('left',paragraphFormWidth + 'px')
+				.style('margin-top','0px')
+				.style('top',topH+'px');
 			boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
-			maxH = Math.max(Math.max(plotBbox.height, boxGridBbox.height), paragraphFormBbox.height);
+			maxH = Math.max(Math.max(plotBbox.height, boxGridBbox.height), paragraphFormBbox.height) + topH;
 			d3.select('#verticalLine1')
 				.style('display','block')
-				.style('left',paragraphFormWidth)
+				.style('left',paragraphFormWidth + 'px')
+				.style('top',topH + 'px')
 				//.style('height', 0.98*Math.max(window.innerHeight,boxGridBbox.height));
-				.style('height', maxH - 0.01*window.innerHeight + 4)
+				.style('height', (maxH - 0.01*window.innerHeight - topH + 12) + 'px')
 			d3.select('#horizontalLine1').style('display','none');
 			d3.select('#horizontalLine2') 
 				.style('display','block')
@@ -79,13 +85,14 @@ function resize(){
 			paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
 			d3.select('#boxGrid')
 				.style('left',0)
-				.style('top',paragraphFormBbox.height + 50 + 'px')
+				.style('top',paragraphFormBbox.height + topH + 50 + 'px')
+				.style('margin-top','0px')
 				.style('width',paragraphFormBbox.width + 'px')
 			d3.select('#verticalLine1').style('display','none');
 			d3.select('#horizontalLine1')			
 				.style('display','block')
-				.style('top',paragraphFormBbox.height+'px');
-			maxH = paragraphFormBbox.height + Math.max(plotBbox.height, boxGridBbox.height) + 80;
+				.style('top',paragraphFormBbox.height+ topH + 'px');
+			maxH = paragraphFormBbox.height + topH + Math.max(plotBbox.height, boxGridBbox.height) + 80;
 			d3.select('#horizontalLine2')			
 				.style('display','block')
 				.style('top',maxH+'px');
