@@ -3,6 +3,7 @@
 	--structure-color:#B1D095;
 	--property-color:#B8C7E4;
 	--performance-color:#B8A0E9;
+	--chimad-color: #274d7e;
 }
 
 html,body {
@@ -42,8 +43,8 @@ html,body {
 	top:1%;
 	left:1000px;
 	height:98%;
-	border-right: 4px solid #274d7e;
-	border-left: 4px solid #274d7e;
+	border-right: 4px solid var(--chimad-color);
+	border-left: 4px solid var(--chimad-color);
 	border-radius: 4px;
 }
 .horizontalLine{
@@ -51,8 +52,8 @@ html,body {
 	top:1000px;
 	left:1%;
 	width:98%;
-	border-top: 4px solid #274d7e;
-	border-bottom: 4px solid #274d7e;
+	border-top: 4px solid var(--chimad-color);
+	border-bottom: 4px solid var(--chimad-color);
 	border-radius: 4px;
 }
 /* https://www.w3schools.com/css/tryit.asp?filename=trycss_buttons_animate3 */
@@ -65,7 +66,7 @@ html,body {
 	text-decoration: none;
 	outline: none;
 	color: #fff;
-	background-color: #274d7e;
+	background-color: var(--chimad-color);
 	border: none;
 	border-radius: 15px;
 	box-shadow: 0 6px #999;
@@ -108,7 +109,7 @@ html,body {
 }
 
 .instructions{
-	color:#274d7e;
+	color:var(--chimad-color);
 	font-weight:bold;
 	font-style: italic;
 	font-size:0.8vw;
@@ -134,26 +135,26 @@ html,body {
 	position:absolute;
 	overflow:hidden;*/
 
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  /* Add some styling */
-  
-  display: block;
-  width: 100%;
-  max-width: 320px;
-  height: 50px;
-  float: right;
-  margin: 5px 0px;
-  padding: 0px 24px;
-  font-size: 16px;
-  line-height: 1.75;
-  color: #333;
-  background-color: #ffffff;
-  background-image: none;
-  border: 1px solid #cccccc;
-  -ms-word-break: normal;
-  word-break: normal;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	/* Add some styling */
+	
+	display: block;
+	width: 100%;
+	max-width: 320px;
+	height: 50px;
+	float: right;
+	margin: 5px 0px;
+	padding: 0px 24px;
+	font-size: 16px;
+	line-height: 1.75;
+	color: #333;
+	background-color: #ffffff;
+	background-image: none;
+	border: 1px solid #cccccc;
+	-ms-word-break: normal;
+	word-break: normal;
 }
 
 /* IE11 hide native button */
@@ -163,26 +164,26 @@ html,body {
 
 
 .selectdiv select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  /* Add some styling */
-  
-  display: block;
-  width: 100%;
-  max-width: 320px;
-  height: 50px;
-  float: right;
-  margin: 5px 0px;
-  padding: 0px 24px;
-  font-size: 16px;
-  line-height: 1.75;
-  color: #333;
-  background-color: #ffffff;
-  background-image: none;
-  border: 1px solid #cccccc;
-  -ms-word-break: normal;
-  word-break: normal;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	/* Add some styling */
+	
+	display: block;
+	width: 100%;
+	max-width: 320px;
+	height: 50px;
+	float: right;
+	margin: 5px 0px;
+	padding: 0px 24px;
+	font-size: 16px;
+	line-height: 1.75;
+	color: #333;
+	background-color: #ffffff;
+	background-image: none;
+	border: 1px solid #cccccc;
+	-ms-word-break: normal;
+	word-break: normal;
 }
 
 
@@ -240,13 +241,13 @@ html,body {
 	font-style:italic;
 }
 .blink_me{
-  animation: blinker 1.5s linear infinite;
+	animation: blinker 1.5s linear infinite;
 }
 
 @keyframes blinker{
-  50% {
-    opacity: 0;
-  }
+	50% {
+		opacity: 0;
+	}
 }
 
 .error{
@@ -301,3 +302,36 @@ html,body {
 	background-size: cover;
 }
 
+.landing-button{
+	display: flex;
+	align-items: center;
+	border: 0.8vw solid var(--chimad-color);
+	border-radius: 1.5vw;
+	width: 30vw;
+	height: 15vw;
+	background-color: rgba(255,255,255,0.85);
+	float: left;
+	margin-left: 1vw;
+	/*margin-top: 7vw;*/
+	cursor: pointer;
+	transition: background-color 0.3s;
+}
+.landing-button div{
+	font-size: 3vw;
+	padding: 0.7vw;
+	text-align: center;
+}
+.simpleLink{
+	color: black;
+}
+.landing-button:hover{
+	background-color: rgba(255,255,255,1);
+}
+.simpleLine{
+	border-top:2px solid var(--chimad-color); 
+	border-bottom: none;
+	border-right: none;
+	border-left: none;
+	width:95vw; 
+	height:0px
+}
