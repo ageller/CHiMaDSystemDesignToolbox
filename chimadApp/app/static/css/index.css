@@ -3,7 +3,8 @@
 	--structure-color:#B1D095;
 	--property-color:#B8C7E4;
 	--performance-color:#B8A0E9;
-	--chimad-color: #274d7e;
+	/*--chimad-color: #274d7e;*/
+	--chimad-color: #005696;
 }
 
 html,body {
@@ -335,4 +336,11 @@ html,body {
 	border-left: none;
 	width:95vw; 
 	height:0px
+}
+#homeLink{
+	color: black;
+	transition:  color 0.3s;
+}
+#homeLink:hover{
+	color: var(--chimad-color);
 }
