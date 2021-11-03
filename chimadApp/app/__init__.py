@@ -15,13 +15,14 @@ app.config.update(
 #I am going to start by simply downloading the Google sheets as csv files and working with those
 #once I have that working, I will transition to using a SQL database
 
-# read in a csv file
 @app.route('/load_file', methods=['GET', 'POST'])
 def load_file():
 	message = request.get_json()
-	print('======= load_file', os.path.abspath(message['filename']))
+	here = os.path.dirname(__file__)
+	filename = os.path.join(here, message['filename'])
+	print('======= load_file', here, message['filename'], filename)
 
-	df = pd.read_csv(os.path.abspath(message['filename']))
+	df = pd.read_csv(filename)
 	out = {'data': df.fillna('').to_json(orient='records'), 'columns':df.columns.tolist()}
 	return jsonify(out)
 
@@ -33,7 +34,8 @@ def save_responses():
 	# I will need to perform all the checks that I had in the google script but now in python
 	# For now, I will save the values to a csv file
 	data = message['data']
-	filename = os.path.abspath('static/data/' + data['SHEET_NAME'] + '.csv')
+	here = os.path.dirname(__file__)
+	filename = os.path.join(here, 'static/data/' + data['SHEET_NAME'] + '.csv')
 	print('!!! filename', filename)
 
 	if (os.path.exists(filename)):
@@ -105,7 +107,6 @@ def save_responses():
 	df.fillna('').to_csv(filename, index=False)
 
 	return jsonify(message)
-
 
 @app.route('/')
 def default():
