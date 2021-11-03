@@ -67,6 +67,7 @@ function populateAnswersFromURL(){
 
 function beginParaEdit(){
 	console.log('editing paragraph');
+	params.edittingPara = true;
 
 	//reset the URL
 	resetURLdata();
@@ -100,6 +101,11 @@ function beginParaEdit(){
 
 function saveParaEdit(){
 	console.log('saving paragraph');
+	params.edittingPara = false;
+	d3.select('#answerSubmitNotification')
+		.classed('blink_me', false)
+		.classed('error', false)
+		.text('');
 
 	//get the available tabs in the Google sheet
 	//loadFile(params.paragraphFile, compileParagraphData);  //in case another edit was made by another user (but will this complete in time for the following if statement??)
@@ -150,20 +156,27 @@ function saveParaEdit(){
 }
 
 function onAnswersSubmit(){
-	params.nTrials = 0;
-	d3.select('#answerSubmitNotification')
-		.classed('blink_me', true)
-		.classed('error', false)
-		.text('Processing...');
+	if (params.edittingPara){
+		d3.select('#answerSubmitNotification')
+			.classed('blink_me', false)
+			.classed('error', true)
+			.text('Please save the paragraph before submitting the answers.');
+	} else {
+		params.nTrials = 0;
+		d3.select('#answerSubmitNotification')
+			.classed('blink_me', true)
+			.classed('error', false)
+			.text('Processing...');
 
 
-	var answersData = [];
-	params.answers.forEach(function(a){
-		if (params.cleanString(a.groupname) == params.cleanString(params.groupname)) answersData.push(a);
-	})
-	var data =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupnameOrg,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
-	sendResponsesToFlask(data, 'answerSubmitNotification', false, 'Answers updated successfully.');
-	console.log('answers submitted', data);
+		var answersData = [];
+		params.answers.forEach(function(a){
+			if (params.cleanString(a.groupname) == params.cleanString(params.groupname)) answersData.push(a);
+		})
+		var data =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupnameOrg,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
+		sendResponsesToFlask(data, 'answerSubmitNotification', false, 'Answers updated successfully.');
+		console.log('answers submitted', data);
+	}
 }
 
 function getGroupnameInput(groupname=null, evnt=null){
