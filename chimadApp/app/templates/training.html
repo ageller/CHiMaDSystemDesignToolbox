@@ -127,5 +127,14 @@
 		<!-- to get the IP address of the user -->
 		<!-- <script type="application/javascript" src="https://api.ipify.org?format=jsonp&callback=getIP"></script> -->
 
+		<script>
+			if ({{ inDesktopApp|tojson|safe }}){
+				console.log('running in desktop app')
+				var script = document.createElement("script");  
+				script.src = 'static/js/forFlaskWebGUI.js';
+				document.body.appendChild(script);  
+			}
+		</script>
+		
 	</body>
 </html>
