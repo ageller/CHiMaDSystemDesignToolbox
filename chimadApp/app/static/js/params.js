@@ -190,6 +190,7 @@ function defineParams(){
 		this.edittingPara = false; //will be true when user is editing paragraph
 		
 		this.triedLoadingAgain = false;
+
 	};
 
 	//check for mobile
