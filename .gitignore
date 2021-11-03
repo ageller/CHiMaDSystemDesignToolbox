@@ -21,3 +21,4 @@ __pycache__
 # build file #
 ###################
 chimadApp/app/build
+chimadApp/app/dist
