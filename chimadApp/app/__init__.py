@@ -108,7 +108,15 @@ def save_responses():
 
 
 @app.route('/')
-def test():
+def default():
+	return render_template('index.html')
+
+@app.route('/home')
+def home():
+	return render_template('index.html')
+
+@app.route('/index')
+def index():
 	return render_template('index.html')
 
 @app.route('/training')
