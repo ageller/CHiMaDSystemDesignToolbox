@@ -3,10 +3,10 @@
 block_cipher = None
 
 
-a = Analysis(['CHiMaD-GUI.py'],
+a = Analysis(['CHiMaD-SDC-app.py'],
              pathex=['C:\\Users\\ageller\\WORK\\NUIT\\projects\\EBegumGulsoy\\testSheets\\CHiMaDTestParaForm\\chimadApp\\app'],
              binaries=[],
-             datas=[],
+             datas=[('templates', 'templates'), ('static', 'static')],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -23,11 +23,11 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,
           [],
-          name='CHiMaD-GUI',
+          name='CHiMaD-SDC-app',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=True )
+          console=False )
