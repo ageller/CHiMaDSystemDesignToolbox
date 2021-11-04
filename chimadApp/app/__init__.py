@@ -1,25 +1,37 @@
 from flask import Flask, jsonify, request, render_template
 import pandas as pd
 import os
+import sys
 from datetime import datetime
 
 
-app = Flask(__name__)
+#https://github.com/smoqadam/PyFladesk/issues/9
+# PyInstaller creates a temp folder and stores path in _MEIPASS
+current_location = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+
+template_dir = os.path.join(current_location, 'templates')
+static_dir = os.path.join(current_location, 'static')
+app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 app.config.update(
 	TEMPLATES_AUTO_RELOAD=True
 )
 #app.config['SECRET_KEY'] = 'CHiMaD!App3_'
 
-		
+#I need to set this to true in my gui.py file
+inDesktopApp = False
+def setInDesktopApp():
+	global inDesktopApp
+	print('======= setting to desktop version')
+	inDesktopApp = True
+
 #I am going to start by simply downloading the Google sheets as csv files and working with those
 #once I have that working, I will transition to using a SQL database
 
 @app.route('/load_file', methods=['GET', 'POST'])
 def load_file():
 	message = request.get_json()
-	here = os.path.dirname(__file__)
-	filename = os.path.join(here, message['filename'])
-	print('======= load_file', here, message['filename'], filename)
+	filename = os.path.join(current_location, message['filename'])
+	print('======= load_file', current_location, message['filename'], filename)
 
 	df = pd.read_csv(filename)
 	out = {'data': df.fillna('').to_json(orient='records'), 'columns':df.columns.tolist()}
@@ -33,8 +45,7 @@ def save_responses():
 	# I will need to perform all the checks that I had in the google script but now in python
 	# For now, I will save the values to a csv file
 	data = message['data']
-	here = os.path.dirname(__file__)
-	filename = os.path.join(here, 'static/data/' + data['SHEET_NAME'] + '.csv')
+	filename = os.path.join(current_location, 'static/data/' + data['SHEET_NAME'] + '.csv')
 	print('!!! filename', filename)
 
 	if (os.path.exists(filename)):
@@ -65,7 +76,7 @@ def save_responses():
 				iRow = [iRow[1]]
 				version = 2
 
-		print('!!! checking ', key, iRow, version)
+		#print('!!! checking ', key, iRow, version)
 
 		#populate a new row DataFrame
 		d = dict()
@@ -107,9 +118,7 @@ def save_responses():
 
 	return jsonify(message)
 
-#input=json.dumps({'fps':fps})
-# window.onload = initFPS( {{ input|tojson|safe }} );
-inDesktopApp = True
+
 
 @app.route('/')
 def default():

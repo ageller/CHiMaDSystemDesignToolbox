@@ -18,5 +18,5 @@ function keep_alive_server(){
 	//.then(data => console.log('response',data))
 }
 
-setInterval(keep_alive_server, interval_request)()
+setInterval(keep_alive_server, interval_request);
 
