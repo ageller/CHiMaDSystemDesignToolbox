@@ -316,6 +316,8 @@ html,body {
 	/*margin-top: 7vw;*/
 	cursor: pointer;
 	transition: background-color 0.3s;
+	-webkit-transition: background-color 0.3s; 
+	-moz-transition: background-color 0.3s; 
 }
 .landing-button div{
 	font-size: 2.5vw;
@@ -328,7 +330,10 @@ html,body {
 }
 .simpleLinkHover{
 	color: black;
+	font-style: normal;
 	transition:  color 0.3s;
+	-webkit-transition: color 0.3s; 
+	-moz-transition: color 0.3s; 
 }
 .simpleLinkHover:hover{
 	color: var(--chimad-color);
@@ -343,4 +348,38 @@ html,body {
 	border-left: none;
 	width:95vw; 
 	height:0px
+}
+#hamburger{
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	cursor: pointer;
+}
+#hamburger div{
+	width: 22px;
+	height: 4px;
+	background-color: var(--chimad-color);
+	margin: 5px 0;
+}
+#dropdown{
+	position:absolute;
+	top:40px;
+	right:10px;
+	background-color:#E0E0E0;
+	padding:6px;
+	font-size: 16px;
+	opacity: 0;
+	transition:  opacity 0.3s;
+	-webkit-transition: opacity 0.3s; 
+	-moz-transition: opacity 0.3s; 
+}
+#dropdown div{
+	padding: 2px;
+	border-top:  1px solid black;
+}
+#dropdown.active{
+	opacity: 1;
+	transition:  opacity 0.3s;
+	-webkit-transition: opacity 0.3s; 
+	-moz-transition: opacity 0.3s; 
 }
