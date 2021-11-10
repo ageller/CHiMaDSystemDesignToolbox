@@ -383,3 +383,63 @@ html,body {
 	-webkit-transition: opacity 0.3s; 
 	-moz-transition: opacity 0.3s; 
 }
+
+/*https://www.sliderrevolution.com/resources/css-arrow/*/
+.arrowButton {
+	position: relative;
+	display: block;
+	padding: 1em 3em 1em 1em;
+	border-radius: 10px;
+	font-size: 30px;
+	font-weight: bold;
+	text-decoration: none;
+	color: var(--chimad-color);
+    background: linear-gradient(to right, lightgray 50%, white 50%);
+    background-size: 200% 100%;
+    background-position:right bottom;
+   	cursor: pointer;
+	box-shadow: inset 0 0 0 0.2em var(--chimad-color);
+	transition: all 0.3s ease-in-out;
+	-webkit-transition: all 0.3s ease-in-out;
+	-moz-transition: all 0.3s ease-in-out;
+}
+
+.arrowButton:after,.arrowButton:before {
+	content: "";
+	display: block;
+	position: absolute;
+	transition: all 0.3s ease-in-out;
+	-webkit-transition: all 0.3s ease-in-out;
+	-moz-transition: all 0.3s ease-in-out;
+}
+.arrowButton:before {
+	top: 50%;
+	right: 1em;
+	width: 1em;
+	height: 1em;
+	transform-origin: 50% 50%;
+	transform:  translate(0, -0.5em) rotate(45deg);
+	box-shadow: inset -0.2em 0.2em 0 0 var(--chimad-color);
+	border-radius: 0 0.15em 0 0;
+}
+  
+.arrowButton:after {
+	top: 50%;
+	right: 1em;
+	width: 1.3em;
+	height: 0.2em;
+	transform:  translate(0, -0.1em);
+	background-color: var(--chimad-color);
+}
+.arrowButton:hover{
+    background-position:left bottom;
+}
+
+.arrowButton:hover::before {
+	transform:  translate(0.5em, -0.5em) rotate(45deg);
+}
+.arrowButton:hover::after{
+	transform:  translate(0.5em, -0.1em);
+}
+
+
