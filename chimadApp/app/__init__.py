@@ -144,6 +144,10 @@ def editPara():
 def editSDC():
 	return render_template('editSDC.html', inDesktopApp=inDesktopApp)
 
+@app.route('/about')
+def about():
+	return render_template('about.html', inDesktopApp=inDesktopApp)
+
 # comment this part out when adding it to the production server
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=5000, use_reloader=True)

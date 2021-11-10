@@ -7,6 +7,9 @@
 	</head>
 
 	<body>
+
+		<div id='tooltip'></div>
+
 		<div id='branding' style='width:100%;'>
 			<div style='padding:0.1vw'>
 				<img id='CHiMaDLogo' src='static/images/ChiMaD_Final_wname-transparent.png' style='width:60vw'>
@@ -25,29 +28,16 @@
 				</div>
 				<hr class='simpleLine'>
 				<div style='font-size:4vw; font-weight:bold; padding-left:0.5vw'>CHiMaD System Design Toolbox</div>
+				<div style='font-size:2.5vw; font-style:italic; padding-left:1vw; line-height:3vw'>About</div>
+				<hr class='simpleLine'>
 			</div>
 		</div>
-		<div id='bgimg' class='crop-bg-img' style='display:flex; align-items:center'>
-			<a class='simpleLink' href='training'>
-				<div class='landing-button'>
-					<div>Collaborate: Think or Train Together</div>
-				</div>
-			</a>
-			<a class='simpleLink' href='editPara'>
-				<div class='landing-button'>
-					<div>Individual: Build Your Own System</div>
-				</div>
-			</a>
-			<a class='simpleLink' href='editSDC'>
-				<div class='landing-button'>
-					<div>Customize: Edit and Export Your System Design Chart</div>
-				</div>
-			</a>
+
+		<!-- default is for this on the left -->
+		<div id='about' style='margin-left:20px; margin-top: 40px; font-size:14px'>
+			Under Construction
 		</div>
-		<div id='imgCredit' style='width:100%;'>
-			<!-- <div style='font-size:1.7vh;  padding:0.5vw; font-style:italic'>Image credit: M. Reyes-Martinez, E. Chan; J. J. de Pablo, S. R. Nagel, H. M. Jaeger [Impact use-case group]</div> -->
-			<div style='font-size:1.7vh;  padding:0.5vw; font-style:italic'>Image credit: </div>
-		</div>
+
 
 		<!-- my codes -->
 		<script src="static/js/dropdown.js"></script>
@@ -60,15 +50,7 @@
 				document.body.appendChild(script);  
 			}
 
-			window.onload = setTimeout(resize, 10); //sometimes the top bar doesn't size right away
-			window.addEventListener('resize', resize);
-			function resize(){
-				var topBarBbox = document.getElementById('branding').getBoundingClientRect();
-				var botBarBbox = document.getElementById('imgCredit').getBoundingClientRect();
-				var bgimg = document.getElementById('bgimg');
-				bgimg.style.height = (window.innerHeight - topBarBbox.height - botBarBbox.height - 2) + 'px';
-			}
 		</script>
-
+		
 	</body>
 </html>
