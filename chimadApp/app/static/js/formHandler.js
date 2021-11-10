@@ -196,7 +196,7 @@ function getUsernameInput(username=null){
 		d3.selectAll('.selectionWord').select('select').select('#disabled').property('selected',true);
 
 		params.responses.forEach(function(d,i){
-			if (d.username == params.username){
+			if (decodeURI(d.username) == decodeURI(params.username)){
 
 				console.log('found user in database', d.username, params.username, d)
 				//show notification
@@ -283,6 +283,15 @@ function setGroupnameFromOptions(groupname=null){
 	params.paraSubmitted2 = false;
 	params.showingResults = false;
 	params.SDCSubmitted = false;
+
+	//reset the consensus answers, and put the radio button checked on build from Answers (for editSDC)
+	params.answersConsensus = {};
+	params.answers = [];
+	params.answersOrg.forEach(function(d){params.answers.push(cloneObject(d));});
+	var elem = document.getElementById('SDCAnswersBuild');
+	if (elem) elem.checked = true;
+	elem = document.getElementById('SDCCompileOptions')
+	if (elem) elem.value = 'answers';
 
 	//enable username editing
 	d3.select('#usernameInput').property('disabled', false);
