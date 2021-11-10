@@ -285,13 +285,7 @@ function setGroupnameFromOptions(groupname=null){
 	params.SDCSubmitted = false;
 
 	//reset the consensus answers, and put the radio button checked on build from Answers (for editSDC)
-	params.answersConsensus = {};
-	params.answers = [];
-	params.answersOrg.forEach(function(d){params.answers.push(cloneObject(d));});
-	var elem = document.getElementById('SDCAnswersBuild');
-	if (elem) elem.checked = true;
-	elem = document.getElementById('SDCCompileOptions')
-	if (elem) elem.value = 'answers';
+	if (typeof resetEditSDCAfterGroupnameInput === "function") resetEditSDCAfterGroupnameInput();
 
 	//enable username editing
 	d3.select('#usernameInput').property('disabled', false);

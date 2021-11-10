@@ -1,6 +1,6 @@
 //I can improve this, especially for mobile
 function resize(){
-
+	
 	var topH = d3.select('#branding').node().getBoundingClientRect().height + 20;
 
 	if (params.haveBars && params.createdBars) resizeBarPlot();

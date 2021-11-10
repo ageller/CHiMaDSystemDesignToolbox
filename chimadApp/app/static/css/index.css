@@ -326,6 +326,13 @@ html,body {
 	color: black;
 	text-decoration: none;
 }
+.simpleLinkHover{
+	color: black;
+	transition:  color 0.3s;
+}
+.simpleLinkHover:hover{
+	color: var(--chimad-color);
+}
 .landing-button:hover{
 	background-color: rgba(255,255,255,1);
 }
@@ -336,11 +343,4 @@ html,body {
 	border-left: none;
 	width:95vw; 
 	height:0px
-}
-#homeLink{
-	color: black;
-	transition:  color 0.3s;
-}
-#homeLink:hover{
-	color: var(--chimad-color);
 }
