@@ -112,7 +112,7 @@ function onParaSubmit(){
 			d3.select('#paraNotification')
 				.classed('blink_me', false)
 				.classed('error', true)
-				.html('Please classify all terms in Step &#9313; above.');
+				.html('Please classify all terms in Step 3; above.');
 			missing.forEach(function(m){
 				d3.select(d3.select('#'+m).node().parentNode).classed('errorBorder', true);
 			})
@@ -121,7 +121,7 @@ function onParaSubmit(){
 		d3.select('#paraNotification')
 			.classed('blink_me', false)
 			.classed('error', true)
-			.html('Please enter a username in Step &#9312; above.');
+			.html('Please enter a username in Step 2; above.');
 		d3.select('#usernameLabel').classed('error', true);
 
 	}

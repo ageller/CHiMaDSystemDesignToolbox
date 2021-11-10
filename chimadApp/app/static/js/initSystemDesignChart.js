@@ -16,6 +16,21 @@ window.addEventListener('mousedown', function(){
 	params.mouseDown = true;
 });
 
+//aggregate response range slider
+$("#AggRangeSlider").slider({
+	range: true,
+	min: 0,
+	max: 100,
+	values: [ 0, 100 ],
+	slide: function( event, ui ) {
+		params.SDCAggLims[0] = ui.values[0]/100.;
+		params.SDCAggLims[1] = ui.values[1]/100.;
+		$("#AggRangeSliderMin").text((params.SDCAggLims[0]).toFixed(2));
+		$("#AggRangeSliderMax").text((params.SDCAggLims[1]).toFixed(2));
+		limitSDCAggLines();
+	}
+})
+
 
 function createSystemDesignChart(){
 	if (!params.SDCLineHighlighted){
@@ -302,7 +317,7 @@ function createSDCLine(elem,x1,y1,x2,y2,cat,startWords,endWords, opacity=1){
 		.attr('endSelectionWords',endWords) //custom attribute to track the ending word(s)			
 		.attr('id','SDCLine_'+params.SDCLineIndex)
 		.attr('class','SDCLine SDCLine_'+startWords+' SDCLine_'+endWords)
-		.attr('stroke',params.colorMap(1))
+		.attr('stroke',params.SDCResponseLineColor)
 		.attr('stroke-width',params.SDCResponseLineThickness)
 		.attr('x1', x1 + 'px')
 		.attr('y1', y1 + 'px')
@@ -316,7 +331,7 @@ function createSDCLine(elem,x1,y1,x2,y2,cat,startWords,endWords, opacity=1){
 	params.SDCCircle0 = params.SDCSVG.append('circle')
 		.attr('id','SDCCircle0_'+params.SDCLineIndex)
 		.attr('class','SDCCircle0 SDCLine_'+startWords+' SDCLine_'+endWords)
-		.attr('fill', params.colorMap(1))
+		.attr('fill', params.SDCResponseLineColor)
 		.attr('cx',x1 + 'px')
 		.attr('cy',y1 + 'px')
 		.attr('r',(2*params.SDCResponseLineThickness) + 'px')
@@ -328,7 +343,7 @@ function createSDCLine(elem,x1,y1,x2,y2,cat,startWords,endWords, opacity=1){
 	params.SDCCircle = params.SDCSVG.append('circle')
 		.attr('id','SDCCircle_'+params.SDCLineIndex)
 		.attr('class','SDCCircle SDCLine_'+startWords+' SDCLine_'+endWords)
-		.attr('fill', params.colorMap(1))
+		.attr('fill', params.SDCResponseLineColor)
 		.attr('cx',x2 + 'px')
 		.attr('cy',y2 + 'px')
 		.attr('r',(2*params.SDCResponseLineThickness) + 'px')
@@ -573,7 +588,7 @@ function highlightSDCLines(elem){
 
 			d3.selectAll('.SDCAggregateFracBox_'+id).select('rect').interrupt().transition()
 			d3.selectAll('.SDCAggregateFracBox_'+id).select('text').interrupt().transition()
-			d3.selectAll('.SDCAggregateFracBox_'+id).select('rect').transition().duration(params.transitionSDCDuration).style('opacity',params.SDCAggLineOpacity)
+			d3.selectAll('.SDCAggregateFracBox_'+id).select('rect').transition().duration(params.transitionSDCDuration).style('opacity',1)
 			d3.selectAll('.SDCAggregateFracBox_'+id).select('text').transition().duration(params.transitionSDCDuration).style('opacity',1)
 
 
@@ -673,7 +688,10 @@ function plotSDCAggregateLines(duration = 0){
 		while (parent.firstChild) {
 			parent.removeChild(parent.firstChild);
 		}
-
+		parent = params.SDCAggTextSVG.node();
+		while (parent.firstChild) {
+			parent.removeChild(parent.firstChild);
+		}
 		var fracBoxSize = 20;//should this change with resize?
 
 		var SDCdata = params.aggregatedSDCResponses[params.SDCResponseVersion];
@@ -707,7 +725,7 @@ function plotSDCAggregateLines(duration = 0){
 							var line = params.SDCAggSVG.append('line')
 								.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
 								.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
-								.attr('fraction',frac) //custom attribute to track the fraction		
+								.attr('fraction',frac.toFixed(2)) //custom attribute to track the fraction		
 								.attr('id','SDCAggregateLine_'+params.SDCLineIndex)
 								.attr('class','SDCAggregateLine SDCAggregateLine_'+startWords+ ' SDCAggregateLine_'+w)
 								.attr('stroke',strokeColor)
@@ -760,6 +778,7 @@ function plotSDCAggregateLines(duration = 0){
 								.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
 								//.attr('fill',params.colorMap(frac))
 								.attr('fill','black')
+								.attr('fraction',frac.toFixed(2))
 								.style('text-anchor', 'middle')
 								.style('opacity',0)
 								.text(frac.toFixed(2))
@@ -770,6 +789,7 @@ function plotSDCAggregateLines(duration = 0){
 				})
 
 			})
+			limitSDCAggLines();
 		}
 	}
 
@@ -811,7 +831,7 @@ function plotSDCAnswerLines(duration = 0){
 										.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
 										.attr('id','SDCAnswerLine_'+params.SDCLineIndex)
 										.attr('class','SDCAnswerLine SDCAnswerLine_'+startWords+ ' SDCAnswerLine_'+w)
-										.attr('stroke','#000000')
+										.attr('stroke',params.SDCAanswerLineColor)
 										.attr('stroke-width',params.SDCAanswerLineThickness)
 										.attr('stroke-linecap','round') 
 										.attr('x1', x1)
@@ -850,7 +870,7 @@ function recolorSDCAnswers(){
 		var startWords = elem.attr('startSelectionWords');
 		var w = elem.attr('endSelectionWords');
 
-		var strokeColor = 'black';
+		var strokeColor = params.SDCAanswerLineColor;
 		//check for a discrepancy and plot that in pink 
 		var aggElem = d3.select('.SDCAggregateLine_'+startWords+'.SDCAggregateLine_'+w);
 		if (!aggElem) {
@@ -876,9 +896,9 @@ function recolorSDCAgg(){
 		elem.attr('stroke',strokeColor);
 
 		//text
-		var s = elem.attr('startSelectionWords');
-		var e = elem.attr('endSelectionWords');
-		d3.select('.SDCAggregateFracBox_'+s+'.SDCAggregateFracBox_'+e).select('text').attr('fill', strokeColor);
+		// var s = elem.attr('startSelectionWords');
+		// var e = elem.attr('endSelectionWords');
+		// d3.select('.SDCAggregateFracBox_'+s+'.SDCAggregateFracBox_'+e).select('text').attr('fill', strokeColor);
 
 	})
 }
@@ -1058,5 +1078,31 @@ function drawProcessingArrows(duration = 0){
 		})
 	}
 
+
+}
+
+function limitSDCAggLines(){
+	//hide any aggregate lines and text values that are outside of the limits
+	//and show those that are within the limits
+	params.SDCAggSVG.selectAll('line').each(function(){
+		var elem = d3.select(this);
+		var frac = parseFloat(elem.attr('fraction'));
+		if (frac > params.SDCAggLims[0] && frac < params.SDCAggLims[1]){
+			elem.style('visibility','visible')
+		} else {
+			elem.style('visibility','hidden')
+		}
+	})
+	params.SDCAggTextSVG.selectAll('text').each(function(){
+		var elem = d3.select(this);
+		var frac = parseFloat(elem.attr('fraction'));
+		if (frac > params.SDCAggLims[0] && frac < params.SDCAggLims[1]){
+			elem.style('visibility','visible')
+		} else {
+			elem.style('visibility','hidden')
+		}
+	})
+
+	d3.selectAll()
 
 }
