@@ -1,0 +1,56 @@
+<html>
+	<head>  
+		<meta charset='UTF-8' name='viewport' content='width=device-width, user-scalable=no'> 
+		<title>CHiMaD</title>
+		<link rel='stylesheet' type='text/css' href='static/css/index.css' />
+
+	</head>
+
+	<body>
+
+		<div id='tooltip'></div>
+
+		<div id='branding' style='width:100%;'>
+			<div style='padding:0.1vw'>
+				<img id='CHiMaDLogo' src='static/images/ChiMaD_Final_wname-transparent.png' style='width:60vw'>
+				<div id="hamburger" onclick="toggleDropdown('dropdown')">
+					<div></div>
+					<div></div>
+					<div></div>
+				</div>        
+				<div id="dropdown" style='visibility:hidden'>
+					<a href="home" class='simpleLink simpleLinkHover'><div style='border:none'>Home</div></a>
+					<a href="about" class='simpleLink simpleLinkHover'><div>About</div></a>
+					<a href="training" class='simpleLink simpleLinkHover'><div>Collaborate</div></a>
+					<a href="editPara" class='simpleLink simpleLinkHover'><div>Individual</div></a>
+					<a href="editSDC" class='simpleLink simpleLinkHover'><div>Customize</div></a>
+					<a href="https://chimad.northwestern.edu/" class='simpleLink simpleLinkHover'><div>CHiMaD Main Page</div></a>
+				</div>
+				<hr class='simpleLine'>
+				<div style='font-size:4vw; font-weight:bold; padding-left:0.5vw'>CHiMaD System Design Toolbox</div>
+				<div style='font-size:2.5vw; font-style:italic; padding-left:1vw; line-height:3vw'>About</div>
+				<hr class='simpleLine'>
+			</div>
+		</div>
+
+		<!-- default is for this on the left -->
+		<div id='about' style='margin-left:20px; margin-top: 40px; font-size:14px'>
+			Under Construction
+		</div>
+
+
+		<!-- my codes -->
+		<script src="static/js/dropdown.js"></script>
+
+		<script>
+			if ({{ inDesktopApp|tojson|safe }}){
+				console.log('running in desktop app')
+				var script = document.createElement("script");  
+				script.src = 'static/js/forFlaskWebGUI.js';
+				document.body.appendChild(script);  
+			}
+
+		</script>
+		
+	</body>
+</html>
