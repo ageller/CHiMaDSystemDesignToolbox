@@ -14,8 +14,14 @@ function defineParams(){
 		this.options = ['Select Category','Processing','Structure','Property','Performance'];
 
 		//this defines the colormap
-		this.colorMap = d3.scaleLinear().domain([0,1]).interpolate(d3.interpolateHcl).range([d3.rgb("#E0E0E0"), d3.rgb('#2C78CA')]);
-
+		//this.colorMap = d3.scaleLinear().domain([0,1]).interpolate(d3.interpolateHcl).range([d3.rgb("#E0E0E0"), d3.rgb('#2C78CA')]);
+		this.d3colorMap = d3.scaleOrdinal().domain(['low','mid','high']).range([d3.rgb("#D92B9C"), d3.rgb('#DA9F93'), d3.rgb('#2C78CA'), ]);
+		this.colorMap = function(frac){
+			var labl = 'high';
+			if (frac < params.pctLim) labl = 'mid';
+			if (frac < params.pctLimLow) labl = 'low';
+			return params.d3colorMap(labl);
+		}
 		//check to make sure we're ready to create the plots
 		this.haveParagraphData = false;
 		this.haveSurveyData = false;
@@ -102,10 +108,10 @@ function defineParams(){
 		this.transitionSDCDuration = 200;
 
 		//minimum sizes for fonts and bounding boxes
-		this.paraFSmin = 16;  //0.01
-		this.buttonFSmin = 14; //0.009
-		this.instructionsFSmin = 12; //0.008
-		this.versionFSmin = 10; //0.007
+		this.paraFSmin = 18;  //0.01
+		this.buttonFSmin = 16; //0.009
+		this.instructionsFSmin = 14; //0.008
+		this.versionFSmin = 12; //0.007
 		this.maxPlotFont = 20;
 		this.minPlotFont = 10;
 		this.plotFraction = 0.4; //fraction of the page that will contain the plot if this is in side-by-side view
@@ -129,6 +135,10 @@ function defineParams(){
 		this.SDCBoxWidth;
 		this.SDCInitBoxHeight = 40; 
 
+		this.SDCAanswerLineThickness = 4;
+		this.SDCResponseLineThickness = 2;
+		this.SDCAggLineThickness = 6;
+		this.SDCAggLineOpacity = 0.9;
 		this.SDCLine = null;
 		this.SDCCircle0 = null;
 		this.SDCCircle = null;
@@ -145,6 +155,7 @@ function defineParams(){
 
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
+		this.pctLimLow = 0.4;
 
 		//will hold mouse events
 		this.event = {'keyCode':null,'clientX':0, 'clientY':0};

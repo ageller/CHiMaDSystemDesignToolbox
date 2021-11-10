@@ -62,8 +62,11 @@ function createSystemDesignChart(){
 		//will hold the aggregate results
 		params.SDCAggSVG = params.SDCSVG.append('g').attr('id','SDCAggregatedLinesContainer');
 
-		//will hold the aggregate results
+		//will hold the answers results
 		params.SDCAnswersSVG = params.SDCSVG.append('g').attr('id','SDCAnswersLinesContainer');
+
+		//will hold the aggregate fraction text
+		params.SDCAggTextSVG = params.SDCSVG.append('g').attr('id','SDCAggregatedTextContainer');
 
 		// add the column headers
 		params.SDCSVG.selectAll('.text')
@@ -288,7 +291,7 @@ function resizeSDCBoxes(){
 	}
 }
 
-function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords, opacity=1){
+function createSDCLine(elem,x1,y1,x2,y2,cat,startWords,endWords, opacity=1){
 	params.SDCLineIndex += 1;
 
 	params.SDCLine = params.SDCSVG.append('line')
@@ -300,7 +303,7 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords, opacity=1){
 		.attr('id','SDCLine_'+params.SDCLineIndex)
 		.attr('class','SDCLine SDCLine_'+startWords+' SDCLine_'+endWords)
 		.attr('stroke',params.colorMap(1))
-		.attr('stroke-width',4)
+		.attr('stroke-width',params.SDCResponseLineThickness)
 		.attr('x1', x1 + 'px')
 		.attr('y1', y1 + 'px')
 		.attr('x2', x2 + 'px')
@@ -316,7 +319,7 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords, opacity=1){
 		.attr('fill', params.colorMap(1))
 		.attr('cx',x1 + 'px')
 		.attr('cy',y1 + 'px')
-		.attr('r',r + 'px')
+		.attr('r',(2*params.SDCResponseLineThickness) + 'px')
 		.style('opacity',opacity)
 		.on('mousedown', startSDCLine)
 		//.on('mouseover',function(){highlightSDCLines(elem)})
@@ -328,7 +331,7 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords, opacity=1){
 		.attr('fill', params.colorMap(1))
 		.attr('cx',x2 + 'px')
 		.attr('cy',y2 + 'px')
-		.attr('r',r + 'px')
+		.attr('r',(2*params.SDCResponseLineThickness) + 'px')
 		.style('opacity',opacity)
 		.on('mousedown', moveExistingSDCLine)
 		//.on('mouseover',function(){highlightSDCLines(elem)})
@@ -360,7 +363,7 @@ function startSDCLine() {
 				var cat = elem.node().classList[1]
 				var words = elem.attr('selectionWords')
 				var i = lowerArray(params.options).indexOf(cat);
-				if (i > -1 && i < params.options.length-1 && !isNaN(x) && !isNaN(y)) createSDCLine(elem, x,y,x,y,6,cat,words,'null');	
+				if (i > -1 && i < params.options.length-1 && !isNaN(x) && !isNaN(y)) createSDCLine(elem, x,y,x,y,cat,words,'null');	
 			}
 		}
 
@@ -566,11 +569,11 @@ function highlightSDCLines(elem){
 
 			d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1);
 			d3.selectAll('.SDCAggregateLine_'+id).interrupt().transition()
-			d3.selectAll('.SDCAggregateLine_'+id).style('opacity',0.5)
+			d3.selectAll('.SDCAggregateLine_'+id).style('opacity',params.SDCAggLineOpacity)
 
 			d3.selectAll('.SDCAggregateFracBox_'+id).select('rect').interrupt().transition()
 			d3.selectAll('.SDCAggregateFracBox_'+id).select('text').interrupt().transition()
-			d3.selectAll('.SDCAggregateFracBox_'+id).select('rect').transition().duration(params.transitionSDCDuration).style('opacity',0.5)
+			d3.selectAll('.SDCAggregateFracBox_'+id).select('rect').transition().duration(params.transitionSDCDuration).style('opacity',params.SDCAggLineOpacity)
 			d3.selectAll('.SDCAggregateFracBox_'+id).select('text').transition().duration(params.transitionSDCDuration).style('opacity',1)
 
 
@@ -601,7 +604,7 @@ function resetSDCLines(){
 		d3.selectAll('.SDCCircle0').transition().duration(params.transitionSDCDuration).style('opacity',1);
 	}
 
-	d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionSDCDuration).style('opacity',0.5);
+	d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionSDCDuration).style('opacity',params.SDCAggLineOpacity);
 
 	d3.selectAll('.SDCAggregateFracBox').select('rect').transition().duration(params.transitionSDCDuration).style('opacity',0)
 	d3.selectAll('.SDCAggregateFracBox').select('text').transition().duration(params.transitionSDCDuration).style('opacity',0)
@@ -644,7 +647,7 @@ function useSDCURLdata(){
 						//get the category from the rect class list (will this always be the last class value?)
 						var cat = startParent.node().classList[1]
 
-						if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) createSDCLine(startParent.node(), x1,y1,x2,y2,6,cat,startWords,w, op);
+						if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) createSDCLine(startParent.node(), x1,y1,x2,y2,cat,startWords,w, op);
 					}
 					params.SDCLine = null;
 					params.SDCCircle0 = null;
@@ -660,7 +663,8 @@ function useSDCURLdata(){
 
 function plotSDCAggregateLines(duration = 0){
 
-	var op = 0.5;
+	//var op = 0.5;
+	var op = params.SDCAggLineOpacity;
 	if (!params.showSDCAggregate) op = 0;
 
 	if (!params.SDCLineHighlighted && params.SDCAggSVG) {
@@ -693,12 +697,12 @@ function plotSDCAggregateLines(duration = 0){
 
 						//line width is based on entries
 						var frac = SDCdata[startWords].num[w]/params.aggregatedSDCResponses.nVersion[params.SDCResponseVersion];
-						var width = (params.maxSDCLineWidth - params.minSDCLineWidth)*frac + params.minSDCLineWidth;
+						//var width = (params.maxSDCLineWidth - params.minSDCLineWidth)*frac + params.minSDCLineWidth;
+						var width = params.SDCAggLineThickness;
 
 						if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
 
 							var strokeColor = params.colorMap(frac);
-							if (frac < params.pctLim) strokeColor = '#d92b9c';
 
 							var line = params.SDCAggSVG.append('line')
 								.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
@@ -727,7 +731,7 @@ function plotSDCAggregateLines(duration = 0){
 								.attr('y2', y2)
 
 							//also create a box and text to hold the fraction
-							var textHolder = params.SDCAggSVG.append('g')
+							var textHolder = params.SDCAggTextSVG.append('g')
 								.attr('class','SDCAggregateFracBox SDCAggregateFracBox_'+startWords+' SDCAggregateFracBox_'+w)
 
 							var xt = (x1 + x2)/2.;
@@ -752,9 +756,10 @@ function plotSDCAggregateLines(duration = 0){
 							textHolder.append('text')
 								.attr('x',xt - fracBoxSize)
 								.attr('y',yt - yoff)
-								.attr('dy', '.35em')
+								.attr('dy', '.1em')
 								.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
-								.attr('fill',params.colorMap(1))
+								//.attr('fill',params.colorMap(frac))
+								.attr('fill','black')
 								.style('text-anchor', 'middle')
 								.style('opacity',0)
 								.text(frac.toFixed(2))
@@ -807,7 +812,7 @@ function plotSDCAnswerLines(duration = 0){
 										.attr('id','SDCAnswerLine_'+params.SDCLineIndex)
 										.attr('class','SDCAnswerLine SDCAnswerLine_'+startWords+ ' SDCAnswerLine_'+w)
 										.attr('stroke','#000000')
-										.attr('stroke-width',6)
+										.attr('stroke-width',params.SDCAanswerLineThickness)
 										.attr('stroke-linecap','round') 
 										.attr('x1', x1)
 										.attr('y1', y1)
@@ -838,8 +843,7 @@ function plotSDCAnswerLines(duration = 0){
 }
 
 function recolorSDCAnswers(){
-	//this algorithm will color the answer lines if the corresponding line from the aggregate is less than the limit
-	//is this the correct algorithm?  I think not.  For the bars I color if the responses are less than the limit (without checking the answers)
+	//this algorithm will color the answer lines (currently not used)
 	console.log('recoloring the answers')
 	d3.selectAll('.SDCAnswerLine').each(function(){
 		var elem = d3.select(this);
@@ -847,7 +851,7 @@ function recolorSDCAnswers(){
 		var w = elem.attr('endSelectionWords');
 
 		var strokeColor = 'black';
-		//check for a discrepancy and plot that in pink
+		//check for a discrepancy and plot that in pink 
 		var aggElem = d3.select('.SDCAggregateLine_'+startWords+'.SDCAggregateLine_'+w);
 		if (!aggElem) {
 			strokeColor = '#d92b9c';
@@ -859,14 +863,14 @@ function recolorSDCAnswers(){
 	})
 }
 function recolorSDCAgg(){
-	//this algorithm will color the aggregate lines the total fraction is less than the limit (matching what is done for the bars)
+	//this algorithm will color the aggregate lines 
 	console.log('recoloring the SDC aggregate')
 	d3.selectAll('.SDCAggregateLine').each(function(){
 		var elem = d3.select(this);
 		var frac = parseFloat(elem.attr('fraction'));
 
 		var strokeColor = params.colorMap(frac);
-		if (frac < params.pctLim) strokeColor = '#d92b9c';
+		//if (frac < params.pctLim) strokeColor = '#d92b9c';
 
 		//line
 		elem.attr('stroke',strokeColor);
@@ -889,7 +893,7 @@ function toggleSDCAggregate(){
 	var op = 0;
 	var vis = 'hidden';
 	if (params.showSDCAggregate) {
-		op = 0.5;
+		op = params.SDCAggLineOpacity;
 		vis = 'visible';
 	}
 	d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionDuration).style('stroke-opacity',op);
