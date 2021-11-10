@@ -107,6 +107,8 @@ function createSystemDesignChart(){
 			plotSDCAggregateLines();
 			plotSDCAnswerLines();
 		}
+
+
 	}
 }
 
@@ -262,7 +264,8 @@ function formatSDC(duration=0){
 		}
 	}
 
-	drawProcessingArrows(duration)
+	drawProcessingArrows(duration);
+
 
 }
 function resizeSDCBoxes(){
@@ -298,10 +301,10 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords, opacity=1){
 		.attr('class','SDCLine SDCLine_'+startWords+' SDCLine_'+endWords)
 		.attr('stroke',params.colorMap(1))
 		.attr('stroke-width',4)
-		.attr('x1', x1)
-		.attr('y1', y1)
-		.attr('x2', x2)
-		.attr('y2', y2)
+		.attr('x1', x1 + 'px')
+		.attr('y1', y1 + 'px')
+		.attr('x2', x2 + 'px')
+		.attr('y2', y2 + 'px')
 		.style('stroke-opacity',opacity)
 		.on('mousedown', moveExistingSDCLine)
 		//.on('mouseover',function(){highlightSDCLines(elem)})
@@ -311,9 +314,9 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords, opacity=1){
 		.attr('id','SDCCircle0_'+params.SDCLineIndex)
 		.attr('class','SDCCircle0 SDCLine_'+startWords+' SDCLine_'+endWords)
 		.attr('fill', params.colorMap(1))
-		.attr('cx',x1)
-		.attr('cy',y1)
-		.attr('r',r)
+		.attr('cx',x1 + 'px')
+		.attr('cy',y1 + 'px')
+		.attr('r',r + 'px')
 		.style('opacity',opacity)
 		.on('mousedown', startSDCLine)
 		//.on('mouseover',function(){highlightSDCLines(elem)})
@@ -323,9 +326,9 @@ function createSDCLine(elem,x1,y1,x2,y2,r,cat,startWords,endWords, opacity=1){
 		.attr('id','SDCCircle_'+params.SDCLineIndex)
 		.attr('class','SDCCircle SDCLine_'+startWords+' SDCLine_'+endWords)
 		.attr('fill', params.colorMap(1))
-		.attr('cx',x2)
-		.attr('cy',y2)
-		.attr('r',r)
+		.attr('cx',x2 + 'px')
+		.attr('cy',y2 + 'px')
+		.attr('r',r + 'px')
 		.style('opacity',opacity)
 		.on('mousedown', moveExistingSDCLine)
 		//.on('mouseover',function(){highlightSDCLines(elem)})
@@ -391,8 +394,14 @@ function moveSDCLine() {
 		} 
 
 		if (params.SDCLine && params.showSDCResponses){
-			var x = params.event.layerX - params.SDCSVGMargin.left;
-			var y = params.event.layerY - params.SDCSVGMargin.top;
+			//fix for Firefox
+			var offX  = (params.event.offsetX || params.event.pageX - d3.select('#SDCPlotSVG').node().getBoundingClientRect().left - window.scrollX);
+			var offY  = (params.event.offsetY || params.event.pageY - d3.select('#SDCPlotSVG').node().getBoundingClientRect().top - window.scrollY);
+			var x = offX - params.SDCSVGMargin.left;
+			var y = offY - params.SDCSVGMargin.top;
+
+			// var x = params.event.layerX - params.SDCSVGMargin.left;
+			// var y = params.event.layerY - params.SDCSVGMargin.top;
 
 			//snap to object if close enough
 		 	elem = document.elementFromPoint(params.event.clientX + 20, params.event.clientY);
@@ -449,12 +458,12 @@ function moveSDCLine() {
 				y = y1
 			}
 			params.SDCLine
-				.attr('x2', x)
-				.attr('y2', y);
+				.attr('x2', x + 'px')
+				.attr('y2', y + 'px');
 
 			params.SDCCircle
-				.attr('cx', x)
-				.attr('cy', y);
+				.attr('cx', x + 'px')
+				.attr('cy', y + 'px');
 
 		}
 	}

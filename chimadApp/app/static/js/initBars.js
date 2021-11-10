@@ -186,6 +186,8 @@ function createBars(){
 	} else {
 //		if (!params.wavingBars)setWaveBars();
 	}
+
+	resize();
 }
 
 function resizeBarPlot(){
