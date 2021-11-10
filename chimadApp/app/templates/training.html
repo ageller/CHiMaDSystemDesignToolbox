@@ -3,7 +3,7 @@
 		<meta charset='UTF-8' name='viewport' content='width=device-width, user-scalable=no'> 
 		<title>CHiMaD</title>
 		<link rel='stylesheet' type='text/css' href='static/css/index.css' />
-
+		<link rel='stylesheet' type='text/css' href='static/css/jquery-ui.css' />
 	</head>
 
 	<body>
@@ -73,13 +73,13 @@
 
 
 				<form id="paraVersionOptions" class='versionOptions'>
-					<div>Select which version of the responses to display, and whether to show the answers (black boxes).</div>
+					<div>After you submit your responses, select which version of the aggregated responses to display and whether to show the answers.</div>
 					<input type="radio" id="paraVersion1" name="version" value="1" class="radio" checked>
-					<label for="paraVersion1">Version 1</label><br>
+					<label for="paraVersion1">Aggregated responses 1</label><br>
 					<input type="radio" id="paraVersion2" name="version" value="2" class="radio">
-					<label for="paraVersion2">Version 2</label><br>
+					<label for="paraVersion2">Aggregated responses 2</label><br>
 					<input type="checkbox" id="paraAnswerToggle" class='answerToggle' name="answers" value="1" class="radio" checked>
-					<label for="paraAnswerToggle" class='answerToggle'>Show answers</label><br>
+					<label for="paraAnswerToggle" class='answerToggle'>Show answers (black boxes)</label><br>
 				</form>
 
 				<div id="boxGridSVGContainer"></div>
@@ -99,15 +99,29 @@
 				<div id="SDCNResponses" style='margin: 10px 10px 10px 40px'></div>
 
 				<form id="SDCVersionOptions" class='versionOptions'>
-					<div>Select which version of the responses to display, and whether to show the answers (black lines).</div>
+					<div>After you submit your responses, use the buttons below to select which version of the aggregated responses to display and which lines to show.</div>
 					<input type="radio" id="SDCVersion1" name="version" value="1" class="radio" checked>
-					<label for="SDCVersion1">Version 1</label><br>
+					<label for="SDCVersion1">Aggregated responses 1</label><br>
 					<input type="radio" id="SDCVersion2" name="version" value="2" class="radio">
-					<label for="SDCVersion2">Version 2</label><br>
+					<label for="SDCVersion2">Aggregated responses 2</label><br>
+					<div>
+						<div style='display: table-cell'>
+							<input type="checkbox" id="SDCAggToggle" class='aggToggle' name="aggregate" value="1" class="radio" checked>
+							<label for="SDCAggToggle" id="SDCAggToggleLabel" class='aggToggle'>Show aggregate responses (colored lines)</label>
+						</div>
+						<div style='display: table-cell'>
+							<div style='display: table-cell; padding-left:20px' id="AggRangeSliderMin">0.00</div>
+							<div style='display: table-cell; width:200px; padding-left:10px'>
+								<div id="AggRangeSlider"></div>
+							</div>
+							<div style='display: table-cell; padding-left:10px' id="AggRangeSliderMax">1.00</div>
+							<div style='display: table-cell; padding-left:10px'>(agreement fraction to display)</div>
+						</div>
+					</div>
 					<input type="checkbox" id="SDCResponseToggle" name="responses" value="1" class="radio" checked>
-					<label for="SDCResponseToggle">Your responses on/off</label><br>
+					<label for="SDCResponseToggle">Show your responses (black lines)</label><br>
 					<input type="checkbox" id="SDCAnswerToggle" class='answerToggle' name="answers" value="1" class="radio" checked>
-					<label for="SDCAnswerToggle" class='answerToggle'>Show answers</label><br>
+					<label for="SDCAnswerToggle" class='answerToggle'>Show answers (gray lines)</label><br>
 				</form>
 
 
@@ -126,6 +140,7 @@
 		<!-- Libraries -->
 		<script src='static/lib/d3.v6.min.js'></script>
 		<script src="static/lib/jquery-3.5.1.min.js"></script> <!--  for AJAX -->
+		<script src="static/lib/jquery-ui.min.js"></script> <!-- for slider  -->
 
 		<!-- my codes -->
 		<script src="static/js/dropdown.js"></script>

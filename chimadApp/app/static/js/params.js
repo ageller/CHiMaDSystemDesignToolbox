@@ -127,6 +127,7 @@ function defineParams(){
 		this.SDCColumnYTops = {}; //will hold the top y locations of each column 
 		this.SDCSVG = null;
 		this.SDCAggSVG = null;
+		this.SDCAggTextSVG = null;
 		this.SDCAnswersSVG = null;
 		this.SDCSVGMargin;
 		this.SDCSVGHeight;
@@ -136,9 +137,12 @@ function defineParams(){
 		this.SDCInitBoxHeight = 40; 
 
 		this.SDCAanswerLineThickness = 4;
+		this.SDCAanswerLineColor = '#636363';
 		this.SDCResponseLineThickness = 2;
+		this.SDCResponseLineColor = '#000000';
 		this.SDCAggLineThickness = 6;
 		this.SDCAggLineOpacity = 0.9;
+		this.SDCAggLims = [0,1];
 		this.SDCLine = null;
 		this.SDCCircle0 = null;
 		this.SDCCircle = null;
