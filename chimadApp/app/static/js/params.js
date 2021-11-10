@@ -54,7 +54,7 @@ function defineParams(){
 		this.answers = [{'groupname':this.groupname, 'task':'para'},
 						{'groupname':this.groupname, 'task':'SDC'}];
 		//this will just be a copy of the answers, since in some cases I will want to change the answers and revert back
-		this.anwersOrg =  [{'groupname':this.groupname, 'task':'para'},
+		this.answersOrg =  [{'groupname':this.groupname, 'task':'para'},
 						{'groupname':this.groupname, 'task':'SDC'}];
 
 		this.answersGroupnames = {'para':[],'SDC':[]};

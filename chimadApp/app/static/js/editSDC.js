@@ -555,6 +555,8 @@ function switchSDCCompiler(){
 		d3.select('#SDCVersion2Label').style('visibility','visible');
 		d3.select('#SDCAnswerToggle').style('visibility','visible');
 		d3.select('#SDCAnswerToggleLabel').style('visibility','visible');
+		d3.select('#SDCAggToggle').style('visibility','visible');
+		d3.select('#SDCAggToggleLabel').style('visibility','visible');
 
 		//before resetting the answers check if there are any boxes that have null values in the original answers (these would have been added later)
 		//if so, update to the current value in answers
@@ -589,6 +591,8 @@ function switchSDCCompiler(){
 		d3.select('#SDCVersion2Label').style('visibility','hidden');
 		d3.select('#SDCAnswerToggle').style('visibility','hidden');
 		d3.select('#SDCAnswerToggleLabel').style('visibility','hidden');
+		d3.select('#SDCAggToggle').style('visibility','hidden');
+		d3.select('#SDCAggToggleLabel').style('visibility','hidden');
 		d3.selectAll('line').remove();
 		d3.selectAll('circle').remove();
 		d3.selectAll('.SDCAggregateFracBox').remove();
