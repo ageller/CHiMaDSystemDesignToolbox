@@ -372,12 +372,17 @@ function beginSDCEdit(){
 				.style('fill', 'lightgray')
 				.style('stroke', 'gray')
 
+		var roffx = r*0.15 //trying to center Xs for all browsers..
+		var roffy = r*0.19 //trying to center Xs for all browsers..
 		deleter.append('text')
 				.attr('class','SDCdeleter')
 				.attr('x', '0px')
 				.attr('y', '0px')
-				.attr('text-anchor','middle')
-				.attr('alignment-baseline','central')
+				//these work GREAT in chrome, but not on Firefox :(
+				// .attr('text-anchor','middle')
+				// .attr('alignment-baseline','central')
+				.attr('dx', (-r/2. - roffx) + 'px')
+				.attr('dy', (r/2. + roffy) + 'px')				
 				.style('font-size', (2.*r) + 'px')
 				.style('line-height', (2.*r) + 'px')
 				.style('fill','gray')
@@ -389,13 +394,15 @@ function beginSDCEdit(){
 
 
 	//add a button to create a new box
-	adderNode = document.createElement('button');
+	adderNode = document.createElement('div');
 	//var adder = d3.select('#systemDesignChart').select('.para').append('button')
 	d3.select(adderNode)
 		.attr('id','boxAdder')
 		.attr('class','secondaryButton')
 		.style('font-size',d3.select('#SDCDoneButton').style('font-size'))
-		.text('+')
+		.style('margin',0)
+		.style('padding',0)
+		.html('&#65291;')
 		.on('click', function(){
 			//get a new name
 			var num = 1;
@@ -442,7 +449,9 @@ function beginSDCEdit(){
 		.style('height', bbox.height + 'px')
 		.style('padding', 0 + 'px')
 		.style('font-size',bbox.height + 'px')
-		.style('line-height',bbox.height + 'px')
+		.style('line-height',(bbox.height - 1) + 'px')
+		.style('border-radius',(bbox.height/2) + 'px')
+		.style('vertical-align','middle')
 		.style('position','absolute')
 
 
@@ -833,4 +842,21 @@ function saveAsPPTX(){
 	
 
 	pptx.writeFile({ fileName: "SystemDesignChart.pptx" });
+}
+
+function resetEditSDCAfterGroupnameInput(){
+	params.answersConsensus = {};
+	params.answers = [];
+	params.answersOrg.forEach(function(d){params.answers.push(cloneObject(d));});
+	document.getElementById('SDCAnswersBuild').checked = true;
+	document.getElementById('SDCCompileOptions').value = 'answers';
+	d3.select('#SDCVersionOptions').style('visibility','visible');
+	d3.select('#SDCVersion1').style('visibility','visible');
+	d3.select('#SDCVersion1label').style('visibility','visible');
+	d3.select('#SDCVersion2').style('visibility','visible');
+	d3.select('#SDCVersion2Label').style('visibility','visible');
+	d3.select('#SDCAnswerToggle').style('visibility','visible');
+	d3.select('#SDCAnswerToggleLabel').style('visibility','visible');
+	d3.select('#SDCAggToggle').style('visibility','visible');
+	d3.select('#SDCAggToggleLabel').style('visibility','visible');
 }
