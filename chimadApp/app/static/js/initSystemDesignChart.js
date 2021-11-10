@@ -17,19 +17,21 @@ window.addEventListener('mousedown', function(){
 });
 
 //aggregate response range slider
-$("#AggRangeSlider").slider({
-	range: true,
-	min: 0,
-	max: 100,
-	values: [ 0, 100 ],
-	slide: function( event, ui ) {
-		params.SDCAggLims[0] = ui.values[0]/100.;
-		params.SDCAggLims[1] = ui.values[1]/100.;
-		$("#AggRangeSliderMin").text((params.SDCAggLims[0]).toFixed(2));
-		$("#AggRangeSliderMax").text((params.SDCAggLims[1]).toFixed(2));
-		limitSDCAggLines();
-	}
-})
+if( $('#AggRangeSlider').length ){  
+	$("#AggRangeSlider").slider({
+		range: true,
+		min: 0,
+		max: 100,
+		values: [ 0, 100 ],
+		slide: function( event, ui ) {
+			params.SDCAggLims[0] = ui.values[0]/100.;
+			params.SDCAggLims[1] = ui.values[1]/100.;
+			$("#AggRangeSliderMin").text((params.SDCAggLims[0]).toFixed(2));
+			$("#AggRangeSliderMax").text((params.SDCAggLims[1]).toFixed(2));
+			limitSDCAggLines();
+		}
+	})
+}
 
 
 function createSystemDesignChart(){
