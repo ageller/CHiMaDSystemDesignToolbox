@@ -328,3 +328,7 @@ function createEmail(){
 	window.location.href = "mailto:?subject=CHiMaD%20Form%20Entries&body=Thank%20you%20for%20submitting%20your%20responses.%20%20For%20your%20convenience,%20you%20can%20follow%20this%20link%20to%20a%20pre-populated%20form%20with%20your%20answers:%0A%0A"+url;
 }
 
+function toCustomize(){
+	var url = window.location.href.replace('editPara','editSDC');
+	window.location.href = url;
+}
