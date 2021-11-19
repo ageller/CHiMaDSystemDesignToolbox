@@ -76,12 +76,19 @@ function createDropdowns(){
 				})
 			})
 			.on('keyup', function(){
+				//console.log('checking event', event)
 				//enter
 				if (event.keyCode == 13) d3.select(this).classed('hidden', true); 
 				//right arrow
-				if (event.keyCode == 39) eventFire(getNextSibling(this.parentNode, '.selectionWord'), 'click');
+				if (event.keyCode == 39) eventFire(getNextSibling(this.parentNode, '.selectionWord'), 'click', event);
 				//left arrow
-				if (event.keyCode == 37) eventFire(getPrevSibling(this.parentNode, '.selectionWord'), 'click');
+				if (event.keyCode == 37) eventFire(getPrevSibling(this.parentNode, '.selectionWord'), 'click', event);
+			})
+			.on('keydown', function(){
+				//right arrow
+				if (event.keyCode == 39) event.preventDefault();
+				//left arrow
+				if (event.keyCode == 37) event.preventDefault();
 			})
 			.attr('class','selectionWordDropdown hidden')
 			//.classed('hidden', true)

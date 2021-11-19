@@ -114,8 +114,9 @@ function getStrIndicesOf(searchStr, str, caseSensitive) {
 	}
 	return indices;
 }
-function eventFire(el, etype){
-	//console.log('trying to click', el, etype)
+function eventFire(el, etype, ev){
+	//console.log('trying to click', el, etype, ev)
+	if (ev) ev.preventDefault();
 	if (el){
 		if (el.fireEvent) {
 			el.fireEvent('on' + etype);
