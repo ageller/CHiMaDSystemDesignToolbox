@@ -31,6 +31,8 @@ function defineParams(){
 		this.groupnameOrg = 'Polymer Composite Example';
 		this.surveyFile = 'static/data/'+this.groupname+'.csv';
 		this.paragraphFile = 'static/data/paragraphs.csv';
+		this.surveyTable = this.groupname;
+		this.paragraphTable = 'paragraphs';
 
 		//use this to get the available sheets
 		this.availableGroupnames = []; //this will hold the available sheets

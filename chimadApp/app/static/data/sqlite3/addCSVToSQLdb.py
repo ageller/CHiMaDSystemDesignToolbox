@@ -1,11 +1,12 @@
 import pandas as pd
 import sqlite3
 import re
+import os
 
-def addCSVToSQLdb(dbName, csvName):
+def addCSVToSQLdb(dbName, csvName, path=''):
 	
 	# read in the csv file
-	df = pd.read_csv('../' + csvName)
+	df = pd.read_csv(os.path.join(path, csvName))
 
 	# connect to the SQL database (this will create a file if it does not already exist)
 	conn = sqlite3.connect(dbName)
