@@ -385,9 +385,9 @@ function waveBars(){
 }
 
 function showParaAnswers(){
-	var using = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
+	var using = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.paragraphname) == params.cleanString(params.paragraphname));})[0];
 	Object.keys(using).forEach(function(k,i){
-		if (k != 'task' && k != 'groupname'){
+		if (k != 'task' && k != 'paragraphname'){
 			var d = d3.select('#'+params.cleanString(k)+'_bar').select('.barHover.'+using[k])
 				.style('stroke','black')
 				.style('stroke-width',2)

@@ -102,7 +102,7 @@ function onParaSubmit(){
 				formatSDC();
 				checkSDCvisibility();
 			}
-			params.paraData['TABLE_NAME'] = params.cleanString(params.groupname);
+			params.paraData['TABLE_NAME'] = params.cleanString(params.paragraphname);
 
 			//send to flask -- this will then return to the sockets.js to start the load interval
 			sendResponsesToFlask(params.paraData, 'paraNotification');
@@ -141,7 +141,7 @@ function onSDCSubmit(){
 	//add the IP, username and task (not using IP anymore)
 	params.SDCData['IP'] = params.userIP;
 	params.SDCData['username'] = params.username;
-	params.SDCData['TABLE_NAME'] = params.cleanString(params.groupname);
+	params.SDCData['TABLE_NAME'] = params.cleanString(params.paragraphname);
 	params.SDCData['task'] = 'SDC';
 	params.selectionWords.forEach(function(w,i){
 		//initialize to empty
@@ -185,7 +185,7 @@ function getUsernameInput(username=null){
 
 		params.URLInputValues = {};
 		params.URLInputValues["username"] = params.username;
-		params.URLInputValues["groupname"] = params.cleanString(params.groupname);
+		params.URLInputValues["paragraphname"] = params.cleanString(params.paragraphname);
 		console.log('username ', params.username)
 
 		var ubbox = d3.select('#usernameLabel').node().getBoundingClientRect();
@@ -217,7 +217,7 @@ function getUsernameInput(username=null){
 			if (i == params.responses.length - 1){
 				appendURLdata();
 				readURLdata();
-				if ('groupname' in params.URLInputValues) params.groupname = params.cleanString(params.URLInputValues.groupname);
+				if ('paragraphname' in params.URLInputValues) params.paragraphname = params.cleanString(params.URLInputValues.paragraphname);
 				useParaURLdata();
 				useSDCURLdata();
 			}
@@ -229,48 +229,48 @@ function getUsernameInput(username=null){
 }
 
 function updateSurveyTable(){
-	params.surveyTable = params.cleanString(params.groupname);
+	params.surveyTable = params.cleanString(params.paragraphname);
 }
 
-function createGroupnameSelect(){
+function createParagraphNameSelect(){
 
-	d3.select('#groupnameSelector').selectAll('label').remove();
-	d3.select('#groupnameSelector').selectAll('select').remove();
+	d3.select('#paragraphnameSelector').selectAll('label').remove();
+	d3.select('#paragraphnameSelector').selectAll('select').remove();
 
-	d3.select('#groupnameSelector').append('label')
-		.attr('for','groupnameSelect')
+	d3.select('#paragraphnameSelector').append('label')
+		.attr('for','paragraphnameSelect')
 		.html('paragraph name: ')
 
-	var slct = d3.select('#groupnameSelector').append('select')
-		.attr('id','groupnameSelect')
-		.attr('name','groupnameSelect')
-		.on('change',setGroupnameFromOptions)
+	var slct = d3.select('#paragraphnameSelector').append('select')
+		.attr('id','paragraphnameSelect')
+		.attr('name','paragraphnameSelect')
+		.on('change',setParagraphNameFromOptions)
 
-	slct.selectAll('option').data(params.availableGroupnamesOrg).enter().filter(function(d){return d != 'paragraphs'}).append('option')
-		.attr('id',function(d){return 'groupname'+params.cleanString(d);})
+	slct.selectAll('option').data(params.availableParagraphNamesOrg).enter().filter(function(d){return d != 'paragraphs'}).append('option')
+		.attr('id',function(d){return 'paragraphname'+params.cleanString(d);})
 		.attr('value',function(d){return params.cleanString(d);})
 		.text(function(d){return d;})
 	
 	var index = -1;
-	params.availableGroupnamesOrg.filter(function(d){return d != 'paragraphs'}).forEach(function(d,i){
-		if (params.cleanString(d) == params.cleanString(params.groupname)) index = i;
+	params.availableParagraphNamesOrg.filter(function(d){return d != 'paragraphs'}).forEach(function(d,i){
+		if (params.cleanString(d) == params.cleanString(params.paragraphname)) index = i;
 	})
 	slct.node().selectedIndex = index;
 
 }
 
-function setGroupnameFromOptions(groupname=null){
+function setParagraphNameFromOptions(paragraphname=null){
 	//this will handle the dropdown menu for the paragraph
 
-	params.switchedGroupname = true; //will be reset in aggregateResults (called after loadTable returns from flask)
+	params.switchedParagraphName = true; //will be reset in aggregateResults (called after loadTable returns from flask)
 
 	if (this.value) {
-		params.groupname = params.cleanString(this.value);
+		params.paragraphname = params.cleanString(this.value);
 	} else {
-		params.groupname = params.cleanString(groupname);
+		params.paragraphname = params.cleanString(paragraphname);
 	}
 
-	console.log('setting groupname', params.groupname);
+	console.log('setting paragraphname', params.paragraphname);
 	updateSurveyTable();
 	clearInterval(params.loadInterval);
 
@@ -284,7 +284,7 @@ function setGroupnameFromOptions(groupname=null){
 	params.SDCSubmitted = false;
 
 	//reset the consensus answers, and put the radio button checked on build from Answers (for editSDC)
-	if (typeof resetEditSDCAfterGroupnameInput === "function") resetEditSDCAfterGroupnameInput();
+	if (typeof resetEditSDCAfterParagraphNameInput === "function") resetEditSDCAfterParagraphNameInput();
 
 	//enable username editing
 	d3.select('#usernameInput').property('disabled', false);
@@ -292,7 +292,7 @@ function setGroupnameFromOptions(groupname=null){
 	checkAnswerTogglesVisibility();
 
 	//update the URL
-	params.URLInputValues['groupname'] = params.cleanString(params.groupname);
+	params.URLInputValues['paragraphname'] = params.cleanString(params.paragraphname);
 	if (params.haveParaEditor) setURLFromAnswers();
 	appendURLdata();
 
@@ -305,19 +305,19 @@ function setGroupnameFromOptions(groupname=null){
 function checkAnswerTogglesVisibility(){
 	//check if the answers exist, and if not, hide the answers checkboxes (may want to move this to a function, like I did with SDC?)
 	d3.selectAll('.answerToggle').style('visibility','hidden');
-	if (params.answersGroupnames.para.includes(params.cleanString(params.groupname))) {
+	if (params.answersParagraphNames.para.includes(params.cleanString(params.paragraphname))) {
 		d3.select('#paraVersionOptions').selectAll('.answerToggle').style('visibility','visible');
 	}
-	if (params.answersGroupnames.SDC.includes(params.cleanString(params.groupname)) && (params.paraSubmitted2 || params.haveSDCEditor)) {
+	if (params.answersParagraphNames.SDC.includes(params.cleanString(params.paragraphname)) && (params.paraSubmitted2 || params.haveSDCEditor)) {
 		d3.select('#SDCVersionOptions').selectAll('.answerToggle').style('visibility','visible');
 	}
 }
 
 function addEmptyAnswers(name){
-	params.answers.push({'groupname':params.cleanString(name), 'task':'para'});
-	params.answers.push({'groupname':params.cleanString(name), 'task':'SDC'});
-	params.answersGroupnames['para'].push(params.cleanString(name));
-	params.answersGroupnames['SDC'].push(params.cleanString(name));
+	params.answers.push({'paragraphname':params.cleanString(name), 'task':'para'});
+	params.answers.push({'paragraphname':params.cleanString(name), 'task':'SDC'});
+	params.answersParagraphNames['para'].push(params.cleanString(name));
+	params.answersParagraphNames['SDC'].push(params.cleanString(name));
 }
 
 function createEmail(){

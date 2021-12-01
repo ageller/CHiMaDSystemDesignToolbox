@@ -27,13 +27,13 @@ function defineParams(){
 		this.haveSurveyData = false;
 		this.haveAnswersData = false;
 
-		this.groupname = 'polymercompositeexample';
-		this.groupnameOrg = 'Polymer Composite Example';
-		this.surveyTable = this.groupname;
+		this.paragraphname = 'polymercompositeexample';
+		this.paragraphnameOrg = 'Polymer Composite Example';
+		this.surveyTable = this.paragraphname;
 		this.paragraphTable = 'paragraphs';
 
 		//use this to get the available tables
-		this.availableGroupnames = []; //this will hold the available tables
+		this.availableParagraphNames = []; //this will hold the available tables
 
 		//will save the initial input text before adding dropdown tags
 		this.paraTextSave = '';
@@ -41,8 +41,8 @@ function defineParams(){
 		//will hold the paragraphs that are saved in the google sheet
 		this.paragraphs;
 
-		//a check to see if the groupname was switche
-		this.switchedGroupname = false;
+		//a check to see if the paragraphname was switche
+		this.switchedParagraphName = false;
 
 		//this will hold the responses from the database
 		this.responses;
@@ -57,13 +57,13 @@ function defineParams(){
 		this.transitionParaAnswers = true; //controls whether to use transition for answers.  Will be true at first.
 
 		//this will hold the answers from the database
-		this.answers = [{'groupname':this.groupname, 'task':'para'},
-						{'groupname':this.groupname, 'task':'SDC'}];
+		this.answers = [{'paragraphname':this.paragraphname, 'task':'para'},
+						{'paragraphname':this.paragraphname, 'task':'SDC'}];
 		//this will just be a copy of the answers, since in some cases I will want to change the answers and revert back
-		this.answersOrg =  [{'groupname':this.groupname, 'task':'para'},
-						{'groupname':this.groupname, 'task':'SDC'}];
+		this.answersOrg =  [{'paragraphname':this.paragraphname, 'task':'para'},
+						{'paragraphname':this.paragraphname, 'task':'SDC'}];
 
-		this.answersGroupnames = {'para':[],'SDC':[]};
+		this.answersParagraphNames = {'para':[],'SDC':[]};
 		this.showParaAnswers = true; //can be toggled with checkbox
 		this.showSDCAnswers = true; //can be toggled with checkbox
 		this.showSDCAggregate = true; //can be toggled with checkbox

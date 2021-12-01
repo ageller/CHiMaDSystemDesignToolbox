@@ -10,16 +10,16 @@ window.addEventListener('click', useTextArea);
 //compile options
 d3.select('#SDCCompileOptions').selectAll('input').on('change',switchSDCCompiler);
 
-//add a blank option to the groupname dropdown, but need to wait until the original is created
+//add a blank option to the paragraphname dropdown, but need to wait until the original is created
 // var gInterval = window.setInterval(function(){
-// 	var check = d3.select('#groupnameSelect').node();
+// 	var check = d3.select('#paragraphnameSelect').node();
 // 	if (check){
 // 		clearInterval(gInterval);
-// 		params.availableGroupnames.push('blank');
+// 		params.availableParagraphNames.push('blank');
 // 		//create blank entries for the answers
 // 		addEmptyAnswers('blank');
-// 		console.log('!!! checking groupnames',params.availableGroupnames)
-// 		createGroupnameSelect();
+// 		console.log('!!! checking paragraphnames',params.availableParagraphNames)
+// 		createParagraphNameSelect();
 // 	}
 // }, 100)
 
@@ -81,7 +81,7 @@ function beginSDCEdit(){
 	//update the url to remove all the connections
 	params.URLInputValues = {};
 	resetURLdata();
-	params.URLInputValues['groupname'] = params.cleanString(params.groupname);
+	params.URLInputValues['paragraphname'] = params.cleanString(params.paragraphname);
 	appendURLdata();
 
 	//turn off the ability to draw lines
@@ -169,7 +169,7 @@ function beginSDCEdit(){
 			if (elem.column != columnWords[iX]){
 				//console.log('changing columns');
 
-				//shift the groups up and down to keep things centered
+				//shift the paragraphs up and down to keep things centered
 				const index = elems[elem.column].indexOf(elem);
 				if (index > -1) {
 					//console.log('found elem in column list')
@@ -252,7 +252,7 @@ function beginSDCEdit(){
 
 		//reset the answer for this word (in case the column changed)
 		var word = params.cleanString(d3.select(elem).select('text').attr('orgText'));
-		params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0][word] = elem.column;
+		params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.paragraphname) == params.cleanString(params.paragraphname));})[0][word] = elem.column;
 
 		//reorder params.selectionWords so that I can use formatSDC
 		var words = [];
@@ -355,8 +355,8 @@ function beginSDCEdit(){
 				if (index > -1) params.selectionWords.splice(index, 1);
 
 				//remove it from the answers
-				var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
-				delete answersGroup[orgText];
+				var answersParagraph = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.paragraphname) == params.cleanString(params.paragraphname));})[0];
+				delete answersParagraph[orgText];
 
 				//console.log('removing', orgText, index, params.selectionWords, params.answers)
 
@@ -435,10 +435,10 @@ function beginSDCEdit(){
 			params.selectionWords.push(text);
 
 			//add to answers
-			var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
-			answersGroup[params.cleanString(text)] = null;
-			var answersGroupOrg = params.answersOrg.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
-			answersGroupOrg[params.cleanString(text)] = null;
+			var answersParagraph = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.paragraphname) == params.cleanString(params.paragraphname));})[0];
+			answersParagraph[params.cleanString(text)] = null;
+			var answersParagraphOrg = params.answersOrg.filter(function(d){return (d.task == 'para' && params.cleanString(d.paragraphname) == params.cleanString(params.paragraphname));})[0];
+			answersParagraphOrg[params.cleanString(text)] = null;
 
 		})
 	insertAfter(adderNode, d3.select('#SDCVersionOptions').node())
@@ -529,10 +529,10 @@ function useTextArea(){
 
 				//update the answers
 				if (params.cleanString(orgText) != params.cleanString(thisElem.value)){
-					var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
-					var response = answersGroup[params.cleanString(orgText)];
-					answersGroup[params.cleanString(thisElem.value)] = response;
-					delete answersGroup[params.cleanString(orgText)];
+					var answersParagraph = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.paragraphname) == params.cleanString(params.paragraphname));})[0];
+					var response = answersParagraph[params.cleanString(orgText)];
+					answersParagraph[params.cleanString(thisElem.value)] = response;
+					delete answersParagraph[params.cleanString(orgText)];
 				}
 			}
 
@@ -569,10 +569,10 @@ function switchSDCCompiler(){
 
 		//before resetting the answers check if there are any boxes that have null values in the original answers (these would have been added later)
 		//if so, update to the current value in answers
-		var answersGroupOrg = params.answersOrg.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
-		var answersGroup = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
-		Object.keys(answersGroupOrg).forEach(function(key){
-			if (!answersGroupOrg[key]) answersGroupOrg[key] = answersGroup[key];
+		var answersParagraphOrg = params.answersOrg.filter(function(d){return (d.task == 'para' && params.cleanString(d.paragraphname) == params.cleanString(params.paragraphname));})[0];
+		var answersParagraph = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.paragraphname) == params.cleanString(params.paragraphname));})[0];
+		Object.keys(answersParagraphOrg).forEach(function(key){
+			if (!answersParagraphOrg[key]) answersParagraphOrg[key] = answersParagraph[key];
 		})
 
 		//reset the answers
@@ -614,10 +614,10 @@ function switchSDCCompiler(){
 			params.answersConsensus[version] = [];
 			params.answers.forEach(function(d){params.answersConsensus[version].push(cloneObject(d));});
 
-			//now go through the answers and aggregated responses for this group
-			var answersGroup = params.answersConsensus[version].filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
-			Object.keys(answersGroup).forEach(function(key){
-				if (key != 'groupname' && key != 'task'){
+			//now go through the answers and aggregated responses for this paragraph
+			var answersParagraph = params.answersConsensus[version].filter(function(d){return (d.task == 'para' && params.cleanString(d.paragraphname) == params.cleanString(params.paragraphname));})[0];
+			Object.keys(answersParagraph).forEach(function(key){
+				if (key != 'paragraphname' && key != 'task'){
 					//find the consensus response
 					var topResult;
 					var maxValue = 0;
@@ -628,7 +628,7 @@ function switchSDCCompiler(){
 								maxValue = agg[word];
 								topResult = word;
 							}
-							if (i == Object.keys(agg).length-1) answersGroup[key] = topResult;
+							if (i == Object.keys(agg).length-1) answersParagraph[key] = topResult;
 						})
 					} 
 
@@ -844,7 +844,7 @@ function saveAsPPTX(){
 	pptx.writeFile({ fileName: "SystemDesignChart.pptx" });
 }
 
-function resetEditSDCAfterGroupnameInput(){
+function resetEditSDCAfterParagraphNameInput(){
 	params.answersConsensus = {};
 	params.answers = [];
 	params.answersOrg.forEach(function(d){params.answers.push(cloneObject(d));});

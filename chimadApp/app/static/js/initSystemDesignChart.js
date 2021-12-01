@@ -36,7 +36,7 @@ if( $('#AggRangeSlider').length ){
 
 function createSystemDesignChart(){
 	if (!params.SDCLineHighlighted){
-		console.log('creating system design chart ...', params.answersGroupnames);
+		console.log('creating system design chart ...', params.answersParagraphNames);
 
 		//get the column centers
 		var n = params.options.length - 1;
@@ -120,7 +120,7 @@ function createSystemDesignChart(){
 		})
 
 
-		if (params.answersGroupnames.para.includes(params.cleanString(params.groupname)) && (params.paraSubmitted2 || params.haveParaEditor || params.haveSDCEditor)) formatSDC();
+		if (params.answersParagraphNames.para.includes(params.cleanString(params.paragraphname)) && (params.paraSubmitted2 || params.haveParaEditor || params.haveSDCEditor)) formatSDC();
 
 		//the first bit in here is only call it once and with animation, from aggregateSDCResults() in reader.js
 		if (((params.SDCSubmitted && !params.firstSDCplot) || params.haveSDCEditor) && !params.edittedSDC) {
@@ -185,7 +185,7 @@ function formatSDC(duration=0){
 
 		//build from the bottom up with the selectionWords in reverse
 		var reversedSelectionWords = params.selectionWords.slice().reverse();
-		var using = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
+		var using = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.paragraphname) == params.cleanString(params.paragraphname));})[0];
 		if (using){
 			for (var i=0; i<reversedSelectionWords.length; i++){
 				var d = params.cleanString(reversedSelectionWords[i]);
@@ -554,7 +554,7 @@ function endSDCLine() {
 			//add to the answers if in editor
 			if (params.haveParaEditor){
 				params.answers.forEach(function(a){
-					if (params.cleanString(a.groupname) == params.cleanString(params.groupname) && a.task == 'SDC') {
+					if (params.cleanString(a.paragraphname) == params.cleanString(params.paragraphname) && a.task == 'SDC') {
 						var key = word1;
 						if (word1.substring(0,3) == 'SDC') key = word1.substring(3, word1.length);
 						words = word2.replaceAll('%20',' ').split(' ');
@@ -807,10 +807,10 @@ function plotSDCAnswerLines(duration = 0){
 		//remove the answer lines if they exist
 		d3.selectAll('.SDCAnswerLine').remove();
 
-		var using = params.answers.filter(function(d){return (d.task == 'SDC' && params.cleanString(d.groupname) == params.cleanString(params.groupname));})[0];
+		var using = params.answers.filter(function(d){return (d.task == 'SDC' && params.cleanString(d.paragraphname) == params.cleanString(params.paragraphname));})[0];
 		if (using){
 			Object.keys(using).forEach(function(startWords, j){
-				if (startWords != 'task' && startWords != 'groupname'){
+				if (startWords != 'task' && startWords != 'paragraphname'){
 					var endWords = using[startWords];
 					if (endWords){
 						endWords.forEach(function(w,i){
@@ -986,7 +986,7 @@ function switchSDCVersions(){
 
 function checkSDCvisibility(){
 	if (!params.haveParaEditor && !params.haveSDCEditor){
-		if (params.answersGroupnames.para.includes(params.cleanString(params.groupname)) && params.paraSubmitted2){
+		if (params.answersParagraphNames.para.includes(params.cleanString(params.paragraphname)) && params.paraSubmitted2){
 			d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
 			d3.select('#SDCButton').style('visibility','visible');
 			d3.select('#SDCVersionOptions').style('visibility','visible');
