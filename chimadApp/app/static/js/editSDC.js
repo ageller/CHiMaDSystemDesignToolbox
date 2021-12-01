@@ -15,11 +15,11 @@ d3.select('#SDCCompileOptions').selectAll('input').on('change',switchSDCCompiler
 // 	var check = d3.select('#paragraphnameSelect').node();
 // 	if (check){
 // 		clearInterval(gInterval);
-// 		params.availableParagraphNames.push('blank');
+// 		params.availableParagraphnames.push('blank');
 // 		//create blank entries for the answers
 // 		addEmptyAnswers('blank');
-// 		console.log('!!! checking paragraphnames',params.availableParagraphNames)
-// 		createParagraphNameSelect();
+// 		console.log('!!! checking paragraphnames',params.availableParagraphnames)
+// 		createParagraphnameSelect();
 // 	}
 // }, 100)
 
@@ -844,7 +844,7 @@ function saveAsPPTX(){
 	pptx.writeFile({ fileName: "SystemDesignChart.pptx" });
 }
 
-function resetEditSDCAfterParagraphNameInput(){
+function resetEditSDCAfterParagraphnameInput(){
 	params.answersConsensus = {};
 	params.answers = [];
 	params.answersOrg.forEach(function(d){params.answers.push(cloneObject(d));});

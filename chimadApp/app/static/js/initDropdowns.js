@@ -66,7 +66,7 @@ function createDropdowns(){
 						params.URLInputValues[key] = this.value;
 						appendURLdata();
 						if (params.haveParaEditor){
-							if (!params.answersParagraphNames['para'].includes(params.cleanString(params.paragraphname))) params.answersParagraphNames['parap'].push(params.cleanString(params.paragraphname));
+							if (!params.answersParagraphnames['para'].includes(params.cleanString(params.paragraphname))) params.answersParagraphnames['parap'].push(params.cleanString(params.paragraphname));
 							params.answers.forEach(function(a){
 								if (params.cleanString(a.paragraphname) == params.cleanString(params.paragraphname) && a.task == 'para') a[key] = params.cleanString(params.URLInputValues[key]);
 							})

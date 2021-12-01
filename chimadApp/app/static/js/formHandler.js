@@ -232,7 +232,7 @@ function updateSurveyTable(){
 	params.surveyTable = params.cleanString(params.paragraphname);
 }
 
-function createParagraphNameSelect(){
+function createParagraphnameSelect(){
 
 	d3.select('#paragraphnameSelector').selectAll('label').remove();
 	d3.select('#paragraphnameSelector').selectAll('select').remove();
@@ -244,25 +244,25 @@ function createParagraphNameSelect(){
 	var slct = d3.select('#paragraphnameSelector').append('select')
 		.attr('id','paragraphnameSelect')
 		.attr('name','paragraphnameSelect')
-		.on('change',setParagraphNameFromOptions)
+		.on('change',setParagraphnameFromOptions)
 
-	slct.selectAll('option').data(params.availableParagraphNamesOrg).enter().filter(function(d){return d != 'paragraphs'}).append('option')
+	slct.selectAll('option').data(params.availableParagraphnamesOrg).enter().filter(function(d){return d != 'paragraphs'}).append('option')
 		.attr('id',function(d){return 'paragraphname'+params.cleanString(d);})
 		.attr('value',function(d){return params.cleanString(d);})
 		.text(function(d){return d;})
 	
 	var index = -1;
-	params.availableParagraphNamesOrg.filter(function(d){return d != 'paragraphs'}).forEach(function(d,i){
+	params.availableParagraphnamesOrg.filter(function(d){return d != 'paragraphs'}).forEach(function(d,i){
 		if (params.cleanString(d) == params.cleanString(params.paragraphname)) index = i;
 	})
 	slct.node().selectedIndex = index;
 
 }
 
-function setParagraphNameFromOptions(paragraphname=null){
+function setParagraphnameFromOptions(paragraphname=null){
 	//this will handle the dropdown menu for the paragraph
 
-	params.switchedParagraphName = true; //will be reset in aggregateResults (called after loadTable returns from flask)
+	params.switchedParagraphname = true; //will be reset in aggregateResults (called after loadTable returns from flask)
 
 	if (this.value) {
 		params.paragraphname = params.cleanString(this.value);
@@ -284,7 +284,7 @@ function setParagraphNameFromOptions(paragraphname=null){
 	params.SDCSubmitted = false;
 
 	//reset the consensus answers, and put the radio button checked on build from Answers (for editSDC)
-	if (typeof resetEditSDCAfterParagraphNameInput === "function") resetEditSDCAfterParagraphNameInput();
+	if (typeof resetEditSDCAfterParagraphnameInput === "function") resetEditSDCAfterParagraphnameInput();
 
 	//enable username editing
 	d3.select('#usernameInput').property('disabled', false);
@@ -305,10 +305,10 @@ function setParagraphNameFromOptions(paragraphname=null){
 function checkAnswerTogglesVisibility(){
 	//check if the answers exist, and if not, hide the answers checkboxes (may want to move this to a function, like I did with SDC?)
 	d3.selectAll('.answerToggle').style('visibility','hidden');
-	if (params.answersParagraphNames.para.includes(params.cleanString(params.paragraphname))) {
+	if (params.answersParagraphnames.para.includes(params.cleanString(params.paragraphname))) {
 		d3.select('#paraVersionOptions').selectAll('.answerToggle').style('visibility','visible');
 	}
-	if (params.answersParagraphNames.SDC.includes(params.cleanString(params.paragraphname)) && (params.paraSubmitted2 || params.haveSDCEditor)) {
+	if (params.answersParagraphnames.SDC.includes(params.cleanString(params.paragraphname)) && (params.paraSubmitted2 || params.haveSDCEditor)) {
 		d3.select('#SDCVersionOptions').selectAll('.answerToggle').style('visibility','visible');
 	}
 }
@@ -316,8 +316,8 @@ function checkAnswerTogglesVisibility(){
 function addEmptyAnswers(name){
 	params.answers.push({'paragraphname':params.cleanString(name), 'task':'para'});
 	params.answers.push({'paragraphname':params.cleanString(name), 'task':'SDC'});
-	params.answersParagraphNames['para'].push(params.cleanString(name));
-	params.answersParagraphNames['SDC'].push(params.cleanString(name));
+	params.answersParagraphnames['para'].push(params.cleanString(name));
+	params.answersParagraphnames['SDC'].push(params.cleanString(name));
 }
 
 function createEmail(){

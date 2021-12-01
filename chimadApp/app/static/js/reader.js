@@ -50,10 +50,10 @@ function aggregateResults(data) {
 
 	params.haveSurveyData = false;
 
-	if (params.username && params.switchedParagraphName){
+	if (params.username && params.switchedParagraphname){
 		console.log('!!! CHECK populating from username')
 		getUsernameInput(params.username);
-		params.switchedParagraphName = false;
+		params.switchedParagraphname = false;
 	} 
 
 	aggregateParaResults();
@@ -72,13 +72,13 @@ function compileParagraphData(data) {
 
 	//reformat this so that the paragraphname is a key
 	//also check for avilable answers
-	params.answersParagraphNames = {'para':[],'SDC':[]};
+	params.answersParagraphnames = {'para':[],'SDC':[]};
 	params.paragraphs = {};
-	params.availableParagraphNames = [];
-	params.availableParagraphNamesOrg = [];
+	params.availableParagraphnames = [];
+	params.availableParagraphnamesOrg = [];
 	data.forEach(function(d){
-		params.availableParagraphNamesOrg.push(d.paragraphname);
-		params.availableParagraphNames.push(params.cleanString(d.paragraphname));
+		params.availableParagraphnamesOrg.push(d.paragraphname);
+		params.availableParagraphnames.push(params.cleanString(d.paragraphname));
 		params.paragraphs[params.cleanString(d.paragraphname)] = {};
 		params.paragraphs[params.cleanString(d.paragraphname)].paragraph = d.paragraph;
 		var a = null;
@@ -89,7 +89,7 @@ function compileParagraphData(data) {
 			a = JSON.parse(d.answersJSON);
 			a.forEach(function(aa){
 				var check = objectWithoutProperties(aa, ['task', 'paragraphname'])
-				if (!params.answersParagraphNames[aa.task].includes(params.cleanString(aa.paragraphname)) && Object.keys(check).length > 0) params.answersParagraphNames[aa.task].push(params.cleanString(aa.paragraphname));
+				if (!params.answersParagraphnames[aa.task].includes(params.cleanString(aa.paragraphname)) && Object.keys(check).length > 0) params.answersParagraphnames[aa.task].push(params.cleanString(aa.paragraphname));
 			})
 		}
 		params.paragraphs[params.cleanString(d.paragraphname)].answers = a;
@@ -100,23 +100,23 @@ function compileParagraphData(data) {
 	if (params.paragraphs.hasOwnProperty('blank') > -1 && !params.haveSDCEditor && !params.haveParaEditor) {
 		delete params.paragraphs.blank;
 
-		var index = params.availableParagraphNames.indexOf('blank');
-		if (index > 0) params.availableParagraphNames.splice(index, 1);
+		var index = params.availableParagraphnames.indexOf('blank');
+		if (index > 0) params.availableParagraphnames.splice(index, 1);
 		
-		index = params.availableParagraphNamesOrg.indexOf('blank');
-		if (index > 0) params.availableParagraphNamesOrg.splice(index, 1);
+		index = params.availableParagraphnamesOrg.indexOf('blank');
+		if (index > 0) params.availableParagraphnamesOrg.splice(index, 1);
 	}
 
-	params.paragraphs.columns = Object.keys(params.paragraphs[params.availableParagraphNames[0]]);
-	console.log('paragraphs', params.paragraphs, params.availableParagraphNames, params.answersParagraphNames, data);
+	params.paragraphs.columns = Object.keys(params.paragraphs[params.availableParagraphnames[0]]);
+	console.log('paragraphs', params.paragraphs, params.availableParagraphnames, params.answersParagraphnames, data);
 	
-	createParagraphNameSelect();
+	createParagraphnameSelect();
 
 	params.haveParagraphData = true;
 
 	//pull out the answers into the previous object (easier than rewriting my old code!)
 	params.answers = [];
-	params.availableParagraphNames.forEach(function(d, i){
+	params.availableParagraphnames.forEach(function(d, i){
 		var p = params.paragraphs[d];
 		if (p.answers){
 			p.answers.forEach(function(a){
