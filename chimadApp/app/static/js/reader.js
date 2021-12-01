@@ -5,7 +5,7 @@ function loadTable(table, callback){
 	var out = {'tablename': table};
 	console.log('loading table ', out)
 
-	//send the file name to flask.  I will read in the data there, and then it will be sent back via POST
+	//send the table name to flask.  I will read in the data there, and then it will be sent back via POST
 	$.ajax({
 			url: '/load_table',
 			contentType: 'application/json; charset=utf-8"',
@@ -26,42 +26,7 @@ function loadTable(table, callback){
 				if (!params.triedLoadingAgain){
 					params.groupname = params.cleanString(params.groupnameOrg);
 					updateSurveyTable();
-					loadTable(params.surveyFile, aggregateResults);
-					params.triedLoadingAgain = true;
-				}
-			}
-		});
-}
-
-function loadFile(file, callback){
-//load a csv file (not used)
-//a bit of a round-about way of doing things, but I will take "callback" as the string name of the callback to flask, and then call it from sockets.js
-
-	var out = {'filename': file};
-	console.log('loading file ', out)
-
-	//send the file name to flask.  I will read in the data there, and then it will be sent back via POST
-	$.ajax({
-			url: '/load_file',
-			contentType: 'application/json; charset=utf-8"',
-			dataType: 'json',
-			data: JSON.stringify(out),
-			type: 'POST',
-			success: function(d) {
-				console.log('loaded file',d);
-				var data = JSON.parse(d.data);
-				data.columns = d.columns;
-				params.triedLoadingAgain = false;
-				callback(data)
-
-			},
-			error: function(d) {
-				console.log('!!! WARNING: file did not load', d);
-				//possibly from bad URL input 
-				if (!params.triedLoadingAgain){
-					params.groupname = params.cleanString(params.groupnameOrg);
-					updateSurveyFile();
-					loadFile(params.surveyFile, aggregateResults);
+					loadTable(params.surveyTable, aggregateResults);
 					params.triedLoadingAgain = true;
 				}
 			}
