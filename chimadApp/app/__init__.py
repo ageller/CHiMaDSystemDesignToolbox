@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, render_template
 import pandas as pd
 import os
+import re
 import sys
 from datetime import datetime
 
@@ -38,6 +39,7 @@ def load_table():
 	tablename = message['tablename']
 	print('======= load_table', message, tablename)
 
+	# connect to the SQL database and load the table
 	conn = sqlite3.connect(dbName)
 	cursor = conn.cursor()
 	cursor.execute('SELECT * FROM ' + tablename)
@@ -65,19 +67,28 @@ def save_responses():
 	print('======= save_responses', message)
 
 	# I will need to perform all the checks that I had in the google script but now in python
-	# For now, I will save the values to a csv file
+	# since I started with csv files read in by pandas, I will just convert this code to work with pandas (rather than doing the searching in sqlite3)
 	data = message['data']
-	filename = os.path.join(current_location, 'static/data/' + data['SHEET_NAME'] + '.csv')
-	print('!!! filename', filename)
 
-	if (os.path.exists(filename)):
-		# if this is an existing file, then read it in and see if we have the username already
-		print('!!! have file')
-		df = pd.read_csv(filename)
+	# connect to the SQL database and check if the table exists
+	tablename = data['TABLE_NAME']
+	print('!!! tablename', tablename)
+
+	conn = sqlite3.connect(dbName)
+	cursor = conn.cursor()
+	cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+	tables = [x[0] for x in cursor.fetchall()]
+
+	if (tablename in tables):
+		# if this is an existing table, then read it in and see if we have the username already
+		print('!!! have table')
+		cursor.execute('SELECT * FROM ' + tablename)
+		columns = [description[0] for description in cursor.description]
+		df = pd.DataFrame(cursor.fetchall(), columns = columns)   
 
 		# if the sheet name is 'paragraphs', then we search for the groupname; otherwise we search for the username
 		iRow = []
-		if (data['SHEET_NAME'] == 'paragraphs'):
+		if (data['TABLE_NAME'] == 'paragraphs'):
 			key = 'groupname'
 			iRow = df.index[ df[key] == data[key] ].tolist()
 		else:
@@ -125,8 +136,8 @@ def save_responses():
 
 
 	else:
-		# if this is a new paragraph then we will need to create a file (from editPara)
-		print('!!! creating new file')
+		# if this is a new paragraph then we will need to create a new table (from editPara)
+		print('!!! creating new table')
 		df = pd.DataFrame()
 		if ('header' in data):
 			d = dict()
@@ -134,9 +145,26 @@ def save_responses():
 				d[h] = []
 			df = pd.DataFrame(d)
 
-	#now write the file (will replace the current file)
+	#now write the table (will replace the current file)
 	print(df)
-	df.fillna('').to_csv(filename, index=False)
+	df.fillna('')
+
+	# include all columns, and assume that they are all text
+	# allow only alphanumeric values in column names
+	cols = ''
+	for col in df.columns:
+		cc = re.sub(r'\W+', '', col) 
+		cols += cc + ' text, ' 
+	cols = cols[:-2]
+
+	# create the table
+	cursor.execute('CREATE TABLE IF NOT EXISTS ' + tablename + ' (' + cols + ')')
+	conn.commit()
+	
+	# add the dataFrame into the database
+	df.to_sql(tablename, conn, if_exists='replace', index = False)
+
+	cursor.close()
 
 	return jsonify(message)
 
