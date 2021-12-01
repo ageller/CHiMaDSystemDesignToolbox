@@ -34,8 +34,8 @@ function defineParams(){
 		this.surveyTable = this.groupname;
 		this.paragraphTable = 'paragraphs';
 
-		//use this to get the available sheets
-		this.availableGroupnames = []; //this will hold the available sheets
+		//use this to get the available tables
+		this.availableGroupnames = []; //this will hold the available tables
 
 		//will save the initial input text before adding dropdown tags
 		this.paraTextSave = '';
@@ -46,7 +46,7 @@ function defineParams(){
 		//a check to see if the groupname was switche
 		this.switchedGroupname = false;
 
-		//this will hold the responses downloaded from the google sheet
+		//this will hold the responses from the database
 		this.responses;
 		this.aggregatedParaResponses = []; //will have multiple versions
 		this.paraResponseVersion = 1;

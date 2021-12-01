@@ -104,7 +104,7 @@ function onParaSubmit(){
 				formatSDC();
 				checkSDCvisibility();
 			}
-			params.paraData['SHEET_NAME'] = params.cleanString(params.groupname);
+			params.paraData['TABLE_NAME'] = params.cleanString(params.groupname);
 
 			//send to flask -- this will then return to the sockets.js to start the load interval
 			sendResponsesToFlask(params.paraData, 'paraNotification');
@@ -143,7 +143,7 @@ function onSDCSubmit(){
 	//add the IP, username and task (not using IP anymore)
 	params.SDCData['IP'] = params.userIP;
 	params.SDCData['username'] = params.username;
-	params.SDCData['SHEET_NAME'] = params.cleanString(params.groupname);
+	params.SDCData['TABLE_NAME'] = params.cleanString(params.groupname);
 	params.SDCData['task'] = 'SDC';
 	params.selectionWords.forEach(function(w,i){
 		//initialize to empty
