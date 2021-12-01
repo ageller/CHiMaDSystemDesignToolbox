@@ -331,3 +331,9 @@ function toCustomize(){
 	var url = window.location.href.replace('editPara','editSDC');
 	window.location.href = url;
 }
+
+function onGroupnameSubmit(){
+	document.getElementById('login').style.display = 'none';
+	var val = document.getElementById('groupnameInput').value;
+	console.log('===== groupname : ', val);
+}

@@ -7,6 +7,15 @@
 	</head>
 
 	<body>
+		<div id='login' class='modal' style='display:block'>
+			<div class="modal-content animate">
+				<p style='font-size:4vw; text-align:center'>Welcome to the CHiMaD System Design Toolbox.  Please log in to begin.</p>
+				<br>
+				<label for="groupname">Please enter your group name.  (If you do not have a group name yet, please enter "anonymous".)  </label>
+				<input type="text" id="groupnameInput" placeholder="Enter group name" name="groupname" required>
+				<button class="button" style="font-size: 2vw; width:100%" type="submit" onclick="onGroupnameSubmit()">Login</button>
+			</div>
+		</div>
 		<div id='branding' style='width:100%;'>
 			<div style='padding:0.1vw'>
 				<img id='CHiMaDLogo' src='static/images/ChiMaD_Final_wname-transparent.png' style='width:60vw'>
@@ -51,6 +60,7 @@
 
 		<!-- my codes -->
 		<script src="static/js/dropdown.js"></script>
+		<script src="static/js/formHandler.js"></script>
 
 		<script>
 			if ({{ inDesktopApp|tojson|safe }}){
