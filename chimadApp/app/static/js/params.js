@@ -33,7 +33,7 @@ function defineParams(){
 		this.paragraphTable = 'paragraphs';
 
 		//use this to get the available tables
-		this.availableParagraphNames = []; //this will hold the available tables
+		this.availableParagraphnames = []; //this will hold the available tables
 
 		//will save the initial input text before adding dropdown tags
 		this.paraTextSave = '';
@@ -42,7 +42,7 @@ function defineParams(){
 		this.paragraphs;
 
 		//a check to see if the paragraphname was switche
-		this.switchedParagraphName = false;
+		this.switchedParagraphname = false;
 
 		//this will hold the responses from the database
 		this.responses;
@@ -63,7 +63,7 @@ function defineParams(){
 		this.answersOrg =  [{'paragraphname':this.paragraphname, 'task':'para'},
 						{'paragraphname':this.paragraphname, 'task':'SDC'}];
 
-		this.answersParagraphNames = {'para':[],'SDC':[]};
+		this.answersParagraphnames = {'para':[],'SDC':[]};
 		this.showParaAnswers = true; //can be toggled with checkbox
 		this.showSDCAnswers = true; //can be toggled with checkbox
 		this.showSDCAggregate = true; //can be toggled with checkbox
