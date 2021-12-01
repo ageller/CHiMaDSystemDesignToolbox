@@ -29,8 +29,6 @@ function defineParams(){
 
 		this.groupname = 'polymercompositeexample';
 		this.groupnameOrg = 'Polymer Composite Example';
-		this.surveyFile = 'static/data/'+this.groupname+'.csv';
-		this.paragraphFile = 'static/data/paragraphs.csv';
 		this.surveyTable = this.groupname;
 		this.paragraphTable = 'paragraphs';
 
@@ -58,7 +56,7 @@ function defineParams(){
 		this.toggleParaText = true; //controls whether to toggle text in para.  Will be true at first and then when version is changed 
 		this.transitionParaAnswers = true; //controls whether to use transition for answers.  Will be true at first.
 
-		//this will hold the answers from the static data file
+		//this will hold the answers from the database
 		this.answers = [{'groupname':this.groupname, 'task':'para'},
 						{'groupname':this.groupname, 'task':'SDC'}];
 		//this will just be a copy of the answers, since in some cases I will want to change the answers and revert back

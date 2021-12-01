@@ -36,16 +36,13 @@ if (!params.haveParaEditor && !params.haveSDCEditor) d3.select('#systemDesignCha
 //load data from the URL to define the form input
 readURLdata();
 if ('groupname' in params.URLInputValues) params.groupname = params.cleanString(params.URLInputValues.groupname);
-updateSurveyFile();
 updateSurveyTable();
 
 //load in all the data
 //get the paragraphs and answer key
-//loadFile(params.paragraphFile, compileParagraphData); 
 loadTable(params.paragraphTable, compileParagraphData); 
 //load in the survey responses
 //but note: the visualization will not fill in until the user submits a response (this is now a recurring call and only executed after the first submit)
-//loadFile(params.surveyFile, aggregateResults);
 loadTable(params.surveyTable, aggregateResults);
 
 initPage();
