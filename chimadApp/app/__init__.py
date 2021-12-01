@@ -76,17 +76,17 @@ def save_responses():
 		columns = [description[0] for description in cursor.description]
 		df = pd.DataFrame(cursor.fetchall(), columns = columns)   
 
-		# if the sheet name is 'paragraphs', then we search for the groupname; otherwise we search for the username
+		# if the sheet name is 'paragraphs', then we search for the paragraphname; otherwise we search for the username
 		iRow = []
 		if (data['TABLE_NAME'] == 'paragraphs'):
-			key = 'groupname'
+			key = 'paragraphname'
 			iRow = df.index[ df[key] == data[key] ].tolist()
 		else:
 			key = 'username'
 			iRow = df.index[ (df[key] == data[key]) & (df['task'] == data['task']) ].tolist()
 
 
-		#if the key is groupname, we only expect to find one of these
+		#if the key is paragraphname, we only expect to find one of these
 		#if the key is username, we may have two
 		# - if we have 1 then we append a new row for the 2nd version
 		# - if we have 2 then we use the second version

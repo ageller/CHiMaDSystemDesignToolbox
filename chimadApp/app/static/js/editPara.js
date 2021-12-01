@@ -18,7 +18,7 @@
 // parentEl.insertBefore(btn2, document.getElementById('paraText'));
 
 //attach function to buttons and input
-d3.select('#groupnameInput').on("keyup",getGroupnameInput);
+d3.select('#paragraphnameInput').on("keyup",getParagraphNameInput);
 document.getElementById('paraEditButton').onclick = beginParaEdit;
 document.getElementById('paraSaveButton').onclick = saveParaEdit;
 params.haveParaEditor = true;
@@ -47,7 +47,7 @@ function populateAnswersFromURL(){
 	});
 
 	params.answers.forEach(function(a){
-		if (params.cleanString(a.groupname) == params.cleanString(params.groupname)){
+		if (params.cleanString(a.paragraphname) == params.cleanString(params.paragraphname)){
 			if (a.task == 'para'){
 				Object.keys(aPara).forEach(function(k){
 					a[k] = aPara[k];
@@ -61,7 +61,7 @@ function populateAnswersFromURL(){
 		}
 	})
 
-	params.answersGroupnames = [params.cleanString(params.groupname)];
+	params.answersParagraphNames = [params.cleanString(params.paragraphname)];
 
 }
 
@@ -73,10 +73,10 @@ function beginParaEdit(){
 	resetURLdata();
 
 	//reset the notification
-	d3.select('#groupnameNotification').text('');
+	d3.select('#paragraphnameNotification').text('');
 
-	//remove the group name
-	document.getElementById('groupnameInput').value = '';
+	//remove the paragraph name
+	document.getElementById('paragraphnameInput').value = '';
 
 	//change button to save
 	d3.select('#paraEditButton').style('display','none');
@@ -107,9 +107,9 @@ function saveParaEdit(){
 		.classed('error', false)
 		.text('');
 
-	//check that the group name is not already used
-	if (params.availableGroupnames.includes(params.cleanString(params.groupname)) || params.groupname == ''){
-		d3.select('#groupnameNotification')
+	//check that the paragraph name is not already used
+	if (params.availableParagraphNames.includes(params.cleanString(params.paragraphname)) || params.paragraphname == ''){
+		d3.select('#paragraphnameNotification')
 			.classed('error', true)
 			.text('Please choose a different paragraph name.  ');
 	} else {
@@ -129,23 +129,23 @@ function saveParaEdit(){
 		createDropdowns();
 
 		//create the new table in the database
-		var data = {'TABLE_NAME':params.cleanString(params.groupname), 'header':['Timestamp','IP','username','version', 'task']};
+		var data = {'TABLE_NAME':params.cleanString(params.paragraphname), 'header':['Timestamp','IP','username','version', 'task']};
 		params.selectionWords.forEach(function(d){
 			data.header.push(params.cleanString(d));
 		})
-		sendResponsesToFlask(data, 'groupnameNotification', false, 'Paragraph updated successfully.');
+		sendResponsesToFlask(data, 'paragraphnameNotification', false, 'Paragraph updated successfully.');
 
 		//add to the paragraphs table in the database (answers will come later with the onAnswersSubmit)
-		data = {'TABLE_NAME':'paragraphs', 'groupname':params.groupnameOrg,'paragraph':newText,'answersJSON':''};
+		data = {'TABLE_NAME':'paragraphs', 'paragraphname':params.paragraphnameOrg,'paragraph':newText,'answersJSON':''};
 		params.nTrials = 0; //this may not work properly since I have a submit up above...
-		sendResponsesToFlask(data, 'groupnameNotification', false, 'Paragraph updated successfully.');
+		sendResponsesToFlask(data, 'paragraphnameNotification', false, 'Paragraph updated successfully.');
 
 		//hide the editor and show the current paragraph
 		d3.select('#paraText').style('display','block');
 		d3.select('#paraTextEditor').style('display','none');
 
 		//create blank entries for the answers
-		addEmptyAnswers(params.cleanString(params.groupname));
+		addEmptyAnswers(params.cleanString(params.paragraphname));
 
 		//show the system design chart starter
 		createSystemDesignChart();
@@ -168,37 +168,37 @@ function onAnswersSubmit(){
 
 		var answersData = [];
 		params.answers.forEach(function(a){
-			if (params.cleanString(a.groupname) == params.cleanString(params.groupname)) answersData.push(a);
+			if (params.cleanString(a.paragraphname) == params.cleanString(params.paragraphname)) answersData.push(a);
 		})
-		var data = {'TABLE_NAME':'paragraphs', 'groupname':params.groupnameOrg,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
+		var data = {'TABLE_NAME':'paragraphs', 'paragraphname':params.paragraphnameOrg,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
 		sendResponsesToFlask(data, 'answerSubmitNotification', false, 'Answers updated successfully.');
 		console.log('answers submitted', data);
 	}
 }
 
-function getGroupnameInput(groupname=null, evnt=null){
-	//get the group data from the text input box to define the paragraph
+function getParagraphNameInput(paragraphname=null, evnt=null){
+	//get the paragraph data from the text input box to define the paragraph
 
-	if (this.value) groupname = this.value;
+	if (this.value) paragraphname = this.value;
 
-	//this will handle the write-in groupname for the editor
+	//this will handle the write-in paragraphname for the editor
 	if (params.event.keyCode === 13 || params.event.which === 13) {
 		//prevent returns from triggering anything
 		event.preventDefault();
 	} else {
 
-		params.groupnameOrg = groupname;
-		params.groupname = params.cleanString(groupname);
-		if (!(typeof params.groupname === 'string') && !(params.groupname instanceof String)) params.groupname = '';
+		params.paragraphnameOrg = paragraphname;
+		params.paragraphname = params.cleanString(paragraphname);
+		if (!(typeof params.paragraphname === 'string') && !(params.paragraphname instanceof String)) params.paragraphname = '';
 
-		console.log('groupname ', params.groupname);
-		if (params.availableGroupnames.includes(params.groupname) || params.groupname == '') {
-			d3.select('#groupnameNotification')
+		console.log('paragraphname ', params.paragraphname);
+		if (params.availableParagraphNames.includes(params.paragraphname) || params.paragraphname == '') {
+			d3.select('#paragraphnameNotification')
 				.classed('error', true)
 				.text('Please choose a different paragraph name. ');
 		} else {
-			d3.select('#groupnameNotification').text('');
-			params.URLInputValues["groupname"] = params.groupname;
+			d3.select('#paragraphnameNotification').text('');
+			params.URLInputValues["paragraphname"] = params.paragraphname;
 			appendURLdata();
 		}
 	}
