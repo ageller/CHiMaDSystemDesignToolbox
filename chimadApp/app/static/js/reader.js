@@ -98,7 +98,7 @@ function aggregateResults(data) {
 }
 
 function compileParagraphData(data) {
-//parse the csv (originally from the google sheet) into the format that we need
+//parse the data (originally from the google sheet) into the format that we need
 //this now also contains the answer keys
 
 	params.haveParagraphData = false;

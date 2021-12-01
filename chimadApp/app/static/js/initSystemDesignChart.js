@@ -1089,7 +1089,7 @@ function limitSDCAggLines(){
 	params.SDCAggSVG.selectAll('line').each(function(){
 		var elem = d3.select(this);
 		var frac = parseFloat(elem.attr('fraction'));
-		if (frac > params.SDCAggLims[0] && frac < params.SDCAggLims[1]){
+		if (frac >= params.SDCAggLims[0] && frac <= params.SDCAggLims[1]){
 			elem.style('visibility','visible')
 		} else {
 			elem.style('visibility','hidden')
@@ -1098,7 +1098,7 @@ function limitSDCAggLines(){
 	params.SDCAggTextSVG.selectAll('text').each(function(){
 		var elem = d3.select(this);
 		var frac = parseFloat(elem.attr('fraction'));
-		if (frac > params.SDCAggLims[0] && frac < params.SDCAggLims[1]){
+		if (frac >= params.SDCAggLims[0] && frac <= params.SDCAggLims[1]){
 			elem.style('visibility','visible')
 		} else {
 			elem.style('visibility','hidden')

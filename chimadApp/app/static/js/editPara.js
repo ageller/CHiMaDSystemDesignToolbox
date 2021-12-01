@@ -107,7 +107,7 @@ function saveParaEdit(){
 		.classed('error', false)
 		.text('');
 
-	//get the available tabs in the Google sheet
+	//get the available tables in the database
 	//loadFile(params.paragraphFile, compileParagraphData);  //in case another edit was made by another user (but will this complete in time for the following if statement??)
 
 	//check that the group name is not already used
@@ -131,15 +131,15 @@ function saveParaEdit(){
 		//define the dropdowns
 		createDropdowns();
 
-		//create the new tab in the google sheet
-		var data = {'SHEET_NAME':params.cleanString(params.groupname), 'header':['Timestamp','IP','username','version', 'task']};
+		//create the new table in the database
+		var data = {'TABLE_NAME':params.cleanString(params.groupname), 'header':['Timestamp','IP','username','version', 'task']};
 		params.selectionWords.forEach(function(d){
 			data.header.push(params.cleanString(d));
 		})
 		sendResponsesToFlask(data, 'groupnameNotification', false, 'Paragraph updated successfully.');
 
-		//add to the paragraphs tab in the google sheet (answers will come later with the onAnswersSubmit)
-		data =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupnameOrg,'paragraph':newText,'answersJSON':''};
+		//add to the paragraphs table in the database (answers will come later with the onAnswersSubmit)
+		data = {'TABLE_NAME':'paragraphs', 'groupname':params.groupnameOrg,'paragraph':newText,'answersJSON':''};
 		params.nTrials = 0; //this may not work properly since I have a submit up above...
 		sendResponsesToFlask(data, 'groupnameNotification', false, 'Paragraph updated successfully.');
 
@@ -173,7 +173,7 @@ function onAnswersSubmit(){
 		params.answers.forEach(function(a){
 			if (params.cleanString(a.groupname) == params.cleanString(params.groupname)) answersData.push(a);
 		})
-		var data =  {'SHEET_NAME':'paragraphs', 'groupname':params.groupnameOrg,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
+		var data = {'TABLE_NAME':'paragraphs', 'groupname':params.groupnameOrg,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
 		sendResponsesToFlask(data, 'answerSubmitNotification', false, 'Answers updated successfully.');
 		console.log('answers submitted', data);
 	}
