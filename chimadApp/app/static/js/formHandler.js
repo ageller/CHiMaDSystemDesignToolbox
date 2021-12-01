@@ -28,11 +28,13 @@ function sendResponsesToFlask(data, notificationID, startInterval=true, successR
 
 				//show the aggregated responses (now showing after reading in the data within aggregateParaResults)
 				if (d.startInterval && !d.error) {
-					loadFile(params.surveyFile, aggregateResults);
+					//loadFile(params.surveyFile, aggregateResults);
+					loadTable(params.surveyTable, aggregateResults);
 
 					clearInterval(params.loadInterval);
 					params.loadInterval = setInterval(function(){
-						loadFile(params.surveyFile, aggregateResults);
+						//loadFile(params.surveyFile, aggregateResults);
+						loadTable(params.surveyTable, aggregateResults);
 					}, params.loadIntervalDuration);
 				}
 
@@ -232,6 +234,9 @@ function getUsernameInput(username=null){
 function updateSurveyFile(){
 	params.surveyFile = 'static/data/'+params.cleanString(params.groupname)+'.csv';
 }
+function updateSurveyTable(){
+	params.surveyTable = params.cleanString(params.groupname);
+}
 
 function createGroupnameSelect(){
 
@@ -273,6 +278,7 @@ function setGroupnameFromOptions(groupname=null){
 
 	console.log('setting groupname', params.groupname);
 	updateSurveyFile();
+	updateSurveyTable();
 	clearInterval(params.loadInterval);
 
 	//reset the URL
@@ -297,7 +303,8 @@ function setGroupnameFromOptions(groupname=null){
 	if (params.haveParaEditor) setURLFromAnswers();
 	appendURLdata();
 
-	loadFile(params.surveyFile, aggregateResults);
+	//loadFile(params.surveyFile, aggregateResults);
+	loadTable(params.surveyTable, aggregateResults);
 
 	initPage();
 }
