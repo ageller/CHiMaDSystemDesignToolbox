@@ -4,9 +4,9 @@ function updatePara(newTxt = null){
 	if (newTxt) {
 		newText = newTxt
 	} else {
-		if (params.paragraphs.hasOwnProperty(params.cleanString(params.groupname))) newText = params.paragraphs[params.cleanString(params.groupname)].paragraph;
+		if (params.paragraphs.hasOwnProperty(params.cleanString(params.paragraphname))) newText = params.paragraphs[params.cleanString(params.paragraphname)].paragraph;
 	}
-	console.log('have new text:',params.groupname, newText);
+	console.log('have new text:',params.paragraphname, newText);
 	d3.select('#paraText').html(newText);
 	convertPara();
 
@@ -66,9 +66,9 @@ function createDropdowns(){
 						params.URLInputValues[key] = this.value;
 						appendURLdata();
 						if (params.haveParaEditor){
-							if (!params.answersGroupnames['para'].includes(params.cleanString(params.groupname))) params.answersGroupnames['parap'].push(params.cleanString(params.groupname));
+							if (!params.answersParagraphNames['para'].includes(params.cleanString(params.paragraphname))) params.answersParagraphNames['parap'].push(params.cleanString(params.paragraphname));
 							params.answers.forEach(function(a){
-								if (params.cleanString(a.groupname) == params.cleanString(params.groupname) && a.task == 'para') a[key] = params.cleanString(params.URLInputValues[key]);
+								if (params.cleanString(a.paragraphname) == params.cleanString(params.paragraphname) && a.task == 'para') a[key] = params.cleanString(params.URLInputValues[key]);
 							})
 							if (params.haveSDC) formatSDC();
 						}
