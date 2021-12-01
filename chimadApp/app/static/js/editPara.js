@@ -18,7 +18,7 @@
 // parentEl.insertBefore(btn2, document.getElementById('paraText'));
 
 //attach function to buttons and input
-d3.select('#paragraphnameInput').on("keyup",getParagraphNameInput);
+d3.select('#paragraphnameInput').on("keyup",getParagraphnameInput);
 document.getElementById('paraEditButton').onclick = beginParaEdit;
 document.getElementById('paraSaveButton').onclick = saveParaEdit;
 params.haveParaEditor = true;
@@ -61,7 +61,7 @@ function populateAnswersFromURL(){
 		}
 	})
 
-	params.answersParagraphNames = [params.cleanString(params.paragraphname)];
+	params.answersParagraphnames = [params.cleanString(params.paragraphname)];
 
 }
 
@@ -108,7 +108,7 @@ function saveParaEdit(){
 		.text('');
 
 	//check that the paragraph name is not already used
-	if (params.availableParagraphNames.includes(params.cleanString(params.paragraphname)) || params.paragraphname == ''){
+	if (params.availableParagraphnames.includes(params.cleanString(params.paragraphname)) || params.paragraphname == ''){
 		d3.select('#paragraphnameNotification')
 			.classed('error', true)
 			.text('Please choose a different paragraph name.  ');
@@ -176,7 +176,7 @@ function onAnswersSubmit(){
 	}
 }
 
-function getParagraphNameInput(paragraphname=null, evnt=null){
+function getParagraphnameInput(paragraphname=null, evnt=null){
 	//get the paragraph data from the text input box to define the paragraph
 
 	if (this.value) paragraphname = this.value;
@@ -192,7 +192,7 @@ function getParagraphNameInput(paragraphname=null, evnt=null){
 		if (!(typeof params.paragraphname === 'string') && !(params.paragraphname instanceof String)) params.paragraphname = '';
 
 		console.log('paragraphname ', params.paragraphname);
-		if (params.availableParagraphNames.includes(params.paragraphname) || params.paragraphname == '') {
+		if (params.availableParagraphnames.includes(params.paragraphname) || params.paragraphname == '') {
 			d3.select('#paragraphnameNotification')
 				.classed('error', true)
 				.text('Please choose a different paragraph name. ');

@@ -36,7 +36,7 @@ if( $('#AggRangeSlider').length ){
 
 function createSystemDesignChart(){
 	if (!params.SDCLineHighlighted){
-		console.log('creating system design chart ...', params.answersParagraphNames);
+		console.log('creating system design chart ...', params.answersParagraphnames);
 
 		//get the column centers
 		var n = params.options.length - 1;
@@ -120,7 +120,7 @@ function createSystemDesignChart(){
 		})
 
 
-		if (params.answersParagraphNames.para.includes(params.cleanString(params.paragraphname)) && (params.paraSubmitted2 || params.haveParaEditor || params.haveSDCEditor)) formatSDC();
+		if (params.answersParagraphnames.para.includes(params.cleanString(params.paragraphname)) && (params.paraSubmitted2 || params.haveParaEditor || params.haveSDCEditor)) formatSDC();
 
 		//the first bit in here is only call it once and with animation, from aggregateSDCResults() in reader.js
 		if (((params.SDCSubmitted && !params.firstSDCplot) || params.haveSDCEditor) && !params.edittedSDC) {
@@ -986,7 +986,7 @@ function switchSDCVersions(){
 
 function checkSDCvisibility(){
 	if (!params.haveParaEditor && !params.haveSDCEditor){
-		if (params.answersParagraphNames.para.includes(params.cleanString(params.paragraphname)) && params.paraSubmitted2){
+		if (params.answersParagraphnames.para.includes(params.cleanString(params.paragraphname)) && params.paraSubmitted2){
 			d3.select('#systemDesignChartSVGContainer').style('visibility','visible');
 			d3.select('#SDCButton').style('visibility','visible');
 			d3.select('#SDCVersionOptions').style('visibility','visible');

@@ -105,5 +105,5 @@ function resize(){
 	// var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
 
 	d3.select('#systemDesignChart').style('top',maxH + 20 +'px');
-	if ((params.answersParagraphNames.para.includes(params.cleanString(params.paragraphname)) && params.paraSubmitted2 && params.haveSDC) || params.haveParaEditor || (params.haveSDCEditor && !params.editingSDC)) createSystemDesignChart();
+	if ((params.answersParagraphnames.para.includes(params.cleanString(params.paragraphname)) && params.paraSubmitted2 && params.haveSDC) || params.haveParaEditor || (params.haveSDCEditor && !params.editingSDC)) createSystemDesignChart();
 }
