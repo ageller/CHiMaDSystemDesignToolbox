@@ -7,18 +7,21 @@
 	</head>
 
 	<body>
-		<div id='login' class='modal' style='display:block'>
+		<div id='login' class='modal' style='display:none'>
 			<div class="modal-content animate">
-				<p style='font-size:4vw; text-align:center'>Welcome to the CHiMaD System Design Toolbox.  Please log in to begin.</p>
+				<div class='closeX' onclick="closeGroupnameInput()">X</div>
+				<p style='font-size:4vw; text-align:center'>Welcome to the CHiMaD System Design Toolbox.  Please enter your group name below.</p>
 				<br>
-				<label for="groupname">Please enter your group name.  (If you do not have a group name yet, please enter "anonymous".)  </label>
 				<input type="text" id="groupnameInput" placeholder="Enter group name" name="groupname" required>
-				<button class="button" style="font-size: 2vw; width:100%" type="submit" onclick="onGroupnameSubmit()">Login</button>
+				<button id='groupnameSubmit' class="button" style="font-size: 2vw; width:100%" type="submit" onclick="onGroupnameSubmit()">Login</button>
+				<div id="groupnameNotification" class="notifications error" style="margin-top:20px; display:none">Please enter a valid group name.</div>
+
 			</div>
 		</div>
 		<div id='branding' style='width:100%;'>
 			<div style='padding:0.1vw'>
 				<img id='CHiMaDLogo' src='static/images/ChiMaD_Final_wname-transparent.png' style='width:60vw'>
+				<div id='groupnameDiv' class='landing-button' style='border-width:2px; padding:4px 8px 4px 4px' onclick='changeGroupname()'><img src='static/images/abstract-user-flat-1.png' style='height:20px; margin-right:6px'><span id='groupnameID'>Default</span></div>
 				<div id="hamburger" onclick="toggleDropdown('dropdown')">
 					<div></div>
 					<div></div>
@@ -30,6 +33,7 @@
 					<a href="training" class='simpleLink simpleLinkHover'><div>Collaborate</div></a>
 					<a href="editPara" class='simpleLink simpleLinkHover'><div>Individual</div></a>
 					<a href="editSDC" class='simpleLink simpleLinkHover'><div>Customize</div></a>
+					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='changeGroupname()'><div>Change group name</div></a>
 					<a href="https://chimad.northwestern.edu/" class='simpleLink simpleLinkHover'><div>CHiMaD Main Page</div></a>
 				</div>
 				<hr class='simpleLine'>
@@ -38,17 +42,17 @@
 		</div>
 		<div id='bgimg' class='crop-bg-img' style='display:flex; align-items:center'>
 			<a class='simpleLink' href='training'>
-				<div class='landing-button'>
+				<div class='landing-button main-landing-button'>
 					<div>Collaborate: Think or Train Together</div>
 				</div>
 			</a>
 			<a class='simpleLink' href='editPara'>
-				<div class='landing-button'>
+				<div class='landing-button main-landing-button '>
 					<div>Individual: Build Your Own System</div>
 				</div>
 			</a>
 			<a class='simpleLink' href='editSDC'>
-				<div class='landing-button'>
+				<div class='landing-button main-landing-button'>
 					<div>Customize: Edit and Export Your System Design Chart</div>
 				</div>
 			</a>
@@ -58,9 +62,13 @@
 			<div style='font-size:1.7vh;  padding:0.5vw; font-style:italic'>Image credit: </div>
 		</div>
 
+		<!-- Libraries -->
+		<script src='static/lib/d3.v6.min.js'></script>
+
 		<!-- my codes -->
 		<script src="static/js/dropdown.js"></script>
 		<script src="static/js/formHandler.js"></script>
+		<script src="static/js/params.js"></script>
 
 		<script>
 			if ({{ inDesktopApp|tojson|safe }}){
@@ -70,7 +78,7 @@
 				document.body.appendChild(script);  
 			}
 
-			window.onload = setTimeout(resize, 10); //sometimes the top bar doesn't size right away
+			window.onload = setTimeout(resize, 500); //sometimes the top bar doesn't size right away
 			window.addEventListener('resize', resize);
 			function resize(){
 				var topBarBbox = document.getElementById('branding').getBoundingClientRect();
