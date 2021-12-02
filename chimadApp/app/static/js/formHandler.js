@@ -327,23 +327,40 @@ function createEmail(){
 	window.location.href = "mailto:?subject=CHiMaD%20Form%20Entries&body=Thank%20you%20for%20submitting%20your%20responses.%20%20For%20your%20convenience,%20you%20can%20follow%20this%20link%20to%20a%20pre-populated%20form%20with%20your%20answers:%0A%0A"+url;
 }
 
+
+function toHome(){
+	var fields = getURLFields();
+	window.location.href = fields.urlStart + 'home' + fields.urlAddOn;
+}
+function toCollaborate(){
+	var fields = getURLFields();
+	window.location.href = fields.urlStart + 'training' + fields.urlAddOn;
+}
+function toIndividual(){
+	var fields = getURLFields();
+	window.location.href = fields.urlStart + 'editPara' + fields.urlAddOn;
+}
 function toCustomize(){
-	var url = window.location.href.replace('editPara','editSDC');
-	window.location.href = url;
+	var fields = getURLFields();
+	window.location.href = fields.urlStart + 'editSDC' + fields.urlAddOn;
 }
 
 function changeGroupname(){
 	document.getElementById('login').style.display = 'block';
 }
+
 function closeGroupnameInput(){
 	document.getElementById('login').style.display = 'none';
 }
+
 function onGroupnameSubmit(){
 	var val = document.getElementById('groupnameInput').value;
 	if (val != ''){
 		document.getElementById('groupnameID').innerHTML = val;
 		document.getElementById('groupnameNotification').style.display = 'none';
 		params.groupname = val;
+		params.URLInputValues["groupname"] = params.groupname
+		appendURLdata();
 		closeGroupnameInput();
 
 		console.log('===== groupname : ', val);
@@ -352,6 +369,7 @@ function onGroupnameSubmit(){
 	}
 
 }
+
 //for the login button
 var input = document.getElementById('groupnameInput');
 if (input){
