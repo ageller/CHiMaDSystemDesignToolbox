@@ -332,8 +332,34 @@ function toCustomize(){
 	window.location.href = url;
 }
 
-function onGroupnameSubmit(){
+function changeGroupname(){
+	document.getElementById('login').style.display = 'block';
+}
+function closeGroupnameInput(){
 	document.getElementById('login').style.display = 'none';
+}
+function onGroupnameSubmit(){
 	var val = document.getElementById('groupnameInput').value;
-	console.log('===== groupname : ', val);
+	if (val != ''){
+		document.getElementById('groupnameID').innerHTML = val;
+		document.getElementById('groupnameNotification').style.display = 'none';
+		params.groupname = val;
+		closeGroupnameInput();
+
+		console.log('===== groupname : ', val);
+	} else {
+		document.getElementById('groupnameNotification').style.display = 'block';
+	}
+
+}
+//for the login button
+var input = document.getElementById('groupnameInput');
+if (input){
+	input.addEventListener('keyup', function(event) {
+		document.getElementById('groupnameNotification').style.display = 'none';
+		if (event.keyCode === 13) {
+			event.preventDefault();
+			document.getElementById('groupnameSubmit').click();
+		}
+	});
 }

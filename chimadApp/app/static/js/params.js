@@ -32,6 +32,8 @@ function defineParams(){
 		this.surveyTable = this.paragraphname;
 		this.paragraphTable = 'paragraphs';
 
+		this.groupname = 'Default'
+
 		//use this to get the available tables
 		this.availableParagraphnames = []; //this will hold the available tables
 
