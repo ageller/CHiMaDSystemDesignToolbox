@@ -28,11 +28,11 @@
 					<div></div>
 				</div>        
 				<div id="dropdown" style='visibility:hidden'>
-					<a href="home" class='simpleLink simpleLinkHover'><div style='border:none'>Home</div></a>
+					<a class='simpleLink simpleLinkHover'style='cursor:pointer' onclick='toHome()'><div style='border:none'>Home</div></a>
 					<a href="about" class='simpleLink simpleLinkHover'><div>About</div></a>
-					<a href="training" class='simpleLink simpleLinkHover'><div>Collaborate</div></a>
-					<a href="editPara" class='simpleLink simpleLinkHover'><div>Individual</div></a>
-					<a href="editSDC" class='simpleLink simpleLinkHover'><div>Customize</div></a>
+					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='toCollaborate()'><div>Collaborate</div></a>
+					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='toIndividual()'><div>Individual</div></a>
+					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='toCustomize()'><div>Customize</div></a>
 					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='changeGroupname()'><div>Change group name</div></a>
 					<a href="https://chimad.northwestern.edu/" class='simpleLink simpleLinkHover'><div>CHiMaD Main Page</div></a>
 				</div>
@@ -68,6 +68,7 @@
 		<!-- my codes -->
 		<script src="static/js/dropdown.js"></script>
 		<script src="static/js/formHandler.js"></script>
+		<script src="static/js/utils.js"></script>
 		<script src="static/js/params.js"></script>
 
 		<script>
@@ -78,9 +79,9 @@
 				document.body.appendChild(script);  
 			}
 
-			window.onload = setTimeout(resize, 500); //sometimes the top bar doesn't size right away
-			window.addEventListener('resize', resize);
-			function resize(){
+			window.onload = setTimeout(resizeIndex, 500); //sometimes the top bar doesn't size right away
+			window.addEventListener('resize', resizeIndex);
+			function resizeIndex(){
 				var topBarBbox = document.getElementById('branding').getBoundingClientRect();
 				var botBarBbox = document.getElementById('imgCredit').getBoundingClientRect();
 				var bgimg = document.getElementById('bgimg');

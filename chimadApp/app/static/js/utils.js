@@ -46,6 +46,20 @@ function resetURLdata(){
 
 }
 
+function getURLFields(){
+	var urlFull = window.location.href;
+	var p = urlFull.indexOf('?');
+	var urlMain = urlFull;
+	var urlAddOn = '';
+	if (p > 0) {
+		urlMain = urlFull.substring(0, p);
+		urlAddOn = urlFull.substring(p);
+	}
+	var p = urlMain.lastIndexOf('/');
+	var urlStart = urlMain.substring(0,p+1);
+
+	return {'urlStart':urlStart,'urlAddOn':urlAddOn};
+}
 //https://stackoverflow.com/questions/20798477/how-to-find-index-of-all-occurrences-of-element-in-array#:~:text=The%20.,val%2C%20i%2B1))%20!%3D
 function getAllIndices(arr, val) {
 	var indices = [], i;
