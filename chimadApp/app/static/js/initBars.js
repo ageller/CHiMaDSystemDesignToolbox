@@ -1,8 +1,4 @@
 //this function will use the answers to create a grid of boxes and highlight the correct values
-//TO DO
-// -- I need to get the measurements to scale (not sure what this means)
-// -- add tooltips
-// -- is this better than the boxes?
 
 
 params.haveBars = true;
@@ -427,39 +423,3 @@ function switchParaVersions(){
 		toggleParaAnswers();
 	}
 }
-// function handleBarMouseOut(){
-// 	if (params.showingResults){
-// 		var x = event.clientX;
-// 		var y = event.clientY;
-// 		var elem = document.elementFromPoint(x, y);
-// 		if (elem.id != "tooltip"){
-// 			d3.select('#tooltip').transition().duration(params.transitionDuration).style('opacity',0);
-// 			d3.selectAll('.bar').transition().duration(params.transitionDuration).style('opacity',params.barOpacity);
-// 		}
-// 	}
-// }
-
-// function handleBarMouseOver(){
-// 	if (params.showingResults){
-// 		var classes = this.classList;
-// 		var bar = d3.select(this.parentNode).select('.bar.'+classes[1]);
-// 		var bbox = d3.select(this).node().getBoundingClientRect();//getBBox();
-
-// 		//update and show the tooltip
-// 		d3.select('#tooltip')
-// 			.style('top',bbox.y)
-// 			.style('left',bbox.x)
-// 			.style('width',bbox.width)
-// 			.style('height',bbox.height)
-// 			.text(parseFloat(bar.attr('data-pct')).toFixed(1))
-// 			.transition().duration(params.transitionDuration).style('opacity',1);
-		
-// 		//dim all the bars
-// 		d3.selectAll('.bar').transition().duration(params.transitionDuration).style('opacity',0.2);
-
-// 		//highlight the bar where on
-// 		bar.transition().duration(params.transitionDuration).style('opacity',1);
-// 	}
-
-
-// }

@@ -22,20 +22,11 @@ window.addEventListener('mousemove', function(){
 //hide the system design chart at load (will be displayed when user submits the second response)
 if (!params.haveParaEditor && !params.haveSDCEditor) d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
 
-//connect the web socket
-//connectSocket()
-
-//move the tooltip
-// window.addEventListener('mousemove', function(){
-// 	d3.select('#tooltip')
-// 		.style('left', event.pageX)
-// 		.style('top',event.pageY-20)
-// });
-
 
 //load data from the URL to define the form input
 readURLdata();
 if ('paragraphname' in params.URLInputValues) params.paragraphname = params.cleanString(params.URLInputValues.paragraphname);
+if ('groupname' in params.URLInputValues) setGroupname(decodeURI(params.URLInputValues.groupname));
 updateSurveyTable();
 
 //load in all the data

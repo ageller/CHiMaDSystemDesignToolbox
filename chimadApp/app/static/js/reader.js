@@ -1,6 +1,5 @@
 function loadTable(table, callback){
 //load a table from the SQL database
-//a bit of a round-about way of doing things, but I will take "callback" as the string name of the callback to flask, and then call it from sockets.js
 
 	var out = {'tablename': table};
 	console.log('loading table ', out)

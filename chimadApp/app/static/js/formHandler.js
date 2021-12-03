@@ -104,7 +104,7 @@ function onParaSubmit(){
 			}
 			params.paraData['TABLE_NAME'] = params.cleanString(params.paragraphname);
 
-			//send to flask -- this will then return to the sockets.js to start the load interval
+			//send to flask -- this will then return to start the load interval
 			sendResponsesToFlask(params.paraData, 'paraNotification');
 
 		} else {
@@ -159,7 +159,7 @@ function onSDCSubmit(){
 				}
 
 				if (j == d3.selectAll('.SDCLine').size() - 1){
-					//send to flask -- this will then return to the sockets.js to start the load interval
+					//send to flask -- this will then return to start the load interval
 					sendResponsesToFlask(params.SDCData, 'SDCNotification');
 					params.SDCSubmitted = true;
 					console.log('submitted SDC form', params.SDCData);
@@ -332,6 +332,10 @@ function toHome(){
 	var fields = getURLFields();
 	window.location.href = fields.urlStart + 'home' + fields.urlAddOn;
 }
+function toAbout(){
+	var fields = getURLFields();
+	window.location.href = fields.urlStart + 'about' + fields.urlAddOn;
+}
 function toCollaborate(){
 	var fields = getURLFields();
 	window.location.href = fields.urlStart + 'training' + fields.urlAddOn;
@@ -353,17 +357,20 @@ function closeGroupnameInput(){
 	document.getElementById('login').style.display = 'none';
 }
 
+function setGroupname(val){
+	document.getElementById('groupnameID').innerHTML = val;
+	params.URLInputValues["groupname"] = val;
+	params.groupname = params.cleanString(val);
+	appendURLdata();
+}
 function onGroupnameSubmit(){
 	var val = document.getElementById('groupnameInput').value;
 	if (val != ''){
-		document.getElementById('groupnameID').innerHTML = val;
+		setGroupname(val);
 		document.getElementById('groupnameNotification').style.display = 'none';
-		params.groupname = val;
-		params.URLInputValues["groupname"] = params.groupname
-		appendURLdata();
 		closeGroupnameInput();
 
-		console.log('===== groupname : ', val);
+		console.log('===== groupname : ', params.groupname);
 	} else {
 		document.getElementById('groupnameNotification').style.display = 'block';
 	}
