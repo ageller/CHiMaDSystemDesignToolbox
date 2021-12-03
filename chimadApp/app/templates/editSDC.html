@@ -9,22 +9,34 @@
 
 	<body>
 
-		<div id='tooltip'></div>
+		<div id='login' class='modal' style='display:none'>
+			<div class="modal-content animate">
+				<div class='closeX' onclick="closeGroupnameInput()">X</div>
+				<p style='font-size:4vw; text-align:center'>Welcome to the CHiMaD System Design Toolbox.  Please enter your group name below.</p>
+				<br>
+				<input type="text" id="groupnameInput" placeholder="Enter group name" name="groupname" required>
+				<button id='groupnameSubmit' class="button" style="font-size: 2vw; width:100%" type="submit" onclick="onGroupnameSubmit()">Login</button>
+				<div id="groupnameNotification" class="notifications error" style="margin-top:20px; display:none">Please enter a valid group name.</div>
+
+			</div>
+		</div>
 
 		<div id='branding' style='width:100%'>
 			<div style='padding:0.1vw'>
 				<img id='CHiMaDLogo' src='static/images/ChiMaD_Final_wname-transparent.png' style='width:60vw'>
+				<div id='groupnameDiv' class='landing-button' style='border-width:2px; padding:4px 8px 4px 4px' onclick='changeGroupname()'><img src='static/images/abstract-user-flat-1.png' style='height:20px;'><span style='margin-left: 6px' id='groupnameID'>click to login</span></div>
 				<div id="hamburger" onclick="toggleDropdown('dropdown')">
 					<div></div>
 					<div></div>
 					<div></div>
 				</div>        
 				<div id="dropdown" style='visibility:hidden'>
-					<a href="home" class='simpleLink simpleLinkHover'><div style='border:none'>Home</div></a>
-					<a href="about" class='simpleLink simpleLinkHover'><div>About</div></a>
-					<a href="training" class='simpleLink simpleLinkHover'><div>Collaborate</div></a>
-					<a href="editPara" class='simpleLink simpleLinkHover'><div>Individual</div></a>
-					<a href="editSDC" class='simpleLink simpleLinkHover'><div>Customize</div></a>
+					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='toHome()'><div style='border:none'>Home</div></a>
+					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='toAbout()'><div>About</div></a>
+					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='toCollaborate()'><div>Collaborate</div></a>
+					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='toIndividual()'><div>Individual</div></a>
+					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='toCustomize()'><div>Customize</div></a>
+					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='changeGroupname()'><div>Change group name</div></a>
 					<a href="https://chimad.northwestern.edu/" class='simpleLink simpleLinkHover'><div>CHiMaD Main Page</div></a>
 				</div>
 				<hr class='simpleLine'>
