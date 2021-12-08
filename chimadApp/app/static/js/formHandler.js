@@ -102,7 +102,8 @@ function onParaSubmit(){
 				formatSDC();
 				checkSDCvisibility();
 			}
-			params.paraData['TABLE_NAME'] = params.cleanString(params.paragraphname);
+			params.paraData['tablename'] = params.cleanString(params.paragraphname);
+			params.paraData['dbname'] =  params.dbname;
 
 			//send to flask -- this will then return to start the load interval
 			sendResponsesToFlask(params.paraData, 'paraNotification');
@@ -141,7 +142,8 @@ function onSDCSubmit(){
 	//add the IP, username and task (not using IP anymore)
 	params.SDCData['IP'] = params.userIP;
 	params.SDCData['username'] = params.username;
-	params.SDCData['TABLE_NAME'] = params.cleanString(params.paragraphname);
+	params.SDCData['tablename'] = params.cleanString(params.paragraphname);
+	params.SDCData['dbname'] = params.dbname;
 	params.SDCData['task'] = 'SDC';
 	params.selectionWords.forEach(function(w,i){
 		//initialize to empty

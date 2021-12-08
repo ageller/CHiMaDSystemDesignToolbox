@@ -129,14 +129,14 @@ function saveParaEdit(){
 		createDropdowns();
 
 		//create the new table in the database
-		var data = {'TABLE_NAME':params.cleanString(params.paragraphname), 'header':['Timestamp','IP','username','version', 'task']};
+		var data = {'tablename':params.cleanString(params.paragraphname), 'dbname':params.dbname, 'header':['Timestamp','IP','username','version', 'task']};
 		params.selectionWords.forEach(function(d){
 			data.header.push(params.cleanString(d));
 		})
 		sendResponsesToFlask(data, 'paragraphnameNotification', false, 'Paragraph updated successfully.');
 
 		//add to the paragraphs table in the database (answers will come later with the onAnswersSubmit)
-		data = {'TABLE_NAME':'paragraphs', 'paragraphname':params.paragraphnameOrg,'paragraph':newText,'answersJSON':''};
+		data = {'tablename':'paragraphs', 'dbname':params.dbname, 'paragraphname':params.paragraphnameOrg,'paragraph':newText,'answersJSON':''};
 		params.nTrials = 0; //this may not work properly since I have a submit up above...
 		sendResponsesToFlask(data, 'paragraphnameNotification', false, 'Paragraph updated successfully.');
 
@@ -170,7 +170,7 @@ function onAnswersSubmit(){
 		params.answers.forEach(function(a){
 			if (params.cleanString(a.paragraphname) == params.cleanString(params.paragraphname)) answersData.push(a);
 		})
-		var data = {'TABLE_NAME':'paragraphs', 'paragraphname':params.paragraphnameOrg,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
+		var data = {'tablename':'paragraphs', 'dbname':params.dbname, 'paragraphname':params.paragraphnameOrg,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
 		sendResponsesToFlask(data, 'answerSubmitNotification', false, 'Answers updated successfully.');
 		console.log('answers submitted', data);
 	}

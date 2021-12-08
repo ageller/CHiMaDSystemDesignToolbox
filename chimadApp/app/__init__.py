@@ -22,7 +22,7 @@ app.config.update(
 #app.config['SECRET_KEY'] = 'CHiMaD!App3_'
 
 # connect to the SQL database 
-dbName = os.path.join(current_location, 'static','data','sqlite3','CHiMaD_SDC.db')
+dbname = 'CHiMaD_SDC.db'
 
 
 #I need to set this to true in my gui.py file
@@ -37,10 +37,12 @@ def setInDesktopApp():
 def load_table():
 	message = request.get_json()
 	tablename = message['tablename']
+	dbname = message['dbname']
 	print('======= load_table', message, tablename)
 
 	# connect to the SQL database and load the table
-	conn = sqlite3.connect(dbName)
+	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
+	conn = sqlite3.connect(db)
 	cursor = conn.cursor()
 	cursor.execute('SELECT * FROM ' + tablename)
 	columns = [description[0] for description in cursor.description]
@@ -61,10 +63,12 @@ def save_responses():
 	data = message['data']
 
 	# connect to the SQL database and check if the table exists
-	tablename = data['TABLE_NAME']
-	print('!!! tablename', tablename)
+	tablename = data['tablename']
+	dbname = data['dbname']
+	print('!!! dbname, tablename', dbname, tablename)
 
-	conn = sqlite3.connect(dbName)
+	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
+	conn = sqlite3.connect(db)
 	cursor = conn.cursor()
 	cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
 	tables = [x[0] for x in cursor.fetchall()]
@@ -78,7 +82,7 @@ def save_responses():
 
 		# if the sheet name is 'paragraphs', then we search for the paragraphname; otherwise we search for the username
 		iRow = []
-		if (data['TABLE_NAME'] == 'paragraphs'):
+		if (data['tablename'] == 'paragraphs'):
 			key = 'paragraphname'
 			iRow = df.index[ df[key] == data[key] ].tolist()
 		else:
