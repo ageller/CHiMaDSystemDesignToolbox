@@ -1,7 +1,7 @@
 function loadTable(table, callback){
 //load a table from the SQL database
 
-	var out = {'tablename': table};
+	var out = {'tablename': table, 'dbname':params.dbname};
 	console.log('loading table ', out)
 
 	//send the table name to flask.  I will read in the data there, and then it will be sent back via POST
