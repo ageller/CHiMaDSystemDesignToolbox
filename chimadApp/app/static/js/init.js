@@ -31,21 +31,33 @@ if ('paragraphname' in params.URLInputValues) params.paragraphname = params.clea
 if ('groupname' in params.URLInputValues) setGroupname(decodeURI(params.URLInputValues.groupname));
 updateSurveyTable();
 
-//load in all the data
-//get the paragraphs and answer key
-loadTable(params.paragraphTable, compileParagraphData); 
-//load in the survey responses
-//but note: the visualization will not fill in until the user submits a response (this is now a recurring call and only executed after the first submit)
-loadTable(params.surveyTable, aggregateResults);
+//get the available groupnames
+loadTable('available_dbs.db', 'dbs', compileAvailableGroupnames);
 
-initPage();
+loadAndInit();
+
+function loadAndInit(){
+	params.haveParagraphData = false;
+	params.haveSurveyData = false;
+	params.haveAnswersData = false;
+
+	//load in all the data
+	//get the paragraphs and answer key
+	loadTable(params.dbname, params.paragraphTable, compileParagraphData); 
+	//load in the survey responses
+	//but note: the visualization will not fill in until the user submits a response (this is now a recurring call and only executed after the first submit)
+	loadTable(params.dbname, params.surveyTable, aggregateResults);
+
+	initPage();
+}
 
 function initPage(){
 //create all the plots
 //if would probably be better to have a Promise, but I'm not quite sure how to do this with the google calls (just haven't tried to think it through)
 
+	clearInterval(params.initInterval);
 	params.initInterval = setInterval(function(){
-		if (params.haveParagraphData && params.haveSurveyData && params.haveAnswersData){
+		if (params.haveParagraphData && params.haveSurveyData && params.haveAnswersData && params.haveGroupnames){
 			clearInterval(params.initInterval);
 
 			//update the paragraph and convert to html markup (this also updates params.paraTextSave)
@@ -75,8 +87,6 @@ function initPage(){
 					plotSDCAnswerLines(); 
 				}
 			}
-
-
 
 
 			resize();

@@ -1,7 +1,7 @@
-function loadTable(table, callback){
+function loadTable(dbname, table, callback){
 //load a table from the SQL database
 
-	var out = {'tablename': table, 'dbname':params.dbname};
+	var out = {'tablename': table, 'dbname':dbname};
 	console.log('loading table ', out)
 
 	//send the table name to flask.  I will read in the data there, and then it will be sent back via POST
@@ -15,22 +15,52 @@ function loadTable(table, callback){
 				console.log('loaded table',d);
 				var data = JSON.parse(d.data);
 				data.columns = d.columns;
-				params.triedLoadingAgain = false;
-				callback(data)
+				params.triedLoadingAgain[table] = false;
+				if (callback) callback(data)
 
 			},
 			error: function(d) {
 				console.log('!!! WARNING: table did not load', d);
 				//possibly from bad URL input 
-				if (!params.triedLoadingAgain){
-					params.paragraphname = params.cleanString(params.paragraphnameOrg);
-					updateSurveyTable();
-					loadTable(params.surveyTable, aggregateResults);
-					params.triedLoadingAgain = true;
+				if (!params.triedLoadingAgain[table]){
+					logout();
+					loadTable(dbname, table, callback);
+					params.triedLoadingAgain[table] = true;
 				}
 			}
 		});
 }
+
+function getTableNames(callback){
+//load a table from the SQL database
+
+	var out = {'dbname':params.dbname};
+	console.log('getting table names ', out)
+
+	//send the db name to flask.  I will read in the data there, and then it will be sent back via POST
+	$.ajax({
+			url: '/get_table_names',
+			contentType: 'application/json; charset=utf-8"',
+			dataType: 'json',
+			data: JSON.stringify(out),
+			type: 'POST',
+			success: function(d) {
+				console.log('have table names',d);
+				params.triedLoadingAgain[params.dbname] = false;
+				callback(d.tables)
+
+			},
+			error: function(d) {
+				console.log('!!! WARNING: table did not load', d);
+				//possibly from bad URL input 
+				if (!params.triedLoadingAgain[params.dbname]){
+					getTableNames(callback);
+					params.triedLoadingAgain[params.dbname] = true;
+				}
+			}
+		});
+}
+
 
 function updateNresponses(){
 	//update the number of responses
@@ -124,7 +154,7 @@ function compileParagraphData(data) {
 					akey = params.cleanString(atmp)
 					//annoyingly, I've been saving the dropdown answers without applying my cleanstring.  I will do it here...
 					val = a[akey];
-					console.log(akey, val)
+					//console.log(akey, val)
 					if (a['task'] == 'para' && akey != 'paragraphname' && akey != 'task') val = params.cleanString(a[akey]);
 					ans[akey] = val;
 
@@ -152,6 +182,15 @@ function compileParagraphData(data) {
 
 	params.haveAnswersData = true;
 
+}
+
+function compileAvailableGroupnames(data){
+	params.availableGroupnames = [];
+	data.forEach(function(d){
+		params.availableGroupnames.push(d.groupname);
+	})
+	params.haveGroupnames = true;
+	console.log('have available groupnames', params.availableGroupnames);
 }
 
 function setURLFromAnswers(){
