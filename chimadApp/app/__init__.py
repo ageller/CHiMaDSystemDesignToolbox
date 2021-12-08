@@ -63,8 +63,8 @@ def save_responses():
 	data = message['data']
 
 	# connect to the SQL database and check if the table exists
-	tablename = data['tablename']
-	dbname = data['dbname']
+	tablename = message['tablename']
+	dbname = message['dbname']
 	print('!!! dbname, tablename', dbname, tablename)
 
 	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
@@ -82,7 +82,7 @@ def save_responses():
 
 		# if the sheet name is 'paragraphs', then we search for the paragraphname; otherwise we search for the username
 		iRow = []
-		if (data['tablename'] == 'paragraphs'):
+		if (tablename == 'paragraphs'):
 			key = 'paragraphname'
 			iRow = df.index[ df[key] == data[key] ].tolist()
 		else:
@@ -142,6 +142,40 @@ def save_responses():
 	#now write the table (will replace the current file)
 	print(df)
 	df.fillna('')
+
+	# include all columns, and assume that they are all text
+	# allow only alphanumeric values in column names
+	cols = ''
+	for col in df.columns:
+		cc = re.sub(r'\W+', '', col) 
+		cols += cc + ' text, ' 
+	cols = cols[:-2]
+
+	# create the table
+	cursor.execute('CREATE TABLE IF NOT EXISTS ' + tablename + ' (' + cols + ')')
+	conn.commit()
+	
+	# add the dataFrame into the database
+	df.to_sql(tablename, conn, if_exists='replace', index = False)
+
+	cursor.close()
+
+	return jsonify(message)
+
+@app.route('/save_metrics', methods=['GET', 'POST'])
+def save_metrics():
+	message = request.get_json()
+	print('======= save_metrics', message)
+
+	data = message['data']
+	tablename = message['tablename']
+	dbname = message['dbname']
+	print('!!! dbname, tablename', dbname, tablename)
+
+	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
+	conn = sqlite3.connect(db)
+	cursor = conn.cursor()
+	cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
 
 	# include all columns, and assume that they are all text
 	# allow only alphanumeric values in column names

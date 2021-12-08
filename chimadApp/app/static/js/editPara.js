@@ -129,16 +129,18 @@ function saveParaEdit(){
 		createDropdowns();
 
 		//create the new table in the database
-		var data = {'tablename':params.cleanString(params.paragraphname), 'dbname':params.dbname, 'header':['Timestamp','IP','username','version', 'task']};
+		var out = {'tablename':params.cleanString(params.paragraphname), 'dbname':params.dbname}
+		out.data = {'header':['Timestamp','IP','username','version', 'task']};
 		params.selectionWords.forEach(function(d){
-			data.header.push(params.cleanString(d));
+			out.data.header.push(params.cleanString(d));
 		})
-		sendResponsesToFlask(data, 'paragraphnameNotification', false, 'Paragraph updated successfully.');
+		sendResponsesToFlask(out, 'paragraphnameNotification', false, 'Paragraph updated successfully.');
 
 		//add to the paragraphs table in the database (answers will come later with the onAnswersSubmit)
-		data = {'tablename':'paragraphs', 'dbname':params.dbname, 'paragraphname':params.paragraphnameOrg,'paragraph':newText,'answersJSON':''};
+		out = {'tablename':'paragraphs', 'dbname':params.dbname}
+		out.data = {'paragraphname':params.paragraphnameOrg,'paragraph':newText,'answersJSON':''};
 		params.nTrials = 0; //this may not work properly since I have a submit up above...
-		sendResponsesToFlask(data, 'paragraphnameNotification', false, 'Paragraph updated successfully.');
+		sendResponsesToFlask(out, 'paragraphnameNotification', false, 'Paragraph updated successfully.');
 
 		//hide the editor and show the current paragraph
 		d3.select('#paraText').style('display','block');
@@ -170,9 +172,10 @@ function onAnswersSubmit(){
 		params.answers.forEach(function(a){
 			if (params.cleanString(a.paragraphname) == params.cleanString(params.paragraphname)) answersData.push(a);
 		})
-		var data = {'tablename':'paragraphs', 'dbname':params.dbname, 'paragraphname':params.paragraphnameOrg,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
-		sendResponsesToFlask(data, 'answerSubmitNotification', false, 'Answers updated successfully.');
-		console.log('answers submitted', data);
+		var out = {'tablename':'paragraphs', 'dbname':params.dbname}
+		out.data = {'paragraphname':params.paragraphnameOrg,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
+		sendResponsesToFlask(out, 'answerSubmitNotification', false, 'Answers updated successfully.');
+		console.log('answers submitted', out);
 	}
 }
 
