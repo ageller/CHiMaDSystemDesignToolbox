@@ -22,9 +22,8 @@ window.addEventListener('mousemove', function(){
 //hide the system design chart at load (will be displayed when user submits the second response)
 if (!params.haveParaEditor && !params.haveSDCEditor) d3.select('#systemDesignChartSVGContainer').style('visibility','hidden');
 
-//reset the URL data if we're editing the paragraph
-//should I exclude the username here?  I am doing this so that the submitted answers are always shown.  Otherwise, the user's answers would be shown.
-if (params.haveParaEditor) resetURLdata(['groupname', 'paragraphname']);
+
+
 
 //load data from the URL to define the form input
 readURLdata();

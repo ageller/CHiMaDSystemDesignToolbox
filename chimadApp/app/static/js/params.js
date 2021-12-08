@@ -33,6 +33,7 @@ function defineParams(){
 		this.paragraphTable = 'paragraphs';
 
 		this.groupname = 'default'
+		this.metrics = {};
 
 		//use this to get the available tables
 		this.availableParagraphnames = []; //this will hold the available tables
