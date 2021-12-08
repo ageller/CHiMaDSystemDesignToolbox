@@ -275,7 +275,7 @@ function setParagraphnameFromOptions(paragraphname=null){
 	clearInterval(params.loadInterval);
 
 	//reset the URL
-	resetURLdata();
+	resetURLdata(['username']);
 
 	//don't show the results until the user submits responses again(?)
 	params.paraSubmitted = false;
@@ -353,16 +353,26 @@ function changeGroupname(){
 	document.getElementById('login').style.display = 'block';
 }
 
+function logout(){
+	document.getElementById('login').style.display = 'none';
+	document.getElementById('groupnameID').innerHTML = 'click to login';
+	delete params.URLInputValues.groupname; 
+	params.groupname = 'default';
+	resetURLdata();
+	toggleDropdown('dropdown')
+}
+
 function closeGroupnameInput(){
 	document.getElementById('login').style.display = 'none';
 }
 
 function setGroupname(val){
 	document.getElementById('groupnameID').innerHTML = val;
-	params.URLInputValues["groupname"] = val;
+	params.URLInputValues.groupname = val;
 	params.groupname = params.cleanString(val);
 	appendURLdata();
 }
+
 function onGroupnameSubmit(){
 	var val = document.getElementById('groupnameInput').value;
 	if (val != ''){
@@ -373,6 +383,18 @@ function onGroupnameSubmit(){
 		console.log('===== groupname : ', params.groupname);
 	} else {
 		document.getElementById('groupnameNotification').style.display = 'block';
+	}
+
+}
+
+function toggleDropdown(id){
+	var drop = document.getElementById(id);
+
+	drop.classList.toggle("active");
+	if (drop.style.visibility == "visible" ){
+		setTimeout(function(){drop.style.visibility = "hidden";},300);
+	} else {
+		drop.style.visibility = "visible";
 	}
 
 }
