@@ -31,11 +31,11 @@ function sendResponsesToFlask(out, notificationID, startInterval=true, successRe
 
 				//show the aggregated responses (now showing after reading in the data within aggregateParaResults)
 				if (d.startInterval && !d.error) {
-					loadTable(params.surveyTable, aggregateResults);
+					loadTable(params.dbname, params.surveyTable, aggregateResults);
 
 					clearInterval(params.loadInterval);
 					params.loadInterval = setInterval(function(){
-						loadTable(params.surveyTable, aggregateResults);
+						loadTable(params.dbname, params.surveyTable, aggregateResults);
 					}, params.loadIntervalDuration);
 				}
 
@@ -331,7 +331,7 @@ function setParagraphnameFromOptions(paragraphname=null){
 	if (params.haveParaEditor) setURLFromAnswers();
 	appendURLdata();
 
-	loadTable(params.surveyTable, aggregateResults);
+	loadTable(params.dbname, params.surveyTable, aggregateResults);
 
 	initPage();
 }
@@ -399,40 +399,77 @@ function setGroupname(val){
 	params.URLInputValues.groupname = val;
 	params.groupname = params.cleanString(val);
 	appendURLdata();
+	params.dbname = params.groupname + '.db';
 }
 
 function login(){
 	//check the required groupname
 	var val = document.getElementById('groupnameInput').value;
-	if (val != ''){
+	if (params.availableGroupnames.includes(val)){
+		params.URLInputValues = {};
 		setGroupname(val);
 		document.getElementById('groupnameNotification').style.visibility = 'hidden';
 		closeGroupnameInput();
 
 		console.log('===== groupname : ', params.groupname);
+
+		//need to get the paragraph names
+		getTableNames(selectTableAndLoad);
+
+
+		//gather other metrics
+		params.metrics = {};
+		params.metrics.name = document.getElementById('metricNameInput').value;
+		params.metrics.organization = document.getElementById('metricOrgInput').value;
+		params.metrics.email = document.getElementById('metricEmailInput').value;
+		params.metrics.purpose = document.getElementById('metricPurposeSelect').value;
+		params.metrics.groupname = params.groupname;
+		console.log('===== metrics : ', params.metrics)
+
+		sendMetricsToFlask();
+
 	} else {
 		document.getElementById('groupnameNotification').style.visibility = 'visible';
 	}
 
-	//gather other metrics
-	params.metrics = {};
-	params.metrics.name = document.getElementById('metricNameInput').value;
-	params.metrics.organization = document.getElementById('metricOrgInput').value;
-	params.metrics.email = document.getElementById('metricEmailInput').value;
-	params.metrics.purpose = document.getElementById('metricPurposeSelect').value;
-	params.metrics.groupname = params.groupname;
-	console.log('===== metrics : ', params.metrics)
 
-	sendMetricsToFlask();
+
+}
+
+function selectTableAndLoad(tables){
+	console.log('have tables', tables)
+	params.paragraphname = tables.filter(function(d){return d != 'paragraphs'})[0]
+	params.paragraphnameOrg = params.paragraphname;
+	params.surveyTable = params.paragraphname;
+	params.paragraphTable = 'paragraphs';
+	params.dbname = params.groupname + '.db';
+
+
+	loadAndInit();
+
 }
 
 function logout(){
 	document.getElementById('login').style.display = 'none';
 	document.getElementById('groupnameID').innerHTML = 'click to login';
-	delete params.URLInputValues.groupname; 
+
+	params.URLInputValues = {}; 
 	params.groupname = 'default';
+	params.dbname = params.groupname + '.db';
+	params.paragraphname = 'polymercompositeexample';
+	params.paragraphnameOrg = 'Polymer Composite Example';
+	params.surveyTable = params.paragraphname;
+	params.paragraphTable = 'paragraphs';
+
 	resetURLdata();
-	toggleDropdown('dropdown')
+
+	//reload with the default values
+	loadAndInit();
+
+	//could call toggleDropdown, but I'd like to use logout elsewhere when dropdown may not be open yet
+	var drop = document.getElementById('dropdown');
+	setTimeout(function(){drop.style.visibility = "hidden";},300);
+
 }
 
 function toggleDropdown(id){
@@ -451,7 +488,7 @@ function toggleDropdown(id){
 var input = document.getElementById('groupnameInput');
 if (input){
 	input.addEventListener('keyup', function(event) {
-		document.getElementById('groupnameNotification').style.display = 'none';
+		document.getElementById('groupnameNotification').style.visibility = 'hidden';
 		if (event.keyCode === 13) {
 			event.preventDefault();
 			document.getElementById('groupnameSubmit').click();

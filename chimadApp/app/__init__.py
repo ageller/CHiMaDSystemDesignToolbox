@@ -142,18 +142,6 @@ def save_responses():
 	#now write the table (will replace the current file)
 	print(df)
 	df.fillna('')
-
-	# include all columns, and assume that they are all text
-	# allow only alphanumeric values in column names
-	cols = ''
-	for col in df.columns:
-		cc = re.sub(r'\W+', '', col) 
-		cols += cc + ' text, ' 
-	cols = cols[:-2]
-
-	# create the table
-	cursor.execute('CREATE TABLE IF NOT EXISTS ' + tablename + ' (' + cols + ')')
-	conn.commit()
 	
 	# add the dataFrame into the database
 	df.to_sql(tablename, conn, if_exists='replace', index = False)
@@ -197,19 +185,8 @@ def save_metrics():
 
 	#add the new data (I think this will fail if the columns aren't the same)
 	df = df.append(data, ignore_index=True)
+	df.fillna('')
 	print('============== check', data, df)
-
-	# include all columns, and assume that they are all text
-	# allow only alphanumeric values in column names
-	cols = ''
-	for col in df.columns:
-		cc = re.sub(r'\W+', '', col) 
-		cols += cc + ' text, ' 
-	cols = cols[:-2]
-
-	# create the table
-	cursor.execute('CREATE TABLE IF NOT EXISTS ' + tablename + ' (' + cols + ')')
-	conn.commit()
 	
 	# add the dataFrame into the database
 	df.to_sql(tablename, conn, if_exists='replace', index = False)
@@ -217,6 +194,26 @@ def save_metrics():
 	cursor.close()
 
 	return jsonify(message)
+
+@app.route('/get_table_names', methods=['GET', 'POST'])
+def get_table_names():
+	message = request.get_json()
+	print('======= get_table_names', message)
+
+	# connect to the SQL database and check if the table exists
+	dbname = message['dbname']
+	print('!!! dbname', dbname)
+
+	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
+	conn = sqlite3.connect(db)
+	cursor = conn.cursor()
+	cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+	tables = [x[0] for x in cursor.fetchall()]
+	cursor.close()
+
+	out = {'tables':tables}
+
+	return jsonify(out)
 
 @app.route('/')
 def default():
