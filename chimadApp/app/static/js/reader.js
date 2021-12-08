@@ -140,11 +140,14 @@ function compileParagraphData(data) {
 
 	//for editing mode, populate the URL so that all the answers can be displayed
 	if (params.haveParaEditor){
-		if (Object.keys(params.URLInputValues).filter(function(d){return (d != 'paragraphname' && d !='username')}).length == 0) {
-			setURLFromAnswers();
-		} else {
-			setAnswersFromURL();
-		}
+		setURLFromAnswers();
+
+		//this would allow the answers to propagate from another sheet, which I don't think we want anymore
+		// if (Object.keys(params.URLInputValues).filter(function(d){return (d != 'paragraphname' && d !='username')}).length == 0) {
+		// 	setURLFromAnswers();
+		// } else {
+		// 	setAnswersFromURL();
+		// }
 	}
 
 	params.haveAnswersData = true;

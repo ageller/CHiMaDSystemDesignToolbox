@@ -209,7 +209,7 @@ function getUsernameInput(username=null){
 				d3.select('#usernameNotification')
 					.text('This username exists, and the responses below have been populated accordingly.  If these are not your responses, please change your username.');
 				}
-				
+
 				Object.keys(d).forEach(function(k){
 
 					if (k != 'IP' && k != 'Timestamp' && k != 'version' && k !='task' && d[k] != '' && k != 'username') {
@@ -360,14 +360,7 @@ function changeGroupname(){
 	document.getElementById('login').style.display = 'block';
 }
 
-function logout(){
-	document.getElementById('login').style.display = 'none';
-	document.getElementById('groupnameID').innerHTML = 'click to login';
-	delete params.URLInputValues.groupname; 
-	params.groupname = 'default';
-	resetURLdata();
-	toggleDropdown('dropdown')
-}
+
 
 function closeGroupnameInput(){
 	document.getElementById('login').style.display = 'none';
@@ -380,18 +373,39 @@ function setGroupname(val){
 	appendURLdata();
 }
 
-function onGroupnameSubmit(){
+function login(){
+	//check the required groupname
 	var val = document.getElementById('groupnameInput').value;
 	if (val != ''){
 		setGroupname(val);
-		document.getElementById('groupnameNotification').style.display = 'none';
+		document.getElementById('groupnameNotification').style.visibility = 'hidden';
 		closeGroupnameInput();
 
 		console.log('===== groupname : ', params.groupname);
 	} else {
-		document.getElementById('groupnameNotification').style.display = 'block';
+		document.getElementById('groupnameNotification').style.visibility = 'visible';
 	}
 
+	//gather other metrics
+	params.metrics = {};
+	params.metrics.name = document.getElementById('metricNameInput').value;
+	params.metrics.org = document.getElementById('metricOrgInput').value;
+	params.metrics.email = document.getElementById('metricEmailInput').value;
+	params.metrics.purpose = document.getElementById('metricPurposeSelect').value;
+
+	//need to send to database (and add timestamp in python)
+
+	console.log('===== metrics : ', params.metrics)
+
+}
+
+function logout(){
+	document.getElementById('login').style.display = 'none';
+	document.getElementById('groupnameID').innerHTML = 'click to login';
+	delete params.URLInputValues.groupname; 
+	params.groupname = 'default';
+	resetURLdata();
+	toggleDropdown('dropdown')
 }
 
 function toggleDropdown(id){

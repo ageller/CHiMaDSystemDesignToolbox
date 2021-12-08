@@ -12,12 +12,29 @@
 		<div id='login' class='modal' style='display:none'>
 			<div class="modal-content animate">
 				<div class='closeX' onclick="closeGroupnameInput()">X</div>
-				<p style='font-size:4vw; text-align:center'>Welcome to the CHiMaD System Design Toolbox.  Please enter your group name below.</p>
+				<p style='font-size:4vw; text-align:center'>Welcome to the CHiMaD System Design Toolbox.  Please login below.</p>
 				<br>
-				<input type="text" id="groupnameInput" placeholder="Enter group name" name="groupname" required>
-				<button id='groupnameSubmit' class="button" style="font-size: 2vw; width:100%" type="submit" onclick="onGroupnameSubmit()">Login</button>
-				<div id="groupnameNotification" class="notifications error" style="margin-top:20px; display:none">Please enter a valid group name.</div>
+				<label for="groupnameInput">Enter your group name (Required). <span id="groupnameNotification" class="notifications error" style="visibility:hidden">Please enter a valid group name.</span></label>
+				<input type="text" id="groupnameInput" class="fullWidthInput" placeholder="group name" name="groupname" required>
 
+				<br/><br/>
+				<p>Please enter the following optional information to help us gather usage statistics.</p>
+				<label class='loginLabel' for="metricNameInput">Enter your name (Optional).</label>
+				<input type="text" id="metricNameInput" class="fullWidthInput" placeholder="name" name="metricName">
+				<label class='loginLabel' for="metricOrgInput">Enter your organization or university (Optional).</label>
+				<input type="text" id="metricOrgInput" class="fullWidthInput" placeholder="organization or university" name="metricOrg">
+				<label class='loginLabel' for="metricEmailInput">Enter your email address (to join our listserv) (Optional).</label>
+				<input type="text" id="metricEmailInput" class="fullWidthInput" placeholder="email" name="metricEmail">
+				<label class='loginLabel' for="metricReason">How are you planning to use this tool (Optional)?</label>
+				<select name="metricPurpose" id="metricPurposeSelect">
+					<option value="none" disabled selected>Select one</option>
+					<option value="class">With my class</option>
+					<option value="company">With my company</option>
+					<option value="individual">Individual use</option>
+					<option value="other">Other</option>
+				</select>
+
+				<button id='groupnameSubmit' class="button" style="font-size: 2vw; width:100%; margin-top:60px" type="submit" onclick="login()">Login</button>
 			</div>
 		</div>
 
