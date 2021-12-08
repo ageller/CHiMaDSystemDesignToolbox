@@ -33,9 +33,12 @@ function defineParams(){
 		this.paragraphTable = 'paragraphs';
 
 		this.groupname = 'default'
-		this.dbname = 'CHiMaD_SDC.db' //will be updated when groupname changes
+		//this.dbname = 'CHiMaD_SDC.db' //will be updated when groupname changes
+		this.dbname = 'default.db' //will be updated when groupname changes
 		this.metrics = {};
-
+		this.availableGroupnames = ['default']; //will be reset on init by reading in the database
+		this.haveGroupnames = false;
+		
 		//use this to get the available tables
 		this.availableParagraphnames = []; //this will hold the available tables
 
@@ -194,7 +197,7 @@ function defineParams(){
 		this.edittedSDC = false; //will be true if user is has editted SDC (so that we don't show the aggregate lines of answers)
 		this.edittingPara = false; //will be true when user is editing paragraph
 		
-		this.triedLoadingAgain = false;
+		this.triedLoadingAgain = {};
 
 	};
 
