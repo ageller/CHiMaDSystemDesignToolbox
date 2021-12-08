@@ -80,7 +80,7 @@ function beginSDCEdit(){
 
 	//update the url to remove all the connections
 	params.URLInputValues = {};
-	resetURLdata();
+	resetURLdata(['groupname']);
 	params.URLInputValues['paragraphname'] = params.cleanString(params.paragraphname);
 	appendURLdata();
 

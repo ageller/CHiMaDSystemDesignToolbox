@@ -184,12 +184,17 @@ function getUsernameInput(username=null){
 
 
 		params.URLInputValues = {};
-		params.URLInputValues["username"] = params.username;
-		params.URLInputValues["paragraphname"] = params.cleanString(params.paragraphname);
-		console.log('username ', params.username)
+		if (params.groupname != '' && params.groupname != 'default') params.URLInputValues.groupname = params.groupname;
+		params.URLInputValues.username = params.username;
+		params.URLInputValues.paragraphname = params.cleanString(params.paragraphname);
+		resetURLdata(['groupname','paragraphname', 'username']);
+		console.log('username ', params.username, params.URLInputValues)
 
-		var ubbox = d3.select('#usernameLabel').node().getBoundingClientRect();
-		d3.select('#usernameNotification').text('');
+		var ub = d3.select('#usernameLabel').node();
+		if (ub){
+			var ubbox = d3.select('#usernameLabel').node().getBoundingClientRect();
+			d3.select('#usernameNotification').text('');
+		}
 
 		//reset all the selection words dropdowns
 		d3.selectAll('.selectionWord').select('select').selectAll('option').property('selected',false);
@@ -200,9 +205,11 @@ function getUsernameInput(username=null){
 
 				console.log('found user in database', d.username, params.username, d)
 				//show notification
+				if (ub){
 				d3.select('#usernameNotification')
 					.text('This username exists, and the responses below have been populated accordingly.  If these are not your responses, please change your username.');
-
+				}
+				
 				Object.keys(d).forEach(function(k){
 
 					if (k != 'IP' && k != 'Timestamp' && k != 'version' && k !='task' && d[k] != '' && k != 'username') {
@@ -216,7 +223,7 @@ function getUsernameInput(username=null){
 			}
 			if (i == params.responses.length - 1){
 				appendURLdata();
-				readURLdata();
+				//readURLdata();
 				if ('paragraphname' in params.URLInputValues) params.paragraphname = params.cleanString(params.URLInputValues.paragraphname);
 				useParaURLdata();
 				useSDCURLdata();
@@ -275,7 +282,7 @@ function setParagraphnameFromOptions(paragraphname=null){
 	clearInterval(params.loadInterval);
 
 	//reset the URL
-	resetURLdata(['username']);
+	resetURLdata(['username','groupname']);
 
 	//don't show the results until the user submits responses again(?)
 	params.paraSubmitted = false;
