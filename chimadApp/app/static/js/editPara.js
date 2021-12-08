@@ -70,7 +70,7 @@ function beginParaEdit(){
 	params.edittingPara = true;
 
 	//reset the URL
-	resetURLdata();
+	resetURLdata(['groupname']);
 
 	//reset the notification
 	d3.select('#paragraphnameNotification').text('');

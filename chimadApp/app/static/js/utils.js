@@ -33,13 +33,15 @@ function appendURLdata(){
 	});
 }
 
-function resetURLdata(){
-	readURLdata();
+function resetURLdata(saveFields = []){
+	//readURLdata();
 
 	//then reset the url
 	var newURL = window.location.href.split("?")[0];
-	//save the username if it exists
-	if (params.URLInputValues.hasOwnProperty('username')) newURL += '?username='+params.URLInputValues.username;
+	//savefields 
+	saveFields.forEach(function(field){
+		if (params.URLInputValues.hasOwnProperty(field)) newURL += '?' + field + '=' + params.URLInputValues[field];
+	});
 	window.history.replaceState(null, "", newURL); //so that the page doesn't reload every time
 
 	readURLdata();
