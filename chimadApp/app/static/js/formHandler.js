@@ -1,4 +1,4 @@
-function sendResponsesToFlask(data, notificationID, startInterval=true, successResponse=null, failResponse=null){
+function sendResponsesToFlask(out, notificationID, startInterval=true, successResponse=null, failResponse=null){
 
 	if (!successResponse) successResponse = 'Responses submitted successfully.  The chart will update automatically when new data are available.  You can change your responses anytime by re-submitting.';
 	if (!failResponse) failResponse = 'Responses failed to be submitted.  Please refresh your browser and try again.'
@@ -6,7 +6,10 @@ function sendResponsesToFlask(data, notificationID, startInterval=true, successR
 	d3.selectAll('.error').classed('error', false);
 	d3.selectAll('.errorBorder').classed('errorBorder', false);
 
-	var out = {'data':data, 'notificationID':notificationID, 'startInterval':startInterval, 'successResponse':successResponse, 'failResponse':failResponse};
+	out.notificationID = notificationID
+	out.startInterval = startInterval
+	out.successResponse = successResponse
+	out.failResponse = failResponse;
 
 	console.log('sending responses to Flask', out);
 
@@ -52,6 +55,28 @@ function sendResponsesToFlask(data, notificationID, startInterval=true, successR
 
 }
 
+function sendMetricsToFlask(){
+
+	var out = {'data':params.metrics, 'dbname':'CHiMaD_metrics.db', 'tablename':'loginMetrics'};
+
+	console.log('sending metrics to Flask', out);
+
+	//send to flask
+	$.ajax({
+			url: '/save_metrics',
+			contentType: 'application/json; charset=utf-8"',
+			dataType: 'json',
+			data: JSON.stringify(out),
+			type: 'POST',
+			success: function(d) {
+				console.log('metrics saved',d);
+			},
+			error: function(d) {
+				console.log('!!! WARNING: metrics did not save', d);
+			}
+		});
+
+}
 function onParaSubmit(){
 	//when form is submitted, compile responses and send the flask
 
@@ -59,6 +84,7 @@ function onParaSubmit(){
 	var submitted1 = params.paraSubmitted;
 	params.paraSubmitted = false;
 
+	var paraData = {};
 	missing = [];
 	if (params.username != "" && typeof params.username !== 'undefined'){
 		d3.select('#usernameInput').property('disabled', true);
@@ -74,7 +100,7 @@ function onParaSubmit(){
 			var options = d3.select(this).selectAll('option')
 			options.each(function(dd, j){
 				if (this.selected && !this.disabled){
-					params.paraData[id] = this.value;
+					paraData[id] = this.value;
 				} 
 				if (this.selected && this.disabled){
 					missing.push(id);
@@ -83,11 +109,11 @@ function onParaSubmit(){
 		});
 
 		//add the IP, username and task (not using IP anymore)
-		params.paraData['IP'] = params.userIP;
-		params.paraData['username'] = params.username;
-		params.paraData['task'] = 'para';
+		paraData['IP'] = params.userIP;
+		paraData['username'] = params.username;
+		paraData['task'] = 'para';
 		if (missing.length == 0){
-			console.log("form data", params.paraData);
+			console.log("form data", paraData);
 			//createEmail();
 			params.paraSubmitted = true;
 			//check if the user previously submitted a second version
@@ -102,11 +128,11 @@ function onParaSubmit(){
 				formatSDC();
 				checkSDCvisibility();
 			}
-			params.paraData['tablename'] = params.cleanString(params.paragraphname);
-			params.paraData['dbname'] =  params.dbname;
+			var out = {'tablename':params.cleanString(params.paragraphname), 'dbname':params.dbname};
+			out.data = paraData;
 
 			//send to flask -- this will then return to start the load interval
-			sendResponsesToFlask(params.paraData, 'paraNotification');
+			sendResponsesToFlask(out, 'paraNotification');
 
 		} else {
 			console.log("missing", missing)
@@ -138,33 +164,33 @@ function onSDCSubmit(){
 		.classed('error', false)
 		.text('Processing...');
 
-	params.SDCData = {};
+	SDCData = {};
 	//add the IP, username and task (not using IP anymore)
-	params.SDCData['IP'] = params.userIP;
-	params.SDCData['username'] = params.username;
-	params.SDCData['tablename'] = params.cleanString(params.paragraphname);
-	params.SDCData['dbname'] = params.dbname;
-	params.SDCData['task'] = 'SDC';
+	SDCData['IP'] = params.userIP;
+	SDCData['username'] = params.username;
+	SDCData['task'] = 'SDC';
 	params.selectionWords.forEach(function(w,i){
 		//initialize to empty
-		params.SDCData[params.cleanString(w)] = '';
+		SDCData[params.cleanString(w)] = '';
 		if (i == params.selectionWords.length - 1){
 			//gather all the data and combine into aggregated lists when necessary
 			d3.selectAll('.SDCLine').each(function(d,j){
 				var elem = d3.select(this)
 				var word1 = elem.attr('startSelectionWords');
 				var word2 = '';
-				if (!params.SDCData[word1].includes(elem.attr('endSelectionWords'))){
-					if (params.SDCData[word1] != '') word2 = ' ';
+				if (!SDCData[word1].includes(elem.attr('endSelectionWords'))){
+					if (SDCData[word1] != '') word2 = ' ';
 					word2 += elem.attr('endSelectionWords');
-					params.SDCData[word1] += word2;
+					SDCData[word1] += word2;
 				}
 
 				if (j == d3.selectAll('.SDCLine').size() - 1){
 					//send to flask -- this will then return to start the load interval
-					sendResponsesToFlask(params.SDCData, 'SDCNotification');
+					var out = {'tablename':params.cleanString(params.paragraphname),'dbname': params.dbname};
+					out.data = SDCData;
+					sendResponsesToFlask(out, 'SDCNotification');
 					params.SDCSubmitted = true;
-					console.log('submitted SDC form', params.SDCData);
+					console.log('submitted SDC form', out);
 				}
 			})
 		}
@@ -394,11 +420,10 @@ function login(){
 	params.metrics.org = document.getElementById('metricOrgInput').value;
 	params.metrics.email = document.getElementById('metricEmailInput').value;
 	params.metrics.purpose = document.getElementById('metricPurposeSelect').value;
-
-	//need to send to database (and add timestamp in python)
-
+	params.metrics.groupname = params.groupname;
 	console.log('===== metrics : ', params.metrics)
 
+	sendMetricsToFlask();
 }
 
 function logout(){
