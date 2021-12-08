@@ -417,7 +417,7 @@ function login(){
 	//gather other metrics
 	params.metrics = {};
 	params.metrics.name = document.getElementById('metricNameInput').value;
-	params.metrics.org = document.getElementById('metricOrgInput').value;
+	params.metrics.organization = document.getElementById('metricOrgInput').value;
 	params.metrics.email = document.getElementById('metricEmailInput').value;
 	params.metrics.purpose = document.getElementById('metricPurposeSelect').value;
 	params.metrics.groupname = params.groupname;

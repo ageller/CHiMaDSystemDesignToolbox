@@ -172,10 +172,32 @@ def save_metrics():
 	dbname = message['dbname']
 	print('!!! dbname, tablename', dbname, tablename)
 
-	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
+	#add the timestamp
+	data['timestamp'] = datetime.now().strftime('%m/%d/%Y %H:%M:%S')
+
+	db = os.path.join(current_location, 'static','data','sqlite3', dbname)
 	conn = sqlite3.connect(db)
 	cursor = conn.cursor()
 	cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+
+	tables = [x[0] for x in cursor.fetchall()]
+
+	if (tablename in tables):
+		# if this is an existing table, then read it in
+		print('!!! have table')
+		cursor.execute('SELECT * FROM ' + tablename)
+		columns = [description[0] for description in cursor.description]
+		df = pd.DataFrame(cursor.fetchall(), columns = columns)   
+
+	else:
+		# if the table does not exist, create a new DataFrame
+		print('!!! creating new table')
+		columns = list(data.keys())
+		df = pd.DataFrame(columns = columns)
+
+	#add the new data (I think this will fail if the columns aren't the same)
+	df = df.append(data, ignore_index=True)
+	print('============== check', data, df)
 
 	# include all columns, and assume that they are all text
 	# allow only alphanumeric values in column names
