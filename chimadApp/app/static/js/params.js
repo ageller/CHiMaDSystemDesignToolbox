@@ -33,6 +33,7 @@ function defineParams(){
 		this.paragraphTable = 'paragraphs';
 
 		this.groupname = 'default'
+		this.dbname = 'CHiMaD_SDC.db' //will be updated when groupname changes
 		this.metrics = {};
 
 		//use this to get the available tables
