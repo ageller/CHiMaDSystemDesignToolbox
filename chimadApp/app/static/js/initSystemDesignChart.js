@@ -67,7 +67,7 @@ function initAggDateSlider(){
 				params.SDCDateAggLims[1] = new Date(ui.values[1]*1000.);
 				$("#SDCAggDateRangeSliderMin").text((params.SDCDateAggLims[0]).toLocaleString());
 				$("#SDCAggDateRangeSliderMax").text((params.SDCDateAggLims[1]).toLocaleString());
-				//limitSDCAggLines();
+				updateHistogram(params.SDChist);
 			}
 		})
 		$("#SDCAggDateRangeSliderMin").text((params.SDCDateAggLims[0]).toLocaleString());

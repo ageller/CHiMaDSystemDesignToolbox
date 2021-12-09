@@ -228,10 +228,12 @@ function defineParams(){
 
 			//dimensions of the containers
 			this.width = 0.6*window.innerWidth;
-			this.height = 100;
-			this.histMargin = {'top': 10, 'right': 15, 'bottom': 20, 'left': 40};
+			this.height = 50;
+			this.histMargin = {'top': 4, 'right': 2, 'bottom': 20, 'left': 40};
 			this.histWidth = this.width;// - this.histMargin.left - this.histMargin.right;
 			this.histHeight = this.height;// - this.histMargin.top - this.histMargin.bottom;
+
+			this.transitionDuration = 0;
 
 		}
 	};
