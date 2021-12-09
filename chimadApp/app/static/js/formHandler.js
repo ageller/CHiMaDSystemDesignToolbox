@@ -428,6 +428,11 @@ function login(){
 
 		sendMetricsToFlask();
 
+		if (params.inCollaborate){
+			d3.select('#usernameNotification').text('');
+			d3.select('#usernameInput').node().value = '';
+		}
+
 		if (params.haveParaEditor){
 			d3.select('#paragraphnameNotification').text('').classed('error', false);
 			d3.select('#answerSubmitNotification')
