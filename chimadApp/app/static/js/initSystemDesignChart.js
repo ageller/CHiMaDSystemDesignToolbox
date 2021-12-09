@@ -60,6 +60,7 @@ function initAggDateSlider(){
 				$("#SDCAggDateRangeSliderMax").text((params.SDCDateAggLims[1]).toLocaleString());
 				updateHistogram(params.SDChist);
 				aggregateSDCResults();
+				updateNresponses();
 			},
 			// stop: function() { //equivalent to mouseup
 			// 	setTimeout(function(){aggregateSDCResults(true), params.transitionDuration}) //for some reason the transition will only fire if I wait with setTimeout -- NO IDEA WHY
