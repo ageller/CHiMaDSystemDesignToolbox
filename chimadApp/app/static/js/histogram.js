@@ -2,10 +2,21 @@
 //see example here: https://www.d3-graph-gallery.com/graph/histogram_basic.html
 function binData(settings){
 	// set the parameters for the histogram
+	// get the bin locations
+	var rng = settings.xAxis.domain()[1] - settings.xAxis.domain()[0];
+	var dx = rng/settings.nBins;
+    var order = Math.floor(Math.log(rng)/Math.LN10 + 0.000000001); // extra addon in case float is not correct
+    var dec = Math.pow(10,order);
+	var bins = [settings.xAxis.domain()[0]]
+	for (var i=0; i< settings.nBins; i++) {
+		bins.push(Math.round((bins[i] + dx)*dec)/dec)
+	}
+
 	var histogram = d3.histogram()
-		.value(function(d){ return(d)})
+		.value(function(d){return(d)})
 		.domain(settings.xAxis.domain())  
-		.thresholds(settings.xAxis.ticks(settings.nBins)); 
+		//.thresholds(settings.xAxis.ticks(settings.nBins)); //not exact enough!
+		.thresholds(bins); //not exact enough!
 
 	return histogram(settings.data);
 }
@@ -43,25 +54,26 @@ function createHistogram(settings){
 		.range([0, settings.histWidth]);
 	settings.svg.append('g')
 		.attr('transform', 'translate(0,' + settings.histHeight + ')')
+		.attr('id','xaxis')
 		.call(d3.axisBottom(settings.xAxis).ticks(settings.Nxticks));
 
 
 	//bin the data for the three different categories
 	settings.histAll = binData(settings);
-	console.log('have binned data', settings.histAll);
 
 	// Y axis: scale and draw:
 	settings.yAxis = d3.scaleLinear()
 		.range([settings.histHeight, 0]);
-	settings.yAxis.domain([0, d3.max(settings.histAll, function(d) { return d.length; })]);   
+	settings.yAxis.domain([0, d3.max(settings.histAll, function(d) { return d.length; })]).nice();   
 	settings.svg.append('g')
+		.attr('id','yaxis')
 		.call(d3.axisLeft(settings.yAxis).ticks(settings.Nyticks));
 
 	// text label for the x axis
 	settings.svg.append('text')             
 		//.attr('transform', 'translate(' + (settings.histWidth/2) + ',' + (settings.histHeight + settings.histMargin.top + 24) + ')')
 		.attr('x', settings.histWidth/2)
-		.attr('y',settings.histHeight + settings.histMargin.top + 6)// + 24)
+		.attr('y',settings.histHeight + settings.histMargin.top + 12)// + 24)
 		.style('text-anchor', 'middle')
 		.style('font','16px sans-serif')
 		.text(settings.xAxisLabel)
@@ -82,32 +94,35 @@ function createHistogram(settings){
 			.attr('class','bar')
 			.attr('x', 1)
 			.attr('transform', function(d) { return 'translate(' + settings.xAxis(d.x0) + ',' + settings.yAxis(d.length) + ')'; })
-			.attr('width', function(d) { return Math.max(settings.xAxis(d.x1) - settings.xAxis(d.x0) -3 ,0) + 'px' ; }) //-val to give some separation between bins
+			.attr('width', function(d) { return Math.max(settings.xAxis(d.x1) - settings.xAxis(d.x0) - 2 ,0) + 'px' ; }) //-val to give some separation between bins
 			.attr('height', function(d) { return settings.histHeight - settings.yAxis(d.length) + 'px'; })
 			.attr('stroke-width',1)
 			.attr('stroke', 'black')
 			.style('fill', settings.fillColor)
+			.style('cursor','pointer')
 }
 
 
-function changeHistogram(arg){
-	//console.log(arg)
+function updateHistogram(settings){
+	//rescale the x axes
 
-	settings.isTypeB = false;
-	settings.isTypeA = false;
-	if (arg.includes('TypeB')) settings.isTypeB = true;
-	if (arg.includes('TypeA')) settings.isTypeA = true;
 
-	showNames();
-	settings.svg.selectAll('.bar').data(params[arg]);
+	//rescale the x axes
+	settings.minX = params.SDCDateAggLims[0].getTime()/1000.;
+	settings.maxX = params.SDCDateAggLims[1].getTime()/1000.;
+	settings.xAxis.domain([settings.minX, settings.maxX])  
+
+	//update the data
+	settings.histAll = binData(settings);
+	settings.svg.selectAll('.bar').data(settings.histAll);
 
 	//rescale the y axis?
-	//settings.yAxis.domain([0, d3.max(params[arg], function(d) { return d.length; })]);   
+	// settings.yAxis.domain([0, d3.max(settings.histAll, function(d) { return d.length; })]).nice();   
+	// d3.select('#yaxis').transition().duration(settings.transitionDuration).call(d3.axisLeft(settings.yAxis).ticks(settings.Nyticks));
 
-	settings.svg.selectAll('.bar').transition().duration(settings.duration)
+	settings.svg.selectAll('.bar').transition().duration(settings.transitionDuration)
 		.attr('transform', function(d, i) { return 'translate(' + settings.xAxis(d.x0) + ',' + settings.yAxis(d.length) + ')'; })
 		.attr('height', function(d,i) { return settings.histHeight - settings.yAxis(d.length) + 'px'; })
-		.style('fill', settings.fillColor)
 
 }
 
