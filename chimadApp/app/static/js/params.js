@@ -149,7 +149,8 @@ function defineParams(){
 		this.SDCResponseLineColor = '#000000';
 		this.SDCAggLineThickness = 6;
 		this.SDCAggLineOpacity = 0.9;
-		this.SDCAggLims = [0,1];
+		this.SDCFracAggLims = [0,1];
+		this.SDCDateAggLims = [0,1]; //will be reset based on the available data
 		this.SDCLine = null;
 		this.SDCCircle0 = null;
 		this.SDCCircle = null;
@@ -198,9 +199,41 @@ function defineParams(){
 		this.edittingPara = false; //will be true when user is editing paragraph
 		this.inCollaborate = false; //will be true when using the polling feature
 
-		
+
 		this.triedLoadingAgain = {};
 
+		this.SDChist = new function() {
+
+			this.container = null;
+			this.svg = null;
+			this.data = null;
+
+			//for binning the data
+			this.nBins = 100;
+			this.minX = -1.;
+			this.maxX = 1.;
+			this.fillColor = getComputedStyle(document.documentElement).getPropertyValue('--chimad-color'); 
+			this.hoverColor = 'gray'; 
+
+			//store the binned data
+			this.hist = null;
+
+			//store the histogram axis converters
+			this.xAxis = null;
+			this.yAxis = null;
+			this.xAxisLabel = 'Date';
+			this.yAxisLabel = 'N';
+			this.Nxticks = 0;
+			this.Nyticks = 3;
+
+			//dimensions of the containers
+			this.width = 0.6*window.innerWidth;
+			this.height = 100;
+			this.histMargin = {'top': 10, 'right': 15, 'bottom': 20, 'left': 40};
+			this.histWidth = this.width;// - this.histMargin.left - this.histMargin.right;
+			this.histHeight = this.height;// - this.histMargin.top - this.histMargin.bottom;
+
+		}
 	};
 
 	//check for mobile

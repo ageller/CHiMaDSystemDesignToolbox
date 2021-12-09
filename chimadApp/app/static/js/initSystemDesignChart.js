@@ -16,23 +16,76 @@ window.addEventListener('mousedown', function(){
 	params.mouseDown = true;
 });
 
-//aggregate response range slider
-if( $('#AggRangeSlider').length ){  
-	$("#AggRangeSlider").slider({
+//aggregate response range sliders
+//fractional aggreement
+if( $('#SDCAggFracRangeSlider').length ){  
+	$("#SDCAggFracRangeSlider").slider({
 		range: true,
 		min: 0,
-		max: 100,
-		values: [ 0, 100 ],
+		max: 1,
+		step: 0.01,
+		values: [ 0, 1 ],
 		slide: function( event, ui ) {
-			params.SDCAggLims[0] = ui.values[0]/100.;
-			params.SDCAggLims[1] = ui.values[1]/100.;
-			$("#AggRangeSliderMin").text((params.SDCAggLims[0]).toFixed(2));
-			$("#AggRangeSliderMax").text((params.SDCAggLims[1]).toFixed(2));
+			params.SDCFracAggLims[0] = ui.values[0];
+			params.SDCFracAggLims[1] = ui.values[1];
+			$("#SDCAggFracRangeSliderMin").text(params.SDCFracAggLims[0].toFixed(2));
+			$("#SDCAggFracRangeSliderMax").text(params.SDCFracAggLims[1].toFixed(2));
 			limitSDCAggLines();
 		}
 	})
 }
 
+//date range
+function initAggDateSlider(){
+	//get the date limits for the sliders
+	var dates = getSDCResponseDates();
+	console.log('have dates', dates)
+	if (dates.dates.length >= 2){
+		dates.dates.sort()
+		params.SDCDateAggLims[0] = dates.dates[0];
+		params.SDCDateAggLims[1] = dates.dates[dates.dates.length - 1];
+	} else {
+		params.SDCDateAggLims[0] = new Date();
+		params.SDCDateAggLims[1] = new Date();
+	}
+
+	//generate the histogram
+	params.SDChist.container = d3.select('#SDCDateHistContainer');
+	params.SDChist.data = dates.seconds;
+	createHistogram(params.SDChist)
+
+	//generate the slider
+	if( $('#SDCAggDateRangeSlider').length ){  
+		$("#SDCAggDateRangeSlider").slider({
+			range: true,
+			min: params.SDCDateAggLims[0].getTime()/1000,
+			max: params.SDCDateAggLims[1].getTime()/1000,
+			step: 1,
+			values: [params.SDCDateAggLims[0].getTime()/1000, params.SDCDateAggLims[1].getTime()/1000],
+			slide: function( event, ui ) {
+				params.SDCDateAggLims[0] = new Date(ui.values[0]*1000.);
+				params.SDCDateAggLims[1] = new Date(ui.values[1]*1000.);
+				$("#SDCAggDateRangeSliderMin").text((params.SDCDateAggLims[0]).toLocaleString());
+				$("#SDCAggDateRangeSliderMax").text((params.SDCDateAggLims[1]).toLocaleString());
+				//limitSDCAggLines();
+			}
+		})
+		$("#SDCAggDateRangeSliderMin").text((params.SDCDateAggLims[0]).toLocaleString());
+		$("#SDCAggDateRangeSliderMax").text((params.SDCDateAggLims[1]).toLocaleString());
+	}
+}
+
+function getSDCResponseDates(){
+	//get the response dates
+	var SDCresponses = params.responses.filter(function(d){return d.task == 'SDC'});
+	var dates = [];
+	var datesSec = [];
+	SDCresponses.forEach(function(d){
+		dates.push(new Date(d.Timestamp));
+		datesSec.push((new Date(d.Timestamp)).getTime()/1000.);
+	})
+	return {'dates':dates, 'seconds':datesSec};
+}
 
 function createSystemDesignChart(){
 	if (!params.SDCLineHighlighted){
@@ -1089,7 +1142,7 @@ function limitSDCAggLines(){
 	params.SDCAggSVG.selectAll('line').each(function(){
 		var elem = d3.select(this);
 		var frac = parseFloat(elem.attr('fraction'));
-		if (frac >= params.SDCAggLims[0] && frac <= params.SDCAggLims[1]){
+		if (frac >= params.SDCFracAggLims[0] && frac <= params.SDCFracAggLims[1]){
 			elem.style('visibility','visible')
 		} else {
 			elem.style('visibility','hidden')
@@ -1098,7 +1151,7 @@ function limitSDCAggLines(){
 	params.SDCAggTextSVG.selectAll('text').each(function(){
 		var elem = d3.select(this);
 		var frac = parseFloat(elem.attr('fraction'));
-		if (frac >= params.SDCAggLims[0] && frac <= params.SDCAggLims[1]){
+		if (frac >= params.SDCFracAggLims[0] && frac <= params.SDCFracAggLims[1]){
 			elem.style('visibility','visible')
 		} else {
 			elem.style('visibility','hidden')
