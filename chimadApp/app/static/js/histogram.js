@@ -3,10 +3,10 @@
 function binData(settings){
 	// set the parameters for the histogram
 	// get the bin locations
-	var rng = settings.xAxis.domain()[1] - settings.xAxis.domain()[0];
+	var rng = Math.max(settings.xAxis.domain()[1] - settings.xAxis.domain()[0], 1); //seconds
 	var dx = rng/settings.nBins;
-    var order = Math.floor(Math.log(rng)/Math.LN10 + 0.000000001); // extra addon in case float is not correct
-    var dec = Math.pow(10,order);
+	var order = Math.floor(Math.log(rng)/Math.LN10 + 0.000000001); // extra addon in case float is not correct
+	var dec = Math.pow(10,order);
 	var bins = [settings.xAxis.domain()[0]]
 	for (var i=0; i< settings.nBins; i++) {
 		bins.push(Math.round((bins[i] + dx)*dec)/dec)
@@ -75,7 +75,7 @@ function createHistogram(settings){
 		.attr('x', settings.histWidth/2)
 		.attr('y',settings.histHeight + settings.histMargin.top + 12)// + 24)
 		.style('text-anchor', 'middle')
-		.style('font','16px sans-serif')
+		.style('font','12px sans-serif')
 		.text(settings.xAxisLabel)
 
 	// text label for the y axis
@@ -84,7 +84,8 @@ function createHistogram(settings){
 		.attr('x', -settings.histHeight/2)
 		.attr('y', -24)
 		.attr('transform', 'rotate(-90)')
-		.style('font','16px sans-serif')
+		.style('text-anchor', 'middle')
+		.style('font','12px sans-serif')
 		.text(settings.yAxisLabel);
 
 	// append the bar rectangles to the svg element
