@@ -479,8 +479,9 @@ function logout(){
 	if (params.haveBars || params.haveSDC) loadAndInit();
 
 	//could call toggleDropdown, but I'd like to use logout elsewhere when dropdown may not be open yet
-	var drop = document.getElementById('dropdown');
-	setTimeout(function(){drop.style.visibility = "hidden";},300);
+	var drop = d3.select('#dropdown');
+	drop.classed('active', false);
+	setTimeout(function(){drop.style('visibility', 'hidden');},300);
 
 }
 
