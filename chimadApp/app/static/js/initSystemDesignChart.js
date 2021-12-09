@@ -25,7 +25,7 @@ if( $('#SDCAggFracRangeSlider').length ){
 		max: 1,
 		step: 0.01,
 		values: [ 0, 1 ],
-		slide: function( event, ui ) {
+		slide: function(event, ui) {
 			params.SDCFracAggLims[0] = ui.values[0];
 			params.SDCFracAggLims[1] = ui.values[1];
 			$("#SDCAggFracRangeSliderMin").text(params.SDCFracAggLims[0].toFixed(2));
@@ -37,19 +37,10 @@ if( $('#SDCAggFracRangeSlider').length ){
 
 //date range
 function initAggDateSlider(){
-	//get the date limits for the sliders
-	var dates = getSDCResponseDates();
-	console.log('have dates', dates)
-	if (dates.dates.length >= 2){
-		dates.dates.sort()
-		params.SDCDateAggLims[0] = dates.dates[0];
-		params.SDCDateAggLims[1] = dates.dates[dates.dates.length - 1];
-	} else {
-		params.SDCDateAggLims[0] = new Date();
-		params.SDCDateAggLims[1] = new Date();
-	}
+
 
 	//generate the histogram
+	var dates = getSDCResponseDates();
 	params.SDChist.container = d3.select('#SDCDateHistContainer');
 	params.SDChist.data = dates.seconds;
 	createHistogram(params.SDChist)
@@ -62,14 +53,19 @@ function initAggDateSlider(){
 			max: params.SDCDateAggLims[1].getTime()/1000,
 			step: 1,
 			values: [params.SDCDateAggLims[0].getTime()/1000, params.SDCDateAggLims[1].getTime()/1000],
-			slide: function( event, ui ) {
+			slide: function(event, ui) {
 				params.SDCDateAggLims[0] = new Date(ui.values[0]*1000.);
 				params.SDCDateAggLims[1] = new Date(ui.values[1]*1000.);
 				$("#SDCAggDateRangeSliderMin").text((params.SDCDateAggLims[0]).toLocaleString());
 				$("#SDCAggDateRangeSliderMax").text((params.SDCDateAggLims[1]).toLocaleString());
 				updateHistogram(params.SDChist);
-			}
-		})
+				aggregateSDCResults();
+			},
+			// stop: function() { //equivalent to mouseup
+			// 	setTimeout(function(){aggregateSDCResults(true), params.transitionDuration}) //for some reason the transition will only fire if I wait with setTimeout -- NO IDEA WHY
+			// },
+		})		
+
 		$("#SDCAggDateRangeSliderMin").text((params.SDCDateAggLims[0]).toLocaleString());
 		$("#SDCAggDateRangeSliderMax").text((params.SDCDateAggLims[1]).toLocaleString());
 	}
@@ -81,8 +77,8 @@ function getSDCResponseDates(){
 	var dates = [];
 	var datesSec = [];
 	SDCresponses.forEach(function(d){
-		dates.push(new Date(d.Timestamp));
-		datesSec.push((new Date(d.Timestamp)).getTime()/1000.);
+		dates.push(d.date);
+		datesSec.push(d.seconds);
 	})
 	return {'dates':dates, 'seconds':datesSec};
 }
@@ -477,7 +473,7 @@ function moveSDCLine() {
 			// var y = params.event.layerY - params.SDCSVGMargin.top;
 
 			//snap to object if close enough
-		 	elem = document.elementFromPoint(params.event.clientX + 20, params.event.clientY);
+			elem = document.elementFromPoint(params.event.clientX + 20, params.event.clientY);
 			var attached = false;
 			if (elem){
 				//check parents for tspan
@@ -1001,25 +997,31 @@ function toggleSDCResponses(){
 		});
 
 }
+
+
+function replotSDCAggregateLines(dur, replot=true){
+	console.log('replotting SDC AggregateLines', dur)
+	params.SDCAggSVG.selectAll('line').each(function(d,i){
+		var el = d3.select(this);
+		var t = el.transition().duration(dur)
+			.attr('x1', el.attr('x2'))
+			.attr('y1', el.attr('y2'))
+		if (replot && i == params.SDCAggSVG.selectAll('line').size() -1){
+			t.on('end',function(){
+				if (params.SDCSubmitted || params.haveSDCEditor) {
+					plotSDCAggregateLines(dur);
+					setTimeout(recolorSDCAgg, dur);
+				}
+			})
+		}
+	})
+	updateNresponses();
+}
+
 function switchSDCVersions(){
 	if (this.name == 'version'){
 		params.SDCResponseVersion = this.value;
-
-		params.SDCAggSVG.selectAll('line').each(function(d,i){
-			var el = d3.select(this)
-			var t = el.transition().duration(params.transitionDuration)
-				.attr('x1', el.attr('x2'))
-				.attr('y1', el.attr('y2'))
-			if (i == params.SDCAggSVG.selectAll('line').size() -1){
-				t.on('end',function(){
-					if (params.SDCSubmitted || params.haveSDCEditor) {
-						plotSDCAggregateLines(params.transitionDuration);
-						setTimeout(recolorSDCAgg, params.transitionDuration);
-					}
-				})
-			}
-		})
-		updateNresponses();
+		replotSDCAggregateLines(params.transitionDuration);
 	}
 
 	if (this.name == "answers"){

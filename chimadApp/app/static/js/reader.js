@@ -71,11 +71,35 @@ function updateNresponses(){
 	d3.select('#SDCNResponses').text('Number of Responses : '+NSDC)
 }
 
+function setResponseDates(){
+	params.responses.forEach(function(d){
+		d.date = new Date(d.Timestamp);
+		d.seconds = d.date.getTime()/1000.
+	})
+
+	if (params.haveSDC){
+		//get the date limits (needed for aggregating results)
+		var dates = getSDCResponseDates();
+		if (dates.dates.length >= 2){
+			dates.dates.sort()
+			params.SDCDateAggLims[0] = dates.dates[0];
+			params.SDCDateAggLims[1] = dates.dates[dates.dates.length - 1];
+		} else {
+			params.SDCDateAggLims[0] = new Date();
+			params.SDCDateAggLims[1] = new Date();
+		}
+
+
+	}
+
+}
+
 function aggregateResults(data) {
 //store the data and aggregate the results
 	console.log('in aggregateResults', data)
 	
 	params.responses = data;
+	setResponseDates();
 
 	params.haveSurveyData = false;
 
@@ -304,16 +328,24 @@ function aggregateParaResults(){
 
 }
 
-function aggregateSDCResults(){
-
+function aggregateSDCResults(transitionPlot = false){
+	//We are moving away from tracking versions, but I will still keep the functionality in here (at least for now)
+	//version -1 will contain all the data
 
 	//count up all the responses for each column and return the aggregate numbers
 	//in order to keep things a bit more simple, I will push a blank entry for version 0 (I may want to clean this up later)
-	params.aggregatedSDCResponses = [{}];
-	params.aggregatedSDCResponses.nVersion = [0];
-	for (var version=1; version<=2; version+=1){
-		params.aggregatedSDCResponses.push({});
-		var using = params.responses.filter(function(d){return (d.version == version && d.task == 'SDC');});
+	params.aggregatedSDCResponses = {};
+	params.aggregatedSDCResponses.nVersion = [];
+	var responses = params.responses.filter(function(d){return (d.task == 'SDC');});
+	var versions = [0];
+	responses.forEach(function(d){
+		if (!(d.version in versions)) versions.push(d.version);
+	})
+	versions.forEach(function(version){
+		params.aggregatedSDCResponses[version] = {};
+		var using = params.responses.filter(function(d){return (d.task == 'SDC' && d.date.getTime() >= params.SDCDateAggLims[0].getTime() && d.date.getTime() <= params.SDCDateAggLims[1].getTime());});
+		if (version > 0) using = using.filter(function(d){return (d.version == version);});
+
 		params.aggregatedSDCResponses.nVersion.push(using.length);
 
 		params.responses.columns.forEach(function(rc,i){
@@ -340,17 +372,21 @@ function aggregateSDCResults(){
 				console.log("aggregatedSDC", params.aggregatedSDCResponses);
 				if (params.SDCSubmitted || params.haveSDCEditor) {
 					var dur = 0;
-					if (params.firstSDCplot){
+					if (params.firstSDCplot || transitionPlot){
 						dur = params.transitionDuration;
 						params.firstSDCplot = false;
 					}
-					plotSDCAggregateLines(dur);
-					plotSDCAnswerLines(dur); 
+					if (transitionPlot) {
+						replotSDCAggregateLines(dur);
+					} else{
+						plotSDCAggregateLines(dur);
+						plotSDCAnswerLines(dur); 
+					}
 				}
 				//for testing
 				//params.SDCSubmitted = true;
 			}
 
 		})
-	}
+	})
 }
