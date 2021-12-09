@@ -110,7 +110,8 @@
 
 			readURLdata();
 			if ('groupname' in params.URLInputValues) setGroupname(decodeURI(params.URLInputValues.groupname));
-
+			loadTable('available_dbs.db', 'dbs', compileAvailableGroupnames);
+			
 		</script>
 
 	</body>
