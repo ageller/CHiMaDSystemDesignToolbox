@@ -11,6 +11,7 @@ function binData(settings){
 	for (var i=0; i< settings.nBins; i++) {
 		bins.push(Math.round((bins[i] + dx)*dec)/dec)
 	}
+	bins[bins.length - 1] = settings.xAxis.domain()[1] + 0.000000001;
 
 	var histogram = d3.histogram()
 		.value(function(d){return(d)})
