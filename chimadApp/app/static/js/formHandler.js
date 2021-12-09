@@ -428,6 +428,14 @@ function login(){
 
 		sendMetricsToFlask();
 
+		if (params.haveParaEditor){
+			d3.select('#paragraphnameNotification').text('').classed('error', false);
+			d3.select('#answerSubmitNotification')
+				.classed('blink_me', false)
+				.classed('error', false)
+				.text('Please click the Submit button above when you have completed your work.');
+		}
+
 	} else {
 		document.getElementById('groupnameNotification').style.visibility = 'visible';
 	}
@@ -444,8 +452,7 @@ function selectTableAndLoad(tables){
 	params.paragraphTable = 'paragraphs';
 	params.dbname = params.groupname + '.db';
 
-
-	loadAndInit();
+	if (params.haveBars || params.haveSDC) loadAndInit();
 
 }
 
@@ -464,7 +471,7 @@ function logout(){
 	resetURLdata();
 
 	//reload with the default values
-	loadAndInit();
+	if (params.haveBars || params.haveSDC) loadAndInit();
 
 	//could call toggleDropdown, but I'd like to use logout elsewhere when dropdown may not be open yet
 	var drop = document.getElementById('dropdown');

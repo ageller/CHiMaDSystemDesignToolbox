@@ -27,6 +27,7 @@ if (!params.haveParaEditor && !params.haveSDCEditor) d3.select('#systemDesignCha
 
 //load data from the URL to define the form input
 readURLdata();
+if (params.inCollaborate && !('username' in params.URLInputValues)) resetURLdata(['paragraphname', 'groupname']);
 if ('paragraphname' in params.URLInputValues) params.paragraphname = params.cleanString(params.URLInputValues.paragraphname);
 if ('groupname' in params.URLInputValues) setGroupname(decodeURI(params.URLInputValues.groupname));
 updateSurveyTable();

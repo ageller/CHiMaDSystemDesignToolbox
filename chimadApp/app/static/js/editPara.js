@@ -66,36 +66,41 @@ function populateAnswersFromURL(){
 }
 
 function beginParaEdit(){
-	console.log('editing paragraph');
-	params.edittingPara = true;
+	if (params.groupname != 'default' && params.availableGroupnames.includes(params.groupname)){
+		console.log('editing paragraph');
+		params.edittingPara = true;
 
-	//reset the URL
-	resetURLdata(['groupname']);
+		//reset the URL
+		resetURLdata(['groupname']);
 
-	//reset the notification
-	d3.select('#paragraphnameNotification').text('');
+		//reset the notification
+		d3.select('#paragraphnameNotification').text('').classed('error', false);
 
-	//remove the paragraph name
-	document.getElementById('paragraphnameInput').value = '';
+		//remove the paragraph name
+		document.getElementById('paragraphnameInput').value = '';
 
-	//change button to save
-	d3.select('#paraEditButton').style('display','none');
-	d3.select('#paraSaveButton').style('display','block');
+		//change button to save
+		d3.select('#paraEditButton').style('display','none');
+		d3.select('#paraSaveButton').style('display','block');
 
-	//populate the editor
-	var txtarea = d3.select('#paraTextEditor').select('textarea');
-	var height = Math.max(100., d3.select('#paraText').node().getBoundingClientRect().height);
-	txtarea.style('height',height + 'px');
-	//txtarea.node().value = params.paraTextSave;
-	txtarea.text(params.paraTextSave);
+		//populate the editor
+		var txtarea = d3.select('#paraTextEditor').select('textarea');
+		var height = Math.max(100., d3.select('#paraText').node().getBoundingClientRect().height);
+		txtarea.style('height',height + 'px');
+		//txtarea.node().value = params.paraTextSave;
+		txtarea.text(params.paraTextSave);
 
 
-	//hide the current paragraph and show the editor
-	d3.select('#paraText').style('display','none');
-	d3.select('#paraTextEditor').style('display','block');
+		//hide the current paragraph and show the editor
+		d3.select('#paraText').style('display','none');
+		d3.select('#paraTextEditor').style('display','block');
 
-	resize();
-
+		resize();
+	} else {
+		d3.select('#paragraphnameNotification')
+			.classed('error', true)
+			.text('Please login first');
+	}
 
 }
 
@@ -155,27 +160,34 @@ function saveParaEdit(){
 }
 
 function onAnswersSubmit(){
-	if (params.edittingPara){
+	if (params.groupname != 'default' && params.availableGroupnames.includes(params.groupname)){
+		if (params.edittingPara){
+			d3.select('#answerSubmitNotification')
+				.classed('blink_me', false)
+				.classed('error', true)
+				.text('Please save the paragraph before submitting the answers.');
+		} else {
+			params.nTrials = 0;
+			d3.select('#answerSubmitNotification')
+				.classed('blink_me', true)
+				.classed('error', false)
+				.text('Processing...');
+
+
+			var answersData = [];
+			params.answers.forEach(function(a){
+				if (params.cleanString(a.paragraphname) == params.cleanString(params.paragraphname)) answersData.push(a);
+			})
+			var out = {'tablename':'paragraphs', 'dbname':params.dbname}
+			out.data = {'paragraphname':params.paragraphnameOrg,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
+			sendResponsesToFlask(out, 'answerSubmitNotification', false, 'Answers updated successfully.');
+			console.log('answers submitted', out);
+		}
+	} else {
 		d3.select('#answerSubmitNotification')
 			.classed('blink_me', false)
 			.classed('error', true)
-			.text('Please save the paragraph before submitting the answers.');
-	} else {
-		params.nTrials = 0;
-		d3.select('#answerSubmitNotification')
-			.classed('blink_me', true)
-			.classed('error', false)
-			.text('Processing...');
-
-
-		var answersData = [];
-		params.answers.forEach(function(a){
-			if (params.cleanString(a.paragraphname) == params.cleanString(params.paragraphname)) answersData.push(a);
-		})
-		var out = {'tablename':'paragraphs', 'dbname':params.dbname}
-		out.data = {'paragraphname':params.paragraphnameOrg,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
-		sendResponsesToFlask(out, 'answerSubmitNotification', false, 'Answers updated successfully.');
-		console.log('answers submitted', out);
+			.text('Please login first.');
 	}
 }
 
