@@ -105,24 +105,39 @@
 					<label for="SDCResponseToggle" id="SSDCResponseToggleLabel">Show your responses (black lines)</label><br>
 					<input type="checkbox" id="SDCAnswerToggle" class='answerToggle' name="answers" value="1" class="radio" checked>
 					<label for="SDCAnswerToggle" id="SDCAnswerToggleLabel" class='answerToggle'>Show answers (gray lines)</label><br>
-					<div>
-						<div style='display: table-cell'>
-							<input type="checkbox" id="SDCAggToggle" class='aggToggle' name="aggregate" value="1" class="radio" checked>
-							<label for="SDCAggToggle" id="SDCAggToggleLabel" class='aggToggle'>Show aggregate responses (colored lines)</label>
-						</div>
-						<div style='display: table-cell'>
-							<div style='display: table-cell; padding-left:20px' id="AggRangeSliderMin">0.00</div>
-							<div style='display: table-cell; width:200px; padding-left:10px'>
-								<div id="AggRangeSlider"></div>
-							</div>
-							<div style='display: table-cell; padding-left:10px' id="AggRangeSliderMax">1.00</div>
-							<div style='display: table-cell; padding-left:10px'>(agreement fraction to display)</div>
-						</div>
-					</div>
+
+					<input type="checkbox" id="SDCAggToggle" class='aggToggle' name="aggregate" value="1" class="radio" checked>
+					<label for="SDCAggToggle" id="SDCAggToggleLabel" class='aggToggle'>Show aggregate responses (colored lines)</label><br>
+	
 					<input type="radio" id="SDCVersion1" name="version" value="1" class="radio" checked>
 					<label for="SDCVersion1" id="SDCVersion1Label">Aggregated responses 1</label><br>
 					<input type="radio" id="SDCVersion2" name="version" value="2" class="radio">
 					<label for="SDCVersion2" id="SDCVersion2Label">Aggregated responses 2</label><br>
+
+
+					<div style='margin-left:20px' id='SDCAggFracUI'>
+						<p>Agreement fraction to display:</p>
+						<div style='display:block'>
+							<div style='display: table-cell; width:70px; text-align:right' id="SDCAggFracRangeSliderMin">0.00</div>
+							<div style='display: table-cell; width:60vw; padding-left:10px'>
+								<div id="SDCAggFracRangeSlider"></div>
+							</div>
+							<div style='display: table-cell; padding-left:10px; width:70px' id="SDCAggFracRangeSliderMax">1.00</div>
+						</div>
+					</div>
+
+					<div style='margin-left:20px' id='SDCAggDateUI'>
+						<p>Date range for aggregating SDC responses:</p>
+						<div id='SDCDateHistContainer' style='margin-left:40px'></div>
+						<div style='display: table-cell;'>
+							<div style='display: table-cell; width:70px; text-align:right' id="SDCAggDateRangeSliderMin">0.00</div>
+							<div style='display: table-cell; width:60vw; padding-left:10px'>
+								<div id="SDCAggDateRangeSlider"></div>
+							</div>
+							<div style='display: table-cell; padding-left:10px; width:70px' id="SDCAggDateRangeSliderMax">1.00</div>
+						</div>
+					</div>	
+
 				</form>
 
 
@@ -155,6 +170,7 @@
 		<script src="static/js/initSystemDesignChart.js"></script>
 		<script src="static/js/resize.js"></script>
 		<script src="static/js/editSDC.js"></script>
+		<script src="static/js/histogram.js"></script>
 		<script src="static/js/init.js"></script>
 
 		<!-- to get the IP address of the user -->
