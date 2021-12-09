@@ -331,6 +331,7 @@ function setParagraphnameFromOptions(paragraphname=null){
 	if (params.haveParaEditor) setURLFromAnswers();
 	appendURLdata();
 
+	params.haveSurveyData = false;
 	loadTable(params.dbname, params.surveyTable, aggregateResults);
 
 	initPage();
