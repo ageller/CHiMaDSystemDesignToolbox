@@ -161,10 +161,11 @@ function defineParams(){
 		this.SDCSubmitted = false;
 		this.maxSDCLineWidth = 20;
 		this.minSDCLineWidth = 5;
-		this.SDCResponseVersion = 1;
+		this.SDCResponseVersion = 0; //version  contains all the data
 		this.showSDCResponses = true;
 		this.firstSDCplot = true; //will be set to false after the first plotting.  This will allow an initial animation, but not during the regular re-read+re-draw cycle.
-
+		this.SDCready = false;
+		
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
 		this.pctLimLow = 0.4;
@@ -222,7 +223,7 @@ function defineParams(){
 			this.xAxis = null;
 			this.yAxis = null;
 			this.xAxisLabel = 'Date';
-			this.yAxisLabel = 'N';
+			this.yAxisLabel = 'Number';
 			this.Nxticks = 0;
 			this.Nyticks = 3;
 
