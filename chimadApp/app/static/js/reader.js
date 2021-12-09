@@ -67,7 +67,10 @@ function updateNresponses(){
 	var NPara = params.responses.filter(function(d){return (d.task == 'para' && d.version == params.paraResponseVersion);}).length;
 	d3.select('#boxGridNResponses').text('Number of Responses : '+NPara)
 
-	var NSDC = params.responses.filter(function(d){return (d.task == 'SDC' && d.version == params.SDCResponseVersion);}).length;
+	var using = params.responses.filter(function(d){return (d.task == 'SDC' && d.date.getTime() >= params.SDCDateAggLims[0].getTime() && d.date.getTime() <= params.SDCDateAggLims[1].getTime());});
+	if (params.SDCResponseVersion > 0) using = using.filter(function(d){return (d.version == params.SDCResponseVersion);});
+
+	var NSDC = using.length;
 	d3.select('#SDCNResponses').text('Number of Responses : '+NSDC)
 }
 
@@ -369,7 +372,7 @@ function aggregateSDCResults(transitionPlot = false){
 			}
 			//plot the results
 			if (i == params.responses.columns.length - 1 && version == params.SDCResponseVersion){
-				console.log("aggregatedSDC", params.aggregatedSDCResponses);
+				//console.log("aggregatedSDC", params.aggregatedSDCResponses);
 				if (params.SDCSubmitted || params.haveSDCEditor) {
 					var dur = 0;
 					if (params.firstSDCplot || transitionPlot){
