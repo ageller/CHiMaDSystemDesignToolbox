@@ -107,7 +107,7 @@ function resize(){
 		d3.select('#systemDesignChart').style('top',maxH + 20 +'px');
 		if ((params.answersParagraphnames.para.includes(params.cleanString(params.paragraphname)) && params.paraSubmitted2 && params.haveSDC) || params.haveParaEditor || (params.haveSDCEditor && !params.editingSDC)) {
 			createSystemDesignChart();
-			createHistogram(params.SDChist);	
+			createHistogram(params.SDCHist);	
 		}
 	}
 

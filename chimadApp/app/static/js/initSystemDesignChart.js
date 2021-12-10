@@ -36,17 +36,25 @@ if( $('#SDCAggFracRangeSlider').length ){
 }
 
 //date range
-function initAggDateUI(dur){
+function initSDCAggDateUI(dur){
 
 	//generate the histogram
 	var dates = getSDCResponseDates();
-	params.SDChist.data = dates.milliseconds;
-	if (params.SDChist.container == null){
+	params.SDCHist.data = dates.milliseconds;
+	if (params.SDCHist.container == null){
 		setSDCResponseDateRange();
-		params.SDChist.container = d3.select('#SDCDateHistContainer');
-		createHistogram(params.SDChist);
+		params.SDCHist.parent = d3.select('#systemDesignChart');
+		params.SDCHist.container = d3.select('#SDCDateHistContainer');
+		params.SDCHist.brushCallback = function(){
+			aggregateSDCResults(true);
+		}
+		params.SDCHist.resetCallback = function(){
+			setSDCResponseDateRange();
+			aggregateSDCResults(true);	
+		}		
+		createHistogram(params.SDCHist);
 	} else {
-		updateHistogram(params.SDChist, dur)
+		updateHistogram(params.SDCHist, dur)
 	}
 
 	//generate the slider
@@ -59,43 +67,44 @@ function initAggDateUI(dur){
 // 	if( $('#SDCAggDateRangeSlider').length ){  
 // 		$('#SDCAggDateRangeSlider').slider({
 // 			range: true,
-// 			min: params.SDCDateAggLims[0].getTime()/1000,
-// 			max: params.SDCDateAggLims[1].getTime()/1000,
+// 			min: params.SDCHist.dateAggLims[0].getTime()/1000,
+// 			max: params.SDCHist.dateAggLims[1].getTime()/1000,
 // 			step: 1,
-// 			values: [params.SDCDateAggLims[0].getTime()/1000, params.SDCDateAggLims[1].getTime()/1000],
+// 			values: [params.SDCHist.dateAggLims[0].getTime()/1000, params.SDCHist.dateAggLims[1].getTime()/1000],
 // 			slide: function(event, ui) {
-// 				params.SDCDateAggLims[0] = new Date(ui.values[0]*1000.);
-// 				params.SDCDateAggLims[1] = new Date(ui.values[1]*1000.);
-// 				$('#SDCAggDateRangeSliderMin').text((params.SDCDateAggLims[0]).toLocaleString());
-// 				$('#SDCAggDateRangeSliderMax').text((params.SDCDateAggLims[1]).toLocaleString());
-// 				updateHistogram(params.SDChist, params.SDChist.transitionDuration);
+// 				params.SDCHist.dateAggLims[0] = new Date(ui.values[0]*1000.);
+// 				params.SDCHist.dateAggLims[1] = new Date(ui.values[1]*1000.);
+// 				$('#SDCAggDateRangeSliderMin').text((params.SDCHist.dateAggLims[0]).toLocaleString());
+// 				$('#SDCAggDateRangeSliderMax').text((params.SDCHist.dateAggLims[1]).toLocaleString());
+// 				updateHistogram(params.SDCHist, params.SDCHist.transitionDuration);
 // 				aggregateSDCResults();
 // 				updateNresponses();
 // 			},
 // 			stop: function() { //equivalent to mouseup
 // 				//reset the slider to the new limits
-// 				$('#SDCAggDateRangeSlider').slider('option','min', params.SDCDateAggLims[0].getTime()/1000);
-// 				$('#SDCAggDateRangeSlider').slider('option','max', params.SDCDateAggLims[1].getTime()/1000);
+// 				$('#SDCAggDateRangeSlider').slider('option','min', params.SDCHist.dateAggLims[0].getTime()/1000);
+// 				$('#SDCAggDateRangeSlider').slider('option','max', params.SDCHist.dateAggLims[1].getTime()/1000);
 // 				//this could really use a transition...
 // 				//initAggDateSlider()
-// 				updateHistogram(params.SDChist, params.transitionDuration, true);
+// 				updateHistogram(params.SDCHist, params.transitionDuration, true);
 
 // 				//setTimeout(function(){aggregateSDCResults(true), params.transitionDuration}) //for some reason the transition will only fire if I wait with setTimeout -- NO IDEA WHY
 
 // 			},
 // 		})		
 
-// 		$('#SDCAggDateRangeSliderMin').text((params.SDCDateAggLims[0]).toLocaleString());
-// 		$('#SDCAggDateRangeSliderMax').text((params.SDCDateAggLims[1]).toLocaleString());
+// 		$('#SDCAggDateRangeSliderMin').text((params.SDCHist.dateAggLims[0]).toLocaleString());
+// 		$('#SDCAggDateRangeSliderMax').text((params.SDCHist.dateAggLims[1]).toLocaleString());
 // 	}
 // }
 
 function getSDCResponseDates(){
 	//get the response dates
-	var SDCresponses = params.responses.filter(function(d){return d.task == 'SDC'});
+	var SDCResponses = params.responses.filter(function(d){return d.task == 'SDC'});
+	if (params.SDCResponseVersion > 0) SDCResponses = SDCResponses.filter(function(d){ return d.version == params.SDCResponseVersion;});	
 	var dates = [];
 	var milliseconds = [];
-	SDCresponses.forEach(function(d){
+	SDCResponses.forEach(function(d){
 		dates.push(d.date);
 		milliseconds.push(d.date.getTime());
 	})
@@ -108,11 +117,11 @@ function setSDCResponseDateRange(){
 		dates.dates.sort(function(a, b){  
 			return dates.milliseconds.indexOf(a.getTime()) - dates.milliseconds.indexOf(b.getTime());
 		});
-		params.SDCDateAggLims[0] = dates.dates[0];
-		params.SDCDateAggLims[1] = dates.dates[dates.dates.length - 1];
+		params.SDCHist.dateAggLims[0] = dates.dates[0];
+		params.SDCHist.dateAggLims[1] = dates.dates[dates.dates.length - 1];
 	} else {
-		params.SDCDateAggLims[0] = new Date();
-		params.SDCDateAggLims[1] = new Date();
+		params.SDCHist.dateAggLims[0] = new Date();
+		params.SDCHist.dateAggLims[1] = new Date();
 	}
 }
 function createSystemDesignChart(){
@@ -1053,6 +1062,7 @@ function replotSDCAggregateLines(dur, replot=true){
 function switchSDCVersions(){
 	if (this.name == 'version'){
 		params.SDCResponseVersion = this.value;
+		initSDCAggDateUI(params.transitionDuration);
 		replotSDCAggregateLines(params.transitionDuration);
 	}
 

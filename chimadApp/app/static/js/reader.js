@@ -67,7 +67,7 @@ function updateNresponses(){
 	var NPara = params.responses.filter(function(d){return (d.task == 'para' && d.version == params.paraResponseVersion);}).length;
 	d3.select('#boxGridNResponses').text('Number of Responses : '+NPara)
 
-	var using = params.responses.filter(function(d){return (d.task == 'SDC' && d.date.getTime() >= params.SDCDateAggLims[0].getTime() && d.date.getTime() <= params.SDCDateAggLims[1].getTime());});
+	var using = params.responses.filter(function(d){return (d.task == 'SDC' && d.date.getTime() >= params.SDCHist.dateAggLims[0].getTime() && d.date.getTime() <= params.SDCHist.dateAggLims[1].getTime());});
 	if (params.SDCResponseVersion > 0) using = using.filter(function(d){return (d.version == params.SDCResponseVersion);});
 
 	var NSDC = using.length;
@@ -80,6 +80,7 @@ function setResponseDates(){
 	})
 
 	if (params.firstSDCplot) setSDCResponseDateRange();
+	if (params.firstParaPlot) setParaResponseDateRange();
 }
 
 function aggregateResults(data) {
@@ -280,17 +281,25 @@ function aggregateParaResults(){
 
 	//count up all the responses for each column and return the aggregate numbers
 	//in order to keep things a bit more simple, I will push a blank entry for version 0 (I may want to clean this up later)
-	params.aggregatedParaResponses = [{}]
+	params.aggregatedParaResponses = {}
 
+	var responses = params.responses.filter(function(d){return (d.task == 'SDC');});
+	var versions = [0];
+	responses.forEach(function(d){
+		if (!(d.version in versions)) versions.push(d.version);
+	})
+	versions.forEach(function(version){
 
-	for (var version=1; version<=2; version+=1){
-		params.aggregatedParaResponses.push({});
+		params.aggregatedParaResponses[version] = {};
 
 		params.responses.columns.forEach(function(rc,i){
 			if (!rc.includes('Timestamp') && !rc.includes('IP') && !rc.includes('username') && !rc.includes('version') && !rc.includes('task')){
 				vals = []
-				//params.responses.forEach(function(r,j){
-				var using = params.responses.filter(function(d){return (d.version == version && d.task == 'para');});
+				var using = params.responses.filter(function(d){return (d.task == 'para' && d.date.getTime() >= params.paraHist.dateAggLims[0].getTime() && d.date.getTime() <= params.paraHist.dateAggLims[1].getTime());});
+				if (version > 0) using = using.filter(function(d){return (d.version == version);});
+
+				//var using = params.responses.filter(function(d){return (d.version == version && d.task == 'para');});
+				
 				using.forEach(function(r,j){
 					//get the column
 					var v = r[rc];
@@ -308,11 +317,15 @@ function aggregateParaResults(){
 			if (i == params.responses.columns.length - 1 && version == params.paraResponseVersion){
 				console.log("aggregatedPara", params.aggregatedParaResponses);
 				params.haveSurveyData = true;
-				if (params.paraSubmitted) defineBars();
+				if (params.paraSubmitted) {
+					params.firstParaPlot = false;
+					defineBars();
+					initParaAggDateUI(params.transitionDuration);
+				}
 			}
 
 		})
-	}
+	})
 
 }
 
@@ -331,7 +344,7 @@ function aggregateSDCResults(transitionPlot = false){
 	})
 	versions.forEach(function(version){
 		params.aggregatedSDCResponses[version] = {};
-		var using = params.responses.filter(function(d){return (d.task == 'SDC' && d.date.getTime() >= params.SDCDateAggLims[0].getTime() && d.date.getTime() <= params.SDCDateAggLims[1].getTime());});
+		var using = params.responses.filter(function(d){return (d.task == 'SDC' && d.date.getTime() >= params.SDCHist.dateAggLims[0].getTime() && d.date.getTime() <= params.SDCHist.dateAggLims[1].getTime());});
 		if (version > 0) using = using.filter(function(d){return (d.version == version);});
 
 		params.aggregatedSDCResponses.nVersion.push(using.length);
@@ -370,7 +383,7 @@ function aggregateSDCResults(transitionPlot = false){
 						plotSDCAggregateLines(dur);
 						plotSDCAnswerLines(dur); 
 					}
-					initAggDateUI(dur);
+					initSDCAggDateUI(dur);
 				}
 				//for testing
 				//params.SDCSubmitted = true;

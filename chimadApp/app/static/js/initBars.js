@@ -6,6 +6,57 @@ params.haveBars = true;
 //version options
 d3.select('#paraVersionOptions').selectAll('input').on('change',switchParaVersions);
 
+//date range
+function initParaAggDateUI(dur){
+
+	//generate the histogram
+	var dates = getParaResponseDates();
+	params.paraHist.data = dates.milliseconds;
+	if (params.paraHist.container == null){
+		setParaResponseDateRange();
+		params.paraHist.parent = d3.select('#boxGrid');
+		params.paraHist.container = d3.select('#paraDateHistContainer');
+		params.paraHist.brushCallback = function(){
+			aggregateParaResults(true);
+		}
+		params.paraHist.resetCallback = function(){
+			setParaResponseDateRange();
+			aggregateParaResults(true);	
+		}		
+		createHistogram(params.paraHist);
+	} else {
+		updateHistogram(params.paraHist, dur)
+	}
+
+}
+
+function getParaResponseDates(){
+	//get the response dates
+	var paraResponses = params.responses.filter(function(d){return d.task == 'para';})
+	if (params.paraResponseVersion > 0) paraResponses = paraResponses.filter(function(d){ return d.version == params.paraResponseVersion;});
+	var dates = [];
+	var milliseconds = [];
+	paraResponses.forEach(function(d){
+		dates.push(d.date);
+		milliseconds.push(d.date.getTime());
+	})
+	return {'dates':dates, 'milliseconds':milliseconds};
+}
+function setParaResponseDateRange(){
+	var dates = getParaResponseDates();
+	if (dates.dates.length >= 2){
+		//sort the dates (may not be necessary)
+		dates.dates.sort(function(a, b){  
+			return dates.milliseconds.indexOf(a.getTime()) - dates.milliseconds.indexOf(b.getTime());
+		});
+		params.paraHist.dateAggLims[0] = dates.dates[0];
+		params.paraHist.dateAggLims[1] = dates.dates[dates.dates.length - 1];
+	} else {
+		params.paraHist.dateAggLims[0] = new Date();
+		params.paraHist.dateAggLims[1] = new Date();
+	}
+}
+
 function createBars(){
 	params.createdBars = false;
 	//destroy the plot (if it exists)
@@ -415,7 +466,10 @@ function switchParaVersions(){
 	if (this.name == "version"){
 		params.paraResponseVersion = this.value;
 		params.toggleParaText = true;
-		if (params.paraSubmitted) defineBars();
+		if (params.paraSubmitted) {
+			initParaAggDateUI(params.transitionDuration);
+			defineBars();
+		}
 		updateNresponses();
 	}
 	if (this.name == "answers"){
