@@ -79,8 +79,8 @@ function setResponseDates(){
 		d.date = new Date(d.Timestamp);
 	})
 
-	if (params.firstSDCplot) setSDCResponseDateRange();
-	if (params.firstParaPlot) setParaResponseDateRange();
+	if (params.firstSDCplot && params.haveSDC) setSDCResponseDateRange();
+	if (params.firstParaPlot && params.haveBars) setParaResponseDateRange();
 }
 
 function aggregateResults(data) {

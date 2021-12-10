@@ -588,7 +588,7 @@ function switchSDCCompiler(){
 		}, 500)
 
 	}
-	if (this.value == 'consensus1' || this.value == 'consensus2'){
+	if (this.value == 'consensus0' || this.value == 'consensus1' || this.value == 'consensus2'){
 		var version = parseInt(this.value.substr(9));
 		console.log('building from consensus version ', version);
 
