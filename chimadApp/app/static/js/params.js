@@ -165,7 +165,7 @@ function defineParams(){
 		this.showSDCResponses = true;
 		this.firstSDCplot = true; //will be set to false after the first plotting.  This will allow an initial animation, but not during the regular re-read+re-draw cycle.
 		this.SDCready = false;
-		
+
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
 		this.pctLimLow = 0.4;
@@ -224,17 +224,17 @@ function defineParams(){
 			this.yAxis = null;
 			this.xAxisLabel = 'Date';
 			this.yAxisLabel = 'Number';
-			this.Nxticks = 0;
-			this.Nyticks = 3;
+			this.Nxticks = 2;
+			this.Nyticks = 2;
 
 			//dimensions of the containers
-			this.width = 0.6*window.innerWidth;
+			this.width = 0.6; //fraction of hist width
 			this.height = 50;
-			this.histMargin = {'top': 4, 'right': 2, 'bottom': 20, 'left': 40};
-			this.histWidth = this.width;// - this.histMargin.left - this.histMargin.right;
-			this.histHeight = this.height;// - this.histMargin.top - this.histMargin.bottom;
+			this.histMargin = {'top': 4, 'right': 2, 'bottom': 46, 'left': 40};
+			this.histWidth = this.width*window.innerWidth; //will be redefined within the histogram function
+			this.histHeight = this.height; 
 
-			this.transitionDuration = 0;
+			this.transitionDuration = 300;
 
 		}
 	};

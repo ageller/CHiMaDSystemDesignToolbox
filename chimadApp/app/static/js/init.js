@@ -80,7 +80,7 @@ function initPage(){
 			//create the system design chart
 			if (params.haveSDC) {
 				if (params.answersParagraphnames.para.includes(params.cleanString(params.paragraphname)) || params.haveParaEditor || params.haveSDCEditor) {
-					initAggDateSlider();
+					initAggDateUI();
 					createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
 				} 
 				checkSDCvisibility();
