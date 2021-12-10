@@ -72,6 +72,7 @@ function initPage(){
 
 			//create the skeleton of the visualization (will be filled in at later)
 			if (params.haveBars) {
+				initParaAggDateUI();
 				createBars();
 				//I could check to see if anything changed before replotting, but I'm not sure that would offer a big speedup (since I'd need another for loop anyway)
 				if (params.paraSubmitted) defineBars();
@@ -80,7 +81,7 @@ function initPage(){
 			//create the system design chart
 			if (params.haveSDC) {
 				if (params.answersParagraphnames.para.includes(params.cleanString(params.paragraphname)) || params.haveParaEditor || params.haveSDCEditor) {
-					initAggDateUI();
+					initSDCAggDateUI();
 					createSystemDesignChart(); //keeping this here so that it can be populated (even while hidden) for return users
 				} 
 				checkSDCvisibility();

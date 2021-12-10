@@ -31,7 +31,7 @@ function createHistogram(settings){
 	}
 
 	//redefine the width
-	settings.histWidth = settings.width*window.innerWidth;
+	settings.histWidth = settings.widthFrac*settings.parent.node().getBoundingClientRect().width;
 
 	//create the SVG element
 	var w = settings.histWidth + settings.histMargin.left + settings.histMargin.right;
@@ -127,21 +127,18 @@ function createHistogram(settings){
 	function brushEnded(event){
 		if (event.selection){
 			const [x0, x1] = event.selection.map(settings.xAxis.invert);
-			params.SDCDateAggLims[0] = new Date(x0)
-			params.SDCDateAggLims[1] = new Date(x1)
+			settings.dateAggLims[0] = new Date(x0)
+			settings.dateAggLims[1] = new Date(x1)
 			d3.select(this).call(brush.move, null);
 			//updateHistogram(settings, settings.transitionDuration);
 			//re-aggregate the results and then replot
-			aggregateSDCResults(true);
+			settings.brushCallback()
 
 		} 
 	}
 
 	function dblclick(){
-		setSDCResponseDateRange();
-	    //updateHistogram(settings, settings.transitionDuration);
-    	//re-aggregate the results and then replot
-		aggregateSDCResults(true);
+		settings.resetCallback();
 	}
 
 
@@ -166,8 +163,8 @@ function insertLinebreaks() {
 function updateHistogram(settings, dur, resetY = true){
 
 	//rescale the x axes
-	settings.minX = params.SDCDateAggLims[0].getTime();
-	settings.maxX = params.SDCDateAggLims[1].getTime();
+	settings.minX = settings.dateAggLims[0].getTime();
+	settings.maxX = settings.dateAggLims[1].getTime();
 	settings.xAxis.domain([settings.minX, settings.maxX])  
 	d3.select('#xaxis').transition().duration(settings.transitionDuration)
 		.call(d3.axisBottom(settings.xAxis)
