@@ -19,7 +19,7 @@ window.addEventListener('mousedown', function(){
 //aggregate response range sliders
 //fractional aggreement
 if( $('#SDCAggFracRangeSlider').length ){  
-	$("#SDCAggFracRangeSlider").slider({
+	$('#SDCAggFracRangeSlider').slider({
 		range: true,
 		min: 0,
 		max: 1,
@@ -28,62 +28,93 @@ if( $('#SDCAggFracRangeSlider').length ){
 		slide: function(event, ui) {
 			params.SDCFracAggLims[0] = ui.values[0];
 			params.SDCFracAggLims[1] = ui.values[1];
-			$("#SDCAggFracRangeSliderMin").text(params.SDCFracAggLims[0].toFixed(2));
-			$("#SDCAggFracRangeSliderMax").text(params.SDCFracAggLims[1].toFixed(2));
+			$('#SDCAggFracRangeSliderMin').text(params.SDCFracAggLims[0].toFixed(2));
+			$('#SDCAggFracRangeSliderMax').text(params.SDCFracAggLims[1].toFixed(2));
 			limitSDCAggLines();
 		}
 	})
 }
 
 //date range
-function initAggDateSlider(){
-
+function initAggDateUI(dur){
 
 	//generate the histogram
 	var dates = getSDCResponseDates();
-	params.SDChist.container = d3.select('#SDCDateHistContainer');
-	params.SDChist.data = dates.seconds;
-	createHistogram(params.SDChist)
+	params.SDChist.data = dates.milliseconds;
+	if (params.SDChist.container == null){
+		setSDCResponseDateRange();
+		params.SDChist.container = d3.select('#SDCDateHistContainer');
+		createHistogram(params.SDChist);
+	} else {
+		updateHistogram(params.SDChist, dur)
+	}
 
 	//generate the slider
-	if( $('#SDCAggDateRangeSlider').length ){  
-		$("#SDCAggDateRangeSlider").slider({
-			range: true,
-			min: params.SDCDateAggLims[0].getTime()/1000,
-			max: params.SDCDateAggLims[1].getTime()/1000,
-			step: 1,
-			values: [params.SDCDateAggLims[0].getTime()/1000, params.SDCDateAggLims[1].getTime()/1000],
-			slide: function(event, ui) {
-				params.SDCDateAggLims[0] = new Date(ui.values[0]*1000.);
-				params.SDCDateAggLims[1] = new Date(ui.values[1]*1000.);
-				$("#SDCAggDateRangeSliderMin").text((params.SDCDateAggLims[0]).toLocaleString());
-				$("#SDCAggDateRangeSliderMax").text((params.SDCDateAggLims[1]).toLocaleString());
-				updateHistogram(params.SDChist);
-				aggregateSDCResults();
-				updateNresponses();
-			},
-			// stop: function() { //equivalent to mouseup
-			// 	setTimeout(function(){aggregateSDCResults(true), params.transitionDuration}) //for some reason the transition will only fire if I wait with setTimeout -- NO IDEA WHY
-			// },
-		})		
-
-		$("#SDCAggDateRangeSliderMin").text((params.SDCDateAggLims[0]).toLocaleString());
-		$("#SDCAggDateRangeSliderMax").text((params.SDCDateAggLims[1]).toLocaleString());
-	}
+	//initAggDateSlider();
 }
+
+// function initAggDateSlider(){
+
+// 	//generate the slider
+// 	if( $('#SDCAggDateRangeSlider').length ){  
+// 		$('#SDCAggDateRangeSlider').slider({
+// 			range: true,
+// 			min: params.SDCDateAggLims[0].getTime()/1000,
+// 			max: params.SDCDateAggLims[1].getTime()/1000,
+// 			step: 1,
+// 			values: [params.SDCDateAggLims[0].getTime()/1000, params.SDCDateAggLims[1].getTime()/1000],
+// 			slide: function(event, ui) {
+// 				params.SDCDateAggLims[0] = new Date(ui.values[0]*1000.);
+// 				params.SDCDateAggLims[1] = new Date(ui.values[1]*1000.);
+// 				$('#SDCAggDateRangeSliderMin').text((params.SDCDateAggLims[0]).toLocaleString());
+// 				$('#SDCAggDateRangeSliderMax').text((params.SDCDateAggLims[1]).toLocaleString());
+// 				updateHistogram(params.SDChist, params.SDChist.transitionDuration);
+// 				aggregateSDCResults();
+// 				updateNresponses();
+// 			},
+// 			stop: function() { //equivalent to mouseup
+// 				//reset the slider to the new limits
+// 				$('#SDCAggDateRangeSlider').slider('option','min', params.SDCDateAggLims[0].getTime()/1000);
+// 				$('#SDCAggDateRangeSlider').slider('option','max', params.SDCDateAggLims[1].getTime()/1000);
+// 				//this could really use a transition...
+// 				//initAggDateSlider()
+// 				updateHistogram(params.SDChist, params.transitionDuration, true);
+
+// 				//setTimeout(function(){aggregateSDCResults(true), params.transitionDuration}) //for some reason the transition will only fire if I wait with setTimeout -- NO IDEA WHY
+
+// 			},
+// 		})		
+
+// 		$('#SDCAggDateRangeSliderMin').text((params.SDCDateAggLims[0]).toLocaleString());
+// 		$('#SDCAggDateRangeSliderMax').text((params.SDCDateAggLims[1]).toLocaleString());
+// 	}
+// }
 
 function getSDCResponseDates(){
 	//get the response dates
 	var SDCresponses = params.responses.filter(function(d){return d.task == 'SDC'});
 	var dates = [];
-	var datesSec = [];
+	var milliseconds = [];
 	SDCresponses.forEach(function(d){
 		dates.push(d.date);
-		datesSec.push(d.seconds);
+		milliseconds.push(d.date.getTime());
 	})
-	return {'dates':dates, 'seconds':datesSec};
+	return {'dates':dates, 'milliseconds':milliseconds};
 }
-
+function setSDCResponseDateRange(){
+	var dates = getSDCResponseDates();
+	if (dates.dates.length >= 2){
+		//sort the dates (may not be necessary)
+		dates.dates.sort(function(a, b){  
+			return dates.milliseconds.indexOf(a.getTime()) - dates.milliseconds.indexOf(b.getTime());
+		});
+		params.SDCDateAggLims[0] = dates.dates[0];
+		params.SDCDateAggLims[1] = dates.dates[dates.dates.length - 1];
+	} else {
+		params.SDCDateAggLims[0] = new Date();
+		params.SDCDateAggLims[1] = new Date();
+	}
+}
 function createSystemDesignChart(){
 	if (!params.SDCLineHighlighted){
 		console.log('creating system design chart ...', params.answersParagraphnames);
@@ -698,7 +729,7 @@ function useSDCURLdata(){
 			if (k.substring(0,3) == 'SDC'){
 				var startWords = k.substring(3,k.length);
 				var endWords = decodeURI(params.URLInputValues[k]).split(' ');
-				var blanks = getAllIndices(endWords,"");
+				var blanks = getAllIndices(endWords,'');
 				blanks.forEach(function(b){endWords.splice(b, 1)});
 
 				endWords.forEach(function(w,i){
@@ -1025,16 +1056,16 @@ function switchSDCVersions(){
 		replotSDCAggregateLines(params.transitionDuration);
 	}
 
-	if (this.name == "answers"){
+	if (this.name == 'answers'){
 		params.showSDCAnswers = this.checked;
 		toggleSDCAnswers();
 	}
-	if (this.name == "responses"){
+	if (this.name == 'responses'){
 		params.showSDCResponses = this.checked;
 		toggleSDCResponses();
 	}
 
-	if (this.name == "aggregate"){
+	if (this.name == 'aggregate'){
 		params.showSDCAggregate = this.checked;
 		toggleSDCAggregate();
 	}
