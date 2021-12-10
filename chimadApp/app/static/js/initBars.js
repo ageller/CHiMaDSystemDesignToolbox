@@ -23,9 +23,9 @@ function initParaAggDateUI(dur){
 			setParaResponseDateRange();
 			aggregateParaResults(true);	
 		}		
-		createHistogram(params.paraHist);
+		if (params.paraHist.container.node()) createHistogram(params.paraHist);
 	} else {
-		updateHistogram(params.paraHist, dur)
+		if (params.paraHist.container.node()) updateHistogram(params.paraHist, dur)
 	}
 
 }
