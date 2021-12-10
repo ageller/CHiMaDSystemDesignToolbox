@@ -77,24 +77,9 @@ function updateNresponses(){
 function setResponseDates(){
 	params.responses.forEach(function(d){
 		d.date = new Date(d.Timestamp);
-		d.seconds = d.date.getTime()/1000.
 	})
 
-	if (params.haveSDC){
-		//get the date limits (needed for aggregating results)
-		var dates = getSDCResponseDates();
-		if (dates.dates.length >= 2){
-			dates.dates.sort()
-			params.SDCDateAggLims[0] = dates.dates[0];
-			params.SDCDateAggLims[1] = dates.dates[dates.dates.length - 1];
-		} else {
-			params.SDCDateAggLims[0] = new Date();
-			params.SDCDateAggLims[1] = new Date();
-		}
-
-
-	}
-
+	if (params.firstSDCplot) setSDCResponseDateRange();
 }
 
 function aggregateResults(data) {
@@ -385,6 +370,7 @@ function aggregateSDCResults(transitionPlot = false){
 						plotSDCAggregateLines(dur);
 						plotSDCAnswerLines(dur); 
 					}
+					initAggDateUI(dur);
 				}
 				//for testing
 				//params.SDCSubmitted = true;

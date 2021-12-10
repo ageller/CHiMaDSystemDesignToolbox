@@ -103,6 +103,10 @@ def save_responses():
 				iRow = [iRow[1]]
 				version = 2
 
+			# not limitting to version 1 and 2.  keep all responses
+			# version = len(iRow) + 1
+			# iRow = []
+
 		#print('!!! checking ', key, iRow, version)
 
 		#populate a new row DataFrame

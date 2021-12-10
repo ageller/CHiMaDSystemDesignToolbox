@@ -103,7 +103,12 @@ function resize(){
 	// var plotBbox = d3.select('#boxGridPlotContainer').node().getBBox();
 	// var boxGridBbox = d3.select('#boxGrid').node().getBoundingClientRect();
 	// var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
+	if (params.haveSDC){
+		d3.select('#systemDesignChart').style('top',maxH + 20 +'px');
+		if ((params.answersParagraphnames.para.includes(params.cleanString(params.paragraphname)) && params.paraSubmitted2 && params.haveSDC) || params.haveParaEditor || (params.haveSDCEditor && !params.editingSDC)) {
+			createSystemDesignChart();
+			createHistogram(params.SDChist);	
+		}
+	}
 
-	d3.select('#systemDesignChart').style('top',maxH + 20 +'px');
-	if ((params.answersParagraphnames.para.includes(params.cleanString(params.paragraphname)) && params.paraSubmitted2 && params.haveSDC) || params.haveParaEditor || (params.haveSDCEditor && !params.editingSDC)) createSystemDesignChart();
 }
