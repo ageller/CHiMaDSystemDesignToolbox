@@ -3,8 +3,10 @@ function resize(){
 	
 	var topH = d3.select('#branding').node().getBoundingClientRect().height + 20;
 
-	if (params.haveBars && params.createdBars) resizeBarPlot();
-
+	if (params.haveBars && params.createdBars) {
+		resizeBarPlot();
+		if (params.paraHist.container.node()) createHistogram(params.paraHist);
+	}
 	var elem;
 
 	//change font sizes
@@ -107,7 +109,7 @@ function resize(){
 		d3.select('#systemDesignChart').style('top',maxH + 20 +'px');
 		if ((params.answersParagraphnames.para.includes(params.cleanString(params.paragraphname)) && params.paraSubmitted2 && params.haveSDC) || params.haveParaEditor || (params.haveSDCEditor && !params.editingSDC)) {
 			createSystemDesignChart();
-			createHistogram(params.SDCHist);	
+			if (params.SDCHist.container.node()) createHistogram(params.SDCHist);	
 		}
 	}
 

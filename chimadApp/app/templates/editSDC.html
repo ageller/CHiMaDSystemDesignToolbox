@@ -93,6 +93,8 @@
 					<div>Select which method to build the initial systems design chart.</div>
 					<input type="radio" id="SDCAnswersBuild" name="compile" value="answers" class="radio" checked>
 					<label for="SDCAnswersBuild" id="SDCAnswersBuildLabel">Build from answers.</label><br>
+					<input type="radio" id="SDCConsensusBuild0" name="compile" value="consensus0" class="radio">
+					<label for="SDCConsensusBuild0" id="SDCConsensusBuild1Labe0">Build from overall consensus.</label><br>
 					<input type="radio" id="SDCConsensusBuild1" name="compile" value="consensus1" class="radio">
 					<label for="SDCConsensusBuild1" id="SDCConsensusBuild1Label">Build from version 1 consensus.</label><br>
 					<input type="radio" id="SDCConsensusBuild2" name="compile" value="consensus2" class="radio">
@@ -110,10 +112,12 @@
 					<input type="checkbox" id="SDCAggToggle" class='aggToggle' name="aggregate" value="1" class="radio" checked>
 					<label for="SDCAggToggle" id="SDCAggToggleLabel" class='aggToggle'>Show aggregate responses (colored lines)</label><br>
 	
-<!-- 					<input type="radio" id="SDCVersion1" name="version" value="1" class="radio" checked>
-					<label for="SDCVersion1" id="SDCVersion1Label">Aggregated responses 1</label><br>
+					<input type="radio" id="SDCVersion0" name="version" value="0" class="radio" checked>
+					<label for="SDCVersion0">Aggregate all responses</label><br>
+					<input type="radio" id="SDCVersion1" name="version" value="1" class="radio">
+					<label for="SDCVersion1">Aggregate version 1 responses</label><br>
 					<input type="radio" id="SDCVersion2" name="version" value="2" class="radio">
-					<label for="SDCVersion2" id="SDCVersion2Label">Aggregated responses 2</label><br> -->
+					<label for="SDCVersion2">Aggregate version 2 responses</label><br>
 
 
 					<div style='margin-left:20px; margin-top:10px' id='SDCAggFracUI'>

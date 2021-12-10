@@ -230,7 +230,7 @@ function defineParams(){
 		this.fillColor = getComputedStyle(document.documentElement).getPropertyValue('--chimad-color'); 
 		this.hoverColor = 'gray'; 
 
-		this.dateAggLims = [0,1]; //will be reset based on the available data
+		this.dateAggLims = [new Date(), new Date()]; //will be reset based on the available data
 
 		//store the binned data
 		this.hist = null;

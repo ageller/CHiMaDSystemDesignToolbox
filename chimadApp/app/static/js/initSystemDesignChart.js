@@ -52,9 +52,9 @@ function initSDCAggDateUI(dur){
 			setSDCResponseDateRange();
 			aggregateSDCResults(true);	
 		}		
-		createHistogram(params.SDCHist);
+		if (params.SDCHist.container.node()) createHistogram(params.SDCHist);
 	} else {
-		updateHistogram(params.SDCHist, dur)
+		if (params.SDCHist.container.node()) updateHistogram(params.SDCHist, dur)
 	}
 
 	//generate the slider
