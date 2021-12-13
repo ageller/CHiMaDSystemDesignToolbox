@@ -53,6 +53,8 @@ function initSDCAggDateUI(dur){
 			setSDCResponseDateRange();
 			aggregateSDCResults(true);	
 		}		
+		params.SDCHist.resetDateCallback = setSDCResponseDateRange;		
+
 		if (params.SDCHist.container.node()) createHistogram(params.SDCHist);
 	} else {
 		if (params.SDCHist.container){

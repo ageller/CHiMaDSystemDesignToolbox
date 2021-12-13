@@ -30,6 +30,8 @@ function createHistogram(settings){
 		parent.removeChild(parent.firstChild);
 	}
 
+	settings.zoomed = false;
+
 	//redefine the width
 	settings.histWidth = settings.widthFrac*settings.parent.node().getBoundingClientRect().width;
 
@@ -129,6 +131,7 @@ function createHistogram(settings){
 
 	function brushEnded(event){
 		if (event.selection){
+			settings.zoomed = true;
 			const [x0, x1] = event.selection.map(settings.xAxis.invert);
 			settings.dateAggLims[0] = new Date(x0)
 			settings.dateAggLims[1] = new Date(x1)
@@ -141,6 +144,7 @@ function createHistogram(settings){
 	}
 
 	function dblclick(){
+		settings.zoomed = false;
 		settings.resetCallback();
 	}
 
@@ -169,6 +173,9 @@ function insertLinebreaks(el, text) {
 function updateHistogram(settings, dur, resetY = true){
 	
 	if (settings.xAxis){
+
+		if (!settings.zoomed) params.SDCHist.resetDateCallback();
+
 		//rescale the x axes
 		settings.minX = settings.dateAggLims[0].getTime();
 		settings.maxX = settings.dateAggLims[1].getTime();
