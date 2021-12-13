@@ -50,14 +50,9 @@ function beginSDCEdit(){
 	d3.select('#SDCDoneButton').style('display','block');
 
 	//I think once you click edit, all the lines should be removed, and then also you won't be able to change the version anymore
-	d3.select('#SDCVersion1').style('visibility','hidden');
-	d3.select('#SDCVersion1label').style('visibility','hidden');
-	d3.select('#SDCVersion2').style('visibility','hidden');
-	d3.select('#SDCVersion2Label').style('visibility','hidden');
+	d3.select('#SDCAggToggleDiv').style('visibility','hidden')
 	d3.select('#SDCAnswerToggle').style('visibility','hidden');
 	d3.select('#SDCAnswerToggleLabel').style('visibility','hidden');
-	d3.select('#SDCAggToggle').style('visibility','hidden');
-	d3.select('#SDCAggToggleLabel').style('visibility','hidden');
 	d3.select('#SDCVersionOptions').style('visibility','hidden');
 	d3.select('#SDCCompileOptions').style('visibility','hidden');
 	d3.selectAll('line').remove();
@@ -551,21 +546,18 @@ function useTextArea(){
 	}
 }
 
-function switchSDCCompiler(){
+function switchSDCCompiler(val = null){
 
-	if (this.value == 'answers'){
+	if (this.value == 'answers' || val == 'answers'){
+		params.SDCcompiler = 'answers';
+
 		console.log('building from answers');
 
 		//show these (in case they are hidden)
 		d3.select('#SDCVersionOptions').style('visibility','visible');
-		d3.select('#SDCVersion1').style('visibility','visible');
-		d3.select('#SDCVersion1label').style('visibility','visible');
-		d3.select('#SDCVersion2').style('visibility','visible');
-		d3.select('#SDCVersion2Label').style('visibility','visible');
+		d3.select('#SDCAggToggleDiv').style('visibility','visible')
 		d3.select('#SDCAnswerToggle').style('visibility','visible');
 		d3.select('#SDCAnswerToggleLabel').style('visibility','visible');
-		d3.select('#SDCAggToggle').style('visibility','visible');
-		d3.select('#SDCAggToggleLabel').style('visibility','visible');
 
 		//before resetting the answers check if there are any boxes that have null values in the original answers (these would have been added later)
 		//if so, update to the current value in answers
@@ -588,28 +580,32 @@ function switchSDCCompiler(){
 		}, 500)
 
 	}
-	if (this.value == 'consensus0' || this.value == 'consensus1' || this.value == 'consensus2'){
-		var version = parseInt(this.value.substr(9));
+	if (this.value == 'consensus0' || this.value == 'consensus1' || this.value == 'consensus2' || (val == 'consensus0' || val == 'consensus1' || val == 'consensus2')){
+		var version;
+		if (this.value) {
+			version = parseInt(this.value.substr(9));
+		} else {
+			version = parseInt(val.substr(9));
+		}
+
 		console.log('building from consensus version ', version);
+		params.SDCcompiler = 'consensus'+version;
 
 		//similar to when you start editing, here you won't be able to show answers, versions, or responses
 		//d3.select('#SDCVersionOptions').style('visibility','hidden'); //should I hide the entire thing, or do I want to allow user responses to be
-		d3.select('#SDCVersion1').style('visibility','hidden');
-		d3.select('#SDCVersion1label').style('visibility','hidden');
-		d3.select('#SDCVersion2').style('visibility','hidden');
-		d3.select('#SDCVersion2Label').style('visibility','hidden');
+		d3.select('#SDCAggToggleDiv').style('visibility','hidden')
 		d3.select('#SDCAnswerToggle').style('visibility','hidden');
 		d3.select('#SDCAnswerToggleLabel').style('visibility','hidden');
-		d3.select('#SDCAggToggle').style('visibility','hidden');
-		d3.select('#SDCAggToggleLabel').style('visibility','hidden');
 		d3.selectAll('line').remove();
 		d3.selectAll('circle').remove();
 		d3.selectAll('.SDCAggregateFracBox').remove();
 
 		//build the new answers (could just do this once and save the results in case the user toggles a lot)
-		if (!params.answersConsensus) params.answersConsensus = {};
-		if (!params.answersConsensus.hasOwnProperty(version)){
+		// if (!params.answersConsensus) params.answersConsensus = {};
+		// if (!params.answersConsensus.hasOwnProperty(version)){
 
+			//do this every time because I now have a date slider
+			params.answersConsensus = {};
 			//create the consensus answers (start from the true answers)
 			params.answersConsensus[version] = [];
 			params.answers.forEach(function(d){params.answersConsensus[version].push(cloneObject(d));});
@@ -635,13 +631,13 @@ function switchSDCCompiler(){
 				}
 			})
 
-		}
+		//}
 
 		params.answers = [];
 		params.answersConsensus[version].forEach(function(d){params.answers.push(cloneObject(d));});
 
 		//reset the SDC
-		formatSDC(500);
+		formatSDC(500, false);
 
 
 	}
@@ -845,18 +841,16 @@ function saveAsPPTX(){
 }
 
 function resetEditSDCAfterParagraphnameInput(){
+	loadAndInit();
+
 	params.answersConsensus = {};
 	params.answers = [];
 	params.answersOrg.forEach(function(d){params.answers.push(cloneObject(d));});
 	document.getElementById('SDCAnswersBuild').checked = true;
 	document.getElementById('SDCCompileOptions').value = 'answers';
 	d3.select('#SDCVersionOptions').style('visibility','visible');
-	d3.select('#SDCVersion1').style('visibility','visible');
-	d3.select('#SDCVersion1label').style('visibility','visible');
-	d3.select('#SDCVersion2').style('visibility','visible');
-	d3.select('#SDCVersion2Label').style('visibility','visible');
+	d3.select('#SDCAggToggleDiv').style('visibility','visible')
 	d3.select('#SDCAnswerToggle').style('visibility','visible');
 	d3.select('#SDCAnswerToggleLabel').style('visibility','visible');
-	d3.select('#SDCAggToggle').style('visibility','visible');
-	d3.select('#SDCAggToggleLabel').style('visibility','visible');
+
 }

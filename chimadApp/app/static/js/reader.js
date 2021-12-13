@@ -321,7 +321,10 @@ function aggregateParaResults(){
 					params.firstParaPlot = false;
 					defineBars();
 					initParaAggDateUI(params.transitionDuration);
+				} else {
+					if (params.haveSDCEditor) initParaAggDateUI(params.transitionDuration);
 				}
+
 			}
 
 		})

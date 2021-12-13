@@ -5,7 +5,6 @@ function resize(){
 
 	if (params.haveBars && params.createdBars) {
 		resizeBarPlot();
-		if (params.paraHist.container.node()) createHistogram(params.paraHist);
 	}
 	var elem;
 
@@ -41,7 +40,7 @@ function resize(){
 	var maxH = paragraphFormBbox.height + topH;
 
 	//for now I'm disabling this entire section unless we are showing the bar chart
-	if (params.haveBars && params.createdBars) {
+	if (params.haveBars && params.createdBars && d3.select('#boxGridSVGContainer').node()) {
 
 		var boxGridWidth = 	Math.max(params.boxGridSVGWidth + params.boxGridSVGMargin.left + params.boxGridSVGMargin.right, params.minPlotWidth);
 		d3.select('#boxGrid').style('width', boxGridWidth + 'px');
@@ -99,6 +98,12 @@ function resize(){
 				.style('top',maxH+'px');
 		}
 	}
+
+	//for editSDC, want to have histogram but nothing else
+	if (params.haveBars && params.createdBars && !d3.select('#boxGridSVGContainer').node()){
+		d3.select('#boxGrid').style('width',(window.innerWidth-20) + 'px');
+	}
+	if (params.haveBars && params.createdBars && params.paraHist.container.node()) createHistogram(params.paraHist);
 
 
 	//for now I will just move the system design chart to the bottom (but might want to make it possible to do side-by-side?)

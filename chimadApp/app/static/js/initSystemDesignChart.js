@@ -41,7 +41,7 @@ function initSDCAggDateUI(dur){
 	//generate the histogram
 	var dates = getSDCResponseDates();
 	params.SDCHist.data = dates.milliseconds;
-	if (params.SDCHist.container == null){
+	if (params.SDCHist.container == null && d3.select('#SDCDateHistContainer').node()){
 		setSDCResponseDateRange();
 		params.SDCHist.parent = d3.select('#systemDesignChart');
 		params.SDCHist.container = d3.select('#SDCDateHistContainer');
@@ -267,7 +267,7 @@ function createSDCbox(x,y,w,h,text){
 	return box;
 }
 
-function formatSDC(duration=0){
+function formatSDC(duration=0, useURLdata = true){
 	if (!params.SDCLineHighlighted){
 		resizeSDCBoxes();
 
@@ -275,6 +275,8 @@ function formatSDC(duration=0){
 		params.options.forEach(function(d){
 			if (d != 'Select Category') SDCcolumnYLocations[params.cleanString(d)] = params.SDCColumnYTops[params.cleanString(d)];
 		})
+
+		//console.log('first', params.SDCColumnYTops)
 
 		//build from the bottom up with the selectionWords in reverse
 		var reversedSelectionWords = params.selectionWords.slice().reverse();
@@ -307,6 +309,8 @@ function formatSDC(duration=0){
 				}
 			}
 
+			//console.log('second', params.SDCColumnYTops)
+
 			//now shift each column vertically so they are centered
 			var maxH = 0;
 			params.options.forEach(function(d){
@@ -318,6 +322,8 @@ function formatSDC(duration=0){
 					}
 				}
 			})
+
+			//console.log('third', params.SDCColumnYTops)
 
 			//if any of the ytops end up negative, I need to shift the entire block downards
 			var minY = 0.;
@@ -340,6 +346,9 @@ function formatSDC(duration=0){
 				})
 			}
 
+			//console.log('fourth', params.SDCColumnYTops)
+
+
 			//now shift as needed
 			params.options.forEach(function(d){
 				var dd = params.cleanString(d);
@@ -348,7 +357,7 @@ function formatSDC(duration=0){
 					if (h < maxH){
 						var h = SDCcolumnYLocations[dd] - params.SDCColumnYTops[dd]; 
 						var offset = (maxH - h)/2.;
-						params.SDCColumnYTops[dd] =  offset + params.SDCBoxMargin;
+						//params.SDCColumnYTops[dd] =  offset + params.SDCBoxMargin;
 						d3.selectAll('.SDCrectContainer.'+dd).each(function(){
 							var y = parseFloat(d3.select(this).attr('y')) + offset ;
 							var x = d3.select(this).attr('x')
@@ -373,7 +382,7 @@ function formatSDC(duration=0){
 				d3.select('#SDCPlotSVG').style('height',params.SDCSVGHeight + params.SDCSVGMargin.top + params.SDCSVGMargin.bottom + params.SDCBoxMargin)
 			}
 
-			useSDCURLdata();
+			if (useURLdata) useSDCURLdata();
 		}
 	}
 
