@@ -64,12 +64,13 @@ function getTableNames(callback){
 
 function updateNresponses(){
 	//update the number of responses
-	var NPara = params.responses.filter(function(d){return (d.task == 'para' && d.version == params.paraResponseVersion);}).length;
+	var using = params.responses.filter(function(d){return (d.task == 'para')});
+	if (params.parResponseVersion > 0) using = using.filter(function(d){return (d.version == params.paraResponseVersion);})
+	var NPara = using.length;
 	d3.select('#boxGridNResponses').text('Number of Responses : '+NPara)
 
-	var using = params.responses.filter(function(d){return (d.task == 'SDC' && d.date.getTime() >= params.SDCHist.dateAggLims[0].getTime() && d.date.getTime() <= params.SDCHist.dateAggLims[1].getTime());});
+	using = params.responses.filter(function(d){return (d.task == 'SDC' && d.date.getTime() >= params.SDCHist.dateAggLims[0].getTime() && d.date.getTime() <= params.SDCHist.dateAggLims[1].getTime());});
 	if (params.SDCResponseVersion > 0) using = using.filter(function(d){return (d.version == params.SDCResponseVersion);});
-
 	var NSDC = using.length;
 	d3.select('#SDCNResponses').text('Number of Responses : '+NSDC)
 }
