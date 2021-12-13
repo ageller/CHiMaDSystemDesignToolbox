@@ -55,7 +55,9 @@ function initSDCAggDateUI(dur){
 		}		
 		if (params.SDCHist.container.node()) createHistogram(params.SDCHist);
 	} else {
-		if (params.SDCHist.container.node()) updateHistogram(params.SDCHist, dur)
+		if (params.SDCHist.container){
+			if (params.SDCHist.container.node()) updateHistogram(params.SDCHist, dur);
+		}
 	}
 
 	//generate the slider
