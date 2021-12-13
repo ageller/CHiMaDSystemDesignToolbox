@@ -25,7 +25,8 @@ function initParaAggDateUI(dur){
 			setParaResponseDateRange();
 			aggregateParaResults(true);	
 			if (params.haveSDCEditor) switchSDCCompiler(params.SDCcompiler);
-		}		
+		}
+		params.paraHist.resetDateCallback = setParaResponseDateRange;		
 		if (params.paraHist.container.node()) createHistogram(params.paraHist);
 	} else {
 		if (params.paraHist.container.node()) updateHistogram(params.paraHist, dur)

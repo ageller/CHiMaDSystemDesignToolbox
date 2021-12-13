@@ -254,7 +254,11 @@ function defineParams(){
 
 		this.brushCallback = new function(){};
 		this.resetCallback = new function(){};
+		this.resetDateCallback = new function(){};
 
+		
 		this.idAddOn = '';
+
+		this.zoomed = false;
 	}
 }
