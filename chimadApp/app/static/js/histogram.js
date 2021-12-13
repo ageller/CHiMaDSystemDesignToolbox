@@ -59,13 +59,14 @@ function createHistogram(settings){
 		.range([0, settings.histWidth]);
 	settings.svg.append('g')
 		.attr('transform', 'translate(0,' + settings.histHeight + ')')
-		.attr('id','xaxis')
+		.attr('id','xaxis' + settings.idAddOn)
 		.call(d3.axisBottom(settings.xAxis)
 				.ticks(settings.Nxticks)
 				.tickFormat(function(d){
-					//return d3.timeFormat("%m/%d/%Y\n%I:%M:%S %p")(d);
-					return (new Date(d)).toLocaleString()
-
+					var dt = (new Date(d)).toLocaleString();
+					insertLinebreaks(d3.select(this), dt);
+					//return something so it's not blank
+ 					return dt.split(',')[0];
 				})
 		);
 
@@ -76,9 +77,9 @@ function createHistogram(settings){
 	// Y axis: scale and draw:
 	settings.yAxis = d3.scaleLinear()
 		.range([settings.histHeight, 0]);
-	settings.yAxis.domain([0, d3.max(settings.histAll, function(d) { return d.length; })]).nice();   
+	settings.yAxis.domain([0, Math.max(d3.max(settings.histAll, function(d) { return d.length; }), 1)]).nice();  
 	settings.svg.append('g')
-		.attr('id','yaxis')
+		.attr('id','yaxis' + settings.idAddOn)
 		.call(d3.axisLeft(settings.yAxis).ticks(settings.Nyticks));
 
 	// text label for the x axis
@@ -101,10 +102,10 @@ function createHistogram(settings){
 		.text(settings.yAxisLabel);
 
 	// append the bar rectangles to the svg element
-	settings.svg.selectAll('.bar')
+	settings.svg.selectAll('.bar' + settings.idAddOn)
 		.data(settings.histAll).enter()
 		.append('rect')
-			.attr('class','bar')
+			.attr('class','bar' + settings.idAddOn)
 			.attr('x', 1)
 			.attr('transform', function(d) { return 'translate(' + settings.xAxis(d.x0) + ',' + settings.yAxis(d.length) + ')'; })
 			.attr('width', function(d) { return Math.max(settings.xAxis(d.x1) - settings.xAxis(d.x0) - 2 ,0) + 'px' ; }) //-val to give some separation between bins
@@ -142,21 +143,24 @@ function createHistogram(settings){
 	}
 
 
-	settings.svg.selectAll('#xaxis g text').each(insertLinebreaks);
 }
 
 //https://stackoverflow.com/questions/13241475/how-do-i-include-newlines-in-labels-in-d3-charts
-function insertLinebreaks() {
-	var el = d3.select(this);
-	var text = el.text();
+function insertLinebreaks(el, text) {
+	//var text = el.text();
 	//var words = text.split('\n');
-	var words = text.split(',');
-	el.text('');
-
-	for (var i = 0; i < words.length; i++) {
-		var tspan = el.append('tspan').text(words[i]);
-		if (i > 0)
-			tspan.attr('x', 0).attr('dy', '15');
+	try {
+		setTimeout(function(){ //timeout because this needs to happen after the axis element is created, but causes some blinking...
+			var words = text.split(',');
+			el.text('');
+			for (var i = 0; i < words.length; i++) {
+				var tspan = el.append('tspan').text(words[i]);
+				if (i > 0) tspan.attr('x', 0).attr('dy', '15');
+			}
+		},100)
+	}
+	catch(err){
+		console.log('cannot create axis label', el, text)
 	}
 };
 
@@ -165,33 +169,37 @@ function updateHistogram(settings, dur, resetY = true){
 	//rescale the x axes
 	settings.minX = settings.dateAggLims[0].getTime();
 	settings.maxX = settings.dateAggLims[1].getTime();
+	//console.log(new Date(settings.minX), new Date(settings.maxX))
 	settings.xAxis.domain([settings.minX, settings.maxX])  
-	d3.select('#xaxis').transition().duration(settings.transitionDuration)
+	d3.select('#xaxis' + settings.idAddOn).transition().duration(settings.transitionDuration)
 		.call(d3.axisBottom(settings.xAxis)
 				.ticks(settings.Nxticks)
 				.tickFormat(function(d){
-					//return d3.timeFormat("%m/%d/%Y\n%I:%M:%S %p")(d);
-					return (new Date(d)).toLocaleString()
+					var dt = (new Date(d)).toLocaleString();
+					insertLinebreaks(d3.select(this), dt);
+					//return something so it's not blank
+ 					return dt.split(',')[0];
 				})
 		)
-		.on('end',function(){
-			settings.svg.selectAll('#xaxis g text').each(insertLinebreaks);
-		})
+
+
 
 	//update the data
 	settings.histAll = binData(settings);
-	settings.svg.selectAll('.bar').data(settings.histAll);
+	settings.svg.selectAll('.bar' + settings.idAddOn).data(settings.histAll);
 
 	//rescale the y axis?
 	if (resetY){
-		settings.yAxis.domain([0, d3.max(settings.histAll, function(d) { return d.length; })]).nice();   
-		d3.select('#yaxis').transition().duration(settings.transitionDuration)
+		settings.yAxis.domain([0, Math.max(d3.max(settings.histAll, function(d) { return d.length; }), 1)]).nice();  
+		var domain = settings.yAxis.domain()
+		console.log('domain', domain) 
+		d3.select('#yaxis' + settings.idAddOn).transition().duration(settings.transitionDuration)
 			.call(d3.axisLeft(settings.yAxis)
 				.ticks(settings.Nyticks)
 			);
 	}
 
-	settings.svg.selectAll('.bar').transition().duration(dur)
+	settings.svg.selectAll('.bar' + settings.idAddOn).transition().duration(dur)
 		.attr('transform', function(d, i) { return 'translate(' + settings.xAxis(d.x0) + ',' + settings.yAxis(d.length) + ')'; })
 		.attr('height', function(d,i) { return settings.histHeight - settings.yAxis(d.length) + 'px'; })
 

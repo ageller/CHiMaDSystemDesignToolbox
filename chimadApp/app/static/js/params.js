@@ -240,7 +240,7 @@ function defineParams(){
 		this.yAxis = null;
 		this.xAxisLabel = 'Date';
 		this.yAxisLabel = 'Number';
-		this.Nxticks = 2;
+		this.Nxticks = 3;
 		this.Nyticks = 2;
 
 		//dimensions of the containers
@@ -253,5 +253,7 @@ function defineParams(){
 
 		this.brushCallback = new function(){};
 		this.resetCallback = new function(){};
+
+		this.idAddOn = '';
 	}
 }
