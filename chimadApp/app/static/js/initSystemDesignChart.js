@@ -45,6 +45,7 @@ function initSDCAggDateUI(dur){
 		setSDCResponseDateRange();
 		params.SDCHist.parent = d3.select('#systemDesignChart');
 		params.SDCHist.container = d3.select('#SDCDateHistContainer');
+		params.SDCHist.idAddOn = 'SDC';
 		params.SDCHist.brushCallback = function(){
 			aggregateSDCResults(true);
 		}
@@ -114,8 +115,10 @@ function setSDCResponseDateRange(){
 	var dates = getSDCResponseDates();
 	if (dates.dates.length >= 2){
 		//sort the dates (may not be necessary)
-		dates.dates.sort(function(a, b){  
-			return dates.milliseconds.indexOf(a.getTime()) - dates.milliseconds.indexOf(b.getTime());
+		dates.dates.sort(function(a, b){ 
+			var ia = dates.dates.indexOf(a);
+			var ib = dates.dates.indexOf(b); 
+			return dates.milliseconds[ia] - dates.milliseconds[ib];
 		});
 		params.SDCHist.dateAggLims[0] = dates.dates[0];
 		params.SDCHist.dateAggLims[1] = dates.dates[dates.dates.length - 1];

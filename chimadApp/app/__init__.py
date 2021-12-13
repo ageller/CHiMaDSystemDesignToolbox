@@ -4,6 +4,7 @@ import os
 import re
 import sys
 from datetime import datetime
+import pytz
 
 import sqlite3
 
@@ -96,10 +97,11 @@ def save_responses():
 		# - if we have 2 then we use the second version
 		version = 1
 		if (key == 'username'):
+			print('!!!!!!checking', iRow)
 			if (len(iRow) == 1):
 				iRow = []
 				version = 2
-			if (len(iRow) == 2):
+			if (len(iRow) >= 2):
 				iRow = [iRow[1]]
 				version = 2
 
@@ -115,7 +117,8 @@ def save_responses():
 			if (h in data):
 				d[h] = data[h]
 			if (h == 'Timestamp'):
-				d[h] = datetime.now().strftime('%m/%d/%Y %H:%M:%S')
+				CT = pytz.timezone('America/Chicago')
+				d[h] = datetime.now(CT).strftime('%m/%d/%Y %H:%M:%S')
 			if (h == 'version'):
 				d[h] = version
 			if (h not in data and h != 'Timestamp' and h != 'version'):
@@ -165,7 +168,8 @@ def save_metrics():
 	print('!!! dbname, tablename', dbname, tablename)
 
 	#add the timestamp
-	data['timestamp'] = datetime.now().strftime('%m/%d/%Y %H:%M:%S')
+	CT = pytz.timezone('America/Chicago')
+	data['timestamp'] = datetime.now(CT).strftime('%m/%d/%Y %H:%M:%S')
 
 	db = os.path.join(current_location, 'static','data','sqlite3', dbname)
 	conn = sqlite3.connect(db)
