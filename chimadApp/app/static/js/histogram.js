@@ -50,80 +50,82 @@ function createHistogram(settings){
 		settings.maxX = Math.max(settings.maxX, d);
 	})
 	var rng = settings.maxX - settings.minX;
-	settings.minX -= 0.01*rng;
-	settings.maxX += 0.01*rng;
+	if (rng > 0){
+		settings.minX -= 0.01*rng;
+		settings.maxX += 0.01*rng;
 
-	// X axis: scale and draw:
-	settings.xAxis = d3.scaleLinear()
-		.domain([settings.minX, settings.maxX])     
-		.range([0, settings.histWidth]);
-	settings.svg.append('g')
-		.attr('transform', 'translate(0,' + settings.histHeight + ')')
-		.attr('id','xaxis' + settings.idAddOn)
-		.call(d3.axisBottom(settings.xAxis)
-				.ticks(settings.Nxticks)
-				.tickFormat(function(d){
-					var dt = (new Date(d)).toLocaleString();
-					insertLinebreaks(d3.select(this), dt);
-					//return something so it's not blank
- 					return dt.split(',')[0];
-				})
-		);
+		// X axis: scale and draw:
+		settings.xAxis = d3.scaleLinear()
+			.domain([settings.minX, settings.maxX])     
+			.range([0, settings.histWidth]);
+		settings.svg.append('g')
+			.attr('transform', 'translate(0,' + settings.histHeight + ')')
+			.attr('id','xaxis' + settings.idAddOn)
+			.call(d3.axisBottom(settings.xAxis)
+					.ticks(settings.Nxticks)
+					.tickFormat(function(d){
+						var dt = (new Date(d)).toLocaleString();
+						insertLinebreaks(d3.select(this), dt);
+						//return something so it's not blank
+	 					return dt.split(',')[0];
+					})
+			);
 
 
-	//bin the data for the three different categories
-	settings.histAll = binData(settings);
+		//bin the data for the three different categories
+		settings.histAll = binData(settings);
 
-	// Y axis: scale and draw:
-	settings.yAxis = d3.scaleLinear()
-		.range([settings.histHeight, 0]);
-	settings.yAxis.domain([0, Math.max(d3.max(settings.histAll, function(d) { return d.length; }), 1)]).nice();  
-	settings.svg.append('g')
-		.attr('id','yaxis' + settings.idAddOn)
-		.call(d3.axisLeft(settings.yAxis).ticks(settings.Nyticks));
+		// Y axis: scale and draw:
+		settings.yAxis = d3.scaleLinear()
+			.range([settings.histHeight, 0]);
+		settings.yAxis.domain([0, Math.max(d3.max(settings.histAll, function(d) { return d.length; }), 1)]).nice();  
+		settings.svg.append('g')
+			.attr('id','yaxis' + settings.idAddOn)
+			.call(d3.axisLeft(settings.yAxis).ticks(settings.Nyticks));
 
-	// text label for the x axis
-	settings.svg.append('text')             
-		//.attr('transform', 'translate(' + (settings.histWidth/2) + ',' + (settings.histHeight + settings.histMargin.top + 24) + ')')
-		.attr('x', settings.histWidth/2)
-		.attr('y',settings.histHeight + settings.histMargin.top + 40)
-		.style('text-anchor', 'middle')
-		.style('font','12px sans-serif')
-		.text(settings.xAxisLabel)
+		// text label for the x axis
+		settings.svg.append('text')             
+			//.attr('transform', 'translate(' + (settings.histWidth/2) + ',' + (settings.histHeight + settings.histMargin.top + 24) + ')')
+			.attr('x', settings.histWidth/2)
+			.attr('y',settings.histHeight + settings.histMargin.top + 40)
+			.style('text-anchor', 'middle')
+			.style('font','12px sans-serif')
+			.text(settings.xAxisLabel)
 
-	// text label for the y axis
-	settings.svg.append('text')
-		.attr('text-anchor', 'end')
-		.attr('x', -settings.histHeight/2)
-		.attr('y', -24)
-		.attr('transform', 'rotate(-90)')
-		.style('text-anchor', 'middle')
-		.style('font','12px sans-serif')
-		.text(settings.yAxisLabel);
+		// text label for the y axis
+		settings.svg.append('text')
+			.attr('text-anchor', 'end')
+			.attr('x', -settings.histHeight/2)
+			.attr('y', -24)
+			.attr('transform', 'rotate(-90)')
+			.style('text-anchor', 'middle')
+			.style('font','12px sans-serif')
+			.text(settings.yAxisLabel);
 
-	// append the bar rectangles to the svg element
-	settings.svg.selectAll('.bar' + settings.idAddOn)
-		.data(settings.histAll).enter()
-		.append('rect')
-			.attr('class','bar' + settings.idAddOn)
-			.attr('x', 1)
-			.attr('transform', function(d) { return 'translate(' + settings.xAxis(d.x0) + ',' + settings.yAxis(d.length) + ')'; })
-			.attr('width', function(d) { return Math.max(settings.xAxis(d.x1) - settings.xAxis(d.x0) - 2 ,0) + 'px' ; }) //-val to give some separation between bins
-			.attr('height', function(d) { return settings.histHeight - settings.yAxis(d.length) + 'px'; })
-			.attr('stroke-width',1)
-			.attr('stroke', 'black')
-			.style('fill', settings.fillColor)
-			.style('cursor','pointer')
+		// append the bar rectangles to the svg element
+		settings.svg.selectAll('.bar' + settings.idAddOn)
+			.data(settings.histAll).enter()
+			.append('rect')
+				.attr('class','bar' + settings.idAddOn)
+				.attr('x', 1)
+				.attr('transform', function(d) { return 'translate(' + settings.xAxis(d.x0) + ',' + settings.yAxis(d.length) + ')'; })
+				.attr('width', function(d) { return Math.max(settings.xAxis(d.x1) - settings.xAxis(d.x0) - 2 ,0) + 'px' ; }) //-val to give some separation between bins
+				.attr('height', function(d) { return settings.histHeight - settings.yAxis(d.length) + 'px'; })
+				.attr('stroke-width',1)
+				.attr('stroke', 'black')
+				.style('fill', settings.fillColor)
+				.style('cursor','pointer')
 
-	//brush
-	var brush = d3.brushX()
-		.extent( [ [0,0], [settings.histWidth,settings.histHeight] ] )
-		.on('end', brushEnded);
+		//brush
+		var brush = d3.brushX()
+			.extent( [ [0,0], [settings.histWidth,settings.histHeight] ] )
+			.on('end', brushEnded);
 
-	settings.svg.append('g')
-		.attr('class', 'brush')
-		.call(brush)
-		.on('dblclick', dblclick);
+		settings.svg.append('g')
+			.attr('class', 'brush')
+			.call(brush)
+			.on('dblclick', dblclick);
+	}
 
 	function brushEnded(event){
 		if (event.selection){
@@ -165,44 +167,45 @@ function insertLinebreaks(el, text) {
 };
 
 function updateHistogram(settings, dur, resetY = true){
+	
+	if (settings.xAxis){
+		//rescale the x axes
+		settings.minX = settings.dateAggLims[0].getTime();
+		settings.maxX = settings.dateAggLims[1].getTime();
+		//console.log(new Date(settings.minX), new Date(settings.maxX))
+		settings.xAxis.domain([settings.minX, settings.maxX])  
+		d3.select('#xaxis' + settings.idAddOn).transition().duration(settings.transitionDuration)
+			.call(d3.axisBottom(settings.xAxis)
+					.ticks(settings.Nxticks)
+					.tickFormat(function(d){
+						var dt = (new Date(d)).toLocaleString();
+						insertLinebreaks(d3.select(this), dt);
+						//return something so it's not blank
+	 					return dt.split(',')[0];
+					})
+			)
 
-	//rescale the x axes
-	settings.minX = settings.dateAggLims[0].getTime();
-	settings.maxX = settings.dateAggLims[1].getTime();
-	//console.log(new Date(settings.minX), new Date(settings.maxX))
-	settings.xAxis.domain([settings.minX, settings.maxX])  
-	d3.select('#xaxis' + settings.idAddOn).transition().duration(settings.transitionDuration)
-		.call(d3.axisBottom(settings.xAxis)
-				.ticks(settings.Nxticks)
-				.tickFormat(function(d){
-					var dt = (new Date(d)).toLocaleString();
-					insertLinebreaks(d3.select(this), dt);
-					//return something so it's not blank
- 					return dt.split(',')[0];
-				})
-		)
 
 
+		//update the data
+		settings.histAll = binData(settings);
+		settings.svg.selectAll('.bar' + settings.idAddOn).data(settings.histAll);
 
-	//update the data
-	settings.histAll = binData(settings);
-	settings.svg.selectAll('.bar' + settings.idAddOn).data(settings.histAll);
+		//rescale the y axis?
+		if (resetY){
+			settings.yAxis.domain([0, Math.max(d3.max(settings.histAll, function(d) { return d.length; }), 1)]).nice();  
+			var domain = settings.yAxis.domain()
+			console.log('domain', domain) 
+			d3.select('#yaxis' + settings.idAddOn).transition().duration(settings.transitionDuration)
+				.call(d3.axisLeft(settings.yAxis)
+					.ticks(settings.Nyticks)
+				);
+		}
 
-	//rescale the y axis?
-	if (resetY){
-		settings.yAxis.domain([0, Math.max(d3.max(settings.histAll, function(d) { return d.length; }), 1)]).nice();  
-		var domain = settings.yAxis.domain()
-		console.log('domain', domain) 
-		d3.select('#yaxis' + settings.idAddOn).transition().duration(settings.transitionDuration)
-			.call(d3.axisLeft(settings.yAxis)
-				.ticks(settings.Nyticks)
-			);
+		settings.svg.selectAll('.bar' + settings.idAddOn).transition().duration(dur)
+			.attr('transform', function(d, i) { return 'translate(' + settings.xAxis(d.x0) + ',' + settings.yAxis(d.length) + ')'; })
+			.attr('height', function(d,i) { return settings.histHeight - settings.yAxis(d.length) + 'px'; })
 	}
-
-	settings.svg.selectAll('.bar' + settings.idAddOn).transition().duration(dur)
-		.attr('transform', function(d, i) { return 'translate(' + settings.xAxis(d.x0) + ',' + settings.yAxis(d.length) + ')'; })
-		.attr('height', function(d,i) { return settings.histHeight - settings.yAxis(d.length) + 'px'; })
-
 
 }
 

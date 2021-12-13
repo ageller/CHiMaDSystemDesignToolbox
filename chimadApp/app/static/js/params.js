@@ -166,7 +166,8 @@ function defineParams(){
 		this.showSDCResponses = true;
 		this.firstSDCplot = true; //will be set to false after the first plotting.  This will allow an initial animation, but not during the regular re-read+re-draw cycle.
 		this.SDCready = false;
-
+		this.SDCcompiler = 'answers';
+		
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
 		this.pctLimLow = 0.4;

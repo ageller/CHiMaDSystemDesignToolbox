@@ -89,52 +89,62 @@
 				<button class='secondaryButton' id='SDCEditButton' style='margin-bottom:20px;'>edit</button>
 				<button class='secondaryButton' id='SDCDoneButton' style='margin-bottom:20px; display:none'>done</button>
 
-				<form id="SDCCompileOptions" class='versionOptions'>
-					<div>Select which method to build the initial systems design chart.</div>
-					<input type="radio" id="SDCAnswersBuild" name="compile" value="answers" class="radio" checked>
-					<label for="SDCAnswersBuild" id="SDCAnswersBuildLabel">Build from answers.</label><br>
-					<input type="radio" id="SDCConsensusBuild0" name="compile" value="consensus0" class="radio">
-					<label for="SDCConsensusBuild0" id="SDCConsensusBuild1Labe0">Build from overall consensus.</label><br>
-					<input type="radio" id="SDCConsensusBuild1" name="compile" value="consensus1" class="radio">
-					<label for="SDCConsensusBuild1" id="SDCConsensusBuild1Label">Build from initial consensus.</label><br>
-					<input type="radio" id="SDCConsensusBuild2" name="compile" value="consensus2" class="radio">
-					<label for="SDCConsensusBuild2" id="SDCConsensusBuild2Label">Build from final consensus.</label><br>
-				</form>
+				<div id="boxGrid" style='position:static'>
+
+					<form id="SDCCompileOptions" class='versionOptions'>
+						<div>Select which method to build the initial systems design chart.</div>
+						<input type="radio" id="SDCAnswersBuild" name="compile" value="answers" class="radio" checked>
+						<label for="SDCAnswersBuild" id="SDCAnswersBuildLabel">Build from answers.</label><br>
+						<input type="radio" id="SDCConsensusBuild0" name="compile" value="consensus0" class="radio">
+						<label for="SDCConsensusBuild0" id="SDCConsensusBuild1Labe0">Build from overall consensus.</label><br>
+						<input type="radio" id="SDCConsensusBuild1" name="compile" value="consensus1" class="radio">
+						<label for="SDCConsensusBuild1" id="SDCConsensusBuild1Label">Build from initial consensus.</label><br>
+						<input type="radio" id="SDCConsensusBuild2" name="compile" value="consensus2" class="radio">
+						<label for="SDCConsensusBuild2" id="SDCConsensusBuild2Label">Build from final consensus.</label><br>
+
+						<div style='margin-left:20px' id='paraAggDateUI'>
+							<p>Date range for aggregating paragraph responses.  Click and drag to select a region.  Double click to reset.</p>
+							<div id='paraDateHistContainer' style='margin-left:40px'></div>
+						</div>	
+					</form>
+				</div>
 
 				<form id="SDCVersionOptions" class='versionOptions'>
-					<div>After you submit your responses, use the buttons below to select which version of the aggregated responses to display and which lines to show.</div>
+					<div>Use the buttons below to select which version of the aggregated responses to display and which lines to show.</div>
 					<input type="checkbox" id="SDCResponseToggle" name="responses" value="1" class="radio" checked>
 					<label for="SDCResponseToggle" id="SSDCResponseToggleLabel">Show your responses (black lines)</label><br>
 
 					<input type="checkbox" id="SDCAnswerToggle" class='answerToggle' name="answers" value="1" class="radio" checked>
 					<label for="SDCAnswerToggle" id="SDCAnswerToggleLabel" class='answerToggle'>Show answers (gray lines)</label><br>
 
-					<input type="checkbox" id="SDCAggToggle" class='aggToggle' name="aggregate" value="1" class="radio" checked>
-					<label for="SDCAggToggle" id="SDCAggToggleLabel" class='aggToggle'>Show aggregate responses (colored lines)</label><br>
-	
-					<input type="radio" id="SDCVersion0" name="version" value="0" class="radio" checked>
-					<label for="SDCVersion0">Aggregate all responses</label><br>
-					<input type="radio" id="SDCVersion1" name="version" value="1" class="radio">
-					<label for="SDCVersion1">Aggregate initial responses</label><br>
-					<input type="radio" id="SDCVersion2" name="version" value="2" class="radio">
-					<label for="SDCVersion2">Aggregate final responses</label><br>
+					<div id='SDCAggToggleDiv'>
+						<input type="checkbox" id="SDCAggToggle" class='aggToggle' name="aggregate" value="1" class="radio" checked>
+						<label for="SDCAggToggle" id="SDCAggToggleLabel" class='aggToggle'>Show aggregate responses (colored lines)</label><br>
+		
+						<input type="radio" id="SDCVersion0" name="version" value="0" class="radio" checked>
+						<label for="SDCVersion0">Aggregate all responses</label><br>
+						<input type="radio" id="SDCVersion1" name="version" value="1" class="radio">
+						<label for="SDCVersion1">Aggregate initial responses</label><br>
+						<input type="radio" id="SDCVersion2" name="version" value="2" class="radio">
+						<label for="SDCVersion2">Aggregate final responses</label><br>
 
 
-					<div style='margin-left:20px; margin-top:10px' id='SDCAggFracUI'>
-						<div style='display:block'>
-							<div style='display: table-cell'>Agreement fraction to display:</div>
-							<div style='display: table-cell; width:40px; text-align:right' id="SDCAggFracRangeSliderMin">0.00</div>
-							<div style='display: table-cell; width:20vw; padding-left:10px'>
-								<div id="SDCAggFracRangeSlider"></div>
+						<div style='margin-left:20px; margin-top:10px' id='SDCAggFracUI'>
+							<div style='display:block'>
+								<div style='display: table-cell'>Agreement fraction to display:</div>
+								<div style='display: table-cell; width:40px; text-align:right' id="SDCAggFracRangeSliderMin">0.00</div>
+								<div style='display: table-cell; width:20vw; padding-left:10px'>
+									<div id="SDCAggFracRangeSlider"></div>
+								</div>
+								<div style='display: table-cell; padding-left:10px; width:70px' id="SDCAggFracRangeSliderMax">1.00</div>
 							</div>
-							<div style='display: table-cell; padding-left:10px; width:70px' id="SDCAggFracRangeSliderMax">1.00</div>
 						</div>
-					</div>
 
-					<div style='margin-left:20px' id='SDCAggDateUI'>
-						<p>Date range for aggregating SDC responses.  Click and drag to select a region.  Double click to reset.</p>
-						<div id='SDCDateHistContainer' style='margin-left:40px'></div>
-					</div>	
+						<div style='margin-left:20px' id='SDCAggDateUI'>
+							<p>Date range for aggregating SDC responses.  Click and drag to select a region.  Double click to reset.</p>
+							<div id='SDCDateHistContainer' style='margin-left:40px'></div>
+						</div>	
+					</div>
 
 				</form>
 
@@ -164,6 +174,7 @@
 		<script src="static/js/utils.js"></script>
 		<script src="static/js/formHandler.js"></script>
 		<script src="static/js/reader.js"></script>
+		<script src="static/js/initBars.js"></script>
 		<script src="static/js/initDropdowns.js"></script>
 		<script src="static/js/initSystemDesignChart.js"></script>
 		<script src="static/js/resize.js"></script>
