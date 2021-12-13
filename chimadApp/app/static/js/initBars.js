@@ -16,6 +16,7 @@ function initParaAggDateUI(dur){
 		setParaResponseDateRange();
 		params.paraHist.parent = d3.select('#boxGrid');
 		params.paraHist.container = d3.select('#paraDateHistContainer');
+		params.paraHist.idAddOn = 'para';
 		params.paraHist.brushCallback = function(){
 			aggregateParaResults(true);
 		}
@@ -45,9 +46,11 @@ function getParaResponseDates(){
 function setParaResponseDateRange(){
 	var dates = getParaResponseDates();
 	if (dates.dates.length >= 2){
-		//sort the dates (may not be necessary)
-		dates.dates.sort(function(a, b){  
-			return dates.milliseconds.indexOf(a.getTime()) - dates.milliseconds.indexOf(b.getTime());
+		//sort the dates 
+		dates.dates.sort(function(a, b){ 
+			var ia = dates.dates.indexOf(a);
+			var ib = dates.dates.indexOf(b); 
+			return dates.milliseconds[ia] - dates.milliseconds[ib];
 		});
 		params.paraHist.dateAggLims[0] = dates.dates[0];
 		params.paraHist.dateAggLims[1] = dates.dates[dates.dates.length - 1];
@@ -55,6 +58,7 @@ function setParaResponseDateRange(){
 		params.paraHist.dateAggLims[0] = new Date();
 		params.paraHist.dateAggLims[1] = new Date();
 	}
+	console.log('!!!checking', params.paraHist.dateAggLims)
 }
 
 function createBars(){
