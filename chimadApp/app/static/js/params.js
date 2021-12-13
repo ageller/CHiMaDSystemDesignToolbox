@@ -57,7 +57,7 @@ function defineParams(){
 		this.paraResponseVersion = 0; //0 includes everything
 		this.dummyData = {};
 		this.paraSubmitted = false; //will be changed to true after form is submitted 
-		this.paraSubmitted2 = false; //will be changed to true after form is submitted a second time
+		this.paraSubmitted2 = true; //don't require 2 submissions
 		this.showingResults = false; //will be changed to true after form is submitted and results are shown
 		this.wavingBars = false; //will be changed to true after the plot is defined
 		this.toggleParaText = true; //controls whether to toggle text in para.  Will be true at first and then when version is changed 
@@ -167,7 +167,7 @@ function defineParams(){
 		this.firstSDCplot = true; //will be set to false after the first plotting.  This will allow an initial animation, but not during the regular re-read+re-draw cycle.
 		this.SDCready = false;
 		this.SDCcompiler = 'answers';
-		
+
 //this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
 		this.pctLim = 0.8;
 		this.pctLimLow = 0.4;

@@ -476,6 +476,17 @@ function logout(){
 
 	resetURLdata();
 
+	//reset the paragraph
+	d3.select('#paraText').selectAll('.selectionWord').classed('wrongBorder', false);
+	d3.select('#usernameInput').property('disabled', false);
+	d3.select('#usernameInput').property('value', '');
+	params.showingResults = false;
+	params.paraSubmitted = false;
+	params.paraSubmitted2 = false;
+	params.SDCSubmitted = false;
+	
+	clearInterval(params.loadInterval);
+
 	//reload with the default values
 	if (params.haveBars || params.haveSDC) loadAndInit();
 
