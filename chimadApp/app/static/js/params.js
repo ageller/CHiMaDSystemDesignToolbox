@@ -109,7 +109,7 @@ function defineParams(){
 
 		//interval for reloading data
 		this.loadInterval;
-		this.loadIntervalDuration = 30*1000; //30 seconds, in units of milliseconds
+		this.loadIntervalDuration = 5*1000; //5 seconds, in units of milliseconds
 
 		//transitions used for changing the bar heights
 		this.transitionDuration = 500;
@@ -256,7 +256,7 @@ function defineParams(){
 		this.resetCallback = new function(){};
 		this.resetDateCallback = new function(){};
 
-		
+
 		this.idAddOn = '';
 
 		this.zoomed = false;

@@ -61,6 +61,26 @@ function getTableNames(callback){
 		});
 }
 
+function checkSubmitted(){
+//check if a database has recently been submitted
+	var out = {'tablename': params.surveyTable, 'dbname':params.dbname, 'groupname':params.groupname};
+
+	//send the table name to flask.  I will read in the data there, and then it will be sent back via POST
+	$.ajax({
+			url: '/check_user_submitted',
+			contentType: 'application/json; charset=utf-8"',
+			dataType: 'json',
+			data: JSON.stringify(out),
+			type: 'POST',
+			success: function(d) {
+				//console.log('checking submitted',d);
+				if (d.submitted) loadTable(params.dbname, params.surveyTable, aggregateResults)
+			},
+			error: function(d) {
+				console.log('!!! WARNING: could not check submitted', d);
+			}
+		});
+}
 
 function updateNresponses(){
 	//update the number of responses

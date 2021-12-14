@@ -22,8 +22,8 @@ app.config.update(
 )
 #app.config['SECRET_KEY'] = 'CHiMaD!App3_'
 
-# connect to the SQL database 
-dbname = 'CHiMaD_SDC.db'
+# store whether a user submitted a response
+userSubmitted = dict()
 
 
 #I need to set this to true in my gui.py file
@@ -56,6 +56,8 @@ def load_table():
 
 @app.route('/save_responses', methods=['GET', 'POST'])
 def save_responses():
+	global userSubmitted
+
 	message = request.get_json()
 	print('======= save_responses', message)
 
@@ -64,9 +66,19 @@ def save_responses():
 	data = message['data']
 
 	# connect to the SQL database and check if the table exists
-	tablename = message['tablename']
+	groupname = message['groupname']
 	dbname = message['dbname']
-	print('!!! dbname, tablename', dbname, tablename)
+	tablename = message['tablename']
+	print('!!! groupname, dbname, tablename', groupname, dbname, tablename)
+
+	# set the userSubmitted flag
+	if (groupname not in userSubmitted):
+		userSubmitted[groupname] = dict()
+	if (dbname not in userSubmitted[groupname]):
+		userSubmitted[groupname][dbname] = dict()
+	if (tablename not in userSubmitted[groupname][dbname]):
+		userSubmitted[groupname][dbname][tablename] = dict()
+	userSubmitted[groupname][dbname][tablename] = True
 
 	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
 	conn = sqlite3.connect(db)
@@ -220,6 +232,35 @@ def get_table_names():
 	cursor.close()
 
 	out = {'tables':tables}
+
+	return jsonify(out)
+
+@app.route('/check_user_submitted', methods=['GET', 'POST'])
+def check_user_submitted():
+	global userSubmitted
+
+	# check if a new entry has been submitted
+	message = request.get_json()
+	#print('======= check_user_submitted', message)
+
+	groupname = message['groupname']
+	dbname = message['dbname']
+	tablename = message['tablename']
+
+	# set the userSubmitted flag
+	if (groupname not in userSubmitted):
+		userSubmitted[groupname] = dict()
+	if (dbname not in userSubmitted[groupname]):
+		userSubmitted[groupname][dbname] = dict()
+	if (tablename not in userSubmitted[groupname][dbname]):
+		userSubmitted[groupname][dbname][tablename] = dict()
+		userSubmitted[groupname][dbname][tablename] = False
+
+	out = {'submitted':userSubmitted[groupname][dbname][tablename],'data':message}
+	#print('!!! groupname, dbname, tablename, submitted', groupname, dbname, tablename, out['submitted'])
+
+	# reset
+	userSubmitted[groupname][dbname][tablename] = False
 
 	return jsonify(out)
 
