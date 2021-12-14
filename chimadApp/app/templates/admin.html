@@ -1,0 +1,84 @@
+<!-- admin: 
+	edits to groupnames:
+	- add 
+	- remove
+	- rename
+	edits to db tables for a given groupname:
+	- remove
+	- rename
+	edits to specific table for a groupname:
+	- remove rows
+--> 
+
+<html>
+	<head>  
+		<meta charset='UTF-8' name='viewport' content='width=device-width, user-scalable=no'> 
+		<title>CHiMaD - admin</title>
+		<link rel='stylesheet' type='text/css' href='static/css/index.css' />
+
+	</head>
+
+	<body>
+		<div id='admin' class='para' style='margin-left:20px; margin-top: 40px; font-size:14px'>
+
+
+				<div id='addGroupname'  style='margin-bottom:40px'>
+					<div id="groupnameInstructions" class="instructions">To add a new group name, enter a unique name below without any spaces or special characters and click Add.</div>
+					<label for="groupnameTextInput" id="groupnameTextLabel">group name:</label>
+					<input type="text" id="groupnameTextInput" name="groupname">
+
+					<button class='secondaryButton' style='margin-left:10px' onclick="addGroupname()">Add</button>
+					<div id="groupnameNotification" class="notifications" style="margin-top:20px"></div>
+
+				</div>
+
+				<div id='editGroupname' style='margin-bottom:40px'>
+					<div id='groupnameSelector'>
+						<div id="groupnameInstructions" class="instructions">To edit or remove a group name, begin by selecting the group name from the list below. </div>
+					</div>
+					<div id='editGroupnameButtons' style='visibility:hidden'>
+						<span style='margin-left:10px; font-size:80%'>To change the group name, enter a new name and click Rename.</span>
+						<input type="text" id="renameGroupnameTextInput" name="groupname">
+						<button class='secondaryButton' onclick="renameGroupname()">Rename</button>
+						<div id="renameGroupnameNotification" class="notifications" style="margin-left:10px"></div>
+						<br/>
+						
+						<span style='margin-left:10px; font-size:80%'>Click here to delete this groupname.</span>
+						<button class='secondaryButton' onclick="deleteGroupname()">Delete</button>
+						<div id="deleteGroupnameNotification" class="notifications" style="margin-left:10px"></div>
+					</div>
+				</div>
+
+
+				<div id='paragraphnameSelector' style='margin-bottom:20px'>
+					<div id="paragraphnameInstructions" class="instructions">Select a paragraph. </div>
+				</div>
+
+				<div id='paragraphTableEditor'></div>
+
+		</div>
+
+		<!-- Libraries -->
+		<script src='static/lib/d3.v6.min.js'></script>
+		<script src="static/lib/jquery-3.5.1.min.js"></script> <!--  for AJAX -->
+
+		<!-- my codes -->
+		<script src="static/js/params.js"></script>
+		<script src="static/js/resize.js"></script>
+		<script src="static/js/utils.js"></script>
+		<script src="static/js/formHandler.js"></script>
+		<script src="static/js/reader.js"></script>
+		<script src="static/js/admin.js"></script>
+
+		<script>
+			if ({{ inDesktopApp|tojson|safe }}){
+				console.log('running in desktop app')
+				var script = document.createElement("script");  
+				script.src = 'static/js/forFlaskWebGUI.js';
+				document.body.appendChild(script);  
+			}
+
+		</script>
+
+	</body>
+</html>
