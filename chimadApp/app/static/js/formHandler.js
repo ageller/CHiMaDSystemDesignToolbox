@@ -11,6 +11,8 @@ function sendResponsesToFlask(out, notificationID, startInterval=true, successRe
 	out.successResponse = successResponse
 	out.failResponse = failResponse;
 
+	out.groupname = params.groupname;
+
 	console.log('sending responses to Flask', out);
 
 	//send to flask
@@ -35,7 +37,8 @@ function sendResponsesToFlask(out, notificationID, startInterval=true, successRe
 
 					clearInterval(params.loadInterval);
 					params.loadInterval = setInterval(function(){
-						loadTable(params.dbname, params.surveyTable, aggregateResults);
+						//loadTable(params.dbname, params.surveyTable, aggregateResults);
+						checkSubmitted()
 					}, params.loadIntervalDuration);
 				}
 
@@ -484,7 +487,7 @@ function logout(){
 	params.paraSubmitted = false;
 	params.paraSubmitted2 = false;
 	params.SDCSubmitted = false;
-	
+
 	clearInterval(params.loadInterval);
 
 	//reload with the default values
