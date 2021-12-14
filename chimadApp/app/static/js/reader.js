@@ -173,7 +173,9 @@ function compileParagraphData(data) {
 	params.paragraphs.columns = Object.keys(params.paragraphs[params.availableParagraphnames[0]]);
 	console.log('paragraphs', params.paragraphs, params.availableParagraphnames, params.answersParagraphnames, data);
 	
-	createParagraphnameSelect();
+	var callback = setParagraphnameFromOptions;
+	if (params.haveAdmin) callback = adminParaSelect;
+	createParagraphnameSelect(callback);
 
 	params.haveParagraphData = true;
 
@@ -345,6 +347,7 @@ function aggregateParaResults(UIduration = params.transitionDuration){
 				} else {
 					if (params.haveSDCEditor) initParaAggDateUI(UIduration);
 				}
+
 
 			}
 

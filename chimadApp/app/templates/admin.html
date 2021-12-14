@@ -23,7 +23,7 @@
 
 
 				<div id='addGroupname'  style='margin-bottom:40px'>
-					<div id="groupnameInstructions" class="instructions">To add a new group name, enter a unique name below without any spaces or special characters and click Add.</div>
+					<div id="groupnameInstructions" class="instructions">To add a new group, enter a unique name below without any spaces or special characters and click Add.</div>
 					<label for="groupnameTextInput" id="groupnameTextLabel">group name:</label>
 					<input type="text" id="groupnameTextInput" name="groupname">
 
@@ -34,27 +34,39 @@
 
 				<div id='editGroupname' style='margin-bottom:40px'>
 					<div id='groupnameSelector'>
-						<div id="groupnameInstructions" class="instructions">To edit or remove a group name, begin by selecting the group name from the list below. </div>
+						<div id="groupnameInstructions" class="instructions">To edit or remove a group, begin by selecting the group name from the list below. </div>
 					</div>
 					<div id='editGroupnameButtons' style='visibility:hidden'>
-						<span style='margin-left:10px; font-size:80%'>To change the group name, enter a new name and click Rename.</span>
-						<input type="text" id="renameGroupnameTextInput" name="groupname">
+						<span style='margin-left:10px; font-size:80%'>To rename this group, enter a new name and click Rename.</span>
+						<input type="text" id="renameGroupnameTextInput">
 						<button class='secondaryButton' onclick="renameGroupname()">Rename</button>
 						<div id="renameGroupnameNotification" class="notifications" style="margin-left:10px"></div>
 						<br/>
-						
-						<span style='margin-left:10px; font-size:80%'>Click here to delete this groupname.</span>
+
+						<span style='margin-left:10px; font-size:80%'>Click here to delete this group.</span>
 						<button class='secondaryButton' onclick="deleteGroupname()">Delete</button>
 						<div id="deleteGroupnameNotification" class="notifications" style="margin-left:10px"></div>
 					</div>
 				</div>
 
+				<div id='editParagraph' style='margin-bottom:40px'>
 
-				<div id='paragraphnameSelector' style='margin-bottom:20px'>
-					<div id="paragraphnameInstructions" class="instructions">Select a paragraph. </div>
+					<div id='paragraphnameSelector' style='margin-bottom:20px'>
+						<div id="paragraphnameInstructions" class="instructions">To edit or remove a paragraph within this group, begin by selecting the group name from the list below.  </div>
+					</div>
+					<div id='editParagraphButtons' style='visibility:hidden'>
+						<span style='margin-left:10px; font-size:80%'>To rename this paragraph, enter a new name and click Rename.</span>
+						<input type="text" id="renameParagraphTextInput">
+						<button class='secondaryButton' onclick="renameParagraph()">Rename</button>
+						<div id="renameParagraphNotification" class="notifications" style="margin-left:10px"></div>
+						<br/>
+
+						<span style='margin-left:10px; font-size:80%'>Click here to delete this paragraph.</span>
+						<button class='secondaryButton' onclick="deleteParagraph()">Delete</button>
+						<div id="deleteParagraphNotification" class="notifications" style="margin-left:10px"></div>
+					</div>
+					<div id='paragraphTableEditor'></div>
 				</div>
-
-				<div id='paragraphTableEditor'></div>
 
 		</div>
 
