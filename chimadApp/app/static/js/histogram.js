@@ -202,7 +202,6 @@ function updateHistogram(settings, dur, resetY = true){
 		if (resetY){
 			settings.yAxis.domain([0, Math.max(d3.max(settings.histAll, function(d) { return d.length; }), 1)]).nice();  
 			var domain = settings.yAxis.domain()
-			console.log('domain', domain) 
 			d3.select('#yaxis' + settings.idAddOn).transition().duration(settings.transitionDuration)
 				.call(d3.axisLeft(settings.yAxis)
 					.ticks(settings.Nyticks)
