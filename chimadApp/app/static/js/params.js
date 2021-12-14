@@ -201,7 +201,7 @@ function defineParams(){
 		this.edittedSDC = false; //will be true if user is has editted SDC (so that we don't show the aggregate lines of answers)
 		this.edittingPara = false; //will be true when user is editing paragraph
 		this.inCollaborate = false; //will be true when using the polling feature
-
+		this.haveAdmin = false; //will be true when admin is loaded
 
 		this.triedLoadingAgain = {};
 

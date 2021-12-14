@@ -1,7 +1,8 @@
 //I can improve this, especially for mobile
 function resize(){
 	
-	var topH = d3.select('#branding').node().getBoundingClientRect().height + 20;
+	var topH = 0;
+	if (d3.select('#branding').node()) topH = d3.select('#branding').node().getBoundingClientRect().height + 20;
 
 	if (params.haveBars && params.createdBars) {
 		resizeBarPlot();
@@ -34,10 +35,13 @@ function resize(){
 	d3.select('#SDCNResponses')
 		.style('font-size', fsi + 'px')
 		.style('line-height', (fsi+4)+'px');
-			
-	d3.select('#paragraphForm').style('margin-top',topH + 'px');
-	var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
-	var maxH = paragraphFormBbox.height + topH;
+	
+	var maxH = topH;
+	if (d3.select('#paragraphForm').node()){	
+		d3.select('#paragraphForm').style('margin-top',topH + 'px');
+		var paragraphFormBbox = d3.select('#paragraphForm').node().getBoundingClientRect();
+		maxH += paragraphFormBbox.height;
+	}
 
 	//for now I'm disabling this entire section unless we are showing the bar chart
 	if (params.haveBars && params.createdBars && d3.select('#boxGridSVGContainer').node()) {

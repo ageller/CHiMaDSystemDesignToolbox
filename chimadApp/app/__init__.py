@@ -9,7 +9,6 @@ import pytz
 import sqlite3
 
 
-
 #https://github.com/smoqadam/PyFladesk/issues/9
 # PyInstaller creates a temp folder and stores path in _MEIPASS
 current_location = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
@@ -264,6 +263,154 @@ def check_user_submitted():
 
 	return jsonify(out)
 
+@app.route('/add_new_groupname', methods=['GET', 'POST'])
+def add_new_groupname():
+
+	# check if a new entry has been submitted
+	message = request.get_json()
+	print('======= add_new_groupname', message)
+	groupname = message['groupname']
+
+	success = True
+
+	if (groupname == ''):
+		success = False
+
+	#check if this groupname exists already
+	if (success):
+		dbname = 'available_dbs.db'
+		tablename = 'dbs'
+
+		# connect to the SQL database and load the table
+		db = os.path.join(current_location, 'static','data','sqlite3',dbname)
+		conn = sqlite3.connect(db)
+		cursor = conn.cursor()
+		cursor.execute('SELECT * FROM ' + tablename)
+		columns = [description[0] for description in cursor.description]
+		df = pd.DataFrame(cursor.fetchall(), columns = columns)    
+		cursor.close()
+
+		#print('check', groupname, df['groupname'].to_list())
+		glist = df['groupname'].to_list()
+		if (groupname in glist or re.sub('[^A-Za-z0-9]+', '',groupname) in glist or re.sub('[^A-Za-z0-9]+', '',groupname).lower() in glist):
+			success = False
+
+	#create the new groupname
+	if (success):
+		#get the default paragraphs
+		dbname = 'default.db'
+		db = os.path.join(current_location, 'static','data','sqlite3',dbname)
+		conn = sqlite3.connect(db)
+		cursor = conn.cursor()
+		cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+		tables = [x[0] for x in cursor.fetchall()]
+
+		#add each of these tables to the new database, but without any responses
+		dbname = re.sub('[^A-Za-z0-9]+', '',groupname).lower()+'.db'
+		db = os.path.join(current_location, 'static','data','sqlite3',dbname)
+		conn_new = sqlite3.connect(db)
+		for t in tables:
+			cursor.execute('SELECT * FROM ' + t)
+			columns = [description[0] for description in cursor.description]
+			df = pd.DataFrame(cursor.fetchall(), columns = columns)
+			if (t != 'paragraphs'):
+				df = df[0:0]
+			df.to_sql(t, conn_new, if_exists='replace', index = False)
+		cursor.close()
+
+		#append to the available_dbs file
+		db = os.path.join(current_location, 'static','data','sqlite3','available_dbs.db')
+		conn = sqlite3.connect(db)
+		df = pd.DataFrame()
+		cursor = conn.cursor()
+		cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+		tables = [x[0] for x in cursor.fetchall()]
+		if ('dbs' in tables):
+			cursor.execute('SELECT * FROM dbs')
+			columns = [description[0] for description in cursor.description]
+			df = pd.DataFrame(cursor.fetchall(), columns = columns) 
+			df = df.append({'groupname':groupname}, ignore_index=True).drop_duplicates()
+		else:
+			df = pd.DataFrame({'groupname':[groupname]})
+		df.to_sql('dbs', conn, if_exists='replace', index = False)
+
+
+	out = {'data':message,'success':success}
+
+	return jsonify(out)
+
+@app.route('/delete_groupname', methods=['GET', 'POST'])
+def delete_groupname():
+
+	# check if a new entry has been submitted
+	message = request.get_json()
+	print('======= delete_groupname', message)
+	groupname = message['groupname']
+
+	success = True
+
+	#delete the database file
+	dbname = re.sub('[^A-Za-z0-9]+', '',groupname).lower()+'.db'
+	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
+	if os.path.exists(db):
+		os.remove(db)
+	else:
+		success = False
+
+	#remove from the available_dbs file
+	if (success):
+		db = os.path.join(current_location, 'static','data','sqlite3','available_dbs.db')
+		conn = sqlite3.connect(db)
+		df = pd.DataFrame()
+		cursor = conn.cursor()
+		cursor.execute('SELECT * FROM dbs')
+		columns = [description[0] for description in cursor.description]
+		df = pd.DataFrame(cursor.fetchall(), columns = columns) 
+		df = df.loc[df['groupname'] != groupname]
+		df.to_sql('dbs', conn, if_exists='replace', index = False)
+
+	out = {'data':message,'success':success}
+
+	return jsonify(out)
+
+@app.route('/rename_groupname', methods=['GET', 'POST'])
+def rename_groupname():
+
+	# check if a new entry has been submitted
+	message = request.get_json()
+	print('======= delete_groupname', message)
+	groupname = message['groupname']
+	newname = message['newname']
+
+	success = True
+
+	#rename the database file
+	dbname = re.sub('[^A-Za-z0-9]+', '',groupname).lower()+'.db'
+	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
+	dbname_new = re.sub('[^A-Za-z0-9]+', '',newname).lower()+'.db'
+	db_new = os.path.join(current_location, 'static','data','sqlite3',dbname_new)
+	if os.path.exists(db):
+		os.rename(db, db_new)
+	else:
+		success = False
+
+	#rename in the available_dbs file
+	if (success):
+		db = os.path.join(current_location, 'static','data','sqlite3','available_dbs.db')
+		conn = sqlite3.connect(db)
+		df = pd.DataFrame()
+		cursor = conn.cursor()
+		cursor.execute('SELECT * FROM dbs')
+		columns = [description[0] for description in cursor.description]
+		df = pd.DataFrame(cursor.fetchall(), columns = columns) 
+		df.replace({'groupname': {groupname: newname}}, inplace = True)
+		df.to_sql('dbs', conn, if_exists='replace', index = False)
+
+	out = {'data':message,'success':success}
+
+	return jsonify(out)
+	
+
 @app.route('/')
 def default():
 	return render_template('index.html', inDesktopApp=inDesktopApp)
@@ -291,6 +438,10 @@ def editSDC():
 @app.route('/about')
 def about():
 	return render_template('about.html', inDesktopApp=inDesktopApp)
+
+@app.route('/admin')
+def admin():
+	return render_template('admin.html', inDesktopApp=inDesktopApp)
 
 # comment this part out when adding it to the production server
 if __name__ == '__main__':
