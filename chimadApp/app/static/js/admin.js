@@ -26,17 +26,24 @@ function initAdmin(){
 }
 initAdmin();
 
-function resetAdminNotifications(visibility='hidden'){
-	d3.select('#editGroupnameButtons').style('visibility',visibility);
+function resetAdminNotifications(groupVisibility = 'hidden', paraVisibility = 'hidden'){
+	if (groupVisibility) d3.select('#editGroupnameButtons').style('visibility',groupVisibility);
 	d3.select('#deleteGroupnameNotification').text('').classed('error', false)
 	d3.select('#renameGroupnameNotification').text('').classed('error', false)
 	d3.select('#renameGroupnameTextInput').property('value','')
 	d3.select('#groupnameTextInput').property('value','')
+
+	if (paraVisibility) d3.select('#editParagraphButtons').style('visibility',paraVisibility);
+	d3.select('#deleteParagraphNotification').text('').classed('error', false)
+	d3.select('#renameParagraphNotification').text('').classed('error', false)
+	d3.select('#renameParagraphTextInput').property('value','')
+	d3.select('#paragraphTextInput').property('value','')
 }
 
 function initGroupnameAdmin(){
 	console.log('initGroupnameAdmin', this.value)
-	params.groupname = this.value;
+	setGroupname(this.value);
+	updateSurveyTable();
 	//load in all the data
 	//get the paragraphs and answer key
 	loadTable(params.dbname, params.paragraphTable, compileParagraphData); 
@@ -46,6 +53,17 @@ function initGroupnameAdmin(){
 	resetAdminNotifications('visible');
 }
 
+function adminParaSelect(){
+	params.paragraphname = params.cleanString(this.value);
+	console.log('setting paragraphname', params.paragraphname);
+	updateSurveyTable();
+	loadTable(params.dbname, params.surveyTable, adminParaSelectCallback);
+	resetAdminNotifications('visible', 'visible')
+}
+
+function adminParaSelectCallback(data){
+	console.log('have para data', data)
+}
 function createGroupnameSelect(){
 	//create the groupname dropdown (for admin)
 	d3.select('#groupnameSelector').selectAll('label').remove();
@@ -282,4 +300,128 @@ function renameGroupname(){
 
 
 	}
+}
+
+function deleteParagraph(){
+
+	// var good = true
+	// var groupname = d3.select('#groupnameSelect').property('value');
+
+	// if (groupname == 'Select from list'){
+	// 	d3.select('#deleteGroupnameNotification')
+	// 		.text('Please select a groupname first.')
+	// 		.classed('error', true);
+	// 	good = false;
+	// }
+
+	// if (good && params.groupname == 'default'){
+	// 	d3.select('#deleteGroupnameNotification')
+	// 		.text('You cannot delete the default groupname.')
+	// 		.classed('error', true);
+	// 	good = false;
+	// } 
+
+	// if (good) {
+	// 	console.log('deleting groupname', params.groupname);
+	// 	let proceed = confirm('You are about to delete group name "' + params.groupname +'".  This action cannot be undone.');
+	// 	console.log(proceed);
+
+	// 	if (proceed){
+	// 		var out = {'groupname':params.groupname};
+
+	// 		//send to flask
+	// 		$.ajax({
+	// 				url: '/delete_groupname',
+	// 				contentType: 'application/json; charset=utf-8"',
+	// 				dataType: 'json',
+	// 				data: JSON.stringify(out),
+	// 				type: 'POST',
+	// 				success: function(d) {
+	// 					if (d.success){
+	// 						console.log('groupname deleted',d);
+	// 						initAdmin();
+	// 						d3.select('#deleteGroupnameNotification')
+	// 							.text('Group name was successfully deleted.')
+	// 							.classed('error', false)
+	// 					} else {
+	// 						d3.select('#deleteGroupnameNotification')
+	// 							.text('An error occured.  The group name was not deleted.  Please try again')
+	// 							.classed('error', true)	
+	// 					}
+		
+	// 				},
+	// 				error: function(d) {
+	// 					console.log('!!! WARNING: could not delete group name', d);
+	// 					//error message
+	// 					d3.select('#deleteGroupnameNotification')
+	// 						.text('An error occured.  The group name was not deleted.  Please try again')
+	// 						.classed('error', true)
+	// 				}
+	// 			});
+
+	// 	} else{
+	// 		d3.select('#deleteGroupnameNotification')
+	// 			.text('Canceled by user. The group name was not deleted.')
+	// 			.classed('error', false)
+	// 	}
+	// }
+}
+
+function renameParagraph(){
+
+	// var good = true;
+	// var groupname = d3.select('#groupnameSelect').property('value');
+	// if (groupname == 'Select from list'){
+	// 	d3.select('#deleteGroupnameNotification')
+	// 		.text('Please select a groupname first.')
+	// 		.classed('error', true);
+	// 	good = false;
+	// }
+
+	// if (good && params.groupname == 'default'){
+	// 	d3.select('#renameGroupnameNotification')
+	// 		.text('You cannot rename the default groupname.')
+	// 		.classed('error', true);
+	// 	good = false
+
+	// } 
+
+	// if (good) {
+	// 	var groupname = d3.select('#renameGroupnameTextInput').property('value')
+	// 	console.log('renaming groupname: current, new', params.groupname, groupname);
+
+	// 	var out = {'groupname':params.groupname, 'newname':groupname};
+
+	// 	//send to flask
+	// 	$.ajax({
+	// 			url: '/rename_groupname',
+	// 			contentType: 'application/json; charset=utf-8"',
+	// 			dataType: 'json',
+	// 			data: JSON.stringify(out),
+	// 			type: 'POST',
+	// 			success: function(d) {
+	// 				if (d.success){
+	// 					console.log('groupname rename',d);
+	// 					loadTable('available_dbs.db', 'dbs', adminCallbackRename);
+	// 					d3.select('#renameGroupnameNotification')
+	// 						.text('Group name was successfully renamed.')
+	// 						.classed('error', false)
+	// 				} else {
+	// 					d3.select('#renameGroupnameNotification')
+	// 						.text('An error occured.  The group name was not renamed.  Please try again')
+	// 						.classed('error', true)	
+	// 				}
+	
+	// 			},
+	// 			error: function(d) {
+	// 				console.log('!!! WARNING: could not rename group name', d);
+	// 				//error message
+	// 				d3.select('#renameGroupnameNotification')
+	// 					.text('An error occured.  The group name was not renamed.  Please try again')
+	// 					.classed('error', true)
+	// 			}
+	// 		});
+
+
+	// }
 }
