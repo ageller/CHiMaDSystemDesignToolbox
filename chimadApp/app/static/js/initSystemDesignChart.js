@@ -55,7 +55,7 @@ function initSDCAggDateUI(dur){
 		}		
 		params.SDCHist.resetDateCallback = setSDCResponseDateRange;		
 
-		if (params.SDCHist.container.node()) createHistogram(params.SDCHist);
+		if (params.SDCHist.container.node()) createHistogram(params.SDCHist, 0);
 	} else {
 		if (params.SDCHist.container){
 			if (params.SDCHist.container.node()) updateHistogram(params.SDCHist, dur);

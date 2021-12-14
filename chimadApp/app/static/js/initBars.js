@@ -18,16 +18,16 @@ function initParaAggDateUI(dur){
 		params.paraHist.container = d3.select('#paraDateHistContainer');
 		params.paraHist.idAddOn = 'para';
 		params.paraHist.brushCallback = function(){
-			aggregateParaResults(true);
+			aggregateParaResults();
 			if (params.haveSDCEditor) switchSDCCompiler(params.SDCcompiler);
 		}
 		params.paraHist.resetCallback = function(){
 			setParaResponseDateRange();
-			aggregateParaResults(true);	
+			aggregateParaResults();	
 			if (params.haveSDCEditor) switchSDCCompiler(params.SDCcompiler);
 		}
 		params.paraHist.resetDateCallback = setParaResponseDateRange;		
-		if (params.paraHist.container.node()) createHistogram(params.paraHist);
+		if (params.paraHist.container.node()) createHistogram(params.paraHist, 0);
 	} else {
 		if (params.paraHist.container.node()) updateHistogram(params.paraHist, dur)
 	}

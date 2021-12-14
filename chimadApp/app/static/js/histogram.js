@@ -65,14 +65,10 @@ function createHistogram(settings){
 			.attr('id','xaxis' + settings.idAddOn)
 			.call(d3.axisBottom(settings.xAxis)
 					.ticks(settings.Nxticks)
-					.tickFormat(function(d){
-						var dt = (new Date(d)).toLocaleString();
-						insertLinebreaks(d3.select(this), dt);
-						//return something so it's not blank
-	 					return dt.split(',')[0];
-					})
+					//.tickFormat('') //formatting axis labels below, since I want a line break
 			);
 
+		appendXAxisLabels(settings);
 
 		//bin the data for the three different categories
 		settings.histAll = binData(settings);
@@ -148,7 +144,20 @@ function createHistogram(settings){
 		settings.resetCallback();
 	}
 
+	d3.selectAll('#xaxis' + settings.idAddOn +' .tick').each(function(){
+		var x = parseTranslateAttr(this).x;
+		var t = new Date(settings.xAxis.invert(x)).toLocaleString();
+	})
 
+}
+
+function appendXAxisLabels(settings){
+	d3.selectAll('#xaxis' + settings.idAddOn +' .tick').each(function(){
+		var x = parseTranslateAttr(this).x;
+		var t = new Date(settings.xAxis.invert(x)).toLocaleString();
+		var el = d3.select(this)//.select('text');
+		insertLinebreaks(el, t);
+	})
 }
 
 //https://stackoverflow.com/questions/13241475/how-do-i-include-newlines-in-labels-in-d3-charts
@@ -156,14 +165,13 @@ function insertLinebreaks(el, text) {
 	//var text = el.text();
 	//var words = text.split('\n');
 	try {
-		setTimeout(function(){ //timeout because this needs to happen after the axis element is created, but causes some blinking...
-			var words = text.split(',');
-			el.text('');
-			for (var i = 0; i < words.length; i++) {
-				var tspan = el.append('tspan').text(words[i]);
-				if (i > 0) tspan.attr('x', 0).attr('dy', '15');
-			}
-		},100)
+		elText = el.select('text')
+		var words = text.split(',');
+		elText.text('');
+		for (var i = 0; i < words.length; i++) {
+			var tspan = elText.append('tspan').text(words[i]);
+			if (i > 0) tspan.attr('x', 0).attr('dy', '15');
+		}
 	}
 	catch(err){
 		console.log('cannot create axis label', el, text)
@@ -181,17 +189,12 @@ function updateHistogram(settings, dur, resetY = true){
 		settings.maxX = settings.dateAggLims[1].getTime();
 		//console.log(new Date(settings.minX), new Date(settings.maxX))
 		settings.xAxis.domain([settings.minX, settings.maxX])  
-		d3.select('#xaxis' + settings.idAddOn).transition().duration(settings.transitionDuration)
+		d3.select('#xaxis' + settings.idAddOn).transition().duration(dur)
 			.call(d3.axisBottom(settings.xAxis)
 					.ticks(settings.Nxticks)
-					.tickFormat(function(d){
-						var dt = (new Date(d)).toLocaleString();
-						insertLinebreaks(d3.select(this), dt);
-						//return something so it's not blank
-	 					return dt.split(',')[0];
-					})
+					.tickFormat('') //formatting axis labels below, since I want a line break
 			)
-
+		setTimeout(function(){appendXAxisLabels(settings);}, dur);
 
 
 		//update the data
@@ -202,7 +205,7 @@ function updateHistogram(settings, dur, resetY = true){
 		if (resetY){
 			settings.yAxis.domain([0, Math.max(d3.max(settings.histAll, function(d) { return d.length; }), 1)]).nice();  
 			var domain = settings.yAxis.domain()
-			d3.select('#yaxis' + settings.idAddOn).transition().duration(settings.transitionDuration)
+			d3.select('#yaxis' + settings.idAddOn).transition().duration(dur)
 				.call(d3.axisLeft(settings.yAxis)
 					.ticks(settings.Nyticks)
 				);
