@@ -297,6 +297,7 @@ function createParagraphnameSelect(){
 
 }
 
+
 function setParagraphnameFromOptions(paragraphname=null){
 	//this will handle the dropdown menu for the paragraph
 
@@ -337,7 +338,7 @@ function setParagraphnameFromOptions(paragraphname=null){
 	params.haveSurveyData = false;
 	loadTable(params.dbname, params.surveyTable, aggregateResults);
 
-	initPage();
+	if (!params.haveAdmin) initPage();
 }
 
 
