@@ -99,8 +99,8 @@ function aggregateResults(data) {
 		params.switchedParagraphname = false;
 	} 
 
-	aggregateParaResults();
-	aggregateSDCResults(); 
+	aggregateParaResults(0);
+	aggregateSDCResults(false, 0); 
 
 	updateNresponses();
 }
@@ -278,7 +278,7 @@ function countUniq(arr, clean=true){
 	return out;
 }
 
-function aggregateParaResults(){
+function aggregateParaResults(UIduration = params.transitionDuration){
 
 	//count up all the responses for each column and return the aggregate numbers
 	//in order to keep things a bit more simple, I will push a blank entry for version 0 (I may want to clean this up later)
@@ -321,9 +321,9 @@ function aggregateParaResults(){
 				if (params.paraSubmitted) {
 					params.firstParaPlot = false;
 					defineBars();
-					initParaAggDateUI(params.transitionDuration);
+					initParaAggDateUI(UIduration);
 				} else {
-					if (params.haveSDCEditor) initParaAggDateUI(params.transitionDuration);
+					if (params.haveSDCEditor) initParaAggDateUI(UIduration);
 				}
 
 			}
@@ -333,7 +333,7 @@ function aggregateParaResults(){
 
 }
 
-function aggregateSDCResults(transitionPlot = false){
+function aggregateSDCResults(transitionPlot = false, UIduration = params.transitionDuration){
 	//We are moving away from tracking versions, but I will still keep the functionality in here (at least for now)
 	//version -1 will contain all the data
 
@@ -387,7 +387,7 @@ function aggregateSDCResults(transitionPlot = false){
 						plotSDCAggregateLines(dur);
 						plotSDCAnswerLines(dur); 
 					}
-					initSDCAggDateUI(dur);
+					initSDCAggDateUI(UIduration);
 				}
 				//for testing
 				//params.SDCSubmitted = true;
