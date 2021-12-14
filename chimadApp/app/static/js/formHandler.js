@@ -253,7 +253,7 @@ function getUsernameInput(username=null){
 
 			}
 			if (i == params.responses.length - 1){
-				appendURLdata();
+				if (!params.haveAdmin) appendURLdata();
 				//readURLdata();
 				if ('paragraphname' in params.URLInputValues) params.paragraphname = params.cleanString(params.URLInputValues.paragraphname);
 				useParaURLdata();
@@ -270,7 +270,7 @@ function updateSurveyTable(){
 	params.surveyTable = params.cleanString(params.paragraphname);
 }
 
-function createParagraphnameSelect(){
+function createParagraphnameSelect(callback = setParagraphnameFromOptions){
 
 	d3.select('#paragraphnameSelector').selectAll('label').remove();
 	d3.select('#paragraphnameSelector').selectAll('select').remove();
@@ -282,19 +282,27 @@ function createParagraphnameSelect(){
 	var slct = d3.select('#paragraphnameSelector').append('select')
 		.attr('id','paragraphnameSelect')
 		.attr('name','paragraphnameSelect')
-		.on('change',setParagraphnameFromOptions)
+		.on('change',callback)
 
-	slct.selectAll('option').data(params.availableParagraphnamesOrg).enter().filter(function(d){return d != 'paragraphs'}).append('option')
+	var opts = params.availableParagraphnamesOrg.slice();
+	if (params.haveAdmin) opts.unshift('Select from list')
+
+	slct.selectAll('option').data(opts).enter().filter(function(d){return d != 'paragraphs'}).append('option')
 		.attr('id',function(d){return 'paragraphname'+params.cleanString(d);})
 		.attr('value',function(d){return params.cleanString(d);})
 		.text(function(d){return d;})
 	
-	var index = -1;
-	params.availableParagraphnamesOrg.filter(function(d){return d != 'paragraphs'}).forEach(function(d,i){
-		if (params.cleanString(d) == params.cleanString(params.paragraphname)) index = i;
-	})
-	slct.node().selectedIndex = index;
-
+	if (params.haveAdmin){
+		slct.select('#paragraphnameselectfromlist')
+			.property('disabled', true)
+			.property('selected', true)
+	} else {
+		var index = -1;
+		params.availableParagraphnamesOrg.filter(function(d){return d != 'paragraphs'}).forEach(function(d,i){
+			if (params.cleanString(d) == params.cleanString(params.paragraphname)) index = i;
+		})
+		slct.node().selectedIndex = index;
+	}
 }
 
 
@@ -333,7 +341,7 @@ function setParagraphnameFromOptions(paragraphname=null){
 	//update the URL
 	params.URLInputValues['paragraphname'] = params.cleanString(params.paragraphname);
 	if (params.haveParaEditor) setURLFromAnswers();
-	appendURLdata();
+	if (!params.haveAdmin) appendURLdata();
 
 	params.haveSurveyData = false;
 	loadTable(params.dbname, params.surveyTable, aggregateResults);
@@ -400,11 +408,13 @@ function closeGroupnameInput(){
 }
 
 function setGroupname(val){
-	document.getElementById('groupnameID').innerHTML = val;
-	params.URLInputValues.groupname = val;
 	params.groupname = params.cleanString(val);
-	appendURLdata();
 	params.dbname = params.groupname + '.db';
+	if (!params.haveAdmin){
+		document.getElementById('groupnameID').innerHTML = val;
+		params.URLInputValues.groupname = val;
+		appendURLdata();
+	}
 }
 
 function login(){
