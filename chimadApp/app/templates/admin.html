@@ -8,6 +8,8 @@
 	- rename
 	edits to specific table for a groupname:
 	- remove rows
+	- want to sort by column
+	- download buttons?
 	download metrics (sql or csv)
 --> 
 
@@ -89,10 +91,25 @@
 						<span style='margin-left:10px; font-size:80%'>Click here to delete this paragraph.</span>
 						<button class='secondaryButton' onclick="deleteParagraph()">Delete</button>
 						<div id="deleteParagraphNotification" class="notifications" style="margin-left:10px"></div>
+						<br/>
+
+						<div id='paragraphTableEditorDiv'>
+							<div style='margin-left:10px; font-size:80%; line-height:120%'>Click on rows from the table below that you would like to remove. Then click the Remove button below.  (Clicking on a column header will sort the table by that column.)</div>
+							<div id='paragraphTableEditor'></div>
+							<button class='secondaryButton' onclick="deleteParagraphRows()">Remove</button>
+							<div id="deleteParagraphRowsNotification" class="notifications" style="margin-left:10px"></div>
+						</div>
+
 					</div>
-					<div id='paragraphTableEditor'></div>
+	
 				</div>
 
+				<div id='downloadMetrics' >
+					<div id="paragraphnameInstructions" class="instructions">Use the buttons below to download the login metrics database in either SQL (.db) or .csv format.  </div>
+					<a href="/download_metricsSQL"><button class='secondaryButton'>.db</button></a>
+					<a href="/download_metricsCSV"><button class='secondaryButton'>.csv</button></a>
+
+				</div>
 		</div>
 
 		<!-- Libraries -->
