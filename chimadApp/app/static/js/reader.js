@@ -170,7 +170,8 @@ function compileParagraphData(data) {
 		if (index > 0) params.availableParagraphnamesOrg.splice(index, 1);
 	}
 
-	params.paragraphs.columns = Object.keys(params.paragraphs[params.availableParagraphnames[0]]);
+	params.paragraphs.columns = []
+	if (params.availableParagraphnames.length > 0) params.paragraphs.columns = Object.keys(params.paragraphs[params.availableParagraphnames[0]]);
 	console.log('paragraphs', params.paragraphs, params.availableParagraphnames, params.answersParagraphnames, data);
 	
 	var callback = setParagraphnameFromOptions;

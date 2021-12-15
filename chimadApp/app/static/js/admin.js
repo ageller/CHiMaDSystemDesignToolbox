@@ -4,17 +4,18 @@ params.haveAdmin = true;
 window.addEventListener('resize', resize);
 resize();
 
-//bind the groupname getter
+//bind the input getters
 d3.select('#groupnameTextInput').on("keyup",function(){getGroupnameInput('groupnameTextInput','groupnameNotification');});
 d3.select('#renameGroupnameTextInput').on("keyup",function(){getGroupnameInput('renameGroupnameTextInput','renameGroupnameNotification');});
+d3.select('#renameParagraphTextInput').on("keyup",function(){getParagraphnameInput('renameParagraphTextInput','renameParagraphNotification');});
 
 //get the available groupnames
 function adminCallbackRename(data){
 	compileAvailableGroupnames(data);
 	createGroupnameSelect();
 	d3.select('#renameGroupnameTextInput').property('value','')
-
 }
+
 function adminCallback(data){
 	compileAvailableGroupnames(data);
 	createGroupnameSelect();
@@ -41,16 +42,24 @@ function resetAdminNotifications(groupVisibility = 'hidden', paraVisibility = 'h
 }
 
 function initGroupnameAdmin(){
-	console.log('initGroupnameAdmin', this.value)
-	setGroupname(this.value);
-	updateSurveyTable();
-	//load in all the data
-	//get the paragraphs and answer key
+	console.log('initGroupnameAdmin', params.groupname)
 	loadTable(params.dbname, params.paragraphTable, compileParagraphData); 
-	//load in the survey responses
-	//but note: the visualization will not fill in until the user submits a response (this is now a recurring call and only executed after the first submit)
-	loadTable(params.dbname, params.surveyTable, aggregateResults);
+	if (params.availableParagraphnames.length > 0){
+		updateSurveyTable();	
+		loadTable(params.dbname, params.surveyTable, aggregateResults);
+	}
 	resetAdminNotifications('visible');
+}
+
+function initParagraphnameAdmin(data){
+	loadTable(params.dbname, params.paragraphTable, compileParagraphData); 
+	if (data.newname){
+		params.paragraphname = params.cleanString(data.newname);
+		console.log('setting paragraphname', params.paragraphname);
+		updateSurveyTable();
+		loadTable(params.dbname, params.surveyTable, adminParaSelectCallback);
+	}
+	resetAdminNotifications('visible', 'visible')
 }
 
 function adminParaSelect(){
@@ -63,6 +72,7 @@ function adminParaSelect(){
 
 function adminParaSelectCallback(data){
 	console.log('have para data', data)
+	//create the table
 }
 function createGroupnameSelect(){
 	//create the groupname dropdown (for admin)
@@ -76,7 +86,10 @@ function createGroupnameSelect(){
 	var slct = d3.select('#groupnameSelector').append('select')
 		.attr('id','groupnameSelect')
 		.attr('name','groupnameSelect')
-		.on('change',initGroupnameAdmin)
+		.on('change',function(){
+			setGroupname(this.value);
+			getTableNames(selectTableAndLoad);
+		})
 
 
 	var opts = params.availableGroupnames.slice();
@@ -138,6 +151,37 @@ function getGroupnameInput(iden, notificationIden){
 	}
 }
 
+function getParagraphnameInput(iden, notificationIden){
+
+	var paragraphname = d3.select('#' + iden).property('value');
+	var good = true;
+
+	if (params.event.keyCode === 13 || params.event.which === 13) {
+		//prevent returns from triggering anything
+		event.preventDefault();
+	} else {
+		if (!(typeof paragraphname === 'string') && !(paragraphname instanceof String)) paragraphname = '';
+
+
+		console.log('paragraphname ', paragraphname);
+
+		//check if groupname exists
+		if (params.availableParagraphnames.includes(params.cleanString(paragraphname))){
+			d3.select('#' + notificationIden)
+				.text('This paragraph name (or one too similar) is already in use.  Please enter a different paragraph name.')
+				.classed('error', true)
+			good = false
+		} 
+
+		if (good) {
+			d3.select('#' + notificationIden)
+				.text('')
+				.classed('error', false)
+		}
+
+	}
+}
+
 function addGroupname(){
 
 	var groupname = d3.select('#groupnameTextInput').property('value');
@@ -160,11 +204,11 @@ function addGroupname(){
 					console.log('new group name added',d);
 					loadTable('available_dbs.db', 'dbs', adminCallback);
 					d3.select('#groupnameNotification')
-						.text('The group name added sucessfully.')
+						.text('The group was added sucessfully.')
 						.classed('error', false)
 				} else {
 					d3.select('#groupnameNotification')
-						.text('The group name was not added.  Please enter a different groupname a try again')
+						.text('The group was not added.  Please enter a different group name a try again')
 						.classed('error', true)
 				} 
 			},
@@ -172,7 +216,7 @@ function addGroupname(){
 				console.log('!!! WARNING: could not add group name', d);
 				//error message
 				d3.select('#groupnameNotification')
-					.text('The group name was not added.  Please enter a different groupname a try again')
+					.text('The group was not added.  Please enter a different group name a try again')
 					.classed('error', true)
 			}
 		});
@@ -185,21 +229,21 @@ function deleteGroupname(){
 
 	if (groupname == 'Select from list'){
 		d3.select('#deleteGroupnameNotification')
-			.text('Please select a groupname first.')
+			.text('Please select a group name first.')
 			.classed('error', true);
 		good = false;
 	}
 
 	if (good && params.groupname == 'default'){
 		d3.select('#deleteGroupnameNotification')
-			.text('You cannot delete the default groupname.')
+			.text('You cannot delete the default group.')
 			.classed('error', true);
 		good = false;
 	} 
 
 	if (good) {
 		console.log('deleting groupname', params.groupname);
-		let proceed = confirm('You are about to delete group name "' + params.groupname +'".  This action cannot be undone.');
+		let proceed = confirm('You are about to delete group "' + params.groupname +'".  This action cannot be undone.');
 		console.log(proceed);
 
 		if (proceed){
@@ -217,11 +261,11 @@ function deleteGroupname(){
 							console.log('groupname deleted',d);
 							initAdmin();
 							d3.select('#deleteGroupnameNotification')
-								.text('Group name was successfully deleted.')
+								.text('Group was successfully deleted.')
 								.classed('error', false)
 						} else {
 							d3.select('#deleteGroupnameNotification')
-								.text('An error occured.  The group name was not deleted.  Please try again')
+								.text('An error occured.  The group was not deleted.  Please try again')
 								.classed('error', true)	
 						}
 		
@@ -230,14 +274,14 @@ function deleteGroupname(){
 						console.log('!!! WARNING: could not delete group name', d);
 						//error message
 						d3.select('#deleteGroupnameNotification')
-							.text('An error occured.  The group name was not deleted.  Please try again')
+							.text('An error occured.  The group was not deleted.  Please try again')
 							.classed('error', true)
 					}
 				});
 
 		} else{
 			d3.select('#deleteGroupnameNotification')
-				.text('Canceled by user. The group name was not deleted.')
+				.text('Cancelled by user. The group was not deleted.')
 				.classed('error', false)
 		}
 	}
@@ -248,15 +292,15 @@ function renameGroupname(){
 	var good = true;
 	var groupname = d3.select('#groupnameSelect').property('value');
 	if (groupname == 'Select from list'){
-		d3.select('#deleteGroupnameNotification')
-			.text('Please select a groupname first.')
+		d3.select('#renameGroupnameNotification')
+			.text('Please select a group name first.')
 			.classed('error', true);
 		good = false;
 	}
 
 	if (good && params.groupname == 'default'){
 		d3.select('#renameGroupnameNotification')
-			.text('You cannot rename the default groupname.')
+			.text('You cannot rename the default group.')
 			.classed('error', true);
 		good = false
 
@@ -280,20 +324,20 @@ function renameGroupname(){
 						console.log('groupname rename',d);
 						loadTable('available_dbs.db', 'dbs', adminCallbackRename);
 						d3.select('#renameGroupnameNotification')
-							.text('Group name was successfully renamed.')
+							.text('Group was successfully renamed.')
 							.classed('error', false)
 					} else {
 						d3.select('#renameGroupnameNotification')
-							.text('An error occured.  The group name was not renamed.  Please try again')
+							.text('An error occured.  The group was not renamed.  Please try again')
 							.classed('error', true)	
 					}
 	
 				},
 				error: function(d) {
-					console.log('!!! WARNING: could not rename group name', d);
+					console.log('!!! WARNING: could not rename group ', d);
 					//error message
 					d3.select('#renameGroupnameNotification')
-						.text('An error occured.  The group name was not renamed.  Please try again')
+						.text('An error occured.  The group was not renamed.  Please try again')
 						.classed('error', true)
 				}
 			});
@@ -304,124 +348,118 @@ function renameGroupname(){
 
 function deleteParagraph(){
 
-	// var good = true
-	// var groupname = d3.select('#groupnameSelect').property('value');
+	var good = true
+	var paragraphname = d3.select('#paragraphnameSelect').property('value');
 
-	// if (groupname == 'Select from list'){
-	// 	d3.select('#deleteGroupnameNotification')
-	// 		.text('Please select a groupname first.')
-	// 		.classed('error', true);
-	// 	good = false;
-	// }
+	if (paragraphname == 'Select from list'){
+		d3.select('#renameParagraphNotification')
+			.text('Please select a paragraph first.')
+			.classed('error', true);
+		good = false;
+	}
 
-	// if (good && params.groupname == 'default'){
-	// 	d3.select('#deleteGroupnameNotification')
-	// 		.text('You cannot delete the default groupname.')
-	// 		.classed('error', true);
-	// 	good = false;
-	// } 
 
-	// if (good) {
-	// 	console.log('deleting groupname', params.groupname);
-	// 	let proceed = confirm('You are about to delete group name "' + params.groupname +'".  This action cannot be undone.');
-	// 	console.log(proceed);
+	if (good) {
+		console.log('deleting paragraph', paragraphname);
+		let proceed = confirm('You are about to delete paragraph "' + paragraphname +'".  This action cannot be undone.');
+		console.log(proceed);
 
-	// 	if (proceed){
-	// 		var out = {'groupname':params.groupname};
+		if (proceed){
+			newname = null;
+			params.availableParagraphnames.every(function(d){
+				if (d != params.cleanString(paragraphname)) newname = d;
+				if (newname) return false;
+				return true;
+			})
+			var out = {'paragraphname':paragraphname, 'groupname':params.groupname, 'newname':newname};
 
-	// 		//send to flask
-	// 		$.ajax({
-	// 				url: '/delete_groupname',
-	// 				contentType: 'application/json; charset=utf-8"',
-	// 				dataType: 'json',
-	// 				data: JSON.stringify(out),
-	// 				type: 'POST',
-	// 				success: function(d) {
-	// 					if (d.success){
-	// 						console.log('groupname deleted',d);
-	// 						initAdmin();
-	// 						d3.select('#deleteGroupnameNotification')
-	// 							.text('Group name was successfully deleted.')
-	// 							.classed('error', false)
-	// 					} else {
-	// 						d3.select('#deleteGroupnameNotification')
-	// 							.text('An error occured.  The group name was not deleted.  Please try again')
-	// 							.classed('error', true)	
-	// 					}
+			//send to flask
+			$.ajax({
+					url: '/delete_paragraph',
+					contentType: 'application/json; charset=utf-8"',
+					dataType: 'json',
+					data: JSON.stringify(out),
+					type: 'POST',
+					success: function(d) {
+						if (d.success){
+							console.log('paragraph deleted',d);
+							initParagraphnameAdmin(d.data);
+							d3.select('#deleteParagraphNotification')
+								.text('Paragraph was successfully deleted.')
+								.classed('error', false)
+						} else {
+							d3.select('#deleteParagraphNotification')
+								.text('An error occured.  The paragraph was not deleted.  Please try again')
+								.classed('error', true)	
+						}
 		
-	// 				},
-	// 				error: function(d) {
-	// 					console.log('!!! WARNING: could not delete group name', d);
-	// 					//error message
-	// 					d3.select('#deleteGroupnameNotification')
-	// 						.text('An error occured.  The group name was not deleted.  Please try again')
-	// 						.classed('error', true)
-	// 				}
-	// 			});
+					},
+					error: function(d) {
+						console.log('!!! WARNING: could not delete paragraph', d);
+						//error message
+						d3.select('#deleteParagraphNotification')
+							.text('An error occured.  The paragraph was not deleted.  Please try again')
+							.classed('error', true)
+					}
+				});
 
-	// 	} else{
-	// 		d3.select('#deleteGroupnameNotification')
-	// 			.text('Canceled by user. The group name was not deleted.')
-	// 			.classed('error', false)
-	// 	}
-	// }
+		} else{
+			d3.select('#deleteParagraphNotification')
+				.text('Cancelled by user. The paragraph was not deleted.')
+				.classed('error', false)
+		}
+	}
 }
 
 function renameParagraph(){
 
-	// var good = true;
-	// var groupname = d3.select('#groupnameSelect').property('value');
-	// if (groupname == 'Select from list'){
-	// 	d3.select('#deleteGroupnameNotification')
-	// 		.text('Please select a groupname first.')
-	// 		.classed('error', true);
-	// 	good = false;
-	// }
+	var good = true;
+	var paragraphname = d3.select('#paragraphnameSelect').property('value');
+	if (paragraphname == 'Select from list'){
+		d3.select('#renameParagraphNotification')
+			.text('Please select a paragraph first.')
+			.classed('error', true);
+		good = false;
+	}
 
-	// if (good && params.groupname == 'default'){
-	// 	d3.select('#renameGroupnameNotification')
-	// 		.text('You cannot rename the default groupname.')
-	// 		.classed('error', true);
-	// 	good = false
 
-	// } 
+	if (good) {
+		var newname = d3.select('#renameParagraphTextInput').property('value')
+		console.log('renaming paragraph: current, new', paragraphname, newname);
 
-	// if (good) {
-	// 	var groupname = d3.select('#renameGroupnameTextInput').property('value')
-	// 	console.log('renaming groupname: current, new', params.groupname, groupname);
+		var out = {'paragraphname':paragraphname, 'newname':newname, 'groupname':params.groupname};
 
-	// 	var out = {'groupname':params.groupname, 'newname':groupname};
+		//send to flask
+		$.ajax({
+				url: '/rename_paragraph',
+				contentType: 'application/json; charset=utf-8"',
+				dataType: 'json',
+				data: JSON.stringify(out),
+				type: 'POST',
+				success: function(d) {
+					if (d.success){
+						console.log('paragraphname rename',d);
+						initParagraphnameAdmin(d.data);
 
-	// 	//send to flask
-	// 	$.ajax({
-	// 			url: '/rename_groupname',
-	// 			contentType: 'application/json; charset=utf-8"',
-	// 			dataType: 'json',
-	// 			data: JSON.stringify(out),
-	// 			type: 'POST',
-	// 			success: function(d) {
-	// 				if (d.success){
-	// 					console.log('groupname rename',d);
-	// 					loadTable('available_dbs.db', 'dbs', adminCallbackRename);
-	// 					d3.select('#renameGroupnameNotification')
-	// 						.text('Group name was successfully renamed.')
-	// 						.classed('error', false)
-	// 				} else {
-	// 					d3.select('#renameGroupnameNotification')
-	// 						.text('An error occured.  The group name was not renamed.  Please try again')
-	// 						.classed('error', true)	
-	// 				}
+						d3.select('#renameParagraphNotification')
+							.text('Paragraph was successfully renamed.')
+							.classed('error', false)
+					} else {
+						d3.select('#renameParagraphNotification')
+							.text('An error occured.  The group name was not renamed.  Please try again')
+							.classed('error', true)	
+					}
 	
-	// 			},
-	// 			error: function(d) {
-	// 				console.log('!!! WARNING: could not rename group name', d);
-	// 				//error message
-	// 				d3.select('#renameGroupnameNotification')
-	// 					.text('An error occured.  The group name was not renamed.  Please try again')
-	// 					.classed('error', true)
-	// 			}
-	// 		});
+				},
+				error: function(d) {
+					console.log('!!! WARNING: could not rename group name', d);
+					//error message
+					d3.select('#renameParagraphNotification')
+						.text('An error occured.  The group name was not renamed.  Please try again')
+						.classed('error', true)
+				}
+			});
 
 
-	// }
+	}
 }

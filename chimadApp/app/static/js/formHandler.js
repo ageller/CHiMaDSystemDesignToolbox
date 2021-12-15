@@ -289,7 +289,8 @@ function createParagraphnameSelect(callback = setParagraphnameFromOptions){
 
 	slct.selectAll('option').data(opts).enter().filter(function(d){return d != 'paragraphs'}).append('option')
 		.attr('id',function(d){return 'paragraphname'+params.cleanString(d);})
-		.attr('value',function(d){return params.cleanString(d);})
+		//.attr('value',function(d){return params.cleanString(d);})
+		.attr('value',function(d){return d;})
 		.text(function(d){return d;})
 	
 	if (params.haveAdmin){
@@ -473,12 +474,13 @@ function selectTableAndLoad(tables){
 	params.dbname = params.groupname + '.db';
 
 	if (params.haveBars || params.haveSDC) loadAndInit();
+	if (params.haveAdmin) initGroupnameAdmin();
 
 }
 
 function logout(){
-	document.getElementById('login').style.display = 'none';
-	document.getElementById('groupnameID').innerHTML = 'click to login';
+	d3.select('#login').style('display','none');
+	d3.select('#groupnameID').html('click to login');
 
 	params.URLInputValues = {}; 
 	params.groupname = 'default';

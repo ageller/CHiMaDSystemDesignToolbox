@@ -361,13 +361,13 @@ def delete_groupname():
 	if (success):
 		db = os.path.join(current_location, 'static','data','sqlite3','available_dbs.db')
 		conn = sqlite3.connect(db)
-		df = pd.DataFrame()
 		cursor = conn.cursor()
 		cursor.execute('SELECT * FROM dbs')
 		columns = [description[0] for description in cursor.description]
 		df = pd.DataFrame(cursor.fetchall(), columns = columns) 
 		df = df.loc[df['groupname'] != groupname]
 		df.to_sql('dbs', conn, if_exists='replace', index = False)
+		cursor.close()
 
 	out = {'data':message,'success':success}
 
@@ -378,7 +378,7 @@ def rename_groupname():
 
 	# check if a new entry has been submitted
 	message = request.get_json()
-	print('======= delete_groupname', message)
+	print('======= rename_groupname', message)
 	groupname = message['groupname']
 	newname = message['newname']
 
@@ -398,19 +398,83 @@ def rename_groupname():
 	if (success):
 		db = os.path.join(current_location, 'static','data','sqlite3','available_dbs.db')
 		conn = sqlite3.connect(db)
-		df = pd.DataFrame()
 		cursor = conn.cursor()
 		cursor.execute('SELECT * FROM dbs')
 		columns = [description[0] for description in cursor.description]
 		df = pd.DataFrame(cursor.fetchall(), columns = columns) 
 		df.replace({'groupname': {groupname: newname}}, inplace = True)
 		df.to_sql('dbs', conn, if_exists='replace', index = False)
+		cursor.close()
+
+	out = {'data':message,'success':success}
+
+	return jsonify(out)
+
+@app.route('/delete_paragraph', methods=['GET', 'POST'])
+def delete_paragraph():
+
+	# check if a new entry has been submitted
+	message = request.get_json()
+	print('======= delete_paragraph', message)
+	groupname = message['groupname']
+	paragraphname = message['paragraphname']
+
+	success = True
+
+	#remove from the paragraphs table
+	dbname = re.sub('[^A-Za-z0-9]+', '',groupname).lower()+'.db'
+	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
+	conn = sqlite3.connect(db)
+	cursor = conn.cursor()
+	cursor.execute('SELECT * FROM paragraphs')
+	columns = [description[0] for description in cursor.description]
+	df = pd.DataFrame(cursor.fetchall(), columns = columns) 
+	df = df.loc[df['paragraphname'] != paragraphname]
+	df.to_sql('paragraphs', conn, if_exists='replace', index = False)
+
+	#remove table 
+	tablename = re.sub('[^A-Za-z0-9]+', '',paragraphname).lower()
+	cursor.execute('DROP TABLE ' + tablename +';')
+	cursor.close()
+
+	out = {'data':message,'success':success}
+
+	return jsonify(out)
+
+@app.route('/rename_paragraph', methods=['GET', 'POST'])
+def rename_paragraph():
+
+	# check if a new entry has been submitted
+	message = request.get_json()
+	print('======= rename_paragraph', message)
+	groupname = message['groupname']
+	paragraphname = message['paragraphname']
+	newname = message['newname']
+
+	success = True
+
+	#rename row in the paragraphs list 
+	dbname = re.sub('[^A-Za-z0-9]+', '',groupname).lower()+'.db'
+	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
+	conn = sqlite3.connect(db)
+	cursor = conn.cursor()
+	cursor.execute('SELECT * FROM paragraphs')
+	columns = [description[0] for description in cursor.description]
+	df = pd.DataFrame(cursor.fetchall(), columns = columns) 
+	df.replace({'paragraphname': {paragraphname: newname}}, inplace = True)
+	df.to_sql('paragraphs', conn, if_exists='replace', index = False)
+
+	#rename the table
+	cleanPara = re.sub('[^A-Za-z0-9]+', '',paragraphname).lower()
+	cleanNew = re.sub('[^A-Za-z0-9]+', '',newname).lower()
+	cursor.execute("ALTER TABLE `" + cleanPara + "` RENAME TO `" + cleanNew + "`")
+
+	cursor.close()
 
 	out = {'data':message,'success':success}
 
 	return jsonify(out)
 	
-
 @app.route('/')
 def default():
 	return render_template('index.html', inDesktopApp=inDesktopApp)
