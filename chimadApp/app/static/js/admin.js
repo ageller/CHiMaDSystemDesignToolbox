@@ -37,6 +37,7 @@ function resetAdminNotifications(groupVisibility = 'hidden', paraVisibility = 'h
 	if (paraVisibility) d3.select('#editParagraphButtons').style('visibility',paraVisibility);
 	d3.select('#deleteParagraphNotification').text('').classed('error', false)
 	d3.select('#renameParagraphNotification').text('').classed('error', false)
+	d3.select('#deleteParagraphRowsNotification').text('').classed('error', false);
 	d3.select('#renameParagraphTextInput').property('value','')
 	d3.select('#paragraphTextInput').property('value','')
 }
@@ -471,67 +472,73 @@ function renameParagraph(){
 
 function deleteParagraphRows(){
 
-	// var good = true
-	// var paragraphname = d3.select('#paragraphnameSelect').property('value');
+	var good = true
+	var paragraphname = d3.select('#paragraphnameSelect').property('value');
 
-	// if (paragraphname == 'Select from list'){
-	// 	d3.select('#renameParagraphNotification')
-	// 		.text('Please select a paragraph first.')
-	// 		.classed('error', true);
-	// 	good = false;
-	// }
+	if (paragraphname == 'Select from list'){
+		d3.select('#deleteParagraphRowsNotification')
+			.text('Please select a paragraph first.')
+			.classed('error', true);
+		good = false;
+	}
 
+	if (params.adminParagraphRowsToRemove.length == 0){
+		d3.select('#deleteParagraphRowsNotification')
+			.text('You have not selected any rows for deletion.')
+			.classed('error', true);
+		good = false;
+	}
 
-	// if (good) {
-	// 	console.log('deleting paragraph', paragraphname);
-	// 	let proceed = confirm('You are about to delete paragraph "' + paragraphname +'".  This action cannot be undone.');
-	// 	console.log(proceed);
+	if (good) {
+		console.log('deleting paragraph rows', paragraphname, params.adminParagraphRowsToRemove);
+		let proceed = confirm('You are about to delete rows in paragraph "' + paragraphname +'".  This action cannot be undone.');
+		console.log(proceed);
 
-	// 	if (proceed){
-	// 		newname = null;
-	// 		params.availableParagraphnames.every(function(d){
-	// 			if (d != params.cleanString(paragraphname)) newname = d;
-	// 			if (newname) return false;
-	// 			return true;
-	// 		})
-	// 		var out = {'paragraphname':paragraphname, 'groupname':params.groupname, 'newname':newname};
+		if (proceed){
+			newname = null;
+			params.availableParagraphnames.every(function(d){
+				if (d != params.cleanString(paragraphname)) newname = d;
+				if (newname) return false;
+				return true;
+			})
+			var out = {'paragraphname':paragraphname, 'newname':newname, 'groupname':params.groupname, 'rowsToRemove':params.adminParagraphRowsToRemove};
 
-	// 		//send to flask
-	// 		$.ajax({
-	// 				url: '/delete_paragraph',
-	// 				contentType: 'application/json; charset=utf-8"',
-	// 				dataType: 'json',
-	// 				data: JSON.stringify(out),
-	// 				type: 'POST',
-	// 				success: function(d) {
-	// 					if (d.success){
-	// 						console.log('paragraph deleted',d);
-	// 						initParagraphnameAdmin(d.data);
-	// 						d3.select('#deleteParagraphNotification')
-	// 							.text('Paragraph was successfully deleted.')
-	// 							.classed('error', false)
-	// 					} else {
-	// 						d3.select('#deleteParagraphNotification')
-	// 							.text('An error occured.  The paragraph was not deleted.  Please try again')
-	// 							.classed('error', true)	
-	// 					}
+			//send to flask
+			$.ajax({
+					url: '/delete_paragraph_rows',
+					contentType: 'application/json; charset=utf-8"',
+					dataType: 'json',
+					data: JSON.stringify(out),
+					type: 'POST',
+					success: function(d) {
+						if (d.success){
+							console.log('paragraph rows deleted',d);
+							loadTable(params.dbname, params.surveyTable, adminParaSelectCallback);
+							d3.select('#deleteParagraphRowsNotification')
+								.text('Rows were successfully deleted.')
+								.classed('error', false)
+						} else {
+							d3.select('#deleteParagraphRowsNotification')
+								.text('An error occured.  The rows were not deleted.  Please try again')
+								.classed('error', true)	
+						}
 		
-	// 				},
-	// 				error: function(d) {
-	// 					console.log('!!! WARNING: could not delete paragraph', d);
-	// 					//error message
-	// 					d3.select('#deleteParagraphNotification')
-	// 						.text('An error occured.  The paragraph was not deleted.  Please try again')
-	// 						.classed('error', true)
-	// 				}
-	// 			});
+					},
+					error: function(d) {
+						console.log('!!! WARNING: could not delete paragraph rows', d);
+						//error message
+						d3.select('#deleteParagraphRowsNotification')
+							.text('An error occured.  The rows were not deleted.  Please try again')
+							.classed('error', true)
+					}
+				});
 
-	// 	} else{
-	// 		d3.select('#deleteParagraphNotification')
-	// 			.text('Cancelled by user. The paragraph was not deleted.')
-	// 			.classed('error', false)
-	// 	}
-	// }
+		} else{
+			d3.select('#deleteParagraphRowsNotification')
+				.text('Cancelled by user. The rows were not deleted.')
+				.classed('error', false)
+		}
+	}
 }
 
 function makeParagraphTable(input, elem, height=400, width=null){
@@ -539,6 +546,7 @@ function makeParagraphTable(input, elem, height=400, width=null){
 //https://codepen.io/chriscoyier/pen/yLVNErX
 
 	console.log('table input', input)
+	params.adminParagraphRowsToRemove = [];
 
 	if (!width){
 		width = params.windowWidth - 2; //2 for border (?)
@@ -575,18 +583,23 @@ function makeParagraphTable(input, elem, height=400, width=null){
 
 		//body
 		var body = tab.append('tbody')
-		input.forEach(function(d, i){
-			var row = body.append('tr');
-			row.selectAll('.paragraphTableRow' + i).data(input.columns).enter()
+		input.forEach(function(d){
+			var row = body.append('tr')
+				.style('cursor','pointer')
+				.attr('id','paragraphTableRow' + d.index)
+				.attr('index',d.index)
+			row.selectAll('.paragraphTableRow' + d.index).data(input.columns).enter()
 				.append('td')
-				.attr('class','paragraphTableRow' + i)
-				.text(function(dd){return d[dd];})		
+				.attr('class','paragraphTableRow' + d.index)
+				.attr('index',d.index)
+				.text(function(dd){return d[dd];})	
+				.on('click',markParagraphRowForRemoval)	
 		})
 
 	} else {
 		elem.append('div')
 			.style('font-style','italic')
-			.text('There are not entries in this database.')
+			.text('There are no entries in this database.')
 	}
 
 	return [tab, true];
@@ -610,5 +623,25 @@ function sortParagraphTable(){
 			
 		});
 	var tab = makeParagraphTable(params.adminParagraphData, d3.select('#paragraphTableEditor'))
+
+}
+function markParagraphRowForRemoval(){
+	var cls = d3.select(this).attr('class');
+	var index = parseInt(d3.select(this).attr('index'));
+
+	var logText = 'adding this row to delete list'
+	if (!isNaN(index)) {
+		d3.select('#' + cls).node().classList.toggle('rowSelected');
+		const i = params.adminParagraphRowsToRemove.indexOf(index);
+		if (d3.select('#' + cls).classed('rowSelected')){
+			if (i < 0) params.adminParagraphRowsToRemove.push(index);
+		} else {
+			logText = 'removing this row from delete list'
+			if (i >= 0) params.adminParagraphRowsToRemove.splice(i, 1);
+		}
+		console.log(logText, cls, index, params.adminParagraphRowsToRemove, this)
+	}
+
+	d3.select('#deleteParagraphRowsNotification').text('').classed('error', false);
 
 }

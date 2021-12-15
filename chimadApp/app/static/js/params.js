@@ -204,6 +204,7 @@ function defineParams(){
 		this.haveAdmin = false; //will be true when admin is loaded
 
 		this.adminParagraphData = {};
+		this.adminParagraphRowsToRemove = [];
 
 		this.triedLoadingAgain = {};
 

@@ -548,7 +548,6 @@ table thead th {
 	background: white;
 }
 table td {
-	background: #fff;
 	padding: 4px 5px;
 	text-align: center;
 }
@@ -567,7 +566,6 @@ table thead th:first-child {
 table tbody th {
 	position: sticky;
 	left: 0;
-	background: white;
 	z-index: 1;
 }
 caption {
@@ -575,4 +573,9 @@ caption {
 	padding: 0.25rem;
 	position: sticky;
 	left: 0;
+}
+
+.rowSelected {
+	background: gray;
+
 }

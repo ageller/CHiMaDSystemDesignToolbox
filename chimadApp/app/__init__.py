@@ -473,6 +473,34 @@ def rename_paragraph():
 
 	return jsonify(out)
 
+@app.route('/delete_paragraph_rows', methods=['GET', 'POST'])
+def delete_paragraph_rows():
+
+	message = request.get_json()
+	print('======= delete_paragraph_rows', message)
+	groupname = message['groupname']
+	paragraphname = message['paragraphname']
+	tableName = re.sub('[^A-Za-z0-9]+', '',paragraphname).lower()
+	indices = message['rowsToRemove']
+
+	success = True
+
+	dbname = re.sub('[^A-Za-z0-9]+', '',groupname).lower()+'.db'
+	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
+	conn = sqlite3.connect(db)
+	cursor = conn.cursor()
+	cursor.execute('SELECT * FROM ' + tableName)
+	columns = [description[0] for description in cursor.description]
+	df = pd.DataFrame(cursor.fetchall(), columns = columns) 
+	df.drop(indices, inplace = True)
+	df.to_sql(tableName, conn, if_exists='replace', index = False)
+
+	cursor.close()
+
+	out = {'data':message,'success':success}
+
+	return jsonify(out)
+
 @app.route('/download_metricsSQL')
 def download_metricsSQL():
 	db = os.path.join(current_location, 'static','data','sqlite3','CHiMaD_metrics.db')
@@ -493,7 +521,7 @@ def download_metricsCSV():
 	resp.headers["Content-Type"] = "text/csv"
 	return resp
 
-	
+
 
 @app.route('/')
 def default():
