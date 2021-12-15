@@ -73,6 +73,11 @@ function adminParaSelect(){
 function adminParaSelectCallback(data){
 	console.log('have para data', data)
 	//create the table
+	params.adminParagraphData = data;
+	params.adminParagraphData.columns.unshift('index')
+	params.adminParagraphData.forEach(function(d,i){d.index = i})
+	var tab = makeParagraphTable(params.adminParagraphData, d3.select('#paragraphTableEditor'))
+
 }
 function createGroupnameSelect(){
 	//create the groupname dropdown (for admin)
@@ -462,4 +467,148 @@ function renameParagraph(){
 
 
 	}
+}
+
+function deleteParagraphRows(){
+
+	// var good = true
+	// var paragraphname = d3.select('#paragraphnameSelect').property('value');
+
+	// if (paragraphname == 'Select from list'){
+	// 	d3.select('#renameParagraphNotification')
+	// 		.text('Please select a paragraph first.')
+	// 		.classed('error', true);
+	// 	good = false;
+	// }
+
+
+	// if (good) {
+	// 	console.log('deleting paragraph', paragraphname);
+	// 	let proceed = confirm('You are about to delete paragraph "' + paragraphname +'".  This action cannot be undone.');
+	// 	console.log(proceed);
+
+	// 	if (proceed){
+	// 		newname = null;
+	// 		params.availableParagraphnames.every(function(d){
+	// 			if (d != params.cleanString(paragraphname)) newname = d;
+	// 			if (newname) return false;
+	// 			return true;
+	// 		})
+	// 		var out = {'paragraphname':paragraphname, 'groupname':params.groupname, 'newname':newname};
+
+	// 		//send to flask
+	// 		$.ajax({
+	// 				url: '/delete_paragraph',
+	// 				contentType: 'application/json; charset=utf-8"',
+	// 				dataType: 'json',
+	// 				data: JSON.stringify(out),
+	// 				type: 'POST',
+	// 				success: function(d) {
+	// 					if (d.success){
+	// 						console.log('paragraph deleted',d);
+	// 						initParagraphnameAdmin(d.data);
+	// 						d3.select('#deleteParagraphNotification')
+	// 							.text('Paragraph was successfully deleted.')
+	// 							.classed('error', false)
+	// 					} else {
+	// 						d3.select('#deleteParagraphNotification')
+	// 							.text('An error occured.  The paragraph was not deleted.  Please try again')
+	// 							.classed('error', true)	
+	// 					}
+		
+	// 				},
+	// 				error: function(d) {
+	// 					console.log('!!! WARNING: could not delete paragraph', d);
+	// 					//error message
+	// 					d3.select('#deleteParagraphNotification')
+	// 						.text('An error occured.  The paragraph was not deleted.  Please try again')
+	// 						.classed('error', true)
+	// 				}
+	// 			});
+
+	// 	} else{
+	// 		d3.select('#deleteParagraphNotification')
+	// 			.text('Cancelled by user. The paragraph was not deleted.')
+	// 			.classed('error', false)
+	// 	}
+	// }
+}
+
+function makeParagraphTable(input, elem, height=400, width=null){
+//make a table from the paragraph data
+//https://codepen.io/chriscoyier/pen/yLVNErX
+
+	console.log('table input', input)
+
+	if (!width){
+		width = params.windowWidth - 2; //2 for border (?)
+	}
+
+	//destroy the tabe (if it exists)
+	var parent = elem.node();
+	while (parent.firstChild) {
+		parent.removeChild(parent.firstChild);
+	}
+
+	var tab;
+	if (input.length > 0){
+
+		var tab = elem.append('div')
+			.style('width',width + 'px')
+			.style('max-height',height + 'px')
+			.style('overflow','auto')
+			.append('table')
+
+		//caption at the top of the table
+		// tab.append('caption')
+		// 	.attr('id','paragraphTableCaption')
+		// 	.text(params.paragraphname)
+
+		//column names (fixed)
+		var header = tab.append('thead').append('tr');
+		header.selectAll('.paragraphTableHeader').data(input.columns).enter()
+			.append('th')
+			.attr('class','paragraphTableHeader')
+			.style('cursor', 'pointer')
+			.text(function(d){return d;})
+			.on('click',sortParagraphTable)
+
+		//body
+		var body = tab.append('tbody')
+		input.forEach(function(d, i){
+			var row = body.append('tr');
+			row.selectAll('.paragraphTableRow' + i).data(input.columns).enter()
+				.append('td')
+				.attr('class','paragraphTableRow' + i)
+				.text(function(dd){return d[dd];})		
+		})
+
+	} else {
+		elem.append('div')
+			.style('font-style','italic')
+			.text('There are not entries in this database.')
+	}
+
+	return [tab, true];
+
+}
+
+function sortParagraphTable(){
+	var colName = d3.select(this).text()
+	console.log('sorting paragraph table by column', colName)
+	params.adminParagraphData.sort(function(a, b){ 
+			if (colName == 'Timestamp'){
+				ad = (new Date(a.Timestamp)).getTime();
+				bd = (new Date(b.Timestamp)).getTime();
+				return ad - bd;
+			} 
+			if (typeof a[colName] === 'number' && typeof b[colName] === 'number') {
+				return a[colName] - b[colName];
+			}
+
+			return ('' + a[colName]).localeCompare(b[colName])
+			
+		});
+	var tab = makeParagraphTable(params.adminParagraphData, d3.select('#paragraphTableEditor'))
+
 }

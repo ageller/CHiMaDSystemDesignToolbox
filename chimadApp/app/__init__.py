@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, send_file, make_response
 import pandas as pd
 import os
 import re
@@ -238,7 +238,6 @@ def get_table_names():
 def check_user_submitted():
 	global userSubmitted
 
-	# check if a new entry has been submitted
 	message = request.get_json()
 	#print('======= check_user_submitted', message)
 
@@ -266,7 +265,6 @@ def check_user_submitted():
 @app.route('/add_new_groupname', methods=['GET', 'POST'])
 def add_new_groupname():
 
-	# check if a new entry has been submitted
 	message = request.get_json()
 	print('======= add_new_groupname', message)
 	groupname = message['groupname']
@@ -342,12 +340,16 @@ def add_new_groupname():
 @app.route('/delete_groupname', methods=['GET', 'POST'])
 def delete_groupname():
 
-	# check if a new entry has been submitted
 	message = request.get_json()
 	print('======= delete_groupname', message)
 	groupname = message['groupname']
 
 	success = True
+
+	# connect first in case this throws an error, then we wouldn't delete the file
+	db = os.path.join(current_location, 'static','data','sqlite3','available_dbs.db')
+	conn = sqlite3.connect(db)
+	cursor = conn.cursor()
 
 	#delete the database file
 	dbname = re.sub('[^A-Za-z0-9]+', '',groupname).lower()+'.db'
@@ -359,9 +361,6 @@ def delete_groupname():
 
 	#remove from the available_dbs file
 	if (success):
-		db = os.path.join(current_location, 'static','data','sqlite3','available_dbs.db')
-		conn = sqlite3.connect(db)
-		cursor = conn.cursor()
 		cursor.execute('SELECT * FROM dbs')
 		columns = [description[0] for description in cursor.description]
 		df = pd.DataFrame(cursor.fetchall(), columns = columns) 
@@ -376,13 +375,17 @@ def delete_groupname():
 @app.route('/rename_groupname', methods=['GET', 'POST'])
 def rename_groupname():
 
-	# check if a new entry has been submitted
 	message = request.get_json()
 	print('======= rename_groupname', message)
 	groupname = message['groupname']
 	newname = message['newname']
 
 	success = True
+
+	# connect first in case this throws an error, then we wouldn't rename the file
+	db = os.path.join(current_location, 'static','data','sqlite3','available_dbs.db')
+	conn = sqlite3.connect(db)
+	cursor = conn.cursor()
 
 	#rename the database file
 	dbname = re.sub('[^A-Za-z0-9]+', '',groupname).lower()+'.db'
@@ -396,9 +399,6 @@ def rename_groupname():
 
 	#rename in the available_dbs file
 	if (success):
-		db = os.path.join(current_location, 'static','data','sqlite3','available_dbs.db')
-		conn = sqlite3.connect(db)
-		cursor = conn.cursor()
 		cursor.execute('SELECT * FROM dbs')
 		columns = [description[0] for description in cursor.description]
 		df = pd.DataFrame(cursor.fetchall(), columns = columns) 
@@ -413,7 +413,6 @@ def rename_groupname():
 @app.route('/delete_paragraph', methods=['GET', 'POST'])
 def delete_paragraph():
 
-	# check if a new entry has been submitted
 	message = request.get_json()
 	print('======= delete_paragraph', message)
 	groupname = message['groupname']
@@ -444,7 +443,6 @@ def delete_paragraph():
 @app.route('/rename_paragraph', methods=['GET', 'POST'])
 def rename_paragraph():
 
-	# check if a new entry has been submitted
 	message = request.get_json()
 	print('======= rename_paragraph', message)
 	groupname = message['groupname']
@@ -474,7 +472,29 @@ def rename_paragraph():
 	out = {'data':message,'success':success}
 
 	return jsonify(out)
+
+@app.route('/download_metricsSQL')
+def download_metricsSQL():
+	db = os.path.join(current_location, 'static','data','sqlite3','CHiMaD_metrics.db')
+	return send_file(db, as_attachment=True)
+
+@app.route('/download_metricsCSV')
+def download_metricsCSV():
+	db = os.path.join(current_location, 'static','data','sqlite3','CHiMaD_metrics.db')
+	conn = sqlite3.connect(db)
+	cursor = conn.cursor()
+	cursor.execute('SELECT * FROM loginMetrics')
+	columns = [description[0] for description in cursor.description]
+	df = pd.DataFrame(cursor.fetchall(), columns = columns)    
+	cursor.close()
+
+	resp = make_response(df.to_csv())
+	resp.headers["Content-Disposition"] = "attachment; filename=CHiMaD_metrics.csv"
+	resp.headers["Content-Type"] = "text/csv"
+	return resp
+
 	
+
 @app.route('/')
 def default():
 	return render_template('index.html', inDesktopApp=inDesktopApp)
