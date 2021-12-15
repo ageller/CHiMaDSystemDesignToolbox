@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, request, render_template, send_file, make_response
+from flask import Flask, jsonify, request, render_template, send_file, make_response, Response
+from functools import wraps
 import pandas as pd
 import os
 import re
@@ -24,6 +25,10 @@ app.config.update(
 # store whether a user submitted a response
 userSubmitted = dict()
 
+#get the passwords
+#the security here should be updated (save an encrypted)
+p = os.path.join(current_location, 'private','access.csv')
+private = pd.read_csv(p)
 
 #I need to set this to true in my gui.py file
 inDesktopApp = False
@@ -552,6 +557,35 @@ def download_paragraphCSV():
 	return resp
 
 
+def check_auth(username, password):
+	"""This function is called to check if a username /
+	password combination is valid.
+	"""
+	allow = False
+	user = private.loc[(private['username'] == username) & (private['password'] == password)]
+	if (len(user.index) > 0):
+		allow = True
+	print('=========== attempting access', username, password, len(user.index), allow, request.authorization)
+	request.close()
+	return allow
+
+def authenticate():
+	"""Sends a 401 response that enables basic auth"""
+	return Response(
+	'Could not verify your access level for that URL.\n'
+	'You have to login with proper credentials', 401,
+	{'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+def requires_auth(f):
+	@wraps(f)
+	def decorated(*args, **kwargs):
+		auth = request.authorization or request.environ.get('REMOTE_USER') 
+		print('checking', auth)
+		if not auth or not check_auth(auth.username, auth.password):
+			return authenticate()
+		return f(*args, **kwargs)
+	return decorated
+
 
 @app.route('/')
 def default():
@@ -582,6 +616,7 @@ def about():
 	return render_template('about.html', inDesktopApp=inDesktopApp)
 
 @app.route('/admin')
+@requires_auth
 def admin():
 	return render_template('admin.html', inDesktopApp=inDesktopApp)
 
