@@ -205,7 +205,8 @@ function defineParams(){
 
 		this.adminParagraphData = {};
 		this.adminParagraphRowsToRemove = [];
-
+		this.adminParagraphRowsLastClick = 0;
+		
 		this.triedLoadingAgain = {};
 
 		this.SDCHist = new histParams

@@ -73,6 +73,10 @@
 						<span style='margin-left:10px; font-size:80%'>Click here to delete this group.</span>
 						<button class='secondaryButton' onclick="deleteGroupname()">Delete</button>
 						<div id="deleteGroupnameNotification" class="notifications" style="margin-left:10px"></div>
+						<br/>
+
+						<span style='margin-left:10px; font-size:80%'>Click here to download this group's SQL database.</span>
+						<button class='secondaryButton' onclick='downloadGroupSQL()'>.db</button>
 					</div>
 				</div>
 
@@ -99,6 +103,9 @@
 							<button class='secondaryButton' style='margin-top:10px' onclick="deleteParagraphRows()">Remove</button>
 							<div id="deleteParagraphRowsNotification" class="notifications" style="margin-left:10px"></div>
 						</div>
+
+						<span style='margin-left:10px; font-size:80%'>Click here to download the responses to this paragraph in .csv format.  (For SQL format, please download the full group.).</span>
+						<button class='secondaryButton' onclick='downloadParagraphCSV()'>.csv</button>
 
 					</div>
 	

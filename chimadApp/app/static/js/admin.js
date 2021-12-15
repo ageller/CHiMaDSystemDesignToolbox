@@ -74,6 +74,7 @@ function adminParaSelect(){
 function adminParaSelectCallback(data){
 	console.log('have para data', data)
 	//create the table
+	params.adminParagraphRowsToRemove = [];
 	params.adminParagraphData = data;
 	params.adminParagraphData.columns.unshift('index')
 	params.adminParagraphData.forEach(function(d,i){d.index = i})
@@ -546,7 +547,6 @@ function makeParagraphTable(input, elem, height=400, width=null){
 //https://codepen.io/chriscoyier/pen/yLVNErX
 
 	console.log('table input', input)
-	params.adminParagraphRowsToRemove = [];
 
 	if (!width){
 		width = params.windowWidth - 2; //2 for border (?)
@@ -588,6 +588,7 @@ function makeParagraphTable(input, elem, height=400, width=null){
 				.style('cursor','pointer')
 				.attr('id','paragraphTableRow' + d.index)
 				.attr('index',d.index)
+				.classed('disable-select', true)
 			row.selectAll('.paragraphTableRow' + d.index).data(input.columns).enter()
 				.append('td')
 				.attr('class','paragraphTableRow' + d.index)
@@ -596,11 +597,19 @@ function makeParagraphTable(input, elem, height=400, width=null){
 				.on('click',markParagraphRowForRemoval)	
 		})
 
+		// highlight those marked for removal
+		params.adminParagraphRowsToRemove.forEach(function(d){
+			d3.select('#paragraphTableRow' + d).classed('rowSelected', true)
+		})
+
 	} else {
 		elem.append('div')
 			.style('font-style','italic')
 			.text('There are no entries in this database.')
+		params.adminParagraphRowsToRemove = [];
+
 	}
+
 
 	return [tab, true];
 
@@ -626,22 +635,53 @@ function sortParagraphTable(){
 
 }
 function markParagraphRowForRemoval(){
-	var cls = d3.select(this).attr('class');
-	var index = parseInt(d3.select(this).attr('index'));
+	var index0 = parseInt(d3.select(this).attr('index'));
+	var indices = [index0];
 
-	var logText = 'adding this row to delete list'
-	if (!isNaN(index)) {
-		d3.select('#' + cls).node().classList.toggle('rowSelected');
-		const i = params.adminParagraphRowsToRemove.indexOf(index);
-		if (d3.select('#' + cls).classed('rowSelected')){
-			if (i < 0) params.adminParagraphRowsToRemove.push(index);
-		} else {
-			logText = 'removing this row from delete list'
-			if (i >= 0) params.adminParagraphRowsToRemove.splice(i, 1);
-		}
-		console.log(logText, cls, index, params.adminParagraphRowsToRemove, this)
+	// shift to select a region (not built yet)
+	if (event.shiftKey && params.adminParagraphRowsToRemove.length > 0){
+		//get a list of indices in the order that they are in the table
+		var mark = false
+		params.adminParagraphData.forEach(function(d){
+			if (mark) indices.push(d.index);
+			if (d.index == params.adminParagraphRowsLastClick || d.index == index0) mark = !mark;
+		})
 	}
+
+
+	console.log('checking', indices, index0)
+	indices.forEach(function(index){
+		var iden = '#paragraphTableRow' + index;
+
+		if (!isNaN(index)) {
+			if (event.shiftKey){
+				var mark = d3.select('#paragraphTableRow' + params.adminParagraphRowsLastClick).classed('rowSelected');
+				console.log(params.adminParagraphRowsLastClick, mark)
+				d3.select(iden).classed('rowSelected', mark);
+			} else {
+				d3.select(iden).node().classList.toggle('rowSelected');
+			}
+
+			const i = params.adminParagraphRowsToRemove.indexOf(index);
+			if (d3.select(iden).classed('rowSelected')){
+				if (i < 0) params.adminParagraphRowsToRemove.push(index);
+			} else {
+				if (i >= 0) params.adminParagraphRowsToRemove.splice(i, 1);
+			}
+
+		}
+	})
+	console.log('rows to remove', params.adminParagraphRowsToRemove)
 
 	d3.select('#deleteParagraphRowsNotification').text('').classed('error', false);
 
+	params.adminParagraphRowsLastClick = index0;
+
+}
+
+function downloadGroupSQL(){
+	window.location.replace("/download_groupSQL?groupname="+params.cleanString(params.groupname))
+}
+function downloadParagraphCSV(){
+	window.location.replace("/download_paragraphCSV?groupname="+params.cleanString(params.groupname)+"&paragraph="+params.cleanString(params.paragraphname))
 }

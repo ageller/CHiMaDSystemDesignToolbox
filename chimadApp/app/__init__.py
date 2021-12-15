@@ -521,6 +521,36 @@ def download_metricsCSV():
 	resp.headers["Content-Type"] = "text/csv"
 	return resp
 
+@app.route('/download_groupSQL')
+def download_groupSQL():
+	groupname = request.args.get('groupname', default = 'default', type = str)
+	print('======= download_groupSQL', groupname)
+	dbname = re.sub('[^A-Za-z0-9]+', '',groupname).lower()+'.db'
+	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
+
+	return send_file(db, as_attachment=True)
+
+
+@app.route('/download_paragraphCSV')
+def download_paragraphCSV():
+	groupname = request.args.get('groupname', default = 'default', type = str)
+	paragraph = request.args.get('paragraph', default = 'polymercompositeexample', type = str)
+	print('======= download_paragraphCSV', groupname, paragraph)
+	dbname = re.sub('[^A-Za-z0-9]+', '',groupname).lower()+'.db'
+	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
+	conn = sqlite3.connect(db)
+	cursor = conn.cursor()
+	tableName = re.sub('[^A-Za-z0-9]+', '',paragraph).lower()
+	cursor.execute('SELECT * FROM ' + tableName)
+	columns = [description[0] for description in cursor.description]
+	df = pd.DataFrame(cursor.fetchall(), columns = columns) 
+	cursor.close()
+
+	resp = make_response(df.to_csv())
+	resp.headers["Content-Disposition"] = "attachment; filename="+tableName+'.csv'
+	resp.headers["Content-Type"] = "text/csv"
+	return resp
+
 
 
 @app.route('/')
