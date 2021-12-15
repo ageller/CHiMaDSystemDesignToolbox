@@ -22,3 +22,7 @@ __pycache__
 ###################
 chimadApp/app/build
 chimadApp/app/dist
+
+# private files
+####################
+chimadApp/app/private
