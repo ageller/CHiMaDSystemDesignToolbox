@@ -203,6 +203,8 @@ function defineParams(){
 		this.inCollaborate = false; //will be true when using the polling feature
 		this.haveAdmin = false; //will be true when admin is loaded
 
+		this.adminParagraphData = {};
+
 		this.triedLoadingAgain = {};
 
 		this.SDCHist = new histParams
