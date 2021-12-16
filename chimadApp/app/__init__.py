@@ -572,8 +572,8 @@ def check_auth(username, password):
 def authenticate():
 	"""Sends a 401 response that enables basic auth"""
 	return Response(
-	'Could not verify your access level for that URL.\n'
-	'You have to login with proper credentials', 401,
+	'Could not verify your access level.\n'
+	'Please login with proper credentials', 401,
 	{'WWW-Authenticate': 'Basic realm="Login Required"'})
 
 def requires_auth(f):
@@ -622,8 +622,8 @@ def admin():
 
 @app.route('/admin_logout')
 def admin_logout():
-    """End the current user session"""
-    return "You have logged out of the CHiMaD System Design Toolbox admin page.", 401
+	"""End the current user session"""
+	return "You have logged out of the CHiMaD System Design Toolbox admin page.", 401
 
 # comment this part out when adding it to the production server
 if __name__ == '__main__':
