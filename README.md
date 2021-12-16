@@ -1,8 +1,8 @@
 # CHiMaD Test Para Form
 
-Testing a paragraph with dropdowns submitting to a google Sheet
+Please note: this main branch is deprecated and disabled.  The current working version is in the flask-app branch.  That version is hosted [here](http://chimad-trainings.rcs.northwestern.edu/)
 
-A live version is available [here](https://ageller.github.io/CHiMaDTestParaForm/).
+Testing a paragraph with dropdowns submitting to a google Sheet
 
 Basic instructions:
 1.	Go to [this page](https://ageller.github.io/CHiMaDTestParaForm/editPara.html) to create/edit your paragraph.
