@@ -23,7 +23,7 @@ function defineParams(){
 
 		//script that will control entries into the google sheet
 		//note: I may have to approve this every so often... I seem to occasionally get CORS errors, but then it is fixed if I deplay a new script (which asks if I approve)
-		this.googleScriptURL = 'https://script.google.com/macros/s/AKfycbwvec5P2s5E4I0E7Wwy9Ej3a-sqAJFZbJEdzJyRVpSZ_yfaHkYUrMx7TMA5yexSvW0/exec';
+		this.googleScriptURL = null
 		
 //the URL of the json getter of the sheet, for the visualization of results
 //sometime near Sept. 2021, Google stopped allowing the simle JSON alt type variant.  Now we need an api_key
@@ -33,7 +33,6 @@ function defineParams(){
 // 1. make the sheet public to the web (File / Publish to Web /)
 // -- good walk through here: https://github.com/bpk68/g-sheets-api#readme
 // 2. use the URL from the share feature to get the ID (between the /d/ and next / in the URL)
-// -- here : https://docs.google.com/spreadsheets/d/1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q/edit?usp=sharing
 // 3. the url will look like : https://sheets.googleapis.com/v4/spreadsheets/'+worksheet_id+'/values/'+tab_name+'?alt=json&key='+key-value
 // -- to worksheet_id is the string in between /d/ and /edit? above
 // -- tab_name is the string name of the tab I want (Sheet1)
@@ -41,15 +40,16 @@ function defineParams(){
 // 4. to set up the API key : https://support.google.com/googleapi/answer/6158862?hl=en
 // 5. I shearched within the Google console cloud for Sheets, and then clicked Enable
 
+//I removed all the information below about the google sheet and the API.  This will not work without adding those back in.
 		this.groupname = 'polymercompositeexample';
 		this.groupnameOrg = 'Polymer Composite Example';
-		this.sheetID = '1wqex6pmdf8CobXEORdC8S5EN7N70EACVaGAp34SmB2Q';
-		this.APIkey = 'AIzaSyDQkhXUUtjzbG61dvodYiIjnr-5JhYdn9s';
-		this.surveyFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/values/'+this.groupname+'/?alt=json&callback=readGoogleSheet&key='+this.APIkey;
-		this.paragraphFile = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/values/paragraphs/?alt=json&callback=readGoogleSheetParagraphs&key='+this.APIkey;
+		this.sheetID = null 
+		this.APIkey = null 
+		this.surveyFile = null 
+		this.paragraphFile = null
 
 		//use this to get the available sheets
-		this.sheetRequest = 'https://sheets.googleapis.com/v4/spreadsheets/'+this.sheetID+'/?alt=json&callback=getAvailableSheets&key='+this.APIkey;
+		this.sheetRequest = null 
 		this.availableGroupnames = []; //this will hold the available sheets
 		this.availableGroupnamesOrg = []; //this will hold the available sheets without changing the characters
 
