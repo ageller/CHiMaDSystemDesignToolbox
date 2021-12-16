@@ -5,7 +5,7 @@ An app for collaboratively creating system design charts.
 A live version is available [here](http://chimad-trainings.rcs.northwestern.edu/).
 
 Basic instructions:
-1.  Go to the CHiMaD System Design Toolbox main page [here](http://chimad-trainings.rcs.northwestern.edu/), and login with your group name.
+1.  Go to the CHiMaD System Design Toolbox main page [here](http://chimad-trainings.rcs.northwestern.edu/), and login with your group name using the button in the upper right corner of the screen.
 2.	Go to [this page](http://chimad-trainings.rcs.northwestern.edu/editPara) to create/edit your paragraph.
 	* You can use the dropdown menu to select an existing paragraph as a starting point.
 	* Click the "edit" button and change the text in the text box to your paragraph, using the encoding described on the page.
