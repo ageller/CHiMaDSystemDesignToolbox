@@ -1,6 +1,6 @@
 # CHiMaD Test Para Form
 
-Please note: this main branch is deprecated and disabled.  The current working version is in the flask-app branch.  That version is hosted [here](http://chimad-trainings.rcs.northwestern.edu/)
+Please note: this main branch is deprecated and disabled.  The current working version is in the flask-app branch.  That version is hosted [here](http://chimad-trainings.rcs.northwestern.edu/).
 
 Testing a paragraph with dropdowns submitting to a google Sheet
 
