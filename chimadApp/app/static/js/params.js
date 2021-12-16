@@ -15,13 +15,21 @@ function defineParams(){
 
 		//this defines the colormap
 		//this.colorMap = d3.scaleLinear().domain([0,1]).interpolate(d3.interpolateHcl).range([d3.rgb("#E0E0E0"), d3.rgb('#2C78CA')]);
-		this.d3colorMap = d3.scaleOrdinal().domain(['low','mid','high']).range([d3.rgb("#D92B9C"), d3.rgb('#DA9F93'), d3.rgb('#2C78CA'), ]);
+		this.colorLow = d3.rgb("#D92B9C");
+		this.colorMid = d3.rgb('#DA9F93');
+		this.colorHigh = d3.rgb('#2C78CA');
+		this.d3colorMap = d3.scaleOrdinal().domain(['low','mid','high']).range([this.colorLow, this.colorMid, this.colorHigh, ]);
 		this.colorMap = function(frac){
 			var labl = 'high';
 			if (frac < params.pctLim) labl = 'mid';
 			if (frac < params.pctLimLow) labl = 'low';
 			return params.d3colorMap(labl);
 		}
+		
+		//color cutoff values
+		this.pctLim = 0.8;//this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
+		this.pctLimLow = 0.4;
+
 		//check to make sure we're ready to create the plots
 		this.haveParagraphData = false;
 		this.haveSurveyData = false;
@@ -168,9 +176,7 @@ function defineParams(){
 		this.SDCready = false;
 		this.SDCcompiler = 'answers';
 
-//this defines the minimum percentage of answers that is acceptable (otherwise the label is emphasized as something to discuss)
-		this.pctLim = 0.8;
-		this.pctLimLow = 0.4;
+
 
 		//will hold mouse events
 		this.event = {'keyCode':null,'clientX':0, 'clientY':0};
@@ -206,7 +212,7 @@ function defineParams(){
 		this.adminParagraphData = {};
 		this.adminParagraphRowsToRemove = [];
 		this.adminParagraphRowsLastClick = 0;
-		
+
 		this.triedLoadingAgain = {};
 
 		this.SDCHist = new histParams

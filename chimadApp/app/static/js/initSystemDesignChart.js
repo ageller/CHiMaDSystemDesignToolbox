@@ -30,11 +30,35 @@ if( $('#SDCAggFracRangeSlider').length ){
 			params.SDCFracAggLims[1] = ui.values[1];
 			$('#SDCAggFracRangeSliderMin').text(params.SDCFracAggLims[0].toFixed(2));
 			$('#SDCAggFracRangeSliderMax').text(params.SDCFracAggLims[1].toFixed(2));
+			updateSDCSliderGradient();
 			limitSDCAggLines();
 		}
 	})
+
+	updateSDCSliderGradient();
 }
 
+function updateSDCSliderGradient(){
+	//add a linear gradient to mark the cutoff values, dependant on the slider values
+	var width = d3.select('#SDCAggFracRangeSlider').node().getBoundingClientRect().width;
+	var grad =  'linear-gradient(to right, ';
+
+	var cut1 = width*(params.pctLimLow - params.SDCFracAggLims[0]);
+	var cut2 = cut1 + width*(params.pctLim - params.pctLimLow);
+	cut1 = Math.min(Math.max(cut1, 0), width);
+	cut2 = Math.min(Math.max(cut2, 0), width);
+
+	//low 
+	grad += params.colorLow + ' 0px, ' + params.colorLow + ' ' + cut1 + 'px,'
+	//mid
+	grad += params.colorMid + ' ' + cut1 + 'px, ' + params.colorMid + ' ' + cut2 + 'px,'
+	//high
+	grad += params.colorHigh + ' ' + cut2 + 'px,' + params.colorHigh + ' ' + width + 'px)'
+
+
+	d3.select('#SDCAggFracRangeSlider').select('.ui-slider-range').style('background', grad);
+
+}
 //date range
 function initSDCAggDateUI(dur){
 
