@@ -620,6 +620,11 @@ def about():
 def admin():
 	return render_template('admin.html', inDesktopApp=inDesktopApp)
 
+@app.route('/admin_logout')
+def admin_logout():
+    """End the current user session"""
+    return "You have logged out of the CHiMaD System Design Toolbox admin page.", 401
+
 # comment this part out when adding it to the production server
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=5000, use_reloader=True)
