@@ -385,6 +385,10 @@ function toAbout(){
 	var fields = getURLFields();
 	window.location.href = fields.urlStart + 'about' + fields.urlAddOn;
 }
+function toDocs(){
+	var fields = getURLFields();
+	window.location.href = fields.urlStart + 'documentation' + fields.urlAddOn;
+}
 function toCollaborate(){
 	var fields = getURLFields();
 	window.location.href = fields.urlStart + 'training' + fields.urlAddOn;

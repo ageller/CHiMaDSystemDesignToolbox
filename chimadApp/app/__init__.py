@@ -615,6 +615,10 @@ def editSDC():
 def about():
 	return render_template('about.html', inDesktopApp=inDesktopApp)
 
+@app.route('/documentation')
+def documentation():
+	return render_template('docs.html', inDesktopApp=inDesktopApp)
+
 @app.route('/admin')
 @requires_auth
 def admin():
