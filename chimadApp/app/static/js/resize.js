@@ -105,7 +105,7 @@ function resize(){
 
 	//for editSDC, want to have histogram but nothing else
 	if (params.haveBars && params.createdBars && !d3.select('#boxGridSVGContainer').node()){
-		d3.select('#boxGrid').style('width',(window.innerWidth-20) + 'px');
+		d3.select('#boxGrid').style('width',(window.innerWidth - 40) + 'px');
 	}
 	if (params.haveBars && params.createdBars && params.paraHist.container.node()) createHistogram(params.paraHist);
 
