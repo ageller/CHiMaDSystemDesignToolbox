@@ -74,6 +74,7 @@ function getAllIndices(arr, val) {
 //https://bl.ocks.org/mbostock/7555321
 //https://stackoverflow.com/questions/24784302/wrapping-text-in-d3/24785497
 function wrapSVGtext(text, width, textToUse) {
+	var fs0 = 18; //px
 	text.each(function () {
 		if (!textToUse) textToUse = d3.select(this).text();
 		var text = d3.select(this),
@@ -81,21 +82,24 @@ function wrapSVGtext(text, width, textToUse) {
 			//words = text.text().split(/\s+/).reverse(),
 			word,
 			splitLine = false,
+			startBullet = false,
+			haveBullet = false,
+			hadBullet = false,
 			line = [],
-			lineNumber = 0,
-			lineHeight = 1.1, // ems
+			lineHeight = fs0*1.1, // px
 			x = text.attr("x"),
 			y = text.attr("y"),
-			dy = 0, //parseFloat(text.attr("dy")),
-			tspan = text.text(null)
-						.append("tspan")
+			dy = 0, 
+			fs = fs0, //px
+			tspan = text.text(null).append("tspan")
+						.style('font-size', fs + 'px')
 						.attr('class','wrappedSVGtext')
 						.attr("x", x)
 						.attr("y", y)
-						.attr("dy", dy + "em");
+						.attr("dy", dy + 'px');
 		while (word = words.pop()) {
 
-			var wordToUse = word.replace('\\n','').replaceAll('{-}','&nbsp&nbsp&nbsp&#8226&nbsp').replaceAll('/ ','/');
+			var wordToUse = word.replace('\\n','').replaceAll('{-}','&nbsp&nbsp&#8226&nbsp').replaceAll('/ ','/');
 
 			line.push(wordToUse);
 
@@ -103,26 +107,56 @@ function wrapSVGtext(text, width, textToUse) {
 			tspan.text(params.removeSubSuperString(line.join(" ").replaceAll('/ ','/')));
 
 			//check if we're over the line length limit
-			if (tspan.node().getComputedTextLength() > width && line.length > 1) splitLine = true;
+			//create an temporary tspan that has text without the nbsp characters (for bullets)
+			var tmpTxt = tspan.text().replaceAll('&nbsp',' ').replaceAll('&#8226',' ')
+			var nSpaces = (tspan.text().match(/&nbsp/g) || []).length + (tspan.text().match(/&#8226/g) || []).length;
+			var tmpTspan = text.append('tspan').text(tmpTxt)
+			if (tmpTspan.node().getComputedTextLength() + nSpaces > width && line.length > 1) splitLine = true;
+			tmpTspan.remove();
 
+			// deal with bullets and vertical spacing
+			startBullet = false;
 
+			//check for bullet
+			if (word.includes('{-}')) {
+				startBullet = true;
+				haveBullet = true;
+				hadBullet = true;
+			}
+
+			//modify the font size and line height for bullets
+			(haveBullet) ? (fs = 0.75*fs0) : (fs = fs0);
+			lineHeight = fs*1.1;
+
+			//add space above when a bullet starts
+			if (startBullet) dy += 0.25*fs0;
+
+			// add space after the end of a stretch of bullets
+			if (hadBullet && !haveBullet) dy += 0.25*fs0;
+				
 			//split the line
 			if (splitLine) {
 				line.pop();
+				if (haveBullet && !startBullet) wordToUse = '&nbsp&nbsp&nbsp&nbsp' + wordToUse;
 				tspan.text(line.join(" ").replaceAll('/ ','/'));
 				line = [wordToUse];
+				dy += lineHeight;
 				tspan = text.append("tspan")
 							.attr('class','wrappedSVGtext')
 							.attr("x", x)
 							.attr("y", y)
-							.attr("dy", ++lineNumber * lineHeight + dy + "em")
-							.text(wordToUse);
+							.attr('dy', dy + 'px')
+							.style('font-size', fs + 'px')
+							.text(wordToUse)
 			}
 
-			//check for return character
-			var splitLine = false;
-			if (word.slice(-2) == '\\n' || word.slice(-2) == '\\r') splitLine = true;
 
+			//check for return character
+			splitLine = false;
+			if (word.slice(-2) == '\\n' || word.slice(-2) == '\\r') {
+				splitLine = true;
+				haveBullet = false;
+			}
 		}
 
 		//fix the last line in case it had sub- or super-script tags
