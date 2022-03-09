@@ -325,8 +325,8 @@ function beginSDCEdit(){
 			.style('height',bbox.height + 'px')
 			.style('z-index',10)
 			.style('position', 'absolute')
-			.style('top', top + 'px') /
-			 .style('left',(bbox.left + window.scrollX) + 'px')
+			.style('top', top + 'px') 
+			.style('left',(bbox.left + window.scrollX) + 'px')
 
 
 		textarea.node().value = d3.select(elem).select('text').attr('orgText');
@@ -509,9 +509,10 @@ function useTextArea(){
 	if (event.target.nodeName != 'TEXTAREA'){
 		var changed = false;
 		d3.selectAll('.SDCTextEditorInput').each(function(){
-			var thisElem = this
+			var thisElem = this;
+			var newText = thisElem.value.replace(/\n/g,'\\n ').replace(/\r/g,'\\n ');
 			var parentElem = d3.select(d3.select(thisElem).attr('selector'));
-			parentElem.attr('id','SDCBox_' + params.cleanString(thisElem.value))
+			parentElem.attr('id','SDCBox_' + params.cleanString(newText))
 			var text = parentElem.select('text')
 
 			//save the original text
@@ -519,8 +520,8 @@ function useTextArea(){
 
 			//now reset things
 			text
-				.attr('orgText',thisElem.value)
-				.text(thisElem.value)
+				.attr('orgText',newText)
+				.text(newText)
 				.call(wrapSVGtext, params.SDCBoxWidth-10);
 
 			//fix any subcripts
@@ -531,20 +532,20 @@ function useTextArea(){
 
 
 
-			if (orgText != thisElem.value){
+			if (orgText != newText){
 				changed = true;
 				//console.log('changed')
 
 				//update the selectionWords
 				var index = -1;
 				index = params.selectionWords.indexOf(orgText);
-				if (index != -1) params.selectionWords[index] = thisElem.value;
+				if (index != -1) params.selectionWords[index] = newText;
 
 				//update the answers
-				if (params.cleanString(orgText) != params.cleanString(thisElem.value)){
+				if (params.cleanString(orgText) != params.cleanString(newText)){
 					var answersParagraph = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.paragraphname) == params.cleanString(params.paragraphname));})[0];
 					var response = answersParagraph[params.cleanString(orgText)];
-					answersParagraph[params.cleanString(thisElem.value)] = response;
+					answersParagraph[params.cleanString(newText)] = response;
 					delete answersParagraph[params.cleanString(orgText)];
 				}
 			}

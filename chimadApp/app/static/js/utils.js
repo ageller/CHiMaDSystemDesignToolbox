@@ -80,6 +80,7 @@ function wrapSVGtext(text, width, textToUse) {
 			words = textToUse.replaceAll('/','/ ').split(/\s+/).reverse(),
 			//words = text.text().split(/\s+/).reverse(),
 			word,
+			splitLine = false,
 			line = [],
 			lineNumber = 0,
 			lineHeight = 1.1, // ems
@@ -93,23 +94,40 @@ function wrapSVGtext(text, width, textToUse) {
 						.attr("y", y)
 						.attr("dy", dy + "em");
 		while (word = words.pop()) {
-			line.push(word);
+
+			var wordToUse = word.replace('\\n','').replaceAll('{-}','&nbsp&nbsp&nbsp&#8226&nbsp').replaceAll('/ ','/');
+
+			line.push(wordToUse);
+
 			//check for my special characters, save the locations and remove them
 			tspan.text(params.removeSubSuperString(line.join(" ").replaceAll('/ ','/')));
-			if (tspan.node().getComputedTextLength() > width && line.length > 1) {
+
+			//check if we're over the line length limit
+			if (tspan.node().getComputedTextLength() > width && line.length > 1) splitLine = true;
+
+
+			//split the line
+			if (splitLine) {
 				line.pop();
 				tspan.text(line.join(" ").replaceAll('/ ','/'));
-				line = [word];
+				line = [wordToUse];
 				tspan = text.append("tspan")
 							.attr('class','wrappedSVGtext')
 							.attr("x", x)
 							.attr("y", y)
 							.attr("dy", ++lineNumber * lineHeight + dy + "em")
-							.text(word.replaceAll('/ ','/'));
+							.text(wordToUse);
 			}
+
+			//check for return character
+			var splitLine = false;
+			if (word.slice(-2) == '\\n' || word.slice(-2) == '\\r') splitLine = true;
+
 		}
+
 		//fix the last line in case it had sub- or super-script tags
 		tspan.text(line.join(" ").replaceAll('/ ','/'));
+
 	});
 }
 
