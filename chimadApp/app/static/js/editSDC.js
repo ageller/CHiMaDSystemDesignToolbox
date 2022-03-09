@@ -59,6 +59,8 @@ function beginSDCEdit(){
 	d3.selectAll('circle').remove();
 	d3.selectAll('.SDCAggregateFracBox').remove();
 	
+	repositionSDC();
+
 	//add blankRect to any rectangles that don't have the category
 	d3.selectAll('.SDCrectContainer').each(function(){
 		var el = d3.select(this);
@@ -308,19 +310,24 @@ function beginSDCEdit(){
 		//remove the current text
 		d3.select(elem).select('text').selectAll('tspan').remove();
 
-		//create a text box with the original text
+		//get the position of the text box
+		var top0 = parseFloat(d3.select('#systemDesignChart').style('top'));
 		var bbox = d3.select(elem).select('rect').node().getBoundingClientRect();
+		var top1 = bbox.top + window.scrollY; //not sure why this required plus, when others have minus
+		var top = top1 - top0;
 
+		//create a text box with the original text
 		var textarea = d3.select('#systemDesignChart').append('textarea')
 			.attr('class', 'SDCTextEditorInput')
 			.attr('name', 'editor')
 			.attr('selector','#'+elem.id)
-			.style('width',elem.width + 'px')
-			.style('height',elem.height + 'px')
+			.style('width',bbox.width + 'px')
+			.style('height',bbox.height + 'px')
 			.style('z-index',10)
 			.style('position', 'absolute')
-			.style('top', (bbox.top + window.scrollY - params.SDCSVGMargin.top)+ 'px') //not sure why this subtraction is needed for y and not x...
-			.style('left',(bbox.left + window.scrollX) + 'px')
+			.style('top', top + 'px') /
+			 .style('left',(bbox.left + window.scrollX) + 'px')
+
 
 		textarea.node().value = d3.select(elem).select('text').attr('orgText');
 		// var txtarea = d3.select('#paraTextEditor').select('textarea');
@@ -470,6 +477,17 @@ function endSDCEdit(){
 	d3.select('#SDCVersionOptions').style('visibility','visible');
 	d3.select('#SDCCompileOptions').style('visibility','visible');
 
+	repositionSDC();
+
+	//move the SDC back down tpo below the buttons
+	//get the top position
+	// var top0 = parseFloat(d3.select('#boxGrid').style('top'));
+	// var bbox = d3.select('#SDCInstructions').node().getBoundingClientRect();
+	// d3.select('#systemDesignChartSVGContainer')
+	// 	.style('position','absolute')
+	// 	.transition()
+	// 		.style('top', (bbox.top + bbox.height + window.scrollY + 50 - top0) + 'px')
+
 	//allow the user to add lines
 	d3.selectAll('.SDCrectContainer').on('mousedown', startSDCLine);
 
@@ -559,6 +577,8 @@ function switchSDCCompiler(val = null){
 		d3.select('#SDCAnswerToggle').style('visibility','visible');
 		d3.select('#SDCAnswerToggleLabel').style('visibility','visible');
 
+		repositionSDC();
+
 		//before resetting the answers check if there are any boxes that have null values in the original answers (these would have been added later)
 		//if so, update to the current value in answers
 		var answersParagraphOrg = params.answersOrg.filter(function(d){return (d.task == 'para' && params.cleanString(d.paragraphname) == params.cleanString(params.paragraphname));})[0];
@@ -599,6 +619,8 @@ function switchSDCCompiler(val = null){
 		d3.selectAll('line').remove();
 		d3.selectAll('circle').remove();
 		d3.selectAll('.SDCAggregateFracBox').remove();
+
+		repositionSDC();
 
 		//build the new answers (could just do this once and save the results in case the user toggles a lot)
 		// if (!params.answersConsensus) params.answersConsensus = {};
@@ -852,5 +874,39 @@ function resetEditSDCAfterParagraphnameInput(){
 	d3.select('#SDCAggToggleDiv').style('visibility','visible')
 	d3.select('#SDCAnswerToggle').style('visibility','visible');
 	d3.select('#SDCAnswerToggleLabel').style('visibility','visible');
+
+}
+
+function repositionSDC(){
+	//move the SDC up to the top so there isn't so much white space?
+	//get the top position
+	var top0 = parseFloat(d3.select('#systemDesignChart').style('top'));
+	//go through the divs and check with is visible
+	var bbox = d3.select('#SDCInstructions').node().getBoundingClientRect();
+	var top1 = bbox.top + bbox.height + window.scrollY + 50;
+	var elemIDs = ['SDCCompileOptions','SSDCResponseToggleLabel','SDCAnswerToggleLabel','SDCAggToggleDiv'];
+	elemIDs.forEach(function(d){
+		var elem = d3.select('#'+d);
+		if (elem.style('visibility') == 'visible' && elem.style('display') != 'none'){
+			bbox = elem.node().getBoundingClientRect();
+			top1 = bbox.top + bbox.height + window.scrollY;
+		}
+	})
+
+	var bbox = d3.select('#SDCInstructions').node().getBoundingClientRect();
+	d3.select('#systemDesignChartSVGContainer')
+		.style('position','absolute')
+		.transition()
+			.style('top', (top1 - top0) + 'px')
+
+
+	//also reposition the buttons
+	bbox = d3.select('#systemDesignChartSVGContainer').node().getBoundingClientRect();
+	top2 = top1 + bbox.height - 20;
+	d3.select('#SDCButtons')
+		.style('position','absolute')
+		.style('min-height', '50px')
+		.style('top', (top2 - top0) + 'px')
+
 
 }
