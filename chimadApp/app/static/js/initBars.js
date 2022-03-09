@@ -165,10 +165,10 @@ function createBars(){
 					.style("fill",function(d){return params.colorMap(d.value);})
 					.style("opacity", params.barOpacity)
 
-			// add blank rects for hovering; these will also be used to show the answers (currently hovering is not needed)
-			thisPlot.selectAll(".barHover")
+			// add blank rects to show the answers (could also be used for hovering)
+			thisPlot.selectAll(".answerBox")
 				.data(params.dummyData[params.cleanString(c)]).enter().append("rect")
-					.attr("class",function(d){ return "barHover " + d.category;})
+					.attr("class",function(d){ return "answerBox " + d.category;})
 					.attr("x", function(d) { return params.boxGridxScale(d.category); })
 					.attr("width", params.boxGridxScale.bandwidth())
 					.attr("y", params.boxGridyScale(1))
@@ -179,6 +179,19 @@ function createBars(){
 					.style("stroke-opacity",0)
 					// .on("mouseover",handleBarMouseOver)
 					// .on("mouseout",handleBarMouseOut);
+
+			// add blank rects to show the responses (could also be used for hovering)
+			thisPlot.selectAll(".responseBox")
+				.data(params.dummyData[params.cleanString(c)]).enter().append("rect")
+					.attr("class",function(d){ return "responseBox " + d.category;})
+					.attr("x", function(d) { return params.boxGridxScale(d.category); })
+					.attr("width", params.boxGridxScale.bandwidth())
+					.attr("y", params.boxGridyScale(1))
+					.attr("height", params.boxGridSVGHistHeight - params.boxGridyScale(1))
+					.style("fill","white")
+					.style("fill-opacity",0)
+					.style("stroke", "none")
+					.style("stroke-opacity",0)
 
 			//add text holder
 			thisPlot.selectAll('.text')
@@ -385,6 +398,7 @@ function defineBars(){
 			if (j == params.selectionWords.length - 1){
 				update.on("end", function(){params.showingResults = true})
 				showParaAnswers();
+				showParaResponses();
 
 				// //check for discrepancies from the provided answers and note this
 				// params.answers.columns.forEach(function(k){
@@ -452,8 +466,8 @@ function showParaAnswers(){
 	var using = params.answers.filter(function(d){return (d.task == 'para' && params.cleanString(d.paragraphname) == params.cleanString(params.paragraphname));})[0];
 	Object.keys(using).forEach(function(k,i){
 		if (k != 'task' && k != 'paragraphname'){
-			var d = d3.select('#'+params.cleanString(k)+'_bar').select('.barHover.'+using[k])
-				.style('stroke','black')
+			var d = d3.select('#'+params.cleanString(k)+'_bar').select('.answerBox.'+using[k])
+				.style('stroke',params.SDCAnswerLineColor)
 				.style('stroke-width',2)
 				.style('stroke-opacity',function(){
 					if (params.transitionParaAnswers) return 0;
@@ -473,12 +487,51 @@ function showParaAnswers(){
 
 }
 
+function showParaResponses(){
+	var using = params.responses.filter(function(d){return (d.task == 'para' && d.username == params.username);});
+	if (using.length > 1){
+		var maxVersion = 1;
+		using.forEach(function(d){
+			maxVersion = Math.max(d.version, maxVersion);
+		})
+		console.log('maxVersion', maxVersion)
+		using = params.responses.filter(function(d){return (d.task == 'para' && d.username == params.username && d.version == maxVersion);});
+	}
+	using = using[0];
+
+	Object.keys(using).forEach(function(k,i){
+		if (k != 'task' && k != 'paragraphname'){
+			var d = d3.select('#'+params.cleanString(k)+'_bar').select('.responseBox.'+using[k])
+				.style('stroke',params.SDCResponseLineColor)
+				.style('stroke-width',2)
+				.style('stroke-opacity',function(){
+					if (params.transitionParaAnswers) return 0;
+					return 1;
+				})
+				.classed('responseBorder', true)
+		}
+		if (i == Object.keys(using).length - 1) {
+			toggleParaResponses();
+			params.transitionParaResponses = false;
+		}
+	})
+
+	if (!params.showParaResponses){
+		d3.selectAll('.responseBorder').style('stroke-opacity',0);
+	}
+
+}
+
 function toggleParaAnswers(){
 	var op = 0;
 	if (params.showParaAnswers) op = 1;
 	d3.selectAll('.answerBorder').transition().duration(params.transitionDuration).style('stroke-opacity',op)
 }
-
+function toggleParaResponses(){
+	var op = 0;
+	if (params.showParaResponses) op = 1;
+	d3.selectAll('.responseBorder').transition().duration(params.transitionDuration).style('stroke-opacity',op)
+}
 function switchParaVersions(){
 	if (this.name == "version"){
 		params.paraResponseVersion = this.value;
@@ -492,5 +545,9 @@ function switchParaVersions(){
 	if (this.name == "answers"){
 		params.showParaAnswers = this.checked;
 		toggleParaAnswers();
+	}
+	if (this.name == "responses"){
+		params.showParaResponses = this.checked;
+		toggleParaResponses();
 	}
 }

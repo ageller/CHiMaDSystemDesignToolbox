@@ -82,6 +82,7 @@ function defineParams(){
 
 		this.answersParagraphnames = {'para':[],'SDC':[]};
 		this.showParaAnswers = true; //can be toggled with checkbox
+		this.showParaResponses = true; //can be toggled with checkbox
 		this.showSDCAnswers = true; //can be toggled with checkbox
 		this.showSDCAggregate = true; //can be toggled with checkbox
 
@@ -153,8 +154,8 @@ function defineParams(){
 		this.SDCBoxWidth;
 		this.SDCInitBoxHeight = 40; 
 
-		this.SDCAanswerLineThickness = 4;
-		this.SDCAanswerLineColor = '#636363';
+		this.SDCAnswerLineThickness = 4;
+		this.SDCAnswerLineColor = '#636363';
 		this.SDCResponseLineThickness = 2;
 		this.SDCResponseLineColor = '#000000';
 		this.SDCAggLineThickness = 6;

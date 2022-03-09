@@ -71,8 +71,12 @@
 
 				<form id="paraVersionOptions" class='versionOptions'>
 					<div>After you submit your responses, select which version of the aggregated responses to display and whether to show the answers.</div>
+					<input type="checkbox" id="paraResponseoggle"  name="responses" value="1" class="radio" checked>
+					<label for="paraResponseToggle">Show your responses (black boxes)</label><br>
+
 					<input type="checkbox" id="paraAnswerToggle" class='answerToggle' name="answers" value="1" class="radio" checked>
-					<label for="paraAnswerToggle" class='answerToggle'>Show answers (black boxes)</label><br>
+					<label for="paraAnswerToggle" class='answerToggle'>Show answers (gray boxes, where different from your responses)</label><br>
+
 
 					<input type="radio" id="paraVersion0" name="version" value="0" class="radio" checked>
 					<label for="paraVersion0">Aggregate all responses</label><br>
