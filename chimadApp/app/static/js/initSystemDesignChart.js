@@ -965,8 +965,8 @@ function plotSDCAnswerLines(duration = 0){
 										.attr('endSelectionWords',w) //custom attribute to track the ending word(s)			
 										.attr('id','SDCAnswerLine_'+params.SDCLineIndex)
 										.attr('class','SDCAnswerLine SDCAnswerLine_'+startWords+ ' SDCAnswerLine_'+w)
-										.attr('stroke',params.SDCAanswerLineColor)
-										.attr('stroke-width',params.SDCAanswerLineThickness)
+										.attr('stroke',params.SDCAnswerLineColor)
+										.attr('stroke-width',params.SDCAnswerLineThickness)
 										.attr('stroke-linecap','round') 
 										.attr('x1', x1)
 										.attr('y1', y1)
@@ -1004,7 +1004,7 @@ function recolorSDCAnswers(){
 		var startWords = elem.attr('startSelectionWords');
 		var w = elem.attr('endSelectionWords');
 
-		var strokeColor = params.SDCAanswerLineColor;
+		var strokeColor = params.SDCAnswerLineColor;
 		//check for a discrepancy and plot that in pink 
 		var aggElem = d3.select('.SDCAggregateLine_'+startWords+'.SDCAggregateLine_'+w);
 		if (!aggElem) {
