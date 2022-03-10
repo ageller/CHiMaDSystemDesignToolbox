@@ -30,4 +30,6 @@ private
 
 # data files #
 ####################
-chimadApp/app/static/data
+#chimadApp/app/static/data
+*.db
+*.csv
