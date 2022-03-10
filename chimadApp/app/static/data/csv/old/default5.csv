@@ -1,0 +1,5 @@
+Timestamp,IP,username,version,task,lightweightmechanical,toughness,strengthstiffness,lowdensity,extremeenvironments,slowdegradationrateswhenexposedtoo2h2oandsalts
+10/20/2021 20:51:11,00.000.00.00,AaronGeller100,1,para,Processing,Property,Structure,Structure,Performance,Performance
+10/20/2021 20:52:04,00.000.00.00,AaronGeller100,2,para,Structure,Property,Performance,Property,Processing,Property
+10/20/2021 20:52:16,00.000.00.00,AaronGeller100,1,SDC,lowdensity,,,strengthstiffness,lightweightmechanical,
+10/20/2021 20:52:25,00.000.00.00,AaronGeller100,2,SDC,lowdensity slowdegradationrateswhenexposedtoo2h2oandsalts,lightweightmechanical,,strengthstiffness,lightweightmechanical,strengthstiffness
