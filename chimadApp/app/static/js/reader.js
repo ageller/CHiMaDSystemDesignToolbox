@@ -307,7 +307,7 @@ function aggregateParaResults(UIduration = params.transitionDuration){
 	//in order to keep things a bit more simple, I will push a blank entry for version 0 (I may want to clean this up later)
 	params.aggregatedParaResponses = {}
 
-	var responses = params.responses.filter(function(d){return (d.task == 'SDC');});
+	var responses = params.responses.filter(function(d){return (d.task == 'para');});
 	var versions = [0];
 	responses.forEach(function(d){
 		if (!(d.version in versions)) versions.push(d.version);
