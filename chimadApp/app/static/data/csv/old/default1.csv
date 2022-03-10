@@ -1,5 +1,0 @@
-Timestamp,IP,username,version,task,lightweightmechanical,toughness,strengthstiffness,lowdensity,extremeenvironments,slowdegradationrateswhenexposedtoo2h2oandsalts,thermalexpansioncoefficientmismatch
-9/16/2021,00.000.00.00,AaronGeller1,1,para,Processing,Processing,Structure,Structure,Property,Performance,Performance
-9/16/2021,00.000.00.00,AaronGeller1,2,para,Processing,Processing,Structure,Structure,Property,Property,Performance
-9/16/2021,00.000.00.00,AaronGeller1,1,SDC,strengthstiffness,strengthstiffness,extremeenvironments slowdegradationrateswhenexposedtoo2h2oandsalts,slowdegradationrateswhenexposedtoo2h2oandsalts,,thermalexpansioncoefficientmismatch,
-9/16/2021,00.000.00.00,AaronGeller1,2,SDC,strengthstiffness,lowdensity,extremeenvironments slowdegradationrateswhenexposedtoo2h2oandsalts,slowdegradationrateswhenexposedtoo2h2oandsalts,thermalexpansioncoefficientmismatch,thermalexpansioncoefficientmismatch,
