@@ -27,3 +27,7 @@ chimadApp/app/dist
 ####################
 chimadApp/app/private
 private
+
+# data files #
+####################
+chimadApp/app/static/data
