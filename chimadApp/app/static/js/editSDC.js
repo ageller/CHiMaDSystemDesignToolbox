@@ -33,6 +33,20 @@ d3.select('#saveAsPNG').on('click',function(){
 	saveSvgAsPng(node, 'SystemDesignChart.png');
 })
 
+//attach a function to the sve as svg button
+d3.select('#saveAsSVG').on('click',function(){
+	//get the node and size 
+	var node = d3.select('#SDCPlotSVG').node();
+	var bbox = node.getBoundingClientRect();
+
+	//https://morioh.com/p/287697cc17da
+	svgExport.downloadSvg(
+		node, // 
+		'SystemDesignChart', // chart title: file name of exported image
+		{ width: bbox.width, height: bbox.height } // options 
+	);
+})
+
 //attach a funciton to the save as pptx button
 d3.select('#saveAsPPTX').on('click',saveAsPPTX);
 
