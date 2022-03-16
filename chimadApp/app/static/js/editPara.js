@@ -25,11 +25,14 @@ params.haveParaEditor = true;
 
 //should I do this, or do I want to read in all the answers from the form first (once that is set up)?
 //for now I will populate from URL
-//populateAnswersFromURL();
 
 //use the URL data if it exists to define the answers
 function populateAnswersFromURL(){
+	var haveSDCAnswers = false;
+	var haveParaAnswers = false;
+
 	readURLdata();
+
 	var keys = Object.keys(params.URLInputValues);
 	var aPara= {}
 	var aSDC = {}
@@ -40,9 +43,9 @@ function populateAnswersFromURL(){
 			var endWords = decodeURI(params.URLInputValues[k]).split(' ');
 			var blanks = getAllIndices(endWords,"");
 			blanks.forEach(function(b){endWords.splice(b, 1)});
-			aSDC[startWords] = endWords
+			aSDC[startWords] = lowerArray(endWords);
 		} else {
-			aPara[k] = decodeURI(params.URLInputValues[k])
+			aPara[k] = decodeURI(params.URLInputValues[k]).toLowerCase();
 		}
 	});
 
@@ -50,25 +53,44 @@ function populateAnswersFromURL(){
 		if (params.cleanString(a.paragraphname) == params.cleanString(params.paragraphname)){
 			if (a.task == 'para'){
 				Object.keys(aPara).forEach(function(k){
+					if (a[k] != aPara[k]) haveParaAnswers = true;
 					a[k] = aPara[k];
 				})
 			}
 			if (a.task == 'SDC'){
 				Object.keys(aSDC).forEach(function(k){
+					if (a[k] != aSDC[k]) haveSDCAnswers = true;
 					a[k] = aSDC[k];
 				})
 			}
 		}
 	})
 
-	params.answersParagraphnames = [params.cleanString(params.paragraphname)];
-
+	console.log('checking', haveParaAnswers, aPara)
+	if (haveParaAnswers){
+		params.userModified = true;
+		if (Array.isArray(params.answersParagraphnames.para)){
+			if (params.answersParagraphnames.para.includes(params.cleanString(params.paragraphname))) params.answersParagraphnames.para.push(params.cleanString(params.paragraphname))
+		} else {
+			params.answersParagraphnames.para = [params.cleanString(params.paragraphname)];
+		}
+	}
+	if (haveSDCAnswers){
+		params.userModified = true;
+		if (Array.isArray(params.answersParagraphnames.SDC)){
+			if (params.answersParagraphnames.SDC.includes(params.cleanString(params.paragraphname))) params.answersParagraphnames.SDC.push(params.cleanString(params.paragraphname))
+		} else {
+			params.answersParagraphnames.SDC = [params.cleanString(params.paragraphname)];
+		}
+	}
 }
 
 function beginParaEdit(){
 	if (params.groupname != 'default' && params.availableGroupnames.includes(params.groupname)){
 		console.log('editing paragraph');
 		params.edittingPara = true;
+		params.userModified = true;
+		params.userSubmitted = false;
 
 		//reset the URL
 		resetURLdata(['groupname']);
@@ -107,6 +129,8 @@ function beginParaEdit(){
 function saveParaEdit(){
 	console.log('saving paragraph');
 	params.edittingPara = false;
+	params.userModified = false;
+	params.userSubmitted = true;
 	d3.select('#answerSubmitNotification')
 		.classed('blink_me', false)
 		.classed('error', false)
@@ -143,7 +167,7 @@ function saveParaEdit(){
 
 		//add to the paragraphs table in the database (answers will come later with the onAnswersSubmit)
 		out = {'tablename':'paragraphs', 'dbname':params.dbname}
-		out.data = {'paragraphname':params.paragraphnameOrg,'paragraph':newText,'answersJSON':''};
+		out.data = {'paragraphname':params.paragraphname,'paragraph':newText,'answersJSON':''};
 		params.nTrials = 0; //this may not work properly since I have a submit up above...
 		sendResponsesToFlask(out, 'paragraphnameNotification', false, 'Paragraph updated successfully.');
 
@@ -179,9 +203,11 @@ function onAnswersSubmit(){
 				if (params.cleanString(a.paragraphname) == params.cleanString(params.paragraphname)) answersData.push(a);
 			})
 			var out = {'tablename':'paragraphs', 'dbname':params.dbname}
-			out.data = {'paragraphname':params.paragraphnameOrg,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
+			out.data = {'paragraphname':params.paragraphname,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
 			sendResponsesToFlask(out, 'answerSubmitNotification', false, 'Answers updated successfully.');
 			console.log('answers submitted', out);
+			params.userModified = false;
+			params.userSubmitted = true;
 		}
 	} else {
 		d3.select('#answerSubmitNotification')

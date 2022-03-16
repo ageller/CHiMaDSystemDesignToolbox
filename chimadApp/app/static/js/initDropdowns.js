@@ -64,9 +64,11 @@ function createDropdowns(){
 						d3.select(parent).classed('wrongBorder', wrong);
 						var key = params.cleanString(params.revertSubSuperString(d3.select(parent).select('text').node().innerHTML));
 						params.URLInputValues[key] = this.value;
+						params.userModified = true;
+						params.userSubmitted = false;
 						appendURLdata();
 						if (params.haveParaEditor){
-							if (!params.answersParagraphnames['para'].includes(params.cleanString(params.paragraphname))) params.answersParagraphnames['parap'].push(params.cleanString(params.paragraphname));
+							if (!params.answersParagraphnames['para'].includes(params.cleanString(params.paragraphname))) params.answersParagraphnames['para'].push(params.cleanString(params.paragraphname));
 							params.answers.forEach(function(a){
 								if (params.cleanString(a.paragraphname) == params.cleanString(params.paragraphname) && a.task == 'para') a[key] = params.cleanString(params.URLInputValues[key]);
 							})

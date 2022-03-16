@@ -136,7 +136,7 @@ function wrapSVGtext(text, width, textToUse) {
 				dy += 0.25*fs0;
 				hadBullet = false;
 			}
-				
+
 			//split the line
 			if (splitLine) {
 				line.pop();
@@ -294,3 +294,25 @@ function hexToRgb(hex) {
 		b: parseInt(result[3], 16)
 	} : null;
 }
+
+//to warn a user if they are navigating away from the page without saving their answers
+//https://www.geeksforgeeks.org/how-to-display-warning-before-leaving-the-web-page-with-unsaved-changes-using-javascript/
+//https://www.geeksforgeeks.org/how-to-display-warning-before-leaving-the-web-page-with-unsaved-changes-using-javascript/
+window.onload = function() {
+	window.addEventListener("beforeunload", function (e) {
+
+		if (params.userModified && !params.userSubmitted) {
+
+			e.preventDefault();
+
+			//this custom message may not work in all browsers
+			var confirmationMessage = 'This page has unsubmitted responses.  If you leave before submitting, your changes will be lost.';
+			
+			(e || window.event).returnValue = confirmationMessage; //Gecko + IE
+			return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+		}
+		return undefined;
+		
+
+	});
+};

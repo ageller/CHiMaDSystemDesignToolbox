@@ -156,6 +156,9 @@ function setSDCResponseDateRange(){
 	}
 }
 function createSystemDesignChart(){
+	//for the paragraph editor, I will grab possible additional answers from the URL(?)
+	if (params.haveParaEditor) populateAnswersFromURL();
+
 	if (!params.SDCLineHighlighted){
 		console.log('creating system design chart ...', params.answersParagraphnames);
 
@@ -512,6 +515,7 @@ function startSDCLine() {
 				var cat = elem.node().classList[1]
 				var words = elem.attr('selectionWords')
 				var i = lowerArray(params.options).indexOf(cat);
+
 				if (i > -1 && i < params.options.length-1 && !isNaN(x) && !isNaN(y)) createSDCLine(elem, x,y,x,y,cat,words,'null');	
 			}
 		}
@@ -652,6 +656,8 @@ function endSDCLine() {
 						if (!params.URLInputValues[word1].includes(params.SDCLine.attr('endSelectionWords'))) word2 += '%20'+params.SDCLine.attr('endSelectionWords');
 					} 
 					params.URLInputValues[word1] = word2;
+					params.userModified = true;
+					params.userSubmitted = false;
 					appendURLdata();
 				} else {
 					console.log('!! duplicate line', check.size(), word1, word2);
@@ -679,6 +685,8 @@ function endSDCLine() {
 					params.URLInputValues[word1] = word2;
 					if (word2 == '') delete params.URLInputValues[word1]
 				}
+				params.userModified = true;
+				params.userSubmitted = false;
 				appendURLdata();
 
 			}

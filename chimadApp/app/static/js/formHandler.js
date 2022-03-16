@@ -84,6 +84,9 @@ function onParaSubmit(){
 	//when form is submitted, compile responses and send the flask
 
 	console.log('username',params.username);
+	params.userSubmitted = true;
+	params.userModified = false;
+
 	var submitted1 = params.paraSubmitted;
 	params.paraSubmitted = false;
 
@@ -161,6 +164,9 @@ function onParaSubmit(){
 function onSDCSubmit(){
 	//gather all the data from the lines that were drawn, and send them to flask
 
+	params.userSubmitted = true;
+	params.userModified = false;
+	
 	params.nTrials = 0;
 	d3.select('#SDCNotification')
 		.classed('blink_me', true)
