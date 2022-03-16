@@ -222,6 +222,8 @@ function defineParams(){
 		//tracking the user input to make sure they don't navigate away from page without submitting responses
 		this.userModified = false;
 		this.userSubmitted = false;
+
+		this.SDCOneWayLineOffset = 10;
 	};
 
 	//check for mobile

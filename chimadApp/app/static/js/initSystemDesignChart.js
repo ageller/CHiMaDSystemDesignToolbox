@@ -517,6 +517,82 @@ function createSDCLine(elem,x1,y1,x2,y2,cat,startWords,endWords, opacity=1){
 
 }
 
+function createOneWaySDCLine(elem,x1,y1,x2,y2,cat,startWords,endWords, opacity=1){
+	//Note: x2 is not used here, but keeping the syntax the same as createSDCLine (for now)
+	params.SDCLineIndex += 1;
+
+	// horizontal starting piece
+	params.SDCSVG.append('line')
+		.attr('id','oneway0SDCLine_'+params.SDCLineIndex)
+		.attr('class','oneway0 SDCLine SDCLine_'+startWords+' SDCLine_'+endWords)
+		.attr('stroke',params.SDCResponseLineColor)
+		.attr('stroke-width',params.SDCResponseLineThickness)
+		.attr('stroke-linecap','square')
+		.attr('x1', x1 + 'px')
+		.attr('y1', y1 + 'px')
+		.attr('x2', (x1 - params.SDCOneWayLineOffset) + 'px')
+		.attr('y2', y1 + 'px')
+		.style('stroke-opacity',opacity)
+
+	// horizontal ending piece
+	params.SDCSVG.append('line')
+		.attr('id','oneway1SDCLine_'+params.SDCLineIndex)
+		.attr('class','oneway1 SDCLine SDCLine_'+startWords+' SDCLine_'+endWords)
+		.attr('stroke',params.SDCResponseLineColor)
+		.attr('stroke-width',params.SDCResponseLineThickness)
+		.attr('stroke-linecap','square')
+		.attr('x1', (x1 - params.SDCOneWayLineOffset) + 'px')
+		.attr('y1', y2 + 'px')
+		.attr('x2', x1 + 'px')
+		.attr('y2', y2 + 'px')
+		.style('stroke-opacity',opacity)
+
+	//main line
+	params.SDCLine = params.SDCSVG.append('line')
+		.attr('attached','false') //custom attribute to track if the line is connected
+		.attr('startCategory',cat) //custom attribute to track the starting category
+		.attr('endCategory','null') //custom attribute to track the ending category
+		.attr('startSelectionWords',startWords) //custom attribute to track the starting word(s)
+		.attr('endSelectionWords',endWords) //custom attribute to track the ending word(s)			
+		.attr('id','SDCLine_'+params.SDCLineIndex)
+		.attr('class','oneway SDCLine SDCLine_'+startWords+' SDCLine_'+endWords)
+		.attr('stroke',params.SDCResponseLineColor)
+		.attr('stroke-width',params.SDCResponseLineThickness)
+		.attr('stroke-linecap','square')
+		.attr('x1', (x1 - params.SDCOneWayLineOffset) + 'px')
+		.attr('y1', y1 + 'px')
+		.attr('x2', (x1 - params.SDCOneWayLineOffset) + 'px')
+		.attr('y2', y2 + 'px')
+		.style('stroke-opacity',opacity)
+		.on('mousedown', moveExistingSDCLine)
+		//.on('mouseover',function(){highlightSDCLines(elem)})
+		//.on('mouseout',resetSDCLines);
+
+	params.SDCCircle0 = params.SDCSVG.append('circle')
+		.attr('id','SDCCircle0_'+params.SDCLineIndex)
+		.attr('class','SDCCircle0 SDCLine_'+startWords+' SDCLine_'+endWords)
+		.attr('fill', params.SDCResponseLineColor)
+		.attr('cx',x1 + 'px')
+		.attr('cy',y1 + 'px')
+		.attr('r',(2*params.SDCResponseLineThickness) + 'px')
+		.style('opacity',opacity)
+		.on('mousedown', startSDCLine)
+		//.on('mouseover',function(){highlightSDCLines(elem)})
+		//.on('mouseout',resetSDCLines);
+
+	params.SDCCircle = params.SDCSVG.append('circle')
+		.attr('id','SDCCircle_'+params.SDCLineIndex)
+		.attr('class','SDCCircle SDCLine_'+startWords+' SDCLine_'+endWords)
+		.attr('fill', params.SDCResponseLineColor)
+		.attr('cx',x1 + 'px')
+		.attr('cy',y2 + 'px')
+		.attr('r',(2*params.SDCResponseLineThickness) + 'px')
+		.style('opacity',opacity)
+		.on('mousedown', moveExistingSDCLine)
+		//.on('mouseover',function(){highlightSDCLines(elem)})
+		//.on('mouseout',resetSDCLines);
+
+}
 //draw lines 
 function startSDCLine() {
 	//get right side of box
@@ -529,12 +605,30 @@ function startSDCLine() {
 	}
 	highlightSDCLines(elem)
 
+
+
 	if (params.showSDCResponses){
 
 		elem = d3.select(elem);
 		if (elem){
 			if (elem.select('rect')){
-				var x = parseFloat(elem.attr('x')) + params.SDCBoxWidth;
+
+				//within editSDC we want to allow one-way structure linkages.  Check for that here based on
+				// - if the column is structure
+				// - if the user is on the left side of the box
+				var oneWayLine = false
+				if (params.haveSDCEditor){
+					if (elem.node().classList.contains('structure')){
+						var bbox = elem.select('rect').node().getBoundingClientRect();
+						var xFrac = (params.event.clientX - (bbox.left + window.scrollX))/params.SDCBoxWidth;
+						if (xFrac < 0.5){
+							oneWayLine = true
+						}
+					}
+				}
+
+
+				var x = parseFloat(elem.attr('x'));//
 				var y = parseFloat(elem.attr('y')) + parseFloat(elem.select('rect').attr('height'))/2.;
 
 				//get the category from the rect class list (will this always be the last class value?)
@@ -542,7 +636,14 @@ function startSDCLine() {
 				var words = elem.attr('selectionWords')
 				var i = lowerArray(params.options).indexOf(cat);
 
-				if (i > -1 && i < params.options.length-1 && !isNaN(x) && !isNaN(y)) createSDCLine(elem, x,y,x,y,cat,words,'null');	
+				if (i > -1 && i < params.options.length-1 && !isNaN(x) && !isNaN(y)) {
+					if (oneWayLine){
+						createOneWaySDCLine(elem, x,y,x,y,cat,words,'null');	
+					} else{
+						x += params.SDCBoxWidth;
+						createSDCLine(elem, x,y,x,y,cat,words,'null');	
+					}
+				}
 			}
 		}
 
@@ -576,6 +677,8 @@ function moveSDCLine() {
 		} 
 
 		if (params.SDCLine && params.showSDCResponses){
+			var oneway = params.SDCLine.node().classList.contains('oneway');
+
 			//fix for Firefox
 			var offX  = (params.event.offsetX || params.event.pageX - d3.select('#SDCPlotSVG').node().getBoundingClientRect().left - window.scrollX);
 			var offY  = (params.event.offsetY || params.event.pageY - d3.select('#SDCPlotSVG').node().getBoundingClientRect().top - window.scrollY);
@@ -587,6 +690,9 @@ function moveSDCLine() {
 
 			//snap to object if close enough
 			elem = document.elementFromPoint(params.event.clientX + 20, params.event.clientY);
+			if (oneway){
+				elem = document.elementFromPoint(params.SDCLine.node().getBoundingClientRect().x + 20, params.event.clientY);
+			}
 			var attached = false;
 			if (elem){
 				//check parents for tspan
@@ -605,12 +711,22 @@ function moveSDCLine() {
 					var adjacent = false;
 					var i = lowerArray(params.options).indexOf(cat);
 					var i0 = lowerArray(params.options).indexOf(cat0);
-					if (i - i0 == 1) adjacent = true;
+
+					if (oneway){
+						//oneway lines
+						if (i == i0 && params.SDCLine.attr('startSelectionWords') != endWords) adjacent = true
+					} else {
+						//normal lines
+						if (i - i0 == 1) adjacent = true;
+					}
 					if (adjacent){
 						attached = true;
 						//get left side of box
 						x = parseFloat(parent.attr('x'));
 						y = parseFloat(parent.attr('y')) + parseFloat(parent.select('.SDCrect').attr('height'))/2.;
+						var last = params.SDCLine.attr('endSelectionWords');
+						if (last && last != 'null') params.SDCLine.attr('endSelectionWordsLast',last)
+
 						params.SDCLine
 							.attr('attached','true')
 							.attr('endCategory', cat)
@@ -621,30 +737,59 @@ function moveSDCLine() {
 						params.SDCCircle.classed('SDCLine_'+endWords, true);
 						params.SDCCircle0.classed('SDCLine_null', false);
 						params.SDCCircle0.classed('SDCLine_'+endWords, true);
+
+						if (oneway){
+							d3.select('#oneway0' + params.SDCLine.attr('id')).attr('class','oneway0 SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords'));
+							d3.select('#oneway1' + params.SDCLine.attr('id')).attr('class','oneway1 SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords'));
+						}
 					}
 				} 
 			}
 			if (!attached){
+				var last = params.SDCLine.attr('endSelectionWords');
+				if (last && last !='null') params.SDCLine.attr('endSelectionWordsLast',last)
 				params.SDCLine
 					.attr('attached','false')
 					.attr('endCategory', 'null')
 					.attr('endSelectionWords','null')
 					.attr('class','SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords'));
+				params.SDCLine.classed('oneway', oneway)
+				if (oneway){
+					d3.select('#oneway0' + params.SDCLine.attr('id')).attr('class','oneway0 SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords'));
+					d3.select('#oneway1' + params.SDCLine.attr('id')).attr('class','oneway1 SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords'));
+				}
 			}
 			
 
-			var x1 = params.SDCLine.attr('x1')
-			var y1 = params.SDCLine.attr('y1')
-			if (x < x1){
+			var x1 = parseFloat(params.SDCLine.attr('x1'));
+			var y1 = parseFloat(params.SDCLine.attr('y1'));
+			cxOff = 0
+			if (oneway){
+				//oneway lines only move up and down
 				x = x1;
-				y = y1
+				
+				//move the ending piece
+				d3.select('#oneway1' + params.SDCLine.attr('id'))
+					.attr('y1', y + 'px')
+					.attr('y2', y + 'px')
+				
+				//offset for the circle
+				cxOff = params.SDCOneWayLineOffset;
+
+			} else {
+				//normal lines only move to the right
+				if (x < x1){
+					x = x1;
+					y = y1
+				}
 			}
+
 			params.SDCLine
 				.attr('x2', x + 'px')
 				.attr('y2', y + 'px');
 
 			params.SDCCircle
-				.attr('cx', x + 'px')
+				.attr('cx', (x + cxOff) + 'px')
 				.attr('cy', y + 'px');
 
 		}
@@ -661,6 +806,41 @@ function moveExistingSDCLine(){
 	}
 }
 
+function removeSDCLine(){
+	var oneway = params.SDCLine.node().classList.contains('oneway');
+	console.log('removing', oneway, params.SDCLine.attr('id'))
+	if (oneway){
+		d3.select('#oneway0' + params.SDCLine.attr('id')).remove()
+		d3.select('#oneway1' + params.SDCLine.attr('id')).remove()
+	}
+	params.SDCLine.remove();
+	params.SDCCircle.remove();
+	params.SDCCircle0.remove();
+
+}
+function removeSDCLineFromURL(word1){
+	var words = params.SDCLine.attr('class').replaceAll('SDCLine_','').replaceAll('SDCLine','').replaceAll('oneway','').match(/[^ ]+/g);
+	console.log(params.SDCLine.node())
+	var toRemove = '';
+	words.forEach(function(w){
+		if (w != word1 && w != '') toRemove = w; //there should only be two in here
+	})
+
+	//if this has already been removed from the class, check for the last end work
+	if (!toRemove || toRemove == word1) toRemove = params.SDCLine.attr('endSelectionWordsLast');
+	if (toRemove){
+		word2 = params.URLInputValues['SDC'+word1].replace(toRemove,'').replace('%20%20','%20');
+		if (word2.substring(word2.length - 3) == '%20') word2 = word2.substring(0, word2.length - 3);
+		params.URLInputValues['SDC'+word1] = word2;
+		if (word2 == '') delete params.URLInputValues['SDC'+word1]
+		params.userModified = true;
+		params.userSubmitted = false;
+		appendURLdata();
+	} else {
+		console.log('!!! Warning, could not remove from URL', toRemove, params.SDCLine.node())
+	}
+}
+
 function endSDCLine() {
 	if (params.showSDCResponses){
 
@@ -669,6 +849,8 @@ function endSDCLine() {
 		window.event.returnValue = true;
 		
 		if (params.SDCLine){
+			var oneway = params.SDCLine.node().classList.contains('oneway');
+
 			var word1 = 'SDC'+params.SDCLine.attr('startSelectionWords');
 			var word2 = '';
 			if (params.SDCLine.attr('attached') == 'true'){
@@ -678,8 +860,26 @@ function endSDCLine() {
 				if (check.size() <= 1){
 					//add to URL
 					if (params.URLInputValues.hasOwnProperty(word1)){
-						word2 = params.URLInputValues[word1];
-						if (!params.URLInputValues[word1].includes(params.SDCLine.attr('endSelectionWords'))) word2 += '%20'+params.SDCLine.attr('endSelectionWords');
+						//check to make sure all the lines are accounted for
+						console.log(word1, params.URLInputValues[word1])
+						var URLwords = params.URLInputValues[word1].split('%20')
+						if (!Array.isArray(URLwords)) URLwords = [URLwords]
+						URLwords.push(word2);
+						var useWords = [];
+						URLwords.forEach(function(w){
+							check = d3.selectAll('.SDCLine.SDCLine_'+word1.substring(3,word1.length)+'.SDCLine_'+w)
+								.filter(function(){
+									if (d3.select(this).classed('oneway1') || d3.select(this).classed('oneway2')) return false;
+									return true;
+								});
+							if (check.size() > 0 && !useWords.includes(w)) useWords.push(w);
+						})
+						word2 = ''
+						useWords.forEach(function(w, i){
+							if (i > 0) word2 += '%20'
+							word2 += w;
+						})	
+						console.log(URLwords, useWords, word2)	
 					} 
 					params.URLInputValues[word1] = word2;
 					params.userModified = true;
@@ -687,33 +887,17 @@ function endSDCLine() {
 					appendURLdata();
 				} else {
 					console.log('!! duplicate line', check.size(), word1, word2);
-					params.SDCLine.remove();
-					params.SDCCircle.remove();
-					params.SDCCircle0.remove();
-					//do I need to reset these?
+					removeSDCLine()
 				}
 			} else {
-				var words = params.SDCLine.attr('class').replaceAll('SDCLine_','').replaceAll('SDCLine ','').split(' ');
-				var toRemove = '';
-				words.forEach(function(w){
-					if (w != 'SDC'+word1) toRemove = w; //there should only be two in here
-				})
 
 				//delete line if not attached
-				params.SDCLine.remove();
-				params.SDCCircle0.remove();
-				params.SDCCircle.remove();
+				removeSDCLine()
 				//remove from the URLdata
 				if (params.URLInputValues.hasOwnProperty(word1)){
-					console.log('!!!!!!!!!!!! removing from URL', word1, word2, toRemove)
-					word2 = params.URLInputValues[word1].replace(toRemove,'').replace('%20%20','%20');
-					if (word2.substring(word2.length - 3) == '%20') word2 = word2.substring(0, word2.length - 3);
-					params.URLInputValues[word1] = word2;
-					if (word2 == '') delete params.URLInputValues[word1]
+					console.log('!!!!!!!!!!!! removing from URL', word1, word2)
+					removeSDCLineFromURL(word1.slice(3)); //to remove 'SDC'
 				}
-				params.userModified = true;
-				params.userSubmitted = false;
-				appendURLdata();
 
 			}
 
@@ -730,11 +914,13 @@ function endSDCLine() {
 			}
 		}
 
+
 		params.SDCLine = null;
 		params.SDCCircle0 = null;
 		params.SDCCircle = null;
 
 		resetSDCLines();
+
 	}
 
 }
@@ -821,16 +1007,32 @@ function useSDCURLdata(){
 					var startParent = d3.select('#SDCBox_'+startWords);
 					var endParent = d3.select('#SDCBox_'+w);
 					if (startParent.node() && endParent.node()){
-						var x1 = parseFloat(startParent.attr('x')) + params.SDCBoxWidth;
+
+						//get the category from the rect class list (will this always be the last class value?)
+						var cat0 = startParent.node().classList[1]
+						var cat1 = endParent.node().classList[1]
+
+						//check if this is a oneway line
+						var oneway = false;
+						if (cat0 == cat1) oneway = true
+
+						var x1 = parseFloat(startParent.attr('x'));
 						var y1 = parseFloat(startParent.attr('y')) + parseFloat(startParent.select('rect').attr('height'))/2.;
 
 						var x2 = parseFloat(endParent.attr('x'))
 						var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height'))/2.;
 
-						//get the category from the rect class list (will this always be the last class value?)
-						var cat = startParent.node().classList[1]
 
-						if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) createSDCLine(startParent.node(), x1,y1,x2,y2,cat,startWords,w, op);
+
+						if (!isNaN(x1) && !isNaN(y1) && !isNaN(x2) && !isNaN(y2)) {
+							if (oneway){
+								//console.log('checking', x1,y1,x2,y2,cat0,startWords, w, op, startParent.node())
+								createOneWaySDCLine(startParent.node(), x1,y1,x2,y2,cat0,startWords,w, op);
+							} else {
+								x1 += params.SDCBoxWidth;
+								createSDCLine(startParent.node(), x1,y1,x2,y2,cat0,startWords,w, op);
+							}
+						}
 					}
 					params.SDCLine = null;
 					params.SDCCircle0 = null;
