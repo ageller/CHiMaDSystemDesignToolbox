@@ -132,7 +132,10 @@ function wrapSVGtext(text, width, textToUse) {
 			if (startBullet) dy += 0.25*fs0;
 
 			// add space after the end of a stretch of bullets
-			if (hadBullet && !haveBullet) dy += 0.25*fs0;
+			if (hadBullet && !haveBullet) {
+				dy += 0.25*fs0;
+				hadBullet = false;
+			}
 				
 			//split the line
 			if (splitLine) {
