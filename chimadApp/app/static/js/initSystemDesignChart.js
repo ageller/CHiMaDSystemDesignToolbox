@@ -515,6 +515,7 @@ function createSDCLine(elem,x1,y1,x2,y2,cat,startWords,endWords, opacity=1){
 		//.on('mouseover',function(){highlightSDCLines(elem)})
 		//.on('mouseout',resetSDCLines);
 
+
 }
 
 function createOneWaySDCLine(elem,x1,y1,x2,y2,cat,startWords,endWords, opacity=1){
@@ -580,18 +581,26 @@ function createOneWaySDCLine(elem,x1,y1,x2,y2,cat,startWords,endWords, opacity=1
 		//.on('mouseover',function(){highlightSDCLines(elem)})
 		//.on('mouseout',resetSDCLines);
 
-	params.SDCCircle = params.SDCSVG.append('circle')
+	// params.SDCCircle = params.SDCSVG.append('circle')
+	// 	.attr('id','SDCCircle_'+params.SDCLineIndex)
+	// 	.attr('class','SDCCircle SDCLine_'+startWords+' SDCLine_'+endWords)
+	// 	.attr('fill', params.SDCResponseLineColor)
+	// 	.attr('cx',x1 + 'px')
+	// 	.attr('cy',y2 + 'px')
+	// 	.attr('r',(2*params.SDCResponseLineThickness) + 'px')
+	// 	.style('opacity',opacity)
+	// 	.on('mousedown', moveExistingSDCLine)
+	// 	//.on('mouseover',function(){highlightSDCLines(elem)})
+	// 	//.on('mouseout',resetSDCLines);
+
+	var s = 4*params.SDCResponseLineThickness;
+	params.SDCCircle = params.SDCSVG.append('polygon')
 		.attr('id','SDCCircle_'+params.SDCLineIndex)
 		.attr('class','SDCCircle SDCLine_'+startWords+' SDCLine_'+endWords)
 		.attr('fill', params.SDCResponseLineColor)
-		.attr('cx',x1 + 'px')
-		.attr('cy',y2 + 'px')
-		.attr('r',(2*params.SDCResponseLineThickness) + 'px')
+		.attr('points', (x1 - s/2.) + ',' + (y2 + s/1.5) + ' ' + (x1 + s/2.) + ',' + y2 + ' ' + (x1 - s/2.) + ',' + (y2 - s/1.5) )
 		.style('opacity',opacity)
 		.on('mousedown', moveExistingSDCLine)
-		//.on('mouseover',function(){highlightSDCLines(elem)})
-		//.on('mouseout',resetSDCLines);
-
 }
 //draw lines 
 function startSDCLine() {
@@ -739,8 +748,10 @@ function moveSDCLine() {
 						params.SDCCircle0.classed('SDCLine_'+endWords, true);
 
 						if (oneway){
-							d3.select('#oneway0' + params.SDCLine.attr('id')).attr('class','oneway0 SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords'));
-							d3.select('#oneway1' + params.SDCLine.attr('id')).attr('class','oneway1 SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords'));
+							d3.select('#oneway0' + params.SDCLine.attr('id')).attr('class','oneway0 SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords') + ' SDCLine_'+params.SDCLine.attr('endSelectionWords'));
+							d3.select('#oneway1' + params.SDCLine.attr('id')).attr('class','oneway1 SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords') + ' SDCLine_'+params.SDCLine.attr('endSelectionWords'));
+
+
 						}
 					}
 				} 
@@ -755,8 +766,8 @@ function moveSDCLine() {
 					.attr('class','SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords'));
 				params.SDCLine.classed('oneway', oneway)
 				if (oneway){
-					d3.select('#oneway0' + params.SDCLine.attr('id')).attr('class','oneway0 SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords'));
-					d3.select('#oneway1' + params.SDCLine.attr('id')).attr('class','oneway1 SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords'));
+					d3.select('#oneway0' + params.SDCLine.attr('id')).attr('class','oneway0 SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords') + ' SDCLine_'+params.SDCLine.attr('endSelectionWords'));
+					d3.select('#oneway1' + params.SDCLine.attr('id')).attr('class','oneway1 SDCLine SDCLine_'+params.SDCLine.attr('startSelectionWords') + ' SDCLine_'+params.SDCLine.attr('endSelectionWords'));
 				}
 			}
 			
@@ -776,21 +787,29 @@ function moveSDCLine() {
 				//offset for the circle
 				cxOff = params.SDCOneWayLineOffset;
 
+				//(actually a triangle)
+				var s = 4*params.SDCResponseLineThickness;
+				var x1 = x + params.SDCOneWayLineOffset;
+				params.SDCCircle
+					.attr('points', (x1 - s/2.) + ',' + (y + s/1.5) + ' ' + (x1 + s/2.) + ',' + y + ' ' + (x1 - s/2.) + ',' + (y - s/1.5) )
+
 			} else {
 				//normal lines only move to the right
 				if (x < x1){
 					x = x1;
 					y = y1
 				}
+
+				params.SDCCircle
+					.attr('cx', x + 'px')
+					.attr('cy', y + 'px');
 			}
 
 			params.SDCLine
 				.attr('x2', x + 'px')
 				.attr('y2', y + 'px');
 
-			params.SDCCircle
-				.attr('cx', (x + cxOff) + 'px')
-				.attr('cy', y + 'px');
+
 
 		}
 	}
@@ -856,7 +875,10 @@ function endSDCLine() {
 			if (params.SDCLine.attr('attached') == 'true'){
 				word2 = params.SDCLine.attr('endSelectionWords');
 				//check to make sure that this line doesn't already exist
-				var check = d3.selectAll('.SDCLine.SDCLine_'+word1.substring(3,word1.length)+'.SDCLine_'+word2);
+				var check = d3.selectAll('.SDCLine.SDCLine_'+word1.substring(3,word1.length)+'.SDCLine_'+word2).filter(function(){
+					if (d3.select(this).classed('oneway1') || d3.select(this).classed('oneway0')) return false;
+						return true;
+				});;
 				if (check.size() <= 1){
 					//add to URL
 					if (params.URLInputValues.hasOwnProperty(word1)){
@@ -869,7 +891,7 @@ function endSDCLine() {
 						URLwords.forEach(function(w){
 							check = d3.selectAll('.SDCLine.SDCLine_'+word1.substring(3,word1.length)+'.SDCLine_'+w)
 								.filter(function(){
-									if (d3.select(this).classed('oneway1') || d3.select(this).classed('oneway2')) return false;
+									if (d3.select(this).classed('oneway1') || d3.select(this).classed('oneway0')) return false;
 									return true;
 								});
 							if (check.size() > 0 && !useWords.includes(w)) useWords.push(w);
@@ -886,6 +908,9 @@ function endSDCLine() {
 					params.userSubmitted = false;
 					appendURLdata();
 				} else {
+					check.each(function(){
+						console.log(this)
+					})
 					console.log('!! duplicate line', check.size(), word1, word2);
 					removeSDCLine()
 				}
@@ -935,7 +960,7 @@ function highlightSDCLines(elem){
 		var foo = d3.select(elem).attr('id')
 		if (foo){
 			var id = foo.substr(7,foo.length-7);
-
+			console.log('checking', id)
 			d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1);
 			d3.selectAll('.SDCAggregateLine_'+id).interrupt().transition()
 			d3.selectAll('.SDCAggregateLine_'+id).style('opacity',params.SDCAggLineOpacity)
