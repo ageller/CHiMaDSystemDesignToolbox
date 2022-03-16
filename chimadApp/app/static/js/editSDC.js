@@ -734,9 +734,16 @@ function saveAsPPTX(){
 			line: { color: c, width: sw,  transparency: (100. - op)},
 		}
 
-		if (elem.classed('SDCLine')){ //not sure why these only work outside of the line object
+		if (elem.classed('SDCLine') && !elem.classed('oneway') && !elem.classed('oneway0') && !elem.classed('oneway1')){ 
+			//not sure why these only work outside of the line object
 			lineopts.lineHead = 'oval';
 			lineopts.lineTail = 'oval';
+		}
+
+		if (elem.classed('oneway0')) lineopts.lineTail = 'oval';
+		if (elem.classed('oneway1')) {
+			lineopts.line.lineTail = 'arrow';
+			lineopts.line.endArrowType = 'triangle';
 		}
 
 		if (elem.classed('SDCArrowLine')) {
