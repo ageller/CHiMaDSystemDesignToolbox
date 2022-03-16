@@ -469,6 +469,7 @@ function showParaAnswers(){
 			var d = d3.select('#'+params.cleanString(k)+'_bar').select('.answerBox.'+using[k])
 				.style('stroke',params.SDCAnswerLineColor)
 				.style('stroke-width',2)
+				.style('stroke-dasharray',4)
 				.style('stroke-opacity',function(){
 					if (params.transitionParaAnswers) return 0;
 					return 1;
