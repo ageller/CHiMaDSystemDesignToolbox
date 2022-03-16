@@ -32,6 +32,25 @@ function initParaAggDateUI(dur){
 		if (params.paraHist.container.node()) updateHistogram(params.paraHist, dur)
 	}
 
+	updateParaUI();
+}
+
+function updateParaUI(){
+	//hide the histogram and other options if there is no data
+
+	var hide = true;
+	if (params.paraHist.data) if (params.paraHist.data.length > 0)  hide = false;
+	
+	d3.select('#paraAggDateUI').classed('hidden',hide);
+
+	if (params.haveSDCEditor){
+		d3.select('#SDCConsensusBuild0').classed('hidden',hide);
+		d3.select('#SDCConsensusBuild0Label').classed('hidden',hide);
+		d3.select('#SDCConsensusBuild1').classed('hidden',hide);
+		d3.select('#SDCConsensusBuild1Label').classed('hidden',hide);
+		d3.select('#SDCConsensusBuild2').classed('hidden',hide);
+		d3.select('#SDCConsensusBuild2Label').classed('hidden',hide);
+	}
 }
 
 function getParaResponseDates(){

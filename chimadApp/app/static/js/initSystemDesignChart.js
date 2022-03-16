@@ -86,8 +86,34 @@ function initSDCAggDateUI(dur){
 		}
 	}
 
+	updateSDCUI();
+
+
 	//generate the slider
 	//initAggDateSlider();
+}
+
+function updateSDCUI(){
+	//hide the histogram if there is no data
+	//could also hide other options if needed
+
+
+	var hide = true;
+	if (params.SDCHist.data) if (params.SDCHist.data.length > 0)  hide = false;
+
+	d3.select('#SDCAggDateUI').classed('hidden',hide);
+
+	if (params.haveSDCEditor){
+		d3.select('#SDCAggToggle').classed('hidden',hide);
+		d3.select('#SDCAggToggleLabel').classed('hidden',hide);
+		d3.select('#SDCVersion0').classed('hidden',hide);
+		d3.select('#SDCVersion0Label').classed('hidden',hide);
+		d3.select('#SDCVersion1').classed('hidden',hide);
+		d3.select('#SDCVersion1Label').classed('hidden',hide);
+		d3.select('#SDCVersion2').classed('hidden',hide);
+		d3.select('#SDCVersion2Label').classed('hidden',hide);
+		d3.select('#SDCAggFracUI').classed('hidden',hide);
+	}
 }
 
 // function initAggDateSlider(){
