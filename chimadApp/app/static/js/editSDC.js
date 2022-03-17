@@ -54,8 +54,19 @@ var columnWords = lowerArray(params.options.filter(function(d){return d != 'Sele
 
 columnWords.push('blankRect');
 
+//add buttons for editing the SDC 
+var editButtons = document.createElement('div');
+editButtons.id = 'editButtons';
+editButtons.classList.add('hidden');
+insertAfter(editButtons, d3.select('#SDCVersionOptions').node())
+d3.select(editButtons).append('div').attr('id','boxAdder');
+d3.select(editButtons).append('div').attr('id','flipProcessingArrows');
+
+
 function beginSDCEdit(){
 	console.log('editing SDC');
+	params.userModified = true;
+
 	params.editingSDC = true;
 	params.edittedSDC = true
 
@@ -409,15 +420,22 @@ function beginSDCEdit(){
 	d3.select('#SDCPlotSVG').selectAll('.SDCrectContainer').each(function(){addDeleter(d3.select(this))})
 
 
-	//add a button to create a new box
-	adderNode = document.createElement('div');
+
 	//var adder = d3.select('#systemDesignChart').select('.para').append('button')
+	//extra buttons to edit SDC
+	d3.select('#editButtons').classed('hidden',false);
+	//add a box
+	var adderNode = d3.select('#boxAdder').node();
+	var fs = parseFloat(d3.select('#SDCDoneButton').style('font-size'));
 	d3.select(adderNode)
-		.attr('id','boxAdder')
 		.attr('class','secondaryButton')
-		.style('font-size',d3.select('#SDCDoneButton').style('font-size'))
+		.style('font-size',fs + 'px')
 		.style('margin',0)
 		.style('padding',0)
+		.style('z-index',10)
+		.style('position','absolute')
+		.style('top','10px')
+		.style('left','0px')
 		.html('&#65291;')
 		.on('click', function(){
 			//get a new name
@@ -432,7 +450,7 @@ function beginSDCEdit(){
 
 			//create the box
 			var bbox = d3.select('#systemDesignChartSVGContainer').node().getBoundingClientRect();
-			var box = createSDCbox(0., 1.5*params.SDCBoxMargin, params.SDCBoxWidth, params.SDCInitBoxHeight, text);
+			var box = createSDCbox(1.5*params.SDCBoxMargin, 2.*params.SDCBoxMargin, params.SDCBoxWidth, params.SDCInitBoxHeight, text);
 			box.classed('blankRect', true);
 
 			//add dragging
@@ -457,7 +475,7 @@ function beginSDCEdit(){
 			answersParagraphOrg[params.cleanString(text)] = null;
 
 		})
-	insertAfter(adderNode, d3.select('#SDCVersionOptions').node())
+	
 
 	//resize the font of the adder button
 	var bbox = adderNode.getBoundingClientRect();
@@ -470,7 +488,25 @@ function beginSDCEdit(){
 		.style('vertical-align','middle')
 		.style('position','absolute')
 
-
+	//define the flipper
+	d3.select('#flipProcessingArrows')
+		.attr('class','secondaryButton')
+		.style('height', bbox.height + 'px')
+		.style('padding', '5px 5px 10px 5px')
+		.style('font-size',bbox.height + 'px')
+		.style('line-height',(bbox.height - 1) + 'px')
+		.style('border-radius',(bbox.height/2) + 'px')
+		.style('vertical-align','middle')
+		.style('z-index',10)
+		.style('position','absolute')
+		.style('top','60px')
+		.style('left','4px') //not sure how to center this dynamically
+		.style('white-space','nowrap')
+		.html('&#x2195;')
+		.on('click', function(){
+			params.processingArrowsUp = !params.processingArrowsUp;
+			drawProcessingArrows(300);
+		})
 
 }
 
@@ -514,8 +550,8 @@ function endSDCEdit(){
 	//remove the circles
 	d3.selectAll('.SDCdeleter').remove();
 
-	//remove the adder button
-	d3.select('#boxAdder').remove();
+	//hide the adder button
+	d3.select('#editButtons').classed('hidden',true);
 
 }
 
@@ -899,7 +935,7 @@ function resetEditSDCAfterParagraphnameInput(){
 
 }
 
-function repositionSDC(){
+function repositionSDC(duration=300){
 	//move the SDC up to the top so there isn't so much white space?
 	//get the top position
 	var top0 = parseFloat(d3.select('#systemDesignChart').style('top'));
@@ -918,7 +954,7 @@ function repositionSDC(){
 	var bbox = d3.select('#SDCInstructions').node().getBoundingClientRect();
 	d3.select('#systemDesignChartSVGContainer')
 		.style('position','absolute')
-		.transition()
+		.transition().duration(duration)
 			.style('top', (top1 - top0) + 'px')
 
 
@@ -930,5 +966,19 @@ function repositionSDC(){
 		.style('min-height', '50px')
 		.style('top', (top2 - top0) + 'px')
 
+	d3.select('#editButtons')
+		.style('position','absolute')
+		.transition().duration(duration)
+			.style('top', (top1 - top0 + 20) + 'px')
 
+	//reset the font, oin case it changed in resize
+	var bbox = d3.select('#boxAdder').node().getBoundingClientRect();
+	d3.select('#boxAdder')
+		.style('font-size',bbox.height + 'px')
+		.style('line-height',(bbox.height - 1) + 'px')
+
+	//define the flipper
+	d3.select('#flipProcessingArrows')
+		.style('font-size',bbox.height + 'px')
+		.style('line-height',(bbox.height - 1) + 'px')
 }

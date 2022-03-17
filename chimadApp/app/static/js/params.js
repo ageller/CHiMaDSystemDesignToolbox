@@ -184,20 +184,20 @@ function defineParams(){
 
 
 		this.cleanString = function(s){
-			return s.replace(/sub\>/g,'').replace(/\s/g,'').replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+			if (s) return s.replace(/sub\>/g,'').replace(/\s/g,'').replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 		}
 		this.applySubSuperStringSVG = function(s){
-			return s.replaceAll('_{','<tspan dy="5px">').replaceAll('}_','</tspan><tspan dy="-5px">').replaceAll('^{','<tspan dy="-5px">').replaceAll('}^','</tspan><tspan dy="5px">');
+			if (s) return s.replaceAll('_{','<tspan dy="5px">').replaceAll('}_','</tspan><tspan dy="-5px">').replaceAll('^{','<tspan dy="-5px">').replaceAll('}^','</tspan><tspan dy="5px">');
 		}
 		this.applySubSuperStringHTML = function(s){
-			return s.replaceAll('_{','<sub>').replaceAll('}_','</sub>').replaceAll('^{','<sup>').replaceAll('}^','</sup>');
+			if (s) return s.replaceAll('_{','<sub>').replaceAll('}_','</sub>').replaceAll('^{','<sup>').replaceAll('}^','</sup>');
 		}
 		this.revertSubSuperString = function(s){
-			return s.replaceAll('<tspan dy="5px">','_{').replaceAll('</tspan><tspan dy="-5px">','}_').replaceAll('<tspan dy="-5px">','^{').replaceAll('</tspan><tspan dy="5px">','}^').replaceAll('<sub>','_{').replaceAll('</sub>','}_').replaceAll('<sup>','^{').replaceAll('</sup>','}^');
+			if (s) return s.replaceAll('<tspan dy="5px">','_{').replaceAll('</tspan><tspan dy="-5px">','}_').replaceAll('<tspan dy="-5px">','^{').replaceAll('</tspan><tspan dy="5px">','}^').replaceAll('<sub>','_{').replaceAll('</sub>','}_').replaceAll('<sup>','^{').replaceAll('</sup>','}^');
 			//return s.replaceAll('<tspan dy="5px">','').replaceAll('<tspan dy="-5px">','').replaceAll('<tspan>','').replaceAll('</tspan>','').replaceAll('<sub>','').replaceAll('</sub>','').replaceAll('<sup>','').replaceAll('</sup>','');
 		}
 		this.removeSubSuperString = function(s){
-			return s.replaceAll('_{','').replaceAll('}_','').replaceAll('^{','').replaceAll('}^','');
+			if (s) return s.replaceAll('_{','').replaceAll('}_','').replaceAll('^{','').replaceAll('}^','');
 		}
 
 		this.isMobile = false; //initiate as false
@@ -224,6 +224,8 @@ function defineParams(){
 		this.userSubmitted = false;
 
 		this.SDCOneWayLineOffset = 10;
+
+		this.processingArrowsUp = true;
 	};
 
 	//check for mobile
