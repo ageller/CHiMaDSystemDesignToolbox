@@ -730,7 +730,13 @@ function saveAsPPTX(){
 		var y2 =  (parseFloat(elem.attr('y2')) + topMargin)/bbox.height*100.;
 
 		//if this is an arrow line from Processing, then I need to extend the y length by 10
-		if (elem.classed('SDCArrowLine')) y2 = (parseFloat(elem.attr('y2')) - 10 + topMargin)/bbox.height*100.;
+		if (elem.classed('SDCArrowLine')) {
+			if (params.processingArrowsUp) {
+				y2 = (parseFloat(elem.attr('y2')) - 10 + topMargin)/bbox.height*100.;
+			} else {
+				y1 = (parseFloat(elem.attr('y2')) - 20 + topMargin)/bbox.height*100.;
+			}
+		}
 
 		if (x2 < x1){
 			var x2tmp = x2;
