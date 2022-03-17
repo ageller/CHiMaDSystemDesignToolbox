@@ -253,8 +253,14 @@ function createSystemDesignChart(){
 
 		params.selectionWords.forEach(function(d){
 
-			var x = Math.random()*(params.SDCSVGWidth - params.SDCBoxWidth);
-			var y = Math.random()*(params.SDCSVGHeight - params.SDCBoxWidth) + 20;
+			//special handling for new containers
+			if (d.includes('new container')){
+				x = 20;
+				y = 20;
+			} else {
+				var x = Math.random()*(params.SDCSVGWidth - params.SDCBoxWidth);
+				var y = Math.random()*(params.SDCSVGHeight - params.SDCBoxWidth) + 20;
+			}
 
 			createSDCbox(x, y, params.SDCBoxWidth, params.SDCInitBoxHeight, d);
 
@@ -1443,6 +1449,16 @@ function drawProcessingArrows(duration = 0){
 					var x2 = parseFloat(endParent.attr('x')) + params.SDCBoxWidth/2.;
 					var y2 = parseFloat(endParent.attr('y')) + parseFloat(endParent.select('rect').attr('height')) + 10; //for the arrow head
 
+					if (!params.processingArrowsUp){
+						var foo = x1;
+						x1 = x2;
+						x2 = foo;
+
+						foo = y1;
+						y1 = y2;
+						y2 = foo;
+					}
+
 					startWords = startParent.attr('selectionWords');
 					endWords = endParent.attr('selectionWords');
 					//get the category from the rect class list (will this always be the last class value?)
@@ -1471,6 +1487,13 @@ function drawProcessingArrows(duration = 0){
 							})
 							.style('stroke-opacity',1)
 
+						if (!params.processingArrowsUp){
+							line.style('transform-origin','center')
+								.style('transform-box','fill-box')
+								//.style('transform','rotate(180deg)translate(0px,10px)')
+								.style('transform','translate(0px,-10px)')
+							//line.attr('transform','rotate(180deg)')
+						}
 						line.transition().duration(duration)
 							.attr('x2', x2)
 							.attr('y2', y2)

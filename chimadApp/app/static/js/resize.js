@@ -122,6 +122,12 @@ function resize(){
 				if (params.SDCHist.container.node()) createHistogram(params.SDCHist);	
 			}
 		}
+		if (params.haveSDCEditor) {
+			repositionSDC(0);
+			//replace the edit button
+			d3.select('#SDCEditButton').style('display','block');
+			d3.select('#SDCDoneButton').style('display','none');
+		}
 	}
 
 }
