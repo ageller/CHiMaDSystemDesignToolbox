@@ -670,6 +670,7 @@ function switchSDCCompiler(val = null){
 		d3.select('#SDCAnswerToggleLabel').style('visibility','hidden');
 		d3.selectAll('line').remove();
 		d3.selectAll('circle').remove();
+		d3.selectAll('polygon').remove();
 		d3.selectAll('.SDCAggregateFracBox').remove();
 
 		repositionSDC();
