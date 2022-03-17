@@ -84,7 +84,8 @@ function beginSDCEdit(){
 	d3.selectAll('circle').remove();
 	d3.selectAll('polygon').remove();
 	d3.selectAll('.SDCAggregateFracBox').remove();
-	
+	d3.selectAll('.SDCAnnotation').remove();
+
 	repositionSDC();
 
 	//add blankRect to any rectangles that don't have the category
@@ -321,48 +322,7 @@ function beginSDCEdit(){
 
 	//add the ability to edit the text in each box on double click
 	params.SDCSVG.selectAll('.SDCrectContainer').on('dblclick', editSDCtext);
-	function editSDCtext(){
-		console.log('editting text', this);
 
-		var elem = this;
-		//take away the color so it's obvious this is selected
-		columnWords.forEach(function(w,i){
-			if (w == elem.column) iX = i;
-			d3.select(elem).select('rect').classed(w.toLowerCase(), false);
-			d3.select(elem).select('rect').classed(w.toLowerCase()+'Word', false);
-		})
-		d3.select(elem).select('rect').classed('blankRect', true);
-
-		//remove the current text
-		d3.select(elem).select('text').selectAll('tspan').remove();
-
-		//get the position of the text box
-		var top0 = parseFloat(d3.select('#systemDesignChart').style('top'));
-		var bbox = d3.select(elem).select('rect').node().getBoundingClientRect();
-		var top1 = bbox.top + window.scrollY; //not sure why this required plus, when others have minus
-		var top = top1 - top0;
-
-		//create a text box with the original text
-		var textarea = d3.select('#systemDesignChart').append('textarea')
-			.attr('class', 'SDCTextEditorInput')
-			.attr('name', 'editor')
-			.attr('selector','#'+elem.id)
-			.style('width',bbox.width + 'px')
-			.style('height',bbox.height + 'px')
-			.style('z-index',10)
-			.style('position', 'absolute')
-			.style('top', top + 'px') 
-			.style('left',(bbox.left + window.scrollX) + 'px')
-
-
-		textarea.node().value = d3.select(elem).select('text').attr('orgText');
-		// var txtarea = d3.select('#paraTextEditor').select('textarea');
-		// txtarea.style('height',d3.select('#paraText').node().getBoundingClientRect().height);
-		// txtarea.node().value = params.paraTextSave;
-
-
-
-	}
 
 	//add circles with x's to delete boxes
 	//writing as a function so that I can use it when I create new boxes
@@ -511,6 +471,58 @@ function beginSDCEdit(){
 
 }
 
+function editSDCtext(){
+	//console.log('editting text', this);
+
+	var elem = this;
+	//take away the color so it's obvious this is selected
+	columnWords.forEach(function(w,i){
+		if (w == elem.column) iX = i;
+		d3.select(elem).select('rect').classed(w.toLowerCase(), false);
+		d3.select(elem).select('rect').classed(w.toLowerCase()+'Word', false);
+	})
+	d3.select(elem).select('rect').classed('blankRect', true);
+
+	//remove the current text
+	d3.select(elem).select('text').selectAll('tspan').remove();
+
+	//get the position of the text box
+	var top0 = parseFloat(d3.select('#systemDesignChart').style('top'));
+	if (d3.select(elem).select('rect').node()){
+		var bbox = d3.select(elem).select('rect').node().getBoundingClientRect();
+	} else {
+		var bbox = elem.getBoundingClientRect();
+	}
+
+	var top1 = bbox.top + window.scrollY; //not sure why this required plus, when others have minus
+	var top = top1 - top0;
+
+	//create a text box with the original text
+	var textarea = d3.select('#systemDesignChart').append('textarea')
+		.attr('class', 'SDCTextEditorInput')
+		.attr('name', 'editor')
+		.attr('selector','#'+elem.id)
+		.style('width',bbox.width + 'px')
+		.style('height',bbox.height + 'px')
+		.style('z-index',10)
+		.style('position', 'absolute')
+		.style('top', top + 'px') 
+		.style('left',(bbox.left + window.scrollX) + 'px')
+
+
+	var text = ''
+	if (d3.select(elem).select('text').node()) text =  d3.select(elem).select('text').attr('orgText');
+	if (text == '') text = d3.select(elem).attr('orgText')
+	if (text == '') text = d3.select(elem).text();
+
+	textarea.node().value = text;
+	// var txtarea = d3.select('#paraTextEditor').select('textarea');
+	// txtarea.style('height',d3.select('#paraText').node().getBoundingClientRect().height);
+	// txtarea.node().value = params.paraTextSave;
+
+
+
+}
 
 
 function endSDCEdit(){
@@ -563,17 +575,27 @@ function useTextArea(){
 			var thisElem = this;
 			var newText = thisElem.value.replace(/\n/g,'\\n ').replace(/\r/g,'\\n ');
 			var parentElem = d3.select(d3.select(thisElem).attr('selector'));
-			parentElem.attr('id','SDCBox_' + params.cleanString(newText))
-			var text = parentElem.select('text')
+			parentElem.attr('id','SDCBox_' + params.cleanString(newText));
+			if (parentElem.select('text').node()){
+				var text = parentElem.select('text')
+			} else {
+				var text = parentElem;
+			}
+			
+			var annotation = parentElem.classed('SDCAnnotation')
 
 			//save the original text
 			var orgText = text.attr('orgText');
+
+			var length = params.SDCBoxWidth - 10;
+			//if (annotation) length = parseFloat(text.attr('length'));
 
 			//now reset things
 			text
 				.attr('orgText',newText)
 				.text(newText)
-				.call(wrapSVGtext, params.SDCBoxWidth-10);
+				.call(wrapSVGtext, length)
+			
 
 			//fix any subcripts
 			text.selectAll('tspan').each(function(){
@@ -583,7 +605,7 @@ function useTextArea(){
 
 
 
-			if (orgText != newText){
+			if (orgText != newText && !annotation){
 				changed = true;
 				//console.log('changed')
 
@@ -611,11 +633,42 @@ function useTextArea(){
 				parentElem.select('rect').classed(word.toLowerCase()+'Word', true);
 				parentElem.select('rect').classed(word.toLowerCase(), true);
 			}
+
+			//if this is an annotation, reposition so it is still above the line
+			if (annotation){
+				if (newText == '') {
+					parentElem.remove()
+				} else {
+					repositionAnnotation(parentElem);
+				}
+			}
+		
 		})
 		if (changed) formatSDC();
 	}
 }
 
+function repositionAnnotation(elem){
+	var bbox = elem.node().getBoundingClientRect();
+	var x1 = parseFloat(elem.attr('linex1'));
+	var x2 = parseFloat(elem.attr('linex2'));
+	var y1 = parseFloat(elem.attr('liney1'));
+	var y2 = parseFloat(elem.attr('liney2'));
+	//trying to position the annotation box, but it's not working very well
+	//I probably need to account for the angle the text is rotated
+	//the user can always move it later
+	//x offset
+	var xOffset = (Math.max(x1,x2) - bbox.x - bbox.width)/2.
+	//y offset count the number of tspans?
+	var yOffset = 0
+	var n = elem.selectAll('tspan').size();
+	var fs = parseFloat(elem.style('font-size'));
+	yOffset = -(n - 1)*fs*1.1;
+	if (n > 1) yOffset -= 0.25*fs; 
+	var tt = parseTranslateAttr(elem.node());
+	trans = 'rotate(' + tt.rot + ')translate(' + xOffset + ',' + yOffset + ')';
+	elem.attr('transform', trans);
+}
 function switchSDCCompiler(val = null){
 
 	if (this.value == 'answers' || val == 'answers'){
@@ -672,6 +725,7 @@ function switchSDCCompiler(val = null){
 		d3.selectAll('circle').remove();
 		d3.selectAll('polygon').remove();
 		d3.selectAll('.SDCAggregateFracBox').remove();
+		d3.selectAll('.SDCAnnotation').remove();
 
 		repositionSDC();
 
@@ -910,7 +964,7 @@ function saveAsPPTX(){
 			h: h+'%',
 			fill: { color:  c },
 			line: { color: '#000000'},
-			align: 'center',
+			align: 'left',
 			fontSize: fs,
 			fontFace: 'Helvetica'
 		});
@@ -989,4 +1043,121 @@ function repositionSDC(duration=300){
 	d3.select('#flipProcessingArrows')
 		.style('font-size',bbox.height + 'px')
 		.style('line-height',(bbox.height - 1) + 'px')
+}
+
+function makeLineClickable(line){
+	//add a thicker line to catch the double clicks
+	var classList = line.attr('class').split(' ');
+	var newClass = '';
+	classList.forEach(function(c,i){
+		if (i > 0) newClass += ' ';
+		newClass += 'thick' + c
+	})
+
+	//remove the old thick line
+	d3.select('#thick' + line.attr('id')).remove();
+
+	var thickLine = line.clone();
+	thickLine
+		.attr('stroke-width',10.*params.SDCResponseLineThickness)
+		.style('stroke-opacity',0)
+		.attr('id','thick' + line.attr('id'))
+		.attr('lineSelector',line.attr('id'))
+		.attr('class',newClass)
+
+	thickLine.on('dblclick', addSDCLineAnnotation);
+}
+
+function addSDCLineAnnotation(textInit='Annotation',startEdit='true'){
+	//in case the first arg is an event
+	if (!(typeof textInit === 'string' || textInit instanceof String)) textInit = 'Annotation';
+
+	var elem = d3.select('#' + d3.select(this).attr('lineSelector'));
+	if (!elem.node()) elem = d3.select(this);
+
+	var check = d3.select('.SDCAnnotation_' + elem.attr('id')).node()
+	if (!check){
+
+		var x1 = parseFloat(elem.attr('x1'));
+		var x2 = parseFloat(elem.attr('x2'));
+		var y1 = parseFloat(elem.attr('y1'));
+		var y2 = parseFloat(elem.attr('y2'));
+
+		var length = Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 -y1));
+
+		var text = createSDCLineTextHolder(x1, y1, x2, y2, 4, 'SDCLineAnnotation');
+		text.attr('id','SDCAnnotation' + elem.attr('id'))
+			.attr('class','SDCAnnotation SDCAnnotation_' + elem.attr('id'))
+			.attr('linex1', x1)
+			.attr('linex2', x2)
+			.attr('liney1', y1)
+			.attr('liney2', y2)
+			.attr('length', length)
+			.attr('lineSelector',elem.attr('id'))
+			.attr('startSelectionWords',elem.attr('startSelectionWords'))
+			.attr('endSelectionWords',elem.attr('endSelectionWords'))
+			.style('font-size','12px')
+			.style('cursor','grab')
+
+		var length = params.SDCBoxWidth - 10;
+		text
+			.attr('orgText',textInit)
+			.text(textInit)
+			.call(wrapSVGtext, length)
+
+		repositionAnnotation(text);
+
+		//enable editing of text
+		text.on('dblclick', editSDCtext);
+
+		if (startEdit) editSDCtext.call(text.node())
+
+		//set up the drag controller
+		var dragHandler = d3.drag()
+			.on("start", dragStart)
+			.on("drag", dragMove)
+			.on("end", dragEnd)
+
+		var parent = d3.select(text.node().parentElement);
+		parent.attr('transform','translate(0,0)')
+		dragHandler(parent);
+
+	}
+
+	var offsetX, offsetY = 0;
+
+	//functions supporting dragging
+	function dragStart(){
+
+		if(event.detail > 1){ //to avoid the double clicks
+			return;
+		}
+
+		var elem = this;
+		var trans = parseTranslateAttr(elem);
+
+		elem.x = trans.x;
+		elem.y = trans.y;
+		offsetX = event.x - trans.x;
+		offsetY = event.y - trans.y;
+
+	}
+
+	function dragEnd(){
+
+	}
+
+	function dragMove(){
+		var elem = this;
+		var trans = parseTranslateAttr(elem);
+
+		var x = event.x - offsetX;
+		var y = event.y - offsetY;
+
+		//now update the position of the selected box
+		elem.x = x;		
+		elem.y = y;
+		d3.select(elem).attr('transform','translate(' + x + ',' + y + ')');
+
+	}
 }

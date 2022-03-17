@@ -188,6 +188,9 @@ function createSystemDesignChart(){
 	if (!params.SDCLineHighlighted){
 		console.log('creating system design chart ...', params.answersParagraphnames);
 
+		//save any annotations that might have been there
+		var annotations = d3.selectAll('.SDCLineAnnotation').clone(true);
+
 		//get the column centers
 		var n = params.options.length - 1;
 		var w = (window.innerWidth - 80)/n;
@@ -232,8 +235,8 @@ function createSystemDesignChart(){
 		//will hold the answers results
 		params.SDCAnswersSVG = params.SDCSVG.append('g').attr('id','SDCAnswersLinesContainer');
 
-		//will hold the aggregate fraction text
-		params.SDCAggTextSVG = params.SDCSVG.append('g').attr('id','SDCAggregatedTextContainer');
+		//will hold the annotations text
+		params.SDCAnnotationsTextSVG = params.SDCSVG.append('g').attr('id','SDCAnnotationTextContainer');
 
 		// add the column headers
 		params.SDCSVG.selectAll('.text')
@@ -270,7 +273,8 @@ function createSystemDesignChart(){
 				var rbbox = d3.select(this).select('text').node().getBoundingClientRect();
 				maxW = Math.max(maxW, rbbox.width + 6);
 			})
-			d3.selectAll('.SDcrect').attr('width', maxW);
+			params.SDCBoxWidth = maxW;
+			d3.selectAll('.SDCrect').attr('width', maxW);
 			d3.selectAll('.SDCtext').selectAll('.wrappedSVGtext').attr('x', maxW/2.)
 
 		})
@@ -285,10 +289,28 @@ function createSystemDesignChart(){
 		}
 
 
+		//add back the annotations (only for editSDC)
+		if (annotations.size() > 0 && params.haveSDCEditor){
+			var svg = d3.select('#SDCPlotSVG');
+			annotations.each(function(){
+
+				//params.SDCAnnotationsTextSVG.node().appendChild(this);
+
+				//add back in like the original to get the rotation and position
+				var text = d3.select(this).select('text')
+				if (text.node()){
+					var line = d3.select('.SDCLine.SDCLine_' + text.attr('startSelectionWords') + '.SDCLine_' + text.attr('endSelectionWords'));
+
+					if (line.node()) addSDCLineAnnotation.call(line.node(), text.attr('orgText'), false);
+				}
+
+			})
+		}
+
 	}
 }
 
-function createSDCbox(x,y,w,h,text){
+function createSDCbox(x,y,w,h,text, fs=18){
 	var box = params.SDCSVG.append('g')
 		.attr('class','SDCrectContainer')
 		.attr('id','SDCBox_'+params.cleanString(text))
@@ -316,6 +338,7 @@ function createSDCbox(x,y,w,h,text){
 		.style('text-anchor', 'left')
 		.style('opacity',1)
 		.style('fill','black')
+		.style('font-size',fs + 'px')
 		.text(text)
 		.call(wrapSVGtext, w - 10)
 
@@ -497,6 +520,11 @@ function createSDCLine(elem,x1,y1,x2,y2,cat,startWords,endWords, opacity=1){
 		//.on('mouseover',function(){highlightSDCLines(elem)})
 		//.on('mouseout',resetSDCLines);
 
+	if (endWords){
+		params.SDCLine.attr('attached','true') 
+		//should I also update the category?
+	}
+
 	params.SDCCircle0 = params.SDCSVG.append('circle')
 		.attr('id','SDCCircle0_'+params.SDCLineIndex)
 		.attr('class','SDCCircle0 SDCLine_'+startWords+' SDCLine_'+endWords)
@@ -522,7 +550,11 @@ function createSDCLine(elem,x1,y1,x2,y2,cat,startWords,endWords, opacity=1){
 		//.on('mouseout',resetSDCLines);
 
 
+	//add the ability to define text labels for lines
+	if (params.haveSDCEditor) makeLineClickable(params.SDCLine);
+
 }
+
 
 function createOneWaySDCLine(elem,x1,y1,x2,y2,cat,startWords,endWords, opacity=1){
 	//Note: x2 is not used here, but keeping the syntax the same as createSDCLine (for now)
@@ -575,6 +607,11 @@ function createOneWaySDCLine(elem,x1,y1,x2,y2,cat,startWords,endWords, opacity=1
 		//.on('mouseover',function(){highlightSDCLines(elem)})
 		//.on('mouseout',resetSDCLines);
 
+	if (endWords){
+		params.SDCLine.attr('attached','true') 
+		//should I also update the category?
+	}
+
 	params.SDCCircle0 = params.SDCSVG.append('circle')
 		.attr('id','SDCCircle0_'+params.SDCLineIndex)
 		.attr('class','SDCCircle0 SDCLine_'+startWords+' SDCLine_'+endWords)
@@ -607,7 +644,11 @@ function createOneWaySDCLine(elem,x1,y1,x2,y2,cat,startWords,endWords, opacity=1
 		.attr('points', (x1 - s/2.) + ',' + (y2 + s/1.5) + ' ' + (x1 + s/2.) + ',' + y2 + ' ' + (x1 - s/2.) + ',' + (y2 - s/1.5) )
 		.style('opacity',opacity)
 		.on('mousedown', moveExistingSDCLine)
+
+	if (params.haveSDCEditor) makeLineClickable(params.SDCLine);
+
 }
+
 //draw lines 
 function startSDCLine() {
 	//get right side of box
@@ -889,7 +930,6 @@ function endSDCLine() {
 					//add to URL
 					if (params.URLInputValues.hasOwnProperty(word1)){
 						//check to make sure all the lines are accounted for
-						console.log(word1, params.URLInputValues[word1])
 						var URLwords = params.URLInputValues[word1].split('%20')
 						if (!Array.isArray(URLwords)) URLwords = [URLwords]
 						URLwords.push(word2);
@@ -907,12 +947,12 @@ function endSDCLine() {
 							if (i > 0) word2 += '%20'
 							word2 += w;
 						})	
-						console.log(URLwords, useWords, word2)	
 					} 
 					params.URLInputValues[word1] = word2;
 					params.userModified = true;
 					params.userSubmitted = false;
 					appendURLdata();
+					if (params.haveSDCEditor) makeLineClickable(params.SDCLine);
 				} else {
 					check.each(function(){
 						console.log(this)
@@ -1077,6 +1117,30 @@ function useSDCURLdata(){
 	}
 }
 
+function createSDCLineTextHolder(x1, y1, x2, y2, dy, className){
+	//create a box and text to hold the fraction (or other annotation)
+	var textHolder = params.SDCAnnotationsTextSVG.append('g').attr('class',className)
+
+	var boxSize = 20;//should this change with resize?
+	var xt = (x1 + x2)/2.;
+	var yt = (y1 + y2)/2.;
+	var d = Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
+	var angle = Math.acos(Math.abs(x2 - x1)/d)*180/Math.PI;
+	if (y1 > y2) angle = -1.*angle;
+	
+	var text = textHolder.append('text')
+		.attr('x',xt - boxSize)
+		.attr('y',yt - dy)
+		.attr('dy', '.1em')
+		.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
+		.attr('fill','black')
+		//.style('text-anchor', 'middle')
+		.style('text-anchor', 'left')
+
+
+	return text
+}
+
 function plotSDCAggregateLines(duration = 0){
 
 	//var op = 0.5;
@@ -1089,11 +1153,10 @@ function plotSDCAggregateLines(duration = 0){
 		while (parent.firstChild) {
 			parent.removeChild(parent.firstChild);
 		}
-		parent = params.SDCAggTextSVG.node();
+		parent = params.SDCAnnotationsTextSVG.node();
 		while (parent.firstChild) {
 			parent.removeChild(parent.firstChild);
 		}
-		var fracBoxSize = 20;//should this change with resize?
 
 		var SDCdata = params.aggregatedSDCResponses[params.SDCResponseVersion];
 		if (SDCdata){
@@ -1149,41 +1212,12 @@ function plotSDCAggregateLines(duration = 0){
 								.attr('x2', x2)
 								.attr('y2', y2)
 
-							//also create a box and text to hold the fraction
-							var textHolder = params.SDCAggTextSVG.append('g')
-								.attr('class','SDCAggregateFracBox SDCAggregateFracBox_'+startWords+' SDCAggregateFracBox_'+w)
 
-							var xt = (x1 + x2)/2.;
-							var yt = (y1 + y2)/2.;
-							var d = Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
-							var angle = Math.acos(Math.abs(x2 - x1)/d)*180/Math.PI;
-							var yoff = width;
-							if (y1 > y2) angle = -1.*angle;
-							
-							// textHolder.append('rect')
-							// 	.attr('fill',params.colorMap(frac))
-							// 	.attr('x',xt - fracBoxSize*2.)
-							// 	.attr('y',yt - fracBoxSize/2 - width)
-							// 	.attr('rx', fracBoxSize/4.)
-							// 	.attr('ry', fracBoxSize/4.)
-							// 	.attr('width',fracBoxSize*2.)
-							// 	.attr('height',fracBoxSize)
-							// 	.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
-							// 	.style('opacity',0)
-
-
-							textHolder.append('text')
-								.attr('x',xt - fracBoxSize)
-								.attr('y',yt - yoff)
-								.attr('dy', '.1em')
-								.attr('transform','rotate(' + angle + ',' + xt + ',' + yt + ')')
-								//.attr('fill',params.colorMap(frac))
-								.attr('fill','black')
+							var text = createSDCLineTextHolder(x1, y1, x2, y2, width, 'SDCAggregateFracBox SDCAggregateFracBox_'+startWords+' SDCAggregateFracBox_'+w)
+							text.style('opacity',0)
 								.attr('fraction',frac.toFixed(2))
-								.style('text-anchor', 'middle')
-								.style('opacity',0)
 								.text(frac.toFixed(2))
-
+	
 						}
 					}
 					if (i == endWords.length - 1 && j == Object.keys(SDCdata).length - 1) params.transitionSDCAgg = false;
@@ -1518,7 +1552,7 @@ function limitSDCAggLines(){
 			elem.style('visibility','hidden')
 		}
 	})
-	params.SDCAggTextSVG.selectAll('text').each(function(){
+	params.SDCAnnotationsTextSVG.selectAll('text').each(function(){
 		var elem = d3.select(this);
 		var frac = parseFloat(elem.attr('fraction'));
 		if (frac >= params.SDCFracAggLims[0] && frac <= params.SDCFracAggLims[1]){

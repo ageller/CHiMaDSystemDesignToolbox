@@ -145,7 +145,7 @@ function defineParams(){
 		this.SDCColumnYTops = {}; //will hold the top y locations of each column 
 		this.SDCSVG = null;
 		this.SDCAggSVG = null;
-		this.SDCAggTextSVG = null;
+		this.SDCAnnotationsTextSVG = null;
 		this.SDCAnswersSVG = null;
 		this.SDCSVGMargin;
 		this.SDCSVGHeight;
