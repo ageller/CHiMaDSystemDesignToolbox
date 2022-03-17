@@ -74,8 +74,11 @@ function getAllIndices(arr, val) {
 //https://bl.ocks.org/mbostock/7555321
 //https://stackoverflow.com/questions/24784302/wrapping-text-in-d3/24785497
 function wrapSVGtext(text, width, textToUse) {
-	var fs0 = 18; //px
+
 	text.each(function () {
+		var fs0 = parseFloat(d3.select(this).style('font-size'));
+		if (!fs0 || fs0 == 0) fs0 = 18; //px
+
 		if (!textToUse) textToUse = d3.select(this).text();
 		var text = d3.select(this),
 			words = textToUse.replaceAll('/','/ ').split(/\s+/).reverse(),
@@ -88,7 +91,7 @@ function wrapSVGtext(text, width, textToUse) {
 			line = [],
 			lineHeight = fs0*1.1, // px
 			x = text.attr("x"),
-			y = text.attr("y"),
+			y = text.attr("y") - (18 - fs0)/2., //would be nice to make this more general
 			dy = 0, 
 			fs = fs0, //px
 			tspan = text.text(null).append("tspan")
@@ -246,8 +249,30 @@ function objectWithoutProperties(obj, keys) {
 }
 
 function parseTranslateAttr(elem){
-	var trans = d3.select(elem).attr('transform').replace('translate(','').replace(')','').split(',');
-	return {'x': trans[0], 'y':trans[1]};
+	var trans = d3.select(elem).attr('transform');
+
+	var out = {}
+	
+	//translate
+	var tpos = trans.indexOf('translate(');
+	if (tpos >= 0){
+		var x = trans.substr(tpos  + 10);
+		var tpos2 = x.indexOf(')');
+		var xx = x.substr(0, tpos2).split(',');
+		out.x = xx[0];
+		out.y = xx[1];
+	}
+	
+	//rotate
+	var rpos = trans.indexOf('rotate(')
+	if (rpos >= 0){
+		var x = trans.substr(rpos + 7);
+		var rpos2 = x.indexOf(')');
+		var xx = x.substr(0,rpos2);//.split(',');
+		out.rot = xx
+	}
+
+	return out;
 
 }
 
