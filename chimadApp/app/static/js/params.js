@@ -223,7 +223,7 @@ function defineParams(){
 		this.userModified = false;
 		this.userSubmitted = false;
 
-		this.SDCOneWayLineOffset = 10;
+		this.SDCOneWayLineOffset = 20;
 
 		this.processingArrowsUp = true;
 	};

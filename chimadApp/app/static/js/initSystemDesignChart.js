@@ -706,7 +706,7 @@ function moveSDCLine() {
 			//snap to object if close enough
 			elem = document.elementFromPoint(params.event.clientX + 20, params.event.clientY);
 			if (oneway){
-				elem = document.elementFromPoint(params.SDCLine.node().getBoundingClientRect().x + 20, params.event.clientY);
+				elem = document.elementFromPoint(params.SDCLine.node().getBoundingClientRect().x + 2*params.SDCOneWayLineOffset, params.event.clientY);
 			}
 			var attached = false;
 			if (elem){
