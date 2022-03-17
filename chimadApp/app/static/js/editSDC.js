@@ -82,6 +82,7 @@ function beginSDCEdit(){
 	d3.select('#SDCCompileOptions').style('visibility','hidden');
 	d3.selectAll('line').remove();
 	d3.selectAll('circle').remove();
+	d3.selectAll('polygon').remove();
 	d3.selectAll('.SDCAggregateFracBox').remove();
 	
 	repositionSDC();
