@@ -291,15 +291,23 @@ function createSystemDesignChart(){
 
 		//add back the annotations (only for editSDC)
 		if (annotations.size() > 0 && params.haveSDCEditor){
-			var svg = d3.select('#SDCPlotSVG');
-			annotations.each(function(){
+			//wait to make sure that all the lines are drawn?
+				var svg = d3.select('#SDCPlotSVG');
+				annotations.each(function(){
 
 				//params.SDCAnnotationsTextSVG.node().appendChild(this);
 
 				//add back in like the original to get the rotation and position
 				var text = d3.select(this).select('text')
 				if (text.node()){
-					var line = d3.select('.SDCLine.SDCLine_' + text.attr('startSelectionWords') + '.SDCLine_' + text.attr('endSelectionWords'));
+					var line = d3.selectAll('.SDCLine.SDCLine_' + text.attr('startSelectionWords') + '.SDCLine_' + text.attr('endSelectionWords'))
+						.filter(function(){
+							if (d3.select(this).classed('oneway1') || d3.select(this).classed('oneway0')) return false;
+							return true;
+						})
+						.filter(function (d, i) { 
+							return i === 0;
+						});
 
 					if (line.node()) addSDCLineAnnotation.call(line.node(), text.attr('orgText'), false);
 				}
@@ -732,6 +740,15 @@ function moveSDCLine() {
 			highlightSDCLines(d3.select('#'+id).node());
 		} 
 
+		//remove any annotation that was attached to that line
+		var annotations = d3.selectAll('.SDCLineAnnotation').filter(function(){
+			var elem = d3.select(this).select('text');
+			if (elem.attr('startSelectionWords') == params.SDCLine.attr('startSelectionWords') && 
+				elem.attr('endSelectionWords') == params.SDCLine.attr('endSelectionWords')) return true;
+			return false;
+		})
+		annotations.remove();
+
 		if (params.SDCLine && params.showSDCResponses){
 			var oneway = params.SDCLine.node().classList.contains('oneway');
 
@@ -1006,7 +1023,6 @@ function highlightSDCLines(elem){
 		var foo = d3.select(elem).attr('id')
 		if (foo){
 			var id = foo.substr(7,foo.length-7);
-			console.log('checking', id)
 			d3.selectAll('.SDCAggregateLine').transition().duration(params.transitionSDCDuration).style('opacity',0.1);
 			d3.selectAll('.SDCAggregateLine_'+id).interrupt().transition()
 			d3.selectAll('.SDCAggregateLine_'+id).style('opacity',params.SDCAggLineOpacity)
