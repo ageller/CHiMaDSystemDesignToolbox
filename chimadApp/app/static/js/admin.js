@@ -1,5 +1,9 @@
 params.haveAdmin = true;
 
+params.groupname2 = null;
+params.dbname2 = null;
+params.paragraphname2 = null;
+
 //resize events
 window.addEventListener('resize', resize);
 resize();
@@ -27,7 +31,7 @@ function initAdmin(){
 }
 initAdmin();
 
-function resetAdminNotifications(groupVisibility = 'hidden', paraVisibility = 'hidden'){
+function resetAdminNotifications(groupVisibility = 'hidden', paraVisibility = 'hidden', para2Visibility = 'hidden'){
 	if (groupVisibility) d3.select('#editGroupnameButtons').style('visibility',groupVisibility);
 	d3.select('#deleteGroupnameNotification').text('').classed('error', false)
 	d3.select('#renameGroupnameNotification').text('').classed('error', false)
@@ -40,6 +44,12 @@ function resetAdminNotifications(groupVisibility = 'hidden', paraVisibility = 'h
 	d3.select('#deleteParagraphRowsNotification').text('').classed('error', false);
 	d3.select('#renameParagraphTextInput').property('value','')
 	d3.select('#paragraphTextInput').property('value','')
+
+	if (para2Visibility) d3.select('#copyParagraphSelectors').style('visibility',para2Visibility);
+	d3.select('#copyParagraphButton').style('visibility','hidden');
+	d3.select('#copyParagraphNotification').text('').classed('error', false);
+	d3.select('#selectParagraph2Notification').text('').classed('error', false)
+
 }
 
 function initGroupnameAdmin(){
@@ -79,8 +89,8 @@ function adminParaSelectCallback(data){
 	params.adminParagraphData.columns.unshift('index')
 	params.adminParagraphData.forEach(function(d,i){d.index = i})
 	var tab = makeParagraphTable(params.adminParagraphData, d3.select('#paragraphTableEditor'))
-
 }
+
 function createGroupnameSelect(){
 	//create the groupname dropdown (for admin)
 	d3.select('#groupnameSelector').selectAll('label').remove();
@@ -96,6 +106,7 @@ function createGroupnameSelect(){
 		.on('change',function(){
 			setGroupname(this.value);
 			getTableNames(selectTableAndLoad);
+			createGroupname2Select();
 		})
 
 
@@ -115,6 +126,116 @@ function createGroupnameSelect(){
 	// 	if (params.cleanString(d) == params.cleanString(params.paragraphname)) index = i;
 	// })
 	// slct.node().selectedIndex = index;
+}
+
+function createGroupname2Select(){
+	//create the groupname dropdown for the second groupname (for admin copying paragraphs)
+	d3.select('#groupname2Selector').selectAll('label').remove();
+	d3.select('#groupname2Selector').selectAll('select').remove();
+
+	d3.select('#groupname2Selector').append('label')
+		.attr('for','groupname2Select')
+		.html('second group name: ')
+
+	var slct = d3.select('#groupname2Selector').append('select')
+		.attr('id','groupname2Select')
+		.attr('name','groupname2Select')
+		.on('change',function(){
+			params.groupname2 = this.value;
+			params.dbname2 = params.groupname2 + '.db';
+			getTableNames(callLoadTable2, params.dbname2);
+		})
+
+
+	var opts = params.availableGroupnames.filter(function(d){
+		if (d.toLowerCase() == params.groupname.toLowerCase()) return false;
+		return true;
+	}).slice();
+	opts.unshift('Select from list')
+	slct.selectAll('option').data(opts).enter().append('option')
+		.attr('id',function(d){return 'groupname2'+params.cleanString(d);})
+		.attr('value',function(d){return d;})
+		.text(function(d){return d;})
+
+	slct.select('#groupname2selectfromlist')
+		.property('disabled', true)
+		.property('selected', true)
+
+}
+
+function callLoadTable2(){
+	loadTable(params.dbname2, params.paragraphTable, compileParagraph2Data)
+}
+
+function compileParagraph2Data(data){
+	//get the actual naems of the paragraphs
+
+	var availableParagraphnames2 = [];
+	var availableParagraphnamesOrg2 = [];
+	data.forEach(function(d){
+		availableParagraphnamesOrg2.push(d.paragraphname);
+		availableParagraphnames2.push(params.cleanString(d.paragraphname));
+	})
+
+	createParagraphname2Select(availableParagraphnamesOrg2);
+}
+
+
+function createParagraphname2Select(tables){
+
+	var paragraphnames2 = tables.filter(function(d){return d != 'paragraphs'})
+
+	//but I actually want the full names, not the clean strings
+
+	console.log('have paragraphnames2', paragraphnames2)
+
+
+	d3.select('#copyParagraphSelectors').style('visibility','visible');
+	d3.select('#paragraphname2Selector').selectAll('label').remove();
+	d3.select('#paragraphname2Selector').selectAll('select').remove();
+
+
+	var slct = d3.select('#paragraphname2Selector').append('select')
+		.attr('id','paragraphname2Select')
+		.attr('name','paragraphname2Select')
+		.on('change',setCopyParagraphText)
+
+	//I need this
+	var opts = paragraphnames2.slice();
+	opts.unshift('Select from list')
+
+	slct.selectAll('option').data(opts).enter().filter(function(d){return d != 'paragraphs'}).append('option')
+		.attr('id',function(d){return 'paragraphname2'+params.cleanString(d);})
+		.attr('value',function(d){return d;})
+		.text(function(d){return d;})
+	
+	slct.select('#paragraphname2selectfromlist')
+		.property('disabled', true)
+		.property('selected', true)
+
+}
+
+
+
+function setCopyParagraphText(){
+
+	params.paragraphname2 = this.value;
+	d3.select('#copyParagraphButton').style('visibility','hidden');
+
+	//check that this paragraph doesn't already exist in the original group
+	d3.select('#selectParagraph2Notification').text('').classed('error', false);
+	if (params.availableParagraphnames.includes(params.cleanString(params.paragraphname2))){
+		d3.select('#selectParagraph2Notification')
+			.text('Paragraph "' + params.paragraphname2 + '" already exists in group "' + params.groupname + '". Please select a different paragraph.')
+			.classed('error', true);
+	} else {
+
+		d3.select('#copyParagraphButton').style('visibility','visible');
+		d3.select('#paragraph2text').text(params.paragraphname2);
+		d3.select('#groupname2text').text(params.groupname2);
+		d3.select('#groupname1text').text(params.groupname);
+	}
+
 }
 
 function getGroupnameInput(iden, notificationIden){
@@ -539,6 +660,56 @@ function deleteParagraphRows(){
 				.text('Cancelled by user. The rows were not deleted.')
 				.classed('error', false)
 		}
+	}
+}
+
+function copyParagraph(){
+
+
+	// in case they click the button a second time without changing anything else
+	d3.select('#copyParagraphNotification').text('').classed('error',false)
+	d3.select('#selectParagraph2Notification').text('').classed('error', false);
+	if (params.availableParagraphnames.includes(params.cleanString(params.paragraphname2))){
+		d3.select('#copyParagraphButton').style('visibility','hidden');
+		d3.select('#selectParagraph2Notification')
+			.text('Paragraph "' + params.paragraphname2 + '" already exists in group "' + params.groupname + '". Please select a different paragraph.')
+			.classed('error', true);
+	} else {
+
+		//copy paragraph from groupname2 into groupname1
+		var out = {'groupname1':params.groupname, 'groupname2':params.groupname2, 'paragraphname': params.paragraphname2};
+
+		console.log('copying paragraph to new groupname', params.groupname, params.groupname2, params.paragraphname2);
+
+		//send to flask
+		$.ajax({
+				url: '/copy_paragraph',
+				contentType: 'application/json; charset=utf-8"',
+				dataType: 'json',
+				data: JSON.stringify(out),
+				type: 'POST',
+				success: function(d) {
+
+					if (d.success){
+						console.log('paragraph copied',d);
+						loadTable(params.dbname, params.paragraphTable, compileParagraphData);
+						d3.select('#copyParagraphNotification')
+							.text('The paragraph was copied sucessfully.')
+							.classed('error', false)
+					} else {
+						d3.select('#copyParagraphNotification')
+							.text('An error occured, and the paragraph was not copied.  Please try again')
+							.classed('error', true)
+					} 
+				},
+				error: function(d) {
+					console.log('!!! WARNING: could not copy paragraph', d);
+					//error message
+					d3.select('#copyParagraphNotification')
+						.text('An error occured, and the paragraph was not copied.  Please try again')
+						.classed('error', true)
+				}
+			});
 	}
 }
 

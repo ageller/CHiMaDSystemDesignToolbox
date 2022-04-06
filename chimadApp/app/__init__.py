@@ -506,6 +506,56 @@ def delete_paragraph_rows():
 
 	return jsonify(out)
 
+@app.route('/copy_paragraph', methods=['GET', 'POST'])
+def copy_paragraph():
+	# copy paragraph from groupname2 into groupname1
+
+	message = request.get_json()
+	print('======= copy_paragraph', message)
+	groupname1 = re.sub('[^A-Za-z0-9]+', '',message['groupname1']).lower()
+	groupname2 = re.sub('[^A-Za-z0-9]+', '',message['groupname2']).lower()
+	paragraphname = message['paragraphname']
+
+	success = True
+
+	#copy the paragraph 
+	db1 = os.path.join(current_location, 'static','data','sqlite3', groupname1 + '.db')
+	db2 = os.path.join(current_location, 'static','data','sqlite3', groupname2 + '.db')
+
+	# get the row from the db2
+	conn2 = sqlite3.connect(db2)
+	cursor2 = conn2.cursor()
+	cursor2.execute('SELECT * FROM paragraphs')
+	columns2 = [description[0] for description in cursor2.description]
+	df2 = pd.DataFrame(cursor2.fetchall(), columns = columns2)  
+
+	row = df2.loc[df2['paragraphname'] == paragraphname]
+
+	# add that to db1
+	conn1 = sqlite3.connect(db1)
+	cursor1 = conn1.cursor()
+	cursor1.execute('SELECT * FROM paragraphs')
+	columns1 = [description[0] for description in cursor1.description]
+	df1 = pd.DataFrame(cursor1.fetchall(), columns = columns1)  
+	dfJoined = pd.concat([df1, row])
+
+	# rewrite the file
+	dfJoined.to_sql('paragraphs', conn1, if_exists='replace', index = False)
+
+	#then copy the table from db2 into db1
+	tablename = re.sub('[^A-Za-z0-9]+', '',paragraphname).lower()
+	cursor2.execute('SELECT * FROM ' + tablename)
+	columns2 = [description[0] for description in cursor2.description]
+	df2 = pd.DataFrame(cursor2.fetchall(), columns = columns2)  
+	df2.to_sql(tablename, conn1, if_exists='replace', index = False)
+
+	cursor1.close()
+	cursor2.close()
+
+	out = {'data':message,'success':success}
+
+	return jsonify(out)
+
 @app.route('/download_metricsSQL')
 def download_metricsSQL():
 	db = os.path.join(current_location, 'static','data','sqlite3','CHiMaD_metrics.db')

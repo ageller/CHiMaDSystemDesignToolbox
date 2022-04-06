@@ -23,7 +23,7 @@ function loadTable(dbname, table, callback){
 				console.log('!!! WARNING: table did not load', d);
 				//possibly from bad URL input 
 				if (!params.triedLoadingAgain[table]){
-					logout();
+					//logout();
 					loadTable(dbname, table, callback);
 					params.triedLoadingAgain[table] = true;
 				}
@@ -31,10 +31,10 @@ function loadTable(dbname, table, callback){
 		});
 }
 
-function getTableNames(callback){
+function getTableNames(callback, db = params.dbname){
 //load a table from the SQL database
 
-	var out = {'dbname':params.dbname};
+	var out = {'dbname':db};
 	console.log('getting table names ', out)
 
 	//send the db name to flask.  I will read in the data there, and then it will be sent back via POST
