@@ -36,27 +36,14 @@
 		<div id='branding' style='width:100%;'>
 			<div style='padding:0.1vw'>
 				<img id='CHiMaDLogo' src='static/images/ChiMaD_Final_wname-transparent.png' style='width:60vw'>
-					<a href="/admin_logout"><button class='secondaryButton' style='position:absolute; top:10px; right:10px'>admin logout</button></a>
+				<a href="/admin_logout"><button class='secondaryButton' style='position:absolute; top:10px; right:10px'>admin logout</button></a>
 
-<!-- 				<div id='groupnameDiv' class='landing-button' style='border-width:2px; padding:4px;' onclick='changeGroupname()'><img src='static/images/abstract-user-flat-1.png' style='height:20px;'><span style='margin-left: 6px' id='groupnameID'>click to login</span></div>
-				<div id="hamburger" onclick="toggleDropdown('dropdown')">
-					<div></div>
-					<div></div>
-					<div></div>
-				</div>        
-				<div id="dropdown" style='visibility:hidden'>
-					<a class='simpleLink simpleLinkHover 'style='cursor:pointer' onclick='toHome()'><div style='border:none'>Home</div></a>
-					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='toAbout()'><div>About</div></a>
-					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='toCollaborate()'><div>Collaborate</div></a>
-					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='toIndividual()'><div>Individual</div></a>
-					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='toCustomize()'><div>Customize</div></a>
-					<a class='simpleLink simpleLinkHover' style='cursor:pointer' onclick='logout()'><div>Logout</div></a>
-					<a href="https://chimad.northwestern.edu/" class='simpleLink simpleLinkHover'><div>CHiMaD Main Page</div></a>
-				</div> -->
+
 				<hr class='simpleLine'>
 				<div style='font-size:4vw; font-weight:bold; padding-left:0.5vw'>CHiMaD System Design Toolbox</div>
 				<div style='font-size:2.5vw; font-style:italic; padding-left:1vw; line-height:3vw'>Admin Tools</div>
-				<hr class='simpleLine'>			</div>
+				<hr class='simpleLine'>			
+			</div>
 		</div>
 
 		<div id='admin' class='para' style='margin-left:20px; margin-top: 40px; font-size:14px'>
@@ -96,7 +83,7 @@
 				<div id='editParagraph' style='margin-bottom:40px'>
 
 					<div id='paragraphnameSelector' style='margin-bottom:20px'>
-						<div id="paragraphnameInstructions" class="instructions">To edit or remove a paragraph within this group, begin by selecting the group name from the list below.  </div>
+						<div id="paragraphnameInstructions" class="instructions">To edit or remove a paragraph within this group, begin by selecting the paragraph name from the list below.  </div>
 					</div>
 					<div id='editParagraphButtons' style='visibility:hidden'>
 						<span style='margin-left:10px; font-size:80%'>To rename this paragraph, enter a new name and click Rename.</span>
@@ -120,6 +107,27 @@
 						<span style='margin-left:10px; font-size:80%'>Click here to download the responses to this paragraph in .csv format.  (For SQL format, please download the full group.).</span>
 						<button class='secondaryButton' onclick='downloadParagraphCSV()'>.csv</button>
 
+					</div>
+	
+				</div>
+
+				<div id='copyParagraph' style='margin-bottom:40px'>
+
+					<div id='groupname2Selector'>
+						<div id="groupname2Instructions" class="instructions">To copy a paragraph from another group into this group, begin by selecting the second group name from the list below. </div>
+					</div>
+					 <div id='copyParagraphSelectors' style='visibility:hidden; margin-bottom:20px; font-size:80%'>
+						<div id='paragraphname2Selector'>
+							<span id="paragraphname2Instructions">Please select a paragraph from this second group :</span>
+
+						</div>
+						<div id="selectParagraph2Notification" class="notifications" style="margin-left:10px"></div>
+
+						<div id='copyParagraphButton' style='visibility:hidden'>
+							<span>To copy paragraph "<span style='font-weight: bold' id='paragraph2text'>UNKNOWN</span>" from group "<span style='font-weight: bold' id='groupname2text'>UNKOWN></span>" into group "<span style='font-weight: bold' id='groupname1text'>UNKNOWN</span>", please click Copy.</span>
+							<button class='secondaryButton' onclick="copyParagraph()">Copy</button>
+							<div id="copyParagraphNotification" class="notifications" style="margin-left:10px"></div>
+						</div>
 					</div>
 	
 				</div>
