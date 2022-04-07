@@ -527,9 +527,11 @@ html,body {
 
 .rowSelected {
 	background: gray;
-
 }
 
+.rowSelectedAnswers {
+	background: lightseagreen;
+}
 .disable-select {
 	user-select: none; /* supported by Chrome and Opera */
 	-webkit-user-select: none; /* Safari */

@@ -1,8 +1,9 @@
 params.haveAdmin = true;
 
-params.groupname2 = null;
-params.dbname2 = null;
-params.paragraphname2 = null;
+params.admingroupname2 = null;
+params.admindbname2 = null;
+params.adminparagraphname2 = null;
+params.adminParagraphRowForAnswers = null;
 
 //resize events
 window.addEventListener('resize', resize);
@@ -130,20 +131,20 @@ function createGroupnameSelect(){
 
 function createGroupname2Select(){
 	//create the groupname dropdown for the second groupname (for admin copying paragraphs)
-	d3.select('#groupname2Selector').selectAll('label').remove();
-	d3.select('#groupname2Selector').selectAll('select').remove();
+	d3.select('#admingroupname2Selector').selectAll('label').remove();
+	d3.select('#admingroupname2Selector').selectAll('select').remove();
 
-	d3.select('#groupname2Selector').append('label')
-		.attr('for','groupname2Select')
+	d3.select('#admingroupname2Selector').append('label')
+		.attr('for','admingroupname2Select')
 		.html('second group name: ')
 
-	var slct = d3.select('#groupname2Selector').append('select')
-		.attr('id','groupname2Select')
-		.attr('name','groupname2Select')
+	var slct = d3.select('#admingroupname2Selector').append('select')
+		.attr('id','admingroupname2Select')
+		.attr('name','admingroupname2Select')
 		.on('change',function(){
-			params.groupname2 = this.value;
-			params.dbname2 = params.groupname2 + '.db';
-			getTableNames(callLoadTable2, params.dbname2);
+			params.admingroupname2 = this.value;
+			params.admindbname2 = params.admingroupname2 + '.db';
+			getTableNames(callLoadTable2, params.admindbname2);
 		})
 
 
@@ -153,18 +154,18 @@ function createGroupname2Select(){
 	}).slice();
 	opts.unshift('Select from list')
 	slct.selectAll('option').data(opts).enter().append('option')
-		.attr('id',function(d){return 'groupname2'+params.cleanString(d);})
+		.attr('id',function(d){return 'admingroupname2'+params.cleanString(d);})
 		.attr('value',function(d){return d;})
 		.text(function(d){return d;})
 
-	slct.select('#groupname2selectfromlist')
+	slct.select('#admingroupname2selectfromlist')
 		.property('disabled', true)
 		.property('selected', true)
 
 }
 
 function callLoadTable2(){
-	loadTable(params.dbname2, params.paragraphTable, compileParagraph2Data)
+	loadTable(params.admindbname2, params.paragraphTable, compileParagraph2Data)
 }
 
 function compileParagraph2Data(data){
@@ -191,13 +192,13 @@ function createParagraphname2Select(tables){
 
 
 	d3.select('#copyParagraphSelectors').style('visibility','visible');
-	d3.select('#paragraphname2Selector').selectAll('label').remove();
-	d3.select('#paragraphname2Selector').selectAll('select').remove();
+	d3.select('#adminparagraphname2Selector').selectAll('label').remove();
+	d3.select('#adminparagraphname2Selector').selectAll('select').remove();
 
 
-	var slct = d3.select('#paragraphname2Selector').append('select')
-		.attr('id','paragraphname2Select')
-		.attr('name','paragraphname2Select')
+	var slct = d3.select('#adminparagraphname2Selector').append('select')
+		.attr('id','adminparagraphname2Select')
+		.attr('name','adminparagraphname2Select')
 		.on('change',setCopyParagraphText)
 
 	//I need this
@@ -205,11 +206,11 @@ function createParagraphname2Select(tables){
 	opts.unshift('Select from list')
 
 	slct.selectAll('option').data(opts).enter().filter(function(d){return d != 'paragraphs'}).append('option')
-		.attr('id',function(d){return 'paragraphname2'+params.cleanString(d);})
+		.attr('id',function(d){return 'adminparagraphname2'+params.cleanString(d);})
 		.attr('value',function(d){return d;})
 		.text(function(d){return d;})
 	
-	slct.select('#paragraphname2selectfromlist')
+	slct.select('#adminparagraphname2selectfromlist')
 		.property('disabled', true)
 		.property('selected', true)
 
@@ -219,20 +220,20 @@ function createParagraphname2Select(tables){
 
 function setCopyParagraphText(){
 
-	params.paragraphname2 = this.value;
+	params.adminparagraphname2 = this.value;
 	d3.select('#copyParagraphButton').style('visibility','hidden');
 
 	//check that this paragraph doesn't already exist in the original group
 	d3.select('#selectParagraph2Notification').text('').classed('error', false);
-	if (params.availableParagraphnames.includes(params.cleanString(params.paragraphname2))){
+	if (params.availableParagraphnames.includes(params.cleanString(params.adminparagraphname2))){
 		d3.select('#selectParagraph2Notification')
-			.text('Paragraph "' + params.paragraphname2 + '" already exists in group "' + params.groupname + '". Please select a different paragraph.')
+			.text('Paragraph "' + params.adminparagraphname2 + '" already exists in group "' + params.groupname + '". Please select a different paragraph.')
 			.classed('error', true);
 	} else {
 
 		d3.select('#copyParagraphButton').style('visibility','visible');
-		d3.select('#paragraph2text').text(params.paragraphname2);
-		d3.select('#groupname2text').text(params.groupname2);
+		d3.select('#paragraph2text').text(params.adminparagraphname2);
+		d3.select('#admingroupname2text').text(params.admingroupname2);
 		d3.select('#groupname1text').text(params.groupname);
 	}
 
@@ -493,6 +494,7 @@ function deleteParagraph(){
 		console.log(proceed);
 
 		if (proceed){
+			//is this newname needed?  maybe for initParaphnameAdmin?? can't hurt to leave it
 			newname = null;
 			params.availableParagraphnames.every(function(d){
 				if (d != params.cleanString(paragraphname)) newname = d;
@@ -617,6 +619,7 @@ function deleteParagraphRows(){
 		console.log(proceed);
 
 		if (proceed){
+			//is this newname needed?  maybe for initParaphnameAdmin?? can't hurt to leave it
 			newname = null;
 			params.availableParagraphnames.every(function(d){
 				if (d != params.cleanString(paragraphname)) newname = d;
@@ -663,23 +666,86 @@ function deleteParagraphRows(){
 	}
 }
 
+function setParagraphAnswersFromRow(){
+
+	var paragraphname = d3.select('#paragraphnameSelect').property('value');
+	var uname = 'UNKNOWN';
+	var task = 'UNKNOWN';
+
+	if (params.adminParagraphRowForAnswers == null){
+		d3.select('#setParagraphAnswersFromRowNotification')
+			.text('Please select a row.')
+			.classed('error', true);
+	} else {
+		d3.select('#setParagraphAnswersFromRowNotification').text('').classed('error', false);
+
+		//get the username for the confirm text
+		uname = params.adminParagraphData[params.adminParagraphRowForAnswers].username;
+		task = params.adminParagraphData[params.adminParagraphRowForAnswers].task;
+
+		console.log('setting paragraph answers', paragraphname, params.adminParagraphRowForAnswers);
+
+		let proceed = confirm('You are about to set the answers for paragraph "' + paragraphname +'" from user "' + uname + '" for task "' + task + '" in group "' + params.groupname + '".  This action cannot be undone.');
+		console.log(proceed);
+
+		if (proceed){
+
+			var out = {'paragraphname':paragraphname, 'groupname':params.groupname, 'rowForAnswers':params.adminParagraphRowForAnswers};
+
+			//send to flask
+			$.ajax({
+					url: '/set_paragraph_answers',
+					contentType: 'application/json; charset=utf-8"',
+					dataType: 'json',
+					data: JSON.stringify(out),
+					type: 'POST',
+					success: function(d) {
+						if (d.success){
+							console.log('paragraph answers set',d);
+							loadTable(params.dbname, params.surveyTable, adminParaSelectCallback); //might not be necessary
+							d3.select('#setParagraphAnswersFromRowNotification')
+								.text('Answers were successfully set from selected row.')
+								.classed('error', false)
+						} else {
+							d3.select('#setParagraphAnswersFromRowNotification')
+								.text('An error occured.  The answers were not set.  Please try again')
+								.classed('error', true)	
+						}
+		
+					},
+					error: function(d) {
+						console.log('!!! WARNING: could not set paragraph answers', d);
+						//error message
+						d3.select('#setParagraphAnswersFromRowNotification')
+							.text('An error occured.  The answers were not set.  Please try again')
+							.classed('error', true)
+					}
+				});
+
+		} else{
+			d3.select('#setParagraphAnswersFromRowNotification')
+				.text('Cancelled by user. The answers were not changed.')
+				.classed('error', false)
+		}	}
+}
+
 function copyParagraph(){
 
 
 	// in case they click the button a second time without changing anything else
 	d3.select('#copyParagraphNotification').text('').classed('error',false)
 	d3.select('#selectParagraph2Notification').text('').classed('error', false);
-	if (params.availableParagraphnames.includes(params.cleanString(params.paragraphname2))){
+	if (params.availableParagraphnames.includes(params.cleanString(params.adminparagraphname2))){
 		d3.select('#copyParagraphButton').style('visibility','hidden');
 		d3.select('#selectParagraph2Notification')
-			.text('Paragraph "' + params.paragraphname2 + '" already exists in group "' + params.groupname + '". Please select a different paragraph.')
+			.text('Paragraph "' + params.adminparagraphname2 + '" already exists in group "' + params.groupname + '". Please select a different paragraph.')
 			.classed('error', true);
 	} else {
 
-		//copy paragraph from groupname2 into groupname1
-		var out = {'groupname1':params.groupname, 'groupname2':params.groupname2, 'paragraphname': params.paragraphname2};
+		//copy paragraph from admingroupname2 into groupname1
+		var out = {'groupname1':params.groupname, 'admingroupname2':params.admingroupname2, 'paragraphname': params.adminparagraphname2};
 
-		console.log('copying paragraph to new groupname', params.groupname, params.groupname2, params.paragraphname2);
+		console.log('copying paragraph to new groupname', params.groupname, params.admingroupname2, params.adminparagraphname2);
 
 		//send to flask
 		$.ajax({
@@ -766,6 +832,7 @@ function makeParagraphTable(input, elem, height=400, width=null){
 				.attr('index',d.index)
 				.text(function(dd){return d[dd];})	
 				.on('click',markParagraphRowForRemoval)	
+				.on('contextmenu', markParagraphRowForAnswers)
 		})
 
 		// highlight those marked for removal
@@ -806,10 +873,14 @@ function sortParagraphTable(){
 
 }
 function markParagraphRowForRemoval(){
+	//reset the row marked for answers
+	params.adminParagraphRowForAnswers = null;
+	d3.selectAll('.rowSelectedAnswers').classed('rowSelectedAnswers', false);
+
 	var index0 = parseInt(d3.select(this).attr('index'));
 	var indices = [index0];
 
-	// shift to select a region (not built yet)
+	// shift to select a region
 	if (event.shiftKey && params.adminParagraphRowsToRemove.length > 0){
 		//get a list of indices in the order that they are in the table
 		var mark = false
@@ -848,6 +919,28 @@ function markParagraphRowForRemoval(){
 
 	params.adminParagraphRowsLastClick = index0;
 
+}
+
+function markParagraphRowForAnswers(){
+	event.preventDefault();
+
+	//reset the rows marked for removal
+	params.adminParagraphRowsLastClick = 0;
+	params.adminParagraphRowsToRemove = []
+	d3.selectAll('.rowSelected').classed('rowSelected', false);
+	console.log('checking', this, event, d3.event)
+
+	var index = parseInt(d3.select(this).attr('index'));
+	var iden = '#paragraphTableRow' + index;
+
+	d3.selectAll('.rowSelectedAnswers').classed('rowSelectedAnswers', false);
+	d3.select(iden).classed('rowSelectedAnswers', true);
+
+	params.adminParagraphRowForAnswers = index;
+
+	console.log('row for answers', params.adminParagraphRowForAnswers)
+
+	d3.select('#setParagraphAnswersFromRowNotification').text('').classed('error', false);
 }
 
 function downloadGroupSQL(){
