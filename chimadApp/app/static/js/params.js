@@ -220,6 +220,7 @@ function defineParams(){
 		this.adminparagraphname2 = null;
 		this.adminLevel = null;
 		this.adminUser = null;
+		this.admins = [];
 
 		this.triedLoadingAgain = {};
 
