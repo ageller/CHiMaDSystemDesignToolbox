@@ -62,7 +62,30 @@
 				<div id='editGroupname' style='margin-bottom:40px'>
 					<div id="groupnameSelectInstructions" class="instructions">To edit or remove a group, begin by selecting the group name 	from the list below. </div>
 					<div id='groupnameSelector'></div>
-					<div id='editGroupnameButtons' style='visibility:hidden'>
+					<div id='editGroupnameButtons' style='display:none'>
+						<div id='enableGroupAdmin' style='display:none'>
+							<span style='margin-left:10px; font-size:80%'>This group does not have direct admin access.  To enable access, please enter a password here and click Add Admin. </span>
+							<input type="text" id="enableGroupAdminTextInput">
+							<button class='secondaryButton' onclick="addGroupAdmin()">Add Admin</button>
+							<div id="enableGroupAdminNotification" class="notifications" style="margin-left:10px"></div>
+							<br/>
+						</div>
+
+						<div id='disableGroupAdmin' style='display:none'>
+							<span style='margin-left:10px; font-size:80%'>This group has direct admin access.  To disable access, please click Remove Admin. </span>
+							<button class='secondaryButton' onclick="removeGroupAdmin()">Remove Admin</button>
+							<div id="disableGroupAdminNotification" class="notifications" style="margin-left:10px"></div>
+							<br/>
+						</div>
+
+						<div id='setGroupAdminPW' style='display:none'>
+							<span style='margin-left:10px; font-size:80%'>To change the group admin password, please enter a new password here and click Update Password. </span>
+							<input type="text" id="setGroupAdminPWTextInput">
+							<button class='secondaryButton' onclick="setGroupAdminPW()">Update Password</button>
+							<div id="setGroupAdminPWNotification" class="notifications" style="margin-left:10px"></div>
+							<br/>
+						</div>
+
 						<div id='renameGroupname'>
 							<span style='margin-left:10px; font-size:80%'>To rename this group, enter a new name and click Rename.</span>
 							<input type="text" id="renameGroupnameTextInput">
@@ -90,7 +113,7 @@
 					<div id='paragraphnameSelector' style='margin-bottom:20px'>
 						<div id="paragraphnameInstructions" class="instructions">To edit or remove a paragraph within this group, begin by selecting the paragraph name from the list below.  </div>
 					</div>
-					<div id='editParagraphButtons' style='visibility:hidden'>
+					<div id='editParagraphButtons' style='display:none'>
 						<span style='margin-left:10px; font-size:80%'>To rename this paragraph, enter a new name and click Rename.</span>
 						<input type="text" id="renameParagraphTextInput">
 						<button class='secondaryButton' onclick="renameParagraph()">Rename</button>
@@ -123,14 +146,14 @@
 					<div id='groupname2Selector'>
 						<div id="groupname2Instructions" class="instructions">To copy a paragraph from another group into this group, begin by selecting the second group name from the list below. </div>
 					</div>
-					 <div id='copyParagraphSelectors' style='visibility:hidden; margin-bottom:20px; font-size:80%'>
+					 <div id='copyParagraphSelectors' style='display:none; margin-bottom:20px; font-size:80%'>
 						<div id='paragraphname2Selector'>
 							<span id="paragraphname2Instructions">Please select a paragraph from this second group :</span>
 
 						</div>
 						<div id="selectParagraph2Notification" class="notifications" style="margin-left:10px"></div>
 
-						<div id='copyParagraphButton' style='visibility:hidden'>
+						<div id='copyParagraphButton' style='display:none'>
 							<span>To copy paragraph "<span style='font-weight: bold' id='paragraph2text'>UNKNOWN</span>" from group "<span style='font-weight: bold' id='groupname2text'>UNKOWN></span>" into group "<span style='font-weight: bold' id='groupname1text'>UNKNOWN</span>", please click Copy.</span>
 							<button class='secondaryButton' onclick="copyParagraph()">Copy</button>
 							<div id="copyParagraphNotification" class="notifications" style="margin-left:10px"></div>

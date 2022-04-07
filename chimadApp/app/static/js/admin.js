@@ -5,6 +5,8 @@ params.admindbname2 = null;
 params.adminparagraphname2 = null;
 params.adminParagraphRowForAnswers = null;
 
+getGroupAdmins();
+
 //resize events
 window.addEventListener('resize', resize);
 resize();
@@ -28,7 +30,7 @@ function setAdminLevel(){
 		d3.select('#downloadMetrics').style('display','none');
 
 		d3.select('#groupnameSelectInstructions').text('To edit your group (' + params.groupname + '), use the buttons below.');
-		d3.select('#editGroupnameButtons').style('visibility','visible');
+		d3.select('#editGroupnameButtons').style('display','none');
 
 		setGroupname(params.groupname);
 		getTableNames(selectTableAndLoad);
@@ -56,22 +58,22 @@ function initAdmin(){
 }
 initAdmin();
 
-function resetAdminNotifications(groupVisibility = 'hidden', paraVisibility = 'hidden', para2Visibility = 'hidden'){
-	if (groupVisibility) d3.select('#editGroupnameButtons').style('visibility',groupVisibility);
+function resetAdminNotifications(groupDisplay = 'none', paraDisplay = 'none', para2Display = 'none'){
+	if (groupDisplay) d3.select('#editGroupnameButtons').style('display',groupDisplay);
 	d3.select('#deleteGroupnameNotification').text('').classed('error', false)
 	d3.select('#renameGroupnameNotification').text('').classed('error', false)
 	d3.select('#renameGroupnameTextInput').property('value','')
 	d3.select('#groupnameTextInput').property('value','')
 
-	if (paraVisibility) d3.select('#editParagraphButtons').style('visibility',paraVisibility);
+	if (paraDisplay) d3.select('#editParagraphButtons').style('display',paraDisplay);
 	d3.select('#deleteParagraphNotification').text('').classed('error', false)
 	d3.select('#renameParagraphNotification').text('').classed('error', false)
 	d3.select('#deleteParagraphRowsNotification').text('').classed('error', false);
 	d3.select('#renameParagraphTextInput').property('value','')
 	d3.select('#paragraphTextInput').property('value','')
 
-	if (para2Visibility) d3.select('#copyParagraphSelectors').style('visibility',para2Visibility);
-	d3.select('#copyParagraphButton').style('visibility','hidden');
+	if (para2Display) d3.select('#copyParagraphSelectors').style('display',para2Display);
+	d3.select('#copyParagraphButton').style('display','none');
 	d3.select('#copyParagraphNotification').text('').classed('error', false);
 	d3.select('#selectParagraph2Notification').text('').classed('error', false)
 
@@ -85,7 +87,21 @@ function initGroupnameAdmin(){
 		updateSurveyTable();	
 		loadTable(params.dbname, params.surveyTable, aggregateResults);
 	}
-	resetAdminNotifications('visible');
+	if (params.admins.includes(params.groupname)){
+		console.log('this group has admin access.');
+		// button to remove admin access
+		// button to change password  
+		d3.select('#enableGroupAdmin').style('display','none');
+		if (params.adminLevel == 'global') d3.select('#disableGroupAdmin').style('display','block');
+		d3.select('#setGroupAdminPW').style('display','block');
+	} else {
+		console.log('this group does not have admin access.');
+		// button to add admin access and set password
+		if (params.adminLevel == 'global') d3.select('#enableGroupAdmin').style('display','block');
+		d3.select('#disableGroupAdmin').style('display','none');
+		d3.select('#setGroupAdminPW').style('display','none');
+	}
+	resetAdminNotifications('block');
 }
 
 function initParagraphnameAdmin(data){
@@ -96,7 +112,7 @@ function initParagraphnameAdmin(data){
 		updateSurveyTable();
 		loadTable(params.dbname, params.surveyTable, adminParaSelectCallback);
 	}
-	resetAdminNotifications('visible', 'visible')
+	resetAdminNotifications('block', 'block')
 }
 
 function adminParaSelect(){
@@ -104,7 +120,7 @@ function adminParaSelect(){
 	console.log('setting paragraphname', params.paragraphname);
 	updateSurveyTable();
 	loadTable(params.dbname, params.surveyTable, adminParaSelectCallback);
-	resetAdminNotifications('visible', 'visible')
+	resetAdminNotifications('block', 'block')
 }
 
 function adminParaSelectCallback(data){
@@ -216,7 +232,7 @@ function createParagraphname2Select(tables){
 	console.log('have paragraphnames2', paragraphnames2)
 
 
-	d3.select('#copyParagraphSelectors').style('visibility','visible');
+	d3.select('#copyParagraphSelectors').style('display','none');
 	d3.select('#adminparagraphname2Selector').selectAll('label').remove();
 	d3.select('#adminparagraphname2Selector').selectAll('select').remove();
 
@@ -246,7 +262,7 @@ function createParagraphname2Select(tables){
 function setCopyParagraphText(){
 
 	params.adminparagraphname2 = this.value;
-	d3.select('#copyParagraphButton').style('visibility','hidden');
+	d3.select('#copyParagraphButton').style('display','none');
 
 	//check that this paragraph doesn't already exist in the original group
 	d3.select('#selectParagraph2Notification').text('').classed('error', false);
@@ -256,7 +272,7 @@ function setCopyParagraphText(){
 			.classed('error', true);
 	} else {
 
-		d3.select('#copyParagraphButton').style('visibility','visible');
+		d3.select('#copyParagraphButton').style('display','block');
 		d3.select('#paragraph2text').text(params.adminparagraphname2);
 		d3.select('#admingroupname2text').text(params.admingroupname2);
 		d3.select('#groupname1text').text(params.groupname);
@@ -348,33 +364,33 @@ function addGroupname(){
 
 		//send to flask
 		$.ajax({
-				url: '/add_new_groupname',
-				contentType: 'application/json; charset=utf-8"',
-				dataType: 'json',
-				data: JSON.stringify(out),
-				type: 'POST',
-				success: function(d) {
+			url: '/add_new_groupname',
+			contentType: 'application/json; charset=utf-8"',
+			dataType: 'json',
+			data: JSON.stringify(out),
+			type: 'POST',
+			success: function(d) {
 
-					if (d.success){
-						console.log('new group name added',d);
-						loadTable('available_dbs.db', 'dbs', adminCallback);
-						d3.select('#groupnameNotification')
-							.text('The group was added sucessfully.')
-							.classed('error', false)
-					} else {
-						d3.select('#groupnameNotification')
-							.text('The group was not added.  Please enter a different group name a try again')
-							.classed('error', true)
-					} 
-				},
-				error: function(d) {
-					console.log('!!! WARNING: could not add group name', d);
-					//error message
+				if (d.success){
+					console.log('new group name added',d);
+					loadTable('available_dbs.db', 'dbs', adminCallback);
+					d3.select('#groupnameNotification')
+						.text('The group was added sucessfully.')
+						.classed('error', false)
+				} else {
 					d3.select('#groupnameNotification')
 						.text('The group was not added.  Please enter a different group name a try again')
 						.classed('error', true)
-				}
-			});
+				} 
+			},
+			error: function(d) {
+				console.log('!!! WARNING: could not add group name', d);
+				//error message
+				d3.select('#groupnameNotification')
+					.text('The group was not added.  Please enter a different group name a try again')
+					.classed('error', true)
+			}
+		});
 	}
 }
 
@@ -414,37 +430,37 @@ function deleteGroupname(){
 
 			//send to flask
 			$.ajax({
-					url: '/delete_groupname',
-					contentType: 'application/json; charset=utf-8"',
-					dataType: 'json',
-					data: JSON.stringify(out),
-					type: 'POST',
-					success: function(d) {
-						if (d.success){
-							console.log('groupname deleted',d);
-							if (params.adminLevel == 'global'){
-								initAdmin();
-							} else {
-								setTimeout(adminLogout, 200);
-							}
-							d3.select('#deleteGroupnameNotification')
-								.text('Group was successfully deleted.')
-								.classed('error', false)
+				url: '/delete_groupname',
+				contentType: 'application/json; charset=utf-8"',
+				dataType: 'json',
+				data: JSON.stringify(out),
+				type: 'POST',
+				success: function(d) {
+					if (d.success){
+						console.log('groupname deleted',d);
+						if (params.adminLevel == 'global'){
+							initAdmin();
 						} else {
-							d3.select('#deleteGroupnameNotification')
-								.text('An error occured.  The group was not deleted.  Please try again')
-								.classed('error', true)	
+							setTimeout(adminLogout, 2000);
 						}
-		
-					},
-					error: function(d) {
-						console.log('!!! WARNING: could not delete group name', d);
-						//error message
+						d3.select('#deleteGroupnameNotification')
+							.text('Group was successfully deleted.')
+							.classed('error', false)
+					} else {
 						d3.select('#deleteGroupnameNotification')
 							.text('An error occured.  The group was not deleted.  Please try again')
-							.classed('error', true)
+							.classed('error', true)	
 					}
-				});
+	
+				},
+				error: function(d) {
+					console.log('!!! WARNING: could not delete group name', d);
+					//error message
+					d3.select('#deleteGroupnameNotification')
+						.text('An error occured.  The group was not deleted.  Please try again')
+						.classed('error', true)
+				}
+			});
 
 		} else{
 			d3.select('#deleteGroupnameNotification')
@@ -484,34 +500,34 @@ function renameGroupname(){
 
 		//send to flask
 		$.ajax({
-				url: '/rename_groupname',
-				contentType: 'application/json; charset=utf-8"',
-				dataType: 'json',
-				data: JSON.stringify(out),
-				type: 'POST',
-				success: function(d) {
-					if (d.success){
-						console.log('groupname rename',d);
-						setGroupname(groupname);
-						loadTable('available_dbs.db', 'dbs', adminCallbackRename);
-						d3.select('#renameGroupnameNotification')
-							.text('Group was successfully renamed.')
-							.classed('error', false)
-					} else {
-						d3.select('#renameGroupnameNotification')
-							.text('An error occured.  The group was not renamed.  Please try again')
-							.classed('error', true)	
-					}
-	
-				},
-				error: function(d) {
-					console.log('!!! WARNING: could not rename group ', d);
-					//error message
+			url: '/rename_groupname',
+			contentType: 'application/json; charset=utf-8"',
+			dataType: 'json',
+			data: JSON.stringify(out),
+			type: 'POST',
+			success: function(d) {
+				if (d.success){
+					console.log('groupname rename',d);
+					setGroupname(groupname);
+					loadTable('available_dbs.db', 'dbs', adminCallbackRename);
+					d3.select('#renameGroupnameNotification')
+						.text('Group was successfully renamed.')
+						.classed('error', false)
+				} else {
 					d3.select('#renameGroupnameNotification')
 						.text('An error occured.  The group was not renamed.  Please try again')
-						.classed('error', true)
+						.classed('error', true)	
 				}
-			});
+
+			},
+			error: function(d) {
+				console.log('!!! WARNING: could not rename group ', d);
+				//error message
+				d3.select('#renameGroupnameNotification')
+					.text('An error occured.  The group was not renamed.  Please try again')
+					.classed('error', true)
+			}
+		});
 
 
 	}
@@ -547,33 +563,33 @@ function deleteParagraph(){
 
 			//send to flask
 			$.ajax({
-					url: '/delete_paragraph',
-					contentType: 'application/json; charset=utf-8"',
-					dataType: 'json',
-					data: JSON.stringify(out),
-					type: 'POST',
-					success: function(d) {
-						if (d.success){
-							console.log('paragraph deleted',d);
-							initParagraphnameAdmin(d.data);
-							d3.select('#deleteParagraphNotification')
-								.text('Paragraph was successfully deleted.')
-								.classed('error', false)
-						} else {
-							d3.select('#deleteParagraphNotification')
-								.text('An error occured.  The paragraph was not deleted.  Please try again')
-								.classed('error', true)	
-						}
-		
-					},
-					error: function(d) {
-						console.log('!!! WARNING: could not delete paragraph', d);
-						//error message
+				url: '/delete_paragraph',
+				contentType: 'application/json; charset=utf-8"',
+				dataType: 'json',
+				data: JSON.stringify(out),
+				type: 'POST',
+				success: function(d) {
+					if (d.success){
+						console.log('paragraph deleted',d);
+						initParagraphnameAdmin(d.data);
+						d3.select('#deleteParagraphNotification')
+							.text('Paragraph was successfully deleted.')
+							.classed('error', false)
+					} else {
 						d3.select('#deleteParagraphNotification')
 							.text('An error occured.  The paragraph was not deleted.  Please try again')
-							.classed('error', true)
+							.classed('error', true)	
 					}
-				});
+	
+				},
+				error: function(d) {
+					console.log('!!! WARNING: could not delete paragraph', d);
+					//error message
+					d3.select('#deleteParagraphNotification')
+						.text('An error occured.  The paragraph was not deleted.  Please try again')
+						.classed('error', true)
+				}
+			});
 
 		} else{
 			d3.select('#deleteParagraphNotification')
@@ -603,34 +619,34 @@ function renameParagraph(){
 
 		//send to flask
 		$.ajax({
-				url: '/rename_paragraph',
-				contentType: 'application/json; charset=utf-8"',
-				dataType: 'json',
-				data: JSON.stringify(out),
-				type: 'POST',
-				success: function(d) {
-					if (d.success){
-						console.log('paragraphname rename',d);
-						initParagraphnameAdmin(d.data);
+			url: '/rename_paragraph',
+			contentType: 'application/json; charset=utf-8"',
+			dataType: 'json',
+			data: JSON.stringify(out),
+			type: 'POST',
+			success: function(d) {
+				if (d.success){
+					console.log('paragraphname rename',d);
+					initParagraphnameAdmin(d.data);
 
-						d3.select('#renameParagraphNotification')
-							.text('Paragraph was successfully renamed.')
-							.classed('error', false)
-					} else {
-						d3.select('#renameParagraphNotification')
-							.text('An error occured.  The group name was not renamed.  Please try again')
-							.classed('error', true)	
-					}
-	
-				},
-				error: function(d) {
-					console.log('!!! WARNING: could not rename group name', d);
-					//error message
+					d3.select('#renameParagraphNotification')
+						.text('Paragraph was successfully renamed.')
+						.classed('error', false)
+				} else {
 					d3.select('#renameParagraphNotification')
 						.text('An error occured.  The group name was not renamed.  Please try again')
-						.classed('error', true)
+						.classed('error', true)	
 				}
-			});
+
+			},
+			error: function(d) {
+				console.log('!!! WARNING: could not rename group name', d);
+				//error message
+				d3.select('#renameParagraphNotification')
+					.text('An error occured.  The group name was not renamed.  Please try again')
+					.classed('error', true)
+			}
+		});
 
 
 	}
@@ -672,33 +688,33 @@ function deleteParagraphRows(){
 
 			//send to flask
 			$.ajax({
-					url: '/delete_paragraph_rows',
-					contentType: 'application/json; charset=utf-8"',
-					dataType: 'json',
-					data: JSON.stringify(out),
-					type: 'POST',
-					success: function(d) {
-						if (d.success){
-							console.log('paragraph rows deleted',d);
-							loadTable(params.dbname, params.surveyTable, adminParaSelectCallback);
-							d3.select('#deleteParagraphRowsNotification')
-								.text('Rows were successfully deleted.')
-								.classed('error', false)
-						} else {
-							d3.select('#deleteParagraphRowsNotification')
-								.text('An error occured.  The rows were not deleted.  Please try again')
-								.classed('error', true)	
-						}
-		
-					},
-					error: function(d) {
-						console.log('!!! WARNING: could not delete paragraph rows', d);
-						//error message
+				url: '/delete_paragraph_rows',
+				contentType: 'application/json; charset=utf-8"',
+				dataType: 'json',
+				data: JSON.stringify(out),
+				type: 'POST',
+				success: function(d) {
+					if (d.success){
+						console.log('paragraph rows deleted',d);
+						loadTable(params.dbname, params.surveyTable, adminParaSelectCallback);
+						d3.select('#deleteParagraphRowsNotification')
+							.text('Rows were successfully deleted.')
+							.classed('error', false)
+					} else {
 						d3.select('#deleteParagraphRowsNotification')
 							.text('An error occured.  The rows were not deleted.  Please try again')
-							.classed('error', true)
+							.classed('error', true)	
 					}
-				});
+	
+				},
+				error: function(d) {
+					console.log('!!! WARNING: could not delete paragraph rows', d);
+					//error message
+					d3.select('#deleteParagraphRowsNotification')
+						.text('An error occured.  The rows were not deleted.  Please try again')
+						.classed('error', true)
+				}
+			});
 
 		} else{
 			d3.select('#deleteParagraphRowsNotification')
@@ -736,33 +752,33 @@ function setParagraphAnswersFromRow(){
 
 			//send to flask
 			$.ajax({
-					url: '/set_paragraph_answers',
-					contentType: 'application/json; charset=utf-8"',
-					dataType: 'json',
-					data: JSON.stringify(out),
-					type: 'POST',
-					success: function(d) {
-						if (d.success){
-							console.log('paragraph answers set',d);
-							loadTable(params.dbname, params.surveyTable, adminParaSelectCallback); //might not be necessary
-							d3.select('#setParagraphAnswersFromRowNotification')
-								.text('Answers were successfully set from selected row.')
-								.classed('error', false)
-						} else {
-							d3.select('#setParagraphAnswersFromRowNotification')
-								.text('An error occured.  The answers were not set.  Please try again')
-								.classed('error', true)	
-						}
-		
-					},
-					error: function(d) {
-						console.log('!!! WARNING: could not set paragraph answers', d);
-						//error message
+				url: '/set_paragraph_answers',
+				contentType: 'application/json; charset=utf-8"',
+				dataType: 'json',
+				data: JSON.stringify(out),
+				type: 'POST',
+				success: function(d) {
+					if (d.success){
+						console.log('paragraph answers set',d);
+						loadTable(params.dbname, params.surveyTable, adminParaSelectCallback); //might not be necessary
+						d3.select('#setParagraphAnswersFromRowNotification')
+							.text('Answers were successfully set from selected row.')
+							.classed('error', false)
+					} else {
 						d3.select('#setParagraphAnswersFromRowNotification')
 							.text('An error occured.  The answers were not set.  Please try again')
-							.classed('error', true)
+							.classed('error', true)	
 					}
-				});
+	
+				},
+				error: function(d) {
+					console.log('!!! WARNING: could not set paragraph answers', d);
+					//error message
+					d3.select('#setParagraphAnswersFromRowNotification')
+						.text('An error occured.  The answers were not set.  Please try again')
+						.classed('error', true)
+				}
+			});
 
 		} else{
 			d3.select('#setParagraphAnswersFromRowNotification')
@@ -780,7 +796,7 @@ function copyParagraph(){
 		d3.select('#copyParagraphNotification').text('').classed('error',false)
 		d3.select('#selectParagraph2Notification').text('').classed('error', false);
 		if (params.availableParagraphnames.includes(params.cleanString(params.adminparagraphname2))){
-			d3.select('#copyParagraphButton').style('visibility','hidden');
+			d3.select('#copyParagraphButton').style('display','none');
 			d3.select('#selectParagraph2Notification')
 				.text('Paragraph "' + params.adminparagraphname2 + '" already exists in group "' + params.groupname + '". Please select a different paragraph.')
 				.classed('error', true);
@@ -793,35 +809,180 @@ function copyParagraph(){
 
 			//send to flask
 			$.ajax({
-					url: '/copy_paragraph',
-					contentType: 'application/json; charset=utf-8"',
-					dataType: 'json',
-					data: JSON.stringify(out),
-					type: 'POST',
-					success: function(d) {
+				url: '/copy_paragraph',
+				contentType: 'application/json; charset=utf-8"',
+				dataType: 'json',
+				data: JSON.stringify(out),
+				type: 'POST',
+				success: function(d) {
 
-						if (d.success){
-							console.log('paragraph copied',d);
-							loadTable(params.dbname, params.paragraphTable, compileParagraphData);
-							d3.select('#copyParagraphNotification')
-								.text('The paragraph was copied sucessfully.')
-								.classed('error', false)
-						} else {
-							d3.select('#copyParagraphNotification')
-								.text('An error occured, and the paragraph was not copied.  Please try again')
-								.classed('error', true)
-						} 
-					},
-					error: function(d) {
-						console.log('!!! WARNING: could not copy paragraph', d);
-						//error message
+					if (d.success){
+						console.log('paragraph copied',d);
+						loadTable(params.dbname, params.paragraphTable, compileParagraphData);
+						d3.select('#copyParagraphNotification')
+							.text('The paragraph was copied sucessfully.')
+							.classed('error', false)
+					} else {
 						d3.select('#copyParagraphNotification')
 							.text('An error occured, and the paragraph was not copied.  Please try again')
 							.classed('error', true)
-					}
-				});
+					} 
+				},
+				error: function(d) {
+					console.log('!!! WARNING: could not copy paragraph', d);
+					//error message
+					d3.select('#copyParagraphNotification')
+						.text('An error occured, and the paragraph was not copied.  Please try again')
+						.classed('error', true)
+				}
+			});
 		}
 	}
+}
+
+function getGroupAdmins(){
+	$.ajax({
+		url: '/get_group_admins',
+		contentType: 'application/json; charset=utf-8"',
+		dataType: 'json',
+		type: 'POST',
+		success: function(d) {
+			console.log('have group admins', d);
+			params.admins = d;
+		},
+		error: function(d) {
+			console.log('!!! WARNING: could not get group admins', d);
+			params.admins = [];
+		}
+	});
+}
+
+function addGroupAdmin(){
+	if (params.adminLevel == 'global'){
+		console.log('adding group admin');
+
+		//get the password
+		var pw = d3.select('#enableGroupAdminTextInput').property('value');
+		var out = { 'groupname':params.groupname, 'password':pw};
+
+		//send to flask
+		$.ajax({
+			url: '/add_group_admin',
+			contentType: 'application/json; charset=utf-8"',
+			dataType: 'json',
+			data: JSON.stringify(out),
+			type: 'POST',
+			success: function(d) {
+
+				if (d.success){
+					console.log('group admin access granted',d);
+					d3.select('#enableGroupAdminNotification')
+						.text('Group admin access has been granted.')
+						.classed('error', false)
+					d3.select('#enableGroupAdmin').style('display','none');
+					if (params.adminLevel == 'global') d3.select('#disableGroupAdmin').style('display','block');
+					d3.select('#setGroupAdminPW').style('display','block');
+					d3.select('#disableGroupAdminNotification').text('').classed('error',false);
+					d3.select('#setGroupAdminPWNotification').text('').classed('error',false);
+				} else {
+					d3.select('#enableGroupAdminNotification')
+						.text('An error occured.  Please try again')
+						.classed('error', true)
+				} 
+			},
+			error: function(d) {
+				console.log('!!! WARNING: could not grant admin access', d);
+				//error message
+				d3.select('#enableGroupAdminNotification')
+					.text('An error occured.  Please try again')
+					.classed('error', true)
+			}
+		});
+	}
+}
+
+function removeGroupAdmin(){
+	if (params.adminLevel == 'global'){
+		console.log('removing group admin');
+
+		var out = { 'groupname':params.groupname};
+
+		//send to flask
+		$.ajax({
+			url: '/remove_group_admin',
+			contentType: 'application/json; charset=utf-8"',
+			dataType: 'json',
+			data: JSON.stringify(out),
+			type: 'POST',
+			success: function(d) {
+
+				if (d.success){
+					console.log('group admin access has been removed',d);
+					d3.select('#disableGroupAdminNotification')
+						.text('Group admin access has been removed.')
+						.classed('error', false)
+					if (params.adminLevel == 'global') d3.select('#enableGroupAdmin').style('display','block');
+					d3.select('#disableGroupAdmin').style('display','none');
+					d3.select('#setGroupAdminPW').style('display','none');
+					d3.select('#enableGroupAdminNotification').text('').classed('error',false);
+					d3.select('#setGroupAdminPWNotification').text('').classed('error',false);
+				} else {
+					d3.select('#disableGroupAdminNotification')
+						.text('An error occured.  Please try again')
+						.classed('error', true)
+				} 
+			},
+			error: function(d) {
+				console.log('!!! WARNING: could not remove group admin access', d);
+				//error message
+				d3.select('#disableGroupAdminNotification')
+					.text('An error occured.  Please try again')
+					.classed('error', true)
+			}
+		});
+	}
+
+
+}
+
+function setGroupAdminPW(){
+	console.log('setting group admin password');
+
+	//get the password
+	var pw = d3.select('#setGroupAdminPWTextInput').property('value');
+	var out = { 'groupname':params.groupname, 'password':pw};
+
+	//send to flask
+	$.ajax({
+		url: '/set_group_adminPW',
+		contentType: 'application/json; charset=utf-8"',
+		dataType: 'json',
+		data: JSON.stringify(out),
+		type: 'POST',
+		success: function(d) {
+
+			if (d.success){
+				console.log('group admin password changed',d);
+				d3.select('#setGroupAdminPWNotification')
+					.text('Group admin password was successfully updated.')
+					.classed('error', false)
+			d3.select('#enableGroupAdminNotification').text('').classed('error',false);
+			d3.select('#disableGroupAdminNotification').text('').classed('error',false);
+			} else {
+				d3.select('#setGroupAdminPWNotification')
+					.text('An error occured.  Please try again')
+					.classed('error', true)
+			} 
+		},
+		error: function(d) {
+			console.log('!!! WARNING: could not update group admin password', d);
+			//error message
+			d3.select('#setGroupAdminPWNotification')
+				.text('An error occured.  Please try again')
+				.classed('error', true)
+		}
+	});
+
 }
 
 function makeParagraphTable(input, elem, height=400, width=null){

@@ -275,10 +275,11 @@ def check_user_submitted():
 @app.route('/add_new_groupname', methods=['GET', 'POST'])
 def add_new_groupname():
 
+	message = request.get_json()
+
 	if (adminLevel != 'global'):
 		return 	jsonify({'data':message,'success':False})
 
-	message = request.get_json()
 	print('======= add_new_groupname', message)
 	groupname = message['groupname']
 
@@ -607,10 +608,11 @@ def set_paragraph_answers():
 def copy_paragraph():
 	# copy paragraph from groupname2 into groupname1
 
+	message = request.get_json()
+
 	if (adminLevel != 'global'):
 		return 	jsonify({'data':message,'success':False})
 
-	message = request.get_json()
 	print('======= copy_paragraph', message)
 	groupname1 = re.sub('[^A-Za-z0-9]+', '',message['groupname1']).lower()
 	groupname2 = re.sub('[^A-Za-z0-9]+', '',message['groupname2']).lower()
@@ -651,6 +653,55 @@ def copy_paragraph():
 
 	cursor1.close()
 	cursor2.close()
+
+	out = {'data':message,'success':success}
+
+	return jsonify(out)
+
+@app.route('/get_group_admins', methods=['GET', 'POST'])
+def get_group_admins():
+	out = private['username'].tolist()
+	return jsonify(out)
+
+@app.route('/add_group_admin', methods=['GET', 'POST'])
+def add_group_admin():
+
+	message = request.get_json()
+
+	if (adminLevel != 'global'):
+		return 	jsonify({'data':message,'success':False})
+
+	print('======= add_group_admin', message)
+
+	success = True
+
+	out = {'data':message,'success':success}
+
+	return jsonify(out)
+
+@app.route('/remove_group_admin', methods=['GET', 'POST'])
+def remove_group_admin():
+
+	message = request.get_json()
+
+	if (adminLevel != 'global'):
+		return 	jsonify({'data':message,'success':False})
+
+	print('======= remove_group_admin', message)
+
+	success = True
+
+	out = {'data':message,'success':success}
+
+	return jsonify(out)
+
+@app.route('/set_group_adminPW', methods=['GET', 'POST'])
+def set_group_adminPW():
+
+	message = request.get_json()
+	print('======= set_group_adminPW', message)
+
+	success = True
 
 	out = {'data':message,'success':success}
 
