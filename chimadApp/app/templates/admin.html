@@ -60,23 +60,28 @@
 				</div>
 
 				<div id='editGroupname' style='margin-bottom:40px'>
-					<div id='groupnameSelector'>
-						<div id="groupnameInstructions" class="instructions">To edit or remove a group, begin by selecting the group name from the list below. </div>
-					</div>
+					<div id="groupnameSelectInstructions" class="instructions">To edit or remove a group, begin by selecting the group name 	from the list below. </div>
+					<div id='groupnameSelector'></div>
 					<div id='editGroupnameButtons' style='visibility:hidden'>
-						<span style='margin-left:10px; font-size:80%'>To rename this group, enter a new name and click Rename.</span>
-						<input type="text" id="renameGroupnameTextInput">
-						<button class='secondaryButton' onclick="renameGroupname()">Rename</button>
-						<div id="renameGroupnameNotification" class="notifications" style="margin-left:10px"></div>
-						<br/>
+						<div id='renameGroupname'>
+							<span style='margin-left:10px; font-size:80%'>To rename this group, enter a new name and click Rename.</span>
+							<input type="text" id="renameGroupnameTextInput">
+							<button class='secondaryButton' onclick="renameGroupname()">Rename</button>
+							<div id="renameGroupnameNotification" class="notifications" style="margin-left:10px"></div>
+							<br/>
+						</div>
 
-						<span style='margin-left:10px; font-size:80%'>Click here to delete this group.</span>
-						<button class='secondaryButton' onclick="deleteGroupname()">Delete</button>
-						<div id="deleteGroupnameNotification" class="notifications" style="margin-left:10px"></div>
-						<br/>
+						<div id='deleteGroupname'>
+							<span style='margin-left:10px; font-size:80%'>Click here to delete this group.</span>
+							<button class='secondaryButton' onclick="deleteGroupname()">Delete</button>
+							<div id="deleteGroupnameNotification" class="notifications" style="margin-left:10px"></div>
+							<br/>
+						</div>
 
-						<span style='margin-left:10px; font-size:80%'>Click here to download this group's SQL database.</span>
-						<button class='secondaryButton' onclick='downloadGroupSQL()'>.db</button>
+						<div id='downloadGroupname'>
+							<span style='margin-left:10px; font-size:80%'>Click here to download this group's SQL database.</span>
+							<button class='secondaryButton' onclick='downloadGroupSQL()'>.db</button>
+						</div>
 					</div>
 				</div>
 
@@ -146,15 +151,26 @@
 		<script src='static/lib/d3.v6.min.js'></script>
 		<script src="static/lib/jquery-3.5.1.min.js"></script> <!--  for AJAX -->
 
+
+
 		<!-- my codes -->
 		<script src="static/js/params.js"></script>
 		<script src="static/js/resize.js"></script>
 		<script src="static/js/utils.js"></script>
 		<script src="static/js/formHandler.js"></script>
 		<script src="static/js/reader.js"></script>
+		<script>
+			if ({{ adminLevel|tojson|safe }}){
+				params.adminLevel = {{adminLevel|tojson}};
+			}
+			if ({{ adminGroup|tojson|safe }}){
+				params.adminGroup = {{adminGroup|tojson}};
+			}
+		</script>
 		<script src="static/js/admin.js"></script>
 
 		<script>
+
 			if ({{ inDesktopApp|tojson|safe }}){
 				console.log('running in desktop app')
 				var script = document.createElement("script");  

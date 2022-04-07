@@ -38,6 +38,10 @@ def setInDesktopApp():
 	print('======= setting to desktop version')
 	inDesktopApp = True
 
+# for admin
+adminLevel = 'restricted'
+adminGroup = 'null'
+
 # using sqlite3 database
 @app.route('/load_table', methods=['GET', 'POST'])
 def load_table():
@@ -271,6 +275,9 @@ def check_user_submitted():
 @app.route('/add_new_groupname', methods=['GET', 'POST'])
 def add_new_groupname():
 
+	if (adminLevel != 'global'):
+		return 	jsonify({'data':message,'success':False})
+
 	message = request.get_json()
 	print('======= add_new_groupname', message)
 	groupname = message['groupname']
@@ -345,6 +352,7 @@ def add_new_groupname():
 
 @app.route('/delete_groupname', methods=['GET', 'POST'])
 def delete_groupname():
+	global private
 
 	message = request.get_json()
 	print('======= delete_groupname', message)
@@ -374,12 +382,20 @@ def delete_groupname():
 		df.to_sql('dbs', conn, if_exists='replace', index = False)
 		cursor.close()
 
+		# remove the user in the access.csv file
+		p = os.path.join(current_location, 'private','access.csv')
+		private = pd.read_csv(p)
+		row = private.loc[private['username'] == groupname]
+		private.drop(row.index, inplace = True)
+		private.to_csv(p, index = False)
+
 	out = {'data':message,'success':success}
 
 	return jsonify(out)
 
 @app.route('/rename_groupname', methods=['GET', 'POST'])
 def rename_groupname():
+	global private
 
 	message = request.get_json()
 	print('======= rename_groupname', message)
@@ -399,7 +415,7 @@ def rename_groupname():
 	dbname_new = re.sub('[^A-Za-z0-9]+', '',newname).lower()+'.db'
 	db_new = os.path.join(current_location, 'static','data','sqlite3',dbname_new)
 	if os.path.exists(db):
-		os.rename(db, db_new)
+		os.replace(db, db_new)
 	else:
 		success = False
 
@@ -411,6 +427,13 @@ def rename_groupname():
 		df.replace({'groupname': {groupname: newname}}, inplace = True)
 		df.to_sql('dbs', conn, if_exists='replace', index = False)
 		cursor.close()
+
+		# rename the user in the access.csv file
+		p = os.path.join(current_location, 'private','access.csv')
+		private = pd.read_csv(p)
+		row = private.loc[private['username'] == groupname]
+		private.loc[row.index,'username'] = newname
+		private.to_csv(p, index = False)
 
 	out = {'data':message,'success':success}
 
@@ -584,6 +607,9 @@ def set_paragraph_answers():
 def copy_paragraph():
 	# copy paragraph from groupname2 into groupname1
 
+	if (adminLevel != 'global'):
+		return 	jsonify({'data':message,'success':False})
+
 	message = request.get_json()
 	print('======= copy_paragraph', message)
 	groupname1 = re.sub('[^A-Za-z0-9]+', '',message['groupname1']).lower()
@@ -632,11 +658,17 @@ def copy_paragraph():
 
 @app.route('/download_metricsSQL')
 def download_metricsSQL():
+	if (adminLevel != 'global'):
+		return 	None
+
 	db = os.path.join(current_location, 'static','data','sqlite3','CHiMaD_metrics.db')
 	return send_file(db, as_attachment=True)
 
 @app.route('/download_metricsCSV')
 def download_metricsCSV():
+	if (adminLevel != 'global'):
+		return 	None
+
 	db = os.path.join(current_location, 'static','data','sqlite3','CHiMaD_metrics.db')
 	conn = sqlite3.connect(db)
 	cursor = conn.cursor()
@@ -689,7 +721,7 @@ def check_auth(username, password):
 	user = private.loc[(private['username'] == username) & (private['password'] == password)]
 	if (len(user.index) > 0):
 		allow = True
-	print('=========== attempting access', username, password, len(user.index), allow, request.authorization)
+	print('=========== attempting access', username, len(user.index), allow)
 	request.close()
 	return allow
 
@@ -707,7 +739,9 @@ def requires_auth(f):
 		print('checking', auth)
 		if not auth or not check_auth(auth.username, auth.password):
 			return authenticate()
-		return f(*args, **kwargs)
+		user = private.loc[(private['username'] == auth.username) & (private['password'] == auth.password)]
+		#return f(*args, **kwargs)
+		return f(user)
 	return decorated
 
 
@@ -745,8 +779,13 @@ def documentation():
 
 @app.route('/admin')
 @requires_auth
-def admin():
-	return render_template('admin.html', inDesktopApp=inDesktopApp)
+def admin(user):
+	global adminLevel, adminGroup
+	if (len(user.index) > 0):
+		adminLevel = user['level'].values[0]
+		adminGroup = user['username'].values[0]
+	# send level to the template
+	return render_template('admin.html', inDesktopApp=inDesktopApp, adminLevel=adminLevel, adminGroup=adminGroup)
 
 @app.route('/admin_logout')
 def admin_logout():

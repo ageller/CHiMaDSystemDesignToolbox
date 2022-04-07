@@ -218,6 +218,8 @@ function defineParams(){
 		this.admingroupname2 = null;
 		this.admindbname2 = null;
 		this.adminparagraphname2 = null;
+		this.adminLevel = null;
+		this.adminUser = null;
 
 		this.triedLoadingAgain = {};
 
