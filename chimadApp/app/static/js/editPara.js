@@ -86,7 +86,11 @@ function populateAnswersFromURL(){
 }
 
 function beginParaEdit(){
-	if (params.groupname != 'default' && lowerArray(params.availableGroupnames).includes(params.groupname)){
+	var cleanGroupnames = []
+	params.availableGroupnames.forEach(function(d){cleanGroupnames.push(params.cleanString(d));})
+
+
+	if (params.groupname != 'default' && (params.availableGroupnames.includes(params.groupname) || cleanGroupnames.includes(params.cleanString(params.groupname)))){
 		console.log('editing paragraph');
 		params.edittingPara = true;
 		params.userModified = true;
