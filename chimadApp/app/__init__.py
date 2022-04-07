@@ -6,6 +6,7 @@ import re
 import sys
 from datetime import datetime
 import pytz
+import json
 
 import sqlite3
 
@@ -505,6 +506,79 @@ def delete_paragraph_rows():
 	out = {'data':message,'success':success}
 
 	return jsonify(out)
+
+
+@app.route('/set_paragraph_answers', methods=['GET', 'POST'])
+def set_paragraph_answers():
+	# set paragraph answers from a row
+	message = request.get_json()
+	print('======= set_paragraph_answers', message)
+	groupname = message['groupname']
+	paragraphname = message['paragraphname']
+	index = message['rowForAnswers']
+
+	tableName = re.sub('[^A-Za-z0-9]+', '',paragraphname).lower()
+	dbname = re.sub('[^A-Za-z0-9]+', '',groupname).lower()+'.db'
+	db = os.path.join(current_location, 'static','data','sqlite3',dbname)	
+
+	success = False
+
+	# get the row that the user selected from the correct database
+	conn = sqlite3.connect(db)
+	cursor = conn.cursor()
+	cursor.execute('SELECT * FROM ' + tableName)
+	columns = [description[0] for description in cursor.description]
+	df = pd.DataFrame(cursor.fetchall(), columns = columns) 
+	row = df.iloc[index]
+	task = row['task']
+
+	# get the correct paragraph from the list to set the answers
+	cursor.execute('SELECT * FROM paragraphs')
+	columns = [description[0] for description in cursor.description]
+	dfP = pd.DataFrame(cursor.fetchall(), columns = columns) 
+	paraRow = dfP.loc[dfP['paragraphname'] == paragraphname]
+
+	# get the answersDict and parse it to find the correct task
+	answersDict = json.loads(paraRow['answersJSON'].values[0])
+	answersIndex = None
+	for i,v in enumerate(answersDict):
+		if (v['task'] == task):
+			answersIndex = i
+			
+	# define a new answersDict of the same format but with the values from row
+	if (answersIndex is not None and len(answersDict) > 0):
+
+		# construct the new dict for the answers
+		newAnswers = {
+			'paragraphname' : tableName,
+			'task' : task
+		}
+		exclude = ['paragraphname', 'task', 'Timestamp', 'username', 'IP', 'version']
+		for (key, value) in row.iteritems():  
+			if (key not in exclude):
+				if (task == 'SDC'):
+					if (key in newAnswers):
+						newAnswers[key].append(value)
+					else:
+						newAnswers[key] = [value]
+				else:
+					newAnswers[key] = value
+		
+		# replace the old answers with the new ones
+		answersDict[answersIndex] = newAnswers
+		
+		# add this back to the dataframe and save it to file
+		dfP.at[paraRow.index, 'answersJSON'] = json.dumps(answersDict)
+		dfP.to_sql('paragraphs', conn, if_exists='replace', index = False)
+
+		success = True
+
+	cursor.close()
+
+	out = {'data':message,'success':success}
+
+	return jsonify(out)
+
 
 @app.route('/copy_paragraph', methods=['GET', 'POST'])
 def copy_paragraph():

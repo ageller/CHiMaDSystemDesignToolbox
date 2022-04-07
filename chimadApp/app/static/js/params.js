@@ -210,9 +210,14 @@ function defineParams(){
 		this.inCollaborate = false; //will be true when using the polling feature
 		this.haveAdmin = false; //will be true when admin is loaded
 
+		//for admin
 		this.adminParagraphData = {};
 		this.adminParagraphRowsToRemove = [];
 		this.adminParagraphRowsLastClick = 0;
+		this.adminParagraphRowForAnswers = null;
+		this.admingroupname2 = null;
+		this.admindbname2 = null;
+		this.adminparagraphname2 = null;
 
 		this.triedLoadingAgain = {};
 

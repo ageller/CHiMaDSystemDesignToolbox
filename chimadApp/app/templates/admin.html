@@ -98,13 +98,15 @@
 						<br/>
 
 						<div id='paragraphTableEditorDiv'>
-							<div style='margin-left:10px; margin-bottom: 10px; font-size:80%; line-height:120%'>Click on rows from the table below that you would like to remove. Then click the Remove button below.  (Clicking on a column header will sort the table by that column.)</div>
+							<div style='margin-left:10px; margin-bottom: 10px; font-size:80%; line-height:120%'>To remove rows from the table, left-click each row you would like to remove (they will be highlighted in gray), and then click the "Remove" button below.  To use answers from a particular user as the global answers for this paragraph, right-click on a single row (it will be highlighted in turqoise), and then click the "Set Answers" button below. Also note that clicking on a column header will sort the table by that column.</div>
 							<div id='paragraphTableEditor'></div>
 							<button class='secondaryButton' style='margin-top:10px' onclick="deleteParagraphRows()">Remove</button>
-							<div id="deleteParagraphRowsNotification" class="notifications" style="margin-left:10px"></div>
+							<div id="deleteParagraphRowsNotification" class="notifications" style="margin-left:10px; margin-top:5px"></div>
+							<button class='secondaryButton' style='margin-top:10px' onclick="setParagraphAnswersFromRow()">Set Answers</button>
+							<div id="setParagraphAnswersFromRowNotification" class="notifications" style="margin-left:10px; margin-top:5px"></div>
 						</div>
 
-						<span style='margin-left:10px; font-size:80%'>Click here to download the responses to this paragraph in .csv format.  (For SQL format, please download the full group.).</span>
+						<span style='margin-left:10px; margin-top: 10px; font-size:80%'>Click here to download the responses to this paragraph in .csv format.  (For SQL format, please download the full group.).</span>
 						<button class='secondaryButton' onclick='downloadParagraphCSV()'>.csv</button>
 
 					</div>
