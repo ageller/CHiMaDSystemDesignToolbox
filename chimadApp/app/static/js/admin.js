@@ -14,6 +14,27 @@ d3.select('#groupnameTextInput').on("keyup",function(){getGroupnameInput('groupn
 d3.select('#renameGroupnameTextInput').on("keyup",function(){getGroupnameInput('renameGroupnameTextInput','renameGroupnameNotification');});
 d3.select('#renameParagraphTextInput').on("keyup",function(){getParagraphnameInput('renameParagraphTextInput','renameParagraphNotification');});
 
+
+// there are types of admins: global and restricted
+// - global gets all the options
+// - restricted only has access to admin function associated with the specific groupname, which is params.adminGroup
+console.log('admin : ', params.adminGroup, params.adminLevel);
+function setAdminLevel(){
+	if (params.adminLevel != 'global'){
+		params.groupname = params.adminGroup;
+		d3.select('#addGroupname').style('display','none');
+		d3.select('#groupnameSelector').style('display','none');
+		d3.select('#copyParagraph').style('display','none');
+		d3.select('#downloadMetrics').style('display','none');
+
+		d3.select('#groupnameSelectInstructions').text('To edit your group (' + params.groupname + '), use the buttons below.');
+		d3.select('#editGroupnameButtons').style('visibility','visible');
+
+		setGroupname(params.groupname);
+		getTableNames(selectTableAndLoad);
+	}
+}
+
 //get the available groupnames
 function adminCallbackRename(data){
 	compileAvailableGroupnames(data);
@@ -25,10 +46,13 @@ function adminCallback(data){
 	compileAvailableGroupnames(data);
 	createGroupnameSelect();
 	resetAdminNotifications();
+	setAdminLevel();
+
 }
 function initAdmin(){
 	loadTable('available_dbs.db', 'dbs', adminCallback);
 	resetAdminNotifications();
+	setAdminLevel();
 }
 initAdmin();
 
@@ -50,6 +74,7 @@ function resetAdminNotifications(groupVisibility = 'hidden', paraVisibility = 'h
 	d3.select('#copyParagraphButton').style('visibility','hidden');
 	d3.select('#copyParagraphNotification').text('').classed('error', false);
 	d3.select('#selectParagraph2Notification').text('').classed('error', false)
+
 
 }
 
@@ -313,48 +338,53 @@ function getParagraphnameInput(iden, notificationIden){
 
 function addGroupname(){
 
-	var groupname = d3.select('#groupnameTextInput').property('value');
+	if (params.adminLevel == 'global'){
+		var groupname = d3.select('#groupnameTextInput').property('value');
 
-	//get the text entry
-	var out = {'groupname':groupname};
+		//get the text entry
+		var out = {'groupname':groupname};
 
-	console.log('Adding new groupname', out);
+		console.log('Adding new groupname', out);
 
-	//send to flask
-	$.ajax({
-			url: '/add_new_groupname',
-			contentType: 'application/json; charset=utf-8"',
-			dataType: 'json',
-			data: JSON.stringify(out),
-			type: 'POST',
-			success: function(d) {
+		//send to flask
+		$.ajax({
+				url: '/add_new_groupname',
+				contentType: 'application/json; charset=utf-8"',
+				dataType: 'json',
+				data: JSON.stringify(out),
+				type: 'POST',
+				success: function(d) {
 
-				if (d.success){
-					console.log('new group name added',d);
-					loadTable('available_dbs.db', 'dbs', adminCallback);
-					d3.select('#groupnameNotification')
-						.text('The group was added sucessfully.')
-						.classed('error', false)
-				} else {
+					if (d.success){
+						console.log('new group name added',d);
+						loadTable('available_dbs.db', 'dbs', adminCallback);
+						d3.select('#groupnameNotification')
+							.text('The group was added sucessfully.')
+							.classed('error', false)
+					} else {
+						d3.select('#groupnameNotification')
+							.text('The group was not added.  Please enter a different group name a try again')
+							.classed('error', true)
+					} 
+				},
+				error: function(d) {
+					console.log('!!! WARNING: could not add group name', d);
+					//error message
 					d3.select('#groupnameNotification')
 						.text('The group was not added.  Please enter a different group name a try again')
 						.classed('error', true)
-				} 
-			},
-			error: function(d) {
-				console.log('!!! WARNING: could not add group name', d);
-				//error message
-				d3.select('#groupnameNotification')
-					.text('The group was not added.  Please enter a different group name a try again')
-					.classed('error', true)
-			}
-		});
+				}
+			});
+	}
 }
 
 function deleteGroupname(){
 
 	var good = true
-	var groupname = d3.select('#groupnameSelect').property('value');
+	var groupname = params.groupname;
+	// just in case (but should be the same as params.groupname)
+	if (params.adminLevel == 'global') groupname = d3.select('#groupnameSelect').property('value');
+
 
 	if (groupname == 'Select from list'){
 		d3.select('#deleteGroupnameNotification')
@@ -372,7 +402,11 @@ function deleteGroupname(){
 
 	if (good) {
 		console.log('deleting groupname', params.groupname);
-		let proceed = confirm('You are about to delete group "' + params.groupname +'".  This action cannot be undone.');
+		var proceedText = 'You are about to delete group "' + params.groupname +'".  This action cannot be undone.';
+		if (params.adminLevel != 'global'){
+			proceedText += '  If you click OK, you will be logged out, your group files will be deleted, and you will no longer have access to this admin site for this group.'
+		}
+		let proceed = confirm(proceedText);
 		console.log(proceed);
 
 		if (proceed){
@@ -388,7 +422,11 @@ function deleteGroupname(){
 					success: function(d) {
 						if (d.success){
 							console.log('groupname deleted',d);
-							initAdmin();
+							if (params.adminLevel == 'global'){
+								initAdmin();
+							} else {
+								setTimeout(adminLogout, 200);
+							}
 							d3.select('#deleteGroupnameNotification')
 								.text('Group was successfully deleted.')
 								.classed('error', false)
@@ -419,7 +457,10 @@ function deleteGroupname(){
 function renameGroupname(){
 
 	var good = true;
-	var groupname = d3.select('#groupnameSelect').property('value');
+	var groupname = params.groupname;
+	// just in case (but should be the same as params.groupname)
+	if (params.adminLevel == 'global') groupname = d3.select('#groupnameSelect').property('value');
+
 	if (groupname == 'Select from list'){
 		d3.select('#renameGroupnameNotification')
 			.text('Please select a group name first.')
@@ -451,6 +492,7 @@ function renameGroupname(){
 				success: function(d) {
 					if (d.success){
 						console.log('groupname rename',d);
+						setGroupname(groupname);
 						loadTable('available_dbs.db', 'dbs', adminCallbackRename);
 						d3.select('#renameGroupnameNotification')
 							.text('Group was successfully renamed.')
@@ -732,50 +774,53 @@ function setParagraphAnswersFromRow(){
 function copyParagraph(){
 
 
-	// in case they click the button a second time without changing anything else
-	d3.select('#copyParagraphNotification').text('').classed('error',false)
-	d3.select('#selectParagraph2Notification').text('').classed('error', false);
-	if (params.availableParagraphnames.includes(params.cleanString(params.adminparagraphname2))){
-		d3.select('#copyParagraphButton').style('visibility','hidden');
-		d3.select('#selectParagraph2Notification')
-			.text('Paragraph "' + params.adminparagraphname2 + '" already exists in group "' + params.groupname + '". Please select a different paragraph.')
-			.classed('error', true);
-	} else {
+	if (params.adminLevel == 'global'){
 
-		//copy paragraph from admingroupname2 into groupname1
-		var out = {'groupname1':params.groupname, 'admingroupname2':params.admingroupname2, 'paragraphname': params.adminparagraphname2};
+		// in case they click the button a second time without changing anything else
+		d3.select('#copyParagraphNotification').text('').classed('error',false)
+		d3.select('#selectParagraph2Notification').text('').classed('error', false);
+		if (params.availableParagraphnames.includes(params.cleanString(params.adminparagraphname2))){
+			d3.select('#copyParagraphButton').style('visibility','hidden');
+			d3.select('#selectParagraph2Notification')
+				.text('Paragraph "' + params.adminparagraphname2 + '" already exists in group "' + params.groupname + '". Please select a different paragraph.')
+				.classed('error', true);
+		} else {
 
-		console.log('copying paragraph to new groupname', params.groupname, params.admingroupname2, params.adminparagraphname2);
+			//copy paragraph from admingroupname2 into groupname1
+			var out = {'groupname1':params.groupname, 'admingroupname2':params.admingroupname2, 'paragraphname': params.adminparagraphname2};
 
-		//send to flask
-		$.ajax({
-				url: '/copy_paragraph',
-				contentType: 'application/json; charset=utf-8"',
-				dataType: 'json',
-				data: JSON.stringify(out),
-				type: 'POST',
-				success: function(d) {
+			console.log('copying paragraph to new groupname', params.groupname, params.admingroupname2, params.adminparagraphname2);
 
-					if (d.success){
-						console.log('paragraph copied',d);
-						loadTable(params.dbname, params.paragraphTable, compileParagraphData);
-						d3.select('#copyParagraphNotification')
-							.text('The paragraph was copied sucessfully.')
-							.classed('error', false)
-					} else {
+			//send to flask
+			$.ajax({
+					url: '/copy_paragraph',
+					contentType: 'application/json; charset=utf-8"',
+					dataType: 'json',
+					data: JSON.stringify(out),
+					type: 'POST',
+					success: function(d) {
+
+						if (d.success){
+							console.log('paragraph copied',d);
+							loadTable(params.dbname, params.paragraphTable, compileParagraphData);
+							d3.select('#copyParagraphNotification')
+								.text('The paragraph was copied sucessfully.')
+								.classed('error', false)
+						} else {
+							d3.select('#copyParagraphNotification')
+								.text('An error occured, and the paragraph was not copied.  Please try again')
+								.classed('error', true)
+						} 
+					},
+					error: function(d) {
+						console.log('!!! WARNING: could not copy paragraph', d);
+						//error message
 						d3.select('#copyParagraphNotification')
 							.text('An error occured, and the paragraph was not copied.  Please try again')
 							.classed('error', true)
-					} 
-				},
-				error: function(d) {
-					console.log('!!! WARNING: could not copy paragraph', d);
-					//error message
-					d3.select('#copyParagraphNotification')
-						.text('An error occured, and the paragraph was not copied.  Please try again')
-						.classed('error', true)
-				}
-			});
+					}
+				});
+		}
 	}
 }
 
@@ -948,4 +993,7 @@ function downloadGroupSQL(){
 }
 function downloadParagraphCSV(){
 	window.location.replace("/download_paragraphCSV?groupname="+params.cleanString(params.groupname)+"&paragraph="+params.cleanString(params.paragraphname))
+}
+function adminLogout(){
+	window.location.replace("/admin_logout");
 }
