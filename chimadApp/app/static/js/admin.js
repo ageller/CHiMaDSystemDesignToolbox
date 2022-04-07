@@ -172,16 +172,16 @@ function createGroupnameSelect(){
 
 function createGroupname2Select(){
 	//create the groupname dropdown for the second groupname (for admin copying paragraphs)
-	d3.select('#admingroupname2Selector').selectAll('label').remove();
-	d3.select('#admingroupname2Selector').selectAll('select').remove();
+	d3.select('#groupname2Selector').selectAll('label').remove();
+	d3.select('#groupname2Selector').selectAll('select').remove();
 
-	d3.select('#admingroupname2Selector').append('label')
-		.attr('for','admingroupname2Select')
+	d3.select('#groupname2Selector').append('label')
+		.attr('for','groupname2Select')
 		.html('second group name: ')
 
-	var slct = d3.select('#admingroupname2Selector').append('select')
-		.attr('id','admingroupname2Select')
-		.attr('name','admingroupname2Select')
+	var slct = d3.select('#groupname2Selector').append('select')
+		.attr('id','groupname2Select')
+		.attr('name','groupname2Select')
 		.on('change',function(){
 			params.admingroupname2 = this.value;
 			params.admindbname2 = params.admingroupname2 + '.db';
@@ -199,7 +199,7 @@ function createGroupname2Select(){
 		.attr('value',function(d){return d;})
 		.text(function(d){return d;})
 
-	slct.select('#admingroupname2selectfromlist')
+	slct.select('#groupname2selectfromlist')
 		.property('disabled', true)
 		.property('selected', true)
 
@@ -232,12 +232,12 @@ function createParagraphname2Select(tables){
 	console.log('have paragraphnames2', paragraphnames2)
 
 
-	d3.select('#copyParagraphSelectors').style('display','none');
-	d3.select('#adminparagraphname2Selector').selectAll('label').remove();
-	d3.select('#adminparagraphname2Selector').selectAll('select').remove();
+	d3.select('#copyParagraphSelectors').style('display','block');
+	d3.select('#paragraphname2Selector').selectAll('label').remove();
+	d3.select('#paragraphname2Selector').selectAll('select').remove();
 
 
-	var slct = d3.select('#adminparagraphname2Selector').append('select')
+	var slct = d3.select('#paragraphname2Selector').append('select')
 		.attr('id','adminparagraphname2Select')
 		.attr('name','adminparagraphname2Select')
 		.on('change',setCopyParagraphText)
@@ -274,7 +274,7 @@ function setCopyParagraphText(){
 
 		d3.select('#copyParagraphButton').style('display','block');
 		d3.select('#paragraph2text').text(params.adminparagraphname2);
-		d3.select('#admingroupname2text').text(params.admingroupname2);
+		d3.select('#groupname2text').text(params.admingroupname2);
 		d3.select('#groupname1text').text(params.groupname);
 	}
 

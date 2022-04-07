@@ -64,7 +64,7 @@
 					<div id='groupnameSelector'></div>
 					<div id='editGroupnameButtons' style='display:none'>
 						<div id='enableGroupAdmin' style='display:none'>
-							<span style='margin-left:10px; font-size:80%'>This group does not have direct admin access.  To enable access, please enter a password here and click Add Admin. </span>
+							<div class='adminSecondaryFont'>This group does not have direct admin access.  To enable access, please enter a password below and click Add Admin. Please note that this is not a particularly secure server, so please do not use an important password that is used elsewhere.</div>
 							<input type="text" id="enableGroupAdminTextInput">
 							<button class='secondaryButton' onclick="addGroupAdmin()">Add Admin</button>
 							<div id="enableGroupAdminNotification" class="notifications" style="margin-left:10px"></div>
@@ -72,14 +72,14 @@
 						</div>
 
 						<div id='disableGroupAdmin' style='display:none'>
-							<span style='margin-left:10px; font-size:80%'>This group has direct admin access.  To disable access, please click Remove Admin. </span>
+							<span class='adminSecondaryFont'>This group has direct admin access.  To disable access, please click Remove Admin. </span>
 							<button class='secondaryButton' onclick="removeGroupAdmin()">Remove Admin</button>
 							<div id="disableGroupAdminNotification" class="notifications" style="margin-left:10px"></div>
 							<br/>
 						</div>
 
 						<div id='setGroupAdminPW' style='display:none'>
-							<span style='margin-left:10px; font-size:80%'>To change the group admin password, please enter a new password here and click Update Password. </span>
+							<div class='adminSecondaryFont'>To change the group admin password, please enter a new password below and click Update Password. Please note that this is not a particularly secure server, so please do not use an important password that is used elsewhere.</div>
 							<input type="text" id="setGroupAdminPWTextInput">
 							<button class='secondaryButton' onclick="setGroupAdminPW()">Update Password</button>
 							<div id="setGroupAdminPWNotification" class="notifications" style="margin-left:10px"></div>
@@ -87,7 +87,7 @@
 						</div>
 
 						<div id='renameGroupname'>
-							<span style='margin-left:10px; font-size:80%'>To rename this group, enter a new name and click Rename.</span>
+							<span class='adminSecondaryFont'>To rename this group, enter a new name and click Rename.</span>
 							<input type="text" id="renameGroupnameTextInput">
 							<button class='secondaryButton' onclick="renameGroupname()">Rename</button>
 							<div id="renameGroupnameNotification" class="notifications" style="margin-left:10px"></div>
@@ -95,14 +95,14 @@
 						</div>
 
 						<div id='deleteGroupname'>
-							<span style='margin-left:10px; font-size:80%'>Click here to delete this group.</span>
+							<span class='adminSecondaryFont'>Click here to delete this group.</span>
 							<button class='secondaryButton' onclick="deleteGroupname()">Delete</button>
 							<div id="deleteGroupnameNotification" class="notifications" style="margin-left:10px"></div>
 							<br/>
 						</div>
 
 						<div id='downloadGroupname'>
-							<span style='margin-left:10px; font-size:80%'>Click here to download this group's SQL database.</span>
+							<span class='adminSecondaryFont'>Click here to download this group's SQL database.</span>
 							<button class='secondaryButton' onclick='downloadGroupSQL()'>.db</button>
 						</div>
 					</div>
@@ -114,19 +114,19 @@
 						<div id="paragraphnameInstructions" class="instructions">To edit or remove a paragraph within this group, begin by selecting the paragraph name from the list below.  </div>
 					</div>
 					<div id='editParagraphButtons' style='display:none'>
-						<span style='margin-left:10px; font-size:80%'>To rename this paragraph, enter a new name and click Rename.</span>
+						<span class='adminSecondaryFont'>To rename this paragraph, enter a new name and click Rename.</span>
 						<input type="text" id="renameParagraphTextInput">
 						<button class='secondaryButton' onclick="renameParagraph()">Rename</button>
 						<div id="renameParagraphNotification" class="notifications" style="margin-left:10px"></div>
 						<br/>
 
-						<span style='margin-left:10px; font-size:80%'>Click here to delete this paragraph.</span>
+						<span class='adminSecondaryFont'>Click here to delete this paragraph.</span>
 						<button class='secondaryButton' onclick="deleteParagraph()">Delete</button>
 						<div id="deleteParagraphNotification" class="notifications" style="margin-left:10px"></div>
 						<br/>
 
 						<div id='paragraphTableEditorDiv'>
-							<div style='margin-left:10px; margin-bottom: 10px; font-size:80%; line-height:120%'>To remove rows from the table, left-click each row you would like to remove (they will be highlighted in gray), and then click the "Remove" button below.  To use answers from a particular user as the global answers for this paragraph, right-click on a single row (it will be highlighted in turqoise), and then click the "Set Answers" button below. Also note that clicking on a column header will sort the table by that column.</div>
+							<div class='adminSecondaryFont' style='margin-bottom: 10px;'>To remove rows from the table, left-click each row you would like to remove (they will be highlighted in gray), and then click the "Remove" button below.  To use answers from a particular user as the global answers for this paragraph, right-click on a single row (it will be highlighted in turqoise), and then click the "Set Answers" button below. Also note that clicking on a column header will sort the table by that column.</div>
 							<div id='paragraphTableEditor'></div>
 							<button class='secondaryButton' style='margin-top:10px' onclick="deleteParagraphRows()">Remove</button>
 							<div id="deleteParagraphRowsNotification" class="notifications" style="margin-left:10px; margin-top:5px"></div>
@@ -134,7 +134,7 @@
 							<div id="setParagraphAnswersFromRowNotification" class="notifications" style="margin-left:10px; margin-top:5px"></div>
 						</div>
 
-						<span style='margin-left:10px; margin-top: 10px; font-size:80%'>Click here to download the responses to this paragraph in .csv format.  (For SQL format, please download the full group.).</span>
+						<span class='adminSecondaryFont' style='margin-top: 10px;'>Click here to download the responses to this paragraph in .csv format.  (For SQL format, please download the full group.).</span>
 						<button class='secondaryButton' onclick='downloadParagraphCSV()'>.csv</button>
 
 					</div>
@@ -146,15 +146,14 @@
 					<div id='groupname2Selector'>
 						<div id="groupname2Instructions" class="instructions">To copy a paragraph from another group into this group, begin by selecting the second group name from the list below. </div>
 					</div>
-					 <div id='copyParagraphSelectors' style='display:none; margin-bottom:20px; font-size:80%'>
+					 <div id='copyParagraphSelectors' class='adminSecondaryFont' style='margin-bottom:20px; font-size:80%'>
 						<div id='paragraphname2Selector'>
 							<span id="paragraphname2Instructions">Please select a paragraph from this second group :</span>
-
 						</div>
 						<div id="selectParagraph2Notification" class="notifications" style="margin-left:10px"></div>
 
 						<div id='copyParagraphButton' style='display:none'>
-							<span>To copy paragraph "<span style='font-weight: bold' id='paragraph2text'>UNKNOWN</span>" from group "<span style='font-weight: bold' id='groupname2text'>UNKOWN></span>" into group "<span style='font-weight: bold' id='groupname1text'>UNKNOWN</span>", please click Copy.</span>
+							<span>To copy paragraph "<span style='font-weight: bold' id='paragraph2text'>UNKNOWN</span>" from group "<span style='font-weight: bold' id='groupname2text'>UNKOWN</span>" into group "<span style='font-weight: bold' id='groupname1text'>UNKNOWN</span>", please click Copy.</span>
 							<button class='secondaryButton' onclick="copyParagraph()">Copy</button>
 							<div id="copyParagraphNotification" class="notifications" style="margin-left:10px"></div>
 						</div>
