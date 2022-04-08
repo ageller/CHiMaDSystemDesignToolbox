@@ -494,6 +494,7 @@ function logout(){
 	d3.select('#groupnameID').html('click to login');
 
 	params.URLInputValues = {}; 
+	params.groupnameOrg = 'default';
 	params.groupname = 'default';
 	params.dbname = params.groupname + '.db';
 	params.paragraphname = 'polymercompositeexample';
