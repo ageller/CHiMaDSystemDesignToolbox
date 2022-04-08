@@ -39,7 +39,7 @@ def setInDesktopApp():
 	inDesktopApp = True
 
 # for admin
-adminLevel = 'restricted'
+adminLevel = 'group'
 adminGroup = 'null'
 
 # using sqlite3 database
@@ -387,8 +387,9 @@ def delete_groupname():
 		p = os.path.join(current_location, 'private','access.csv')
 		private = pd.read_csv(p)
 		row = private.loc[private['username'] == groupname]
-		private.drop(row.index, inplace = True)
-		private.to_csv(p, index = False)
+		if (len(row.index) > 0):
+			private.drop(row.index, inplace = True)
+			private.to_csv(p, index = False)
 
 	out = {'data':message,'success':success}
 
@@ -433,8 +434,9 @@ def rename_groupname():
 		p = os.path.join(current_location, 'private','access.csv')
 		private = pd.read_csv(p)
 		row = private.loc[private['username'] == groupname]
-		private.loc[row.index,'username'] = newname
-		private.to_csv(p, index = False)
+		if (len(row.index) > 0):
+			private.loc[row.index,'username'] = newname
+			private.to_csv(p, index = False)
 
 	out = {'data':message,'success':success}
 
@@ -665,6 +667,7 @@ def get_group_admins():
 
 @app.route('/add_group_admin', methods=['GET', 'POST'])
 def add_group_admin():
+	global private
 
 	message = request.get_json()
 
@@ -672,7 +675,11 @@ def add_group_admin():
 		return 	jsonify({'data':message,'success':False})
 
 	print('======= add_group_admin', message)
-
+	p = os.path.join(current_location, 'private','access.csv')
+	private = pd.read_csv(p)
+	newAdmin = pd.DataFrame({'username':[message['groupname']], 'password':[message['password']], 'level':['group']})
+	private  = pd.concat([private, newAdmin], ignore_index = True)
+	private.to_csv(p, index = False)
 	success = True
 
 	out = {'data':message,'success':success}
@@ -681,6 +688,7 @@ def add_group_admin():
 
 @app.route('/remove_group_admin', methods=['GET', 'POST'])
 def remove_group_admin():
+	global private
 
 	message = request.get_json()
 
@@ -689,7 +697,16 @@ def remove_group_admin():
 
 	print('======= remove_group_admin', message)
 
-	success = True
+	success = False
+
+	p = os.path.join(current_location, 'private','access.csv')
+	private = pd.read_csv(p)
+	row = private.loc[private['username'] == message['groupname']]
+	if (len(row.index) > 0):
+		private.drop(row.index, inplace = True)
+		private.to_csv(p, index = False)
+		success = True
+
 
 	out = {'data':message,'success':success}
 
@@ -697,13 +714,23 @@ def remove_group_admin():
 
 @app.route('/set_group_adminPW', methods=['GET', 'POST'])
 def set_group_adminPW():
+	global private
 
 	message = request.get_json()
 	print('======= set_group_adminPW', message)
 
-	success = True
+	success = False
+
+	p = os.path.join(current_location, 'private','access.csv')
+	private = pd.read_csv(p)
+	row = private.loc[private['username'] == message['groupname']]
+	if (len(row.index) > 0):
+		private.loc[row.index,'password'] = message['password']
+		private.to_csv(p, index = False)
+		success = True
 
 	out = {'data':message,'success':success}
+
 
 	return jsonify(out)
 

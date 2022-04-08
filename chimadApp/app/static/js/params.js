@@ -40,7 +40,8 @@ function defineParams(){
 		this.surveyTable = this.paragraphname;
 		this.paragraphTable = 'paragraphs';
 
-		this.groupname = 'default'
+		this.groupname = 'default';
+		this.groupnameOrg = 'default'; //will store the groupname before cleanString
 		//this.dbname = 'CHiMaD_SDC.db' //will be updated when groupname changes
 		this.dbname = 'default.db' //will be updated when groupname changes
 		this.metrics = {};

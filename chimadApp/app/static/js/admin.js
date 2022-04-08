@@ -17,13 +17,14 @@ d3.select('#renameGroupnameTextInput').on("keyup",function(){getGroupnameInput('
 d3.select('#renameParagraphTextInput').on("keyup",function(){getParagraphnameInput('renameParagraphTextInput','renameParagraphNotification');});
 
 
-// there are types of admins: global and restricted
+// there are types of admins: global and group
 // - global gets all the options
-// - restricted only has access to admin function associated with the specific groupname, which is params.adminGroup
+// - group only has access to admin function associated with the specific groupname, which is params.adminGroup
 console.log('admin : ', params.adminGroup, params.adminLevel);
 function setAdminLevel(){
 	if (params.adminLevel != 'global'){
-		params.groupname = params.adminGroup;
+		params.groupnameOrg = params.adminGroup;
+		params.groupname = params.cleanString(params.adminGroup);
 		d3.select('#addGroupname').style('display','none');
 		d3.select('#groupnameSelector').style('display','none');
 		d3.select('#copyParagraph').style('display','none');
@@ -863,41 +864,47 @@ function addGroupAdmin(){
 
 		//get the password
 		var pw = d3.select('#enableGroupAdminTextInput').property('value');
-		var out = { 'groupname':params.groupname, 'password':pw};
+		if (pw.length < 5){
+			d3.select('#enableGroupAdminNotification')
+				.text('Passwords must contain at least five characters.')
+				.classed('error', true)
+		} else {
+			var out = { 'groupname':params.groupname, 'password':pw};
 
-		//send to flask
-		$.ajax({
-			url: '/add_group_admin',
-			contentType: 'application/json; charset=utf-8"',
-			dataType: 'json',
-			data: JSON.stringify(out),
-			type: 'POST',
-			success: function(d) {
+			//send to flask
+			$.ajax({
+				url: '/add_group_admin',
+				contentType: 'application/json; charset=utf-8"',
+				dataType: 'json',
+				data: JSON.stringify(out),
+				type: 'POST',
+				success: function(d) {
 
-				if (d.success){
-					console.log('group admin access granted',d);
-					d3.select('#enableGroupAdminNotification')
-						.text('Group admin access has been granted.')
-						.classed('error', false)
-					d3.select('#enableGroupAdmin').style('display','none');
-					if (params.adminLevel == 'global') d3.select('#disableGroupAdmin').style('display','block');
-					d3.select('#setGroupAdminPW').style('display','block');
-					d3.select('#disableGroupAdminNotification').text('').classed('error',false);
-					d3.select('#setGroupAdminPWNotification').text('').classed('error',false);
-				} else {
+					if (d.success){
+						console.log('group admin access granted',d);
+						d3.select('#enableGroupAdminNotification')
+							.text('Group admin access has been granted.')
+							.classed('error', false)
+						d3.select('#enableGroupAdmin').style('display','none');
+						if (params.adminLevel == 'global') d3.select('#disableGroupAdmin').style('display','block');
+						d3.select('#setGroupAdminPW').style('display','block');
+						d3.select('#disableGroupAdminNotification').text('').classed('error',false);
+						d3.select('#setGroupAdminPWNotification').text('').classed('error',false);
+					} else {
+						d3.select('#enableGroupAdminNotification')
+							.text('An error occured.  Please try again')
+							.classed('error', true)
+					} 
+				},
+				error: function(d) {
+					console.log('!!! WARNING: could not grant admin access', d);
+					//error message
 					d3.select('#enableGroupAdminNotification')
 						.text('An error occured.  Please try again')
 						.classed('error', true)
-				} 
-			},
-			error: function(d) {
-				console.log('!!! WARNING: could not grant admin access', d);
-				//error message
-				d3.select('#enableGroupAdminNotification')
-					.text('An error occured.  Please try again')
-					.classed('error', true)
-			}
-		});
+				}
+			});
+		}
 	}
 }
 
@@ -951,38 +958,43 @@ function setGroupAdminPW(){
 	//get the password
 	var pw = d3.select('#setGroupAdminPWTextInput').property('value');
 	var out = { 'groupname':params.groupname, 'password':pw};
+	if (pw.length < 5){
+		d3.select('#setGroupAdminPWNotification')
+			.text('Passwords must contain at least five characters.')
+			.classed('error', true)
+	} else {
 
-	//send to flask
-	$.ajax({
-		url: '/set_group_adminPW',
-		contentType: 'application/json; charset=utf-8"',
-		dataType: 'json',
-		data: JSON.stringify(out),
-		type: 'POST',
-		success: function(d) {
+		//send to flask
+		$.ajax({
+			url: '/set_group_adminPW',
+			contentType: 'application/json; charset=utf-8"',
+			dataType: 'json',
+			data: JSON.stringify(out),
+			type: 'POST',
+			success: function(d) {
 
-			if (d.success){
-				console.log('group admin password changed',d);
-				d3.select('#setGroupAdminPWNotification')
-					.text('Group admin password was successfully updated.')
-					.classed('error', false)
-			d3.select('#enableGroupAdminNotification').text('').classed('error',false);
-			d3.select('#disableGroupAdminNotification').text('').classed('error',false);
-			} else {
+				if (d.success){
+					console.log('group admin password changed',d);
+					d3.select('#setGroupAdminPWNotification')
+						.text('Group admin password was successfully updated.')
+						.classed('error', false)
+				d3.select('#enableGroupAdminNotification').text('').classed('error',false);
+				d3.select('#disableGroupAdminNotification').text('').classed('error',false);
+				} else {
+					d3.select('#setGroupAdminPWNotification')
+						.text('An error occured.  Please try again')
+						.classed('error', true)
+				} 
+			},
+			error: function(d) {
+				console.log('!!! WARNING: could not update group admin password', d);
+				//error message
 				d3.select('#setGroupAdminPWNotification')
 					.text('An error occured.  Please try again')
 					.classed('error', true)
-			} 
-		},
-		error: function(d) {
-			console.log('!!! WARNING: could not update group admin password', d);
-			//error message
-			d3.select('#setGroupAdminPWNotification')
-				.text('An error occured.  Please try again')
-				.classed('error', true)
-		}
-	});
-
+			}
+		});
+	}
 }
 
 function makeParagraphTable(input, elem, height=400, width=null){
