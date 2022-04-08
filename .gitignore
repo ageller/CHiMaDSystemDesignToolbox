@@ -33,3 +33,4 @@ private
 #chimadApp/app/static/data
 *.db
 *.csv
+*.log
