@@ -419,6 +419,7 @@ function closeGroupnameInput(){
 }
 
 function setGroupname(val){
+	params.groupnameOrg = val;
 	params.groupname = params.cleanString(val);
 	params.dbname = params.groupname + '.db';
 	if (!params.haveAdmin){
