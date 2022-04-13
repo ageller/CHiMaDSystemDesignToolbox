@@ -58,7 +58,7 @@
 					<div id='editGroupnameButtons' style='display:none'>
 						<div id='enableGroupAdmin' style='display:none'>
 							<div class='adminSecondaryFont'>This group does not have direct admin access.  To enable access, please enter a password below and click Add Admin. Please note that this is not a particularly secure server, so please do not use an important password that is used elsewhere.</div>
-							<input type="text" id="enableGroupAdminTextInput">
+							<input type="password" autocomplete="new-password" id="enableGroupAdminTextInput">
 							<button class='secondaryButton' onclick="addGroupAdmin()">Add Admin</button>
 							<div id="enableGroupAdminNotification" class="notifications" style="margin-left:10px"></div>
 							<br/>
@@ -73,7 +73,7 @@
 
 						<div id='setGroupAdminPW' style='display:none'>
 							<div class='adminSecondaryFont'>To change the group admin password, please enter a new password below and click Update Password. Please note that this is not a particularly secure server, so please do not use an important password that is used elsewhere.</div>
-							<input type="text" id="setGroupAdminPWTextInput">
+							<input type="password" autocomplete="new-password"  id="setGroupAdminPWTextInput">
 							<button class='secondaryButton' onclick="setGroupAdminPW()">Update Password</button>
 							<div id="setGroupAdminPWNotification" class="notifications" style="margin-left:10px"></div>
 							<br/>
