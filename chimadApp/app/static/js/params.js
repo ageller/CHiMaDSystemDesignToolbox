@@ -37,6 +37,7 @@ function defineParams(){
 
 		this.paragraphname = 'polymercompositeexample';
 		this.paragraphnameOrg = 'Polymer Composite Example';
+		this.paragraphnameOrgPrev = 'Polymer Composite Example';
 		this.surveyTable = this.paragraphname;
 		this.paragraphTable = 'paragraphs';
 
@@ -207,7 +208,8 @@ function defineParams(){
 		this.haveSDCEditor = false; //will be true if the SDC editor is active
 		this.editingSDC = false; //will be true if user is currently editting SDC
 		this.edittedSDC = false; //will be true if user is has editted SDC (so that we don't show the aggregate lines of answers)
-		this.edittingPara = false; //will be true when user is editing paragraph
+		this.editingPara = false; //will be true when user is editing paragraph
+		this.replacePara = false; //will be true if the user chooses to edit and replace paragraph
 		this.inCollaborate = false; //will be true when using the polling feature
 		this.haveAdmin = false; //will be true when admin is loaded
 

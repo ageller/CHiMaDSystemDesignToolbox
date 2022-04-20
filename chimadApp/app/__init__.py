@@ -78,7 +78,10 @@ def save_responses():
 	groupname = message['groupname']
 	dbname = message['dbname']
 	tablename = message['tablename']
-	print('!!! groupname, dbname, tablename', groupname, dbname, tablename)
+	replace = False
+	if ('replace' in message):
+		replace = message['replace']#.lower() == 'true'
+	print('!!! groupname, dbname, tablename, replace, data', groupname, dbname, tablename, replace, data)
 
 	# set the userSubmitted flag
 	if (groupname not in userSubmitted):
@@ -95,77 +98,123 @@ def save_responses():
 	cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
 	tables = [x[0] for x in cursor.fetchall()]
 
-	if (tablename in tables):
-		# if this is an existing table, then read it in and see if we have the username already
-		print('!!! have table')
-		cursor.execute('SELECT * FROM ' + tablename)
-		columns = [description[0] for description in cursor.description]
-		df = pd.DataFrame(cursor.fetchall(), columns = columns)   
 
-		# if the sheet name is 'paragraphs', then we search for the paragraphname; otherwise we search for the username
-		iRow = []
-		if (tablename == 'paragraphs'):
-			key = 'paragraphname'
-			iRow = df.index[ df[key] == data[key] ].tolist()
-		else:
-			key = 'username'
-			iRow = df.index[ (df[key] == data[key]) & (df['task'] == data['task']) ].tolist()
+	# if we are replacing the table (from editPara)
+	if (replace):
+		print('!!! replacing table')
 
-
-		#if the key is paragraphname, we only expect to find one of these
-		#if the key is username, we may have two
-		# - if we have 1 then we append a new row for the 2nd version
-		# - if we have 2 then we use the second version
-		version = 1
-		if (key == 'username'):
-			print('!!!!!!checking', iRow)
-			if (len(iRow) == 1):
-				iRow = []
-				version = 2
-			if (len(iRow) >= 2):
-				iRow = [iRow[1]]
-				version = 2
-
-			# not limitting to version 1 and 2.  keep all responses
-			# version = len(iRow) + 1
-			# iRow = []
-
-		#print('!!! checking ', key, iRow, version)
-
-		#populate a new row DataFrame
-		d = dict()
-		for h in df.columns.tolist():
-			if (h in data):
-				d[h] = data[h]
-			if (h == 'Timestamp'):
-				CT = pytz.timezone('America/Chicago')
-				d[h] = datetime.now(CT).strftime('%m/%d/%Y %H:%M:%S')
-			if (h == 'version'):
-				d[h] = version
-			if (h not in data and h != 'Timestamp' and h != 'version'):
-				d[h] = ''
-
-		df2 = pd.Series(d) #this might not be necessary
-
-		if (len(iRow) == 1):
-			#this is an existing row that needs to be updated
-			for h in df.columns.tolist():
-				df.loc[iRow[0], h] = df2[h]
-
-		else:
-			#this is a new row
-			df = df.append(df2, ignore_index=True)
-
-
-	else:
-		# if this is a new paragraph then we will need to create a new table (from editPara)
-		print('!!! creating new table')
-		df = pd.DataFrame()
+		df2 = pd.DataFrame()
 		if ('header' in data):
 			d = dict()
 			for h in data['header']:
 				d[h] = []
-			df = pd.DataFrame(d)
+			df2 = pd.DataFrame(d)
+		else:
+			df2 = pd.DataFrame(data, index=[0])
+
+		if (tablename in tables):
+			# if this is an existing table, then read it in and see if we have the username already
+			print('!!! have table')
+			cursor.execute('SELECT * FROM ' + tablename)
+			columns = [description[0] for description in cursor.description]
+			df = pd.DataFrame(cursor.fetchall(), columns = columns)   
+
+			# if the tablename is 'paragraphs', then we search for the paragraphname; 
+			if (tablename == 'paragraphs'):
+				key = 'paragraphname'
+				iRow = df.index[ df[key] == data[key] ].tolist()
+				if (len(iRow) == 1):
+					#this is an existing row that needs to be updated
+					for h in df.columns.tolist():
+						if (h in df2.columns.tolist()):
+							df.loc[iRow[0], h] = df2.loc[0, h]
+						else:
+							df.loc[iRow[0], h] = ''
+
+				else:
+					# this should not happen
+					print('!!!!!!!!!!!!! WARNING! paragraph not found', tablename, tables)
+			else:
+				# if the tablename is not paragraphs, then we simply replace the full table
+				df = df2
+		else:
+			# this should not happen
+			print('!!!!!!!!!!!!! WARNING! table not found', tablename, tables)
+
+
+	else:
+		# answers coming from the training/collaborate task or creating a new paragraph
+		if (tablename in tables):
+			# if this is an existing table, then read it in and see if we have the username already
+			print('!!! have table')
+			cursor.execute('SELECT * FROM ' + tablename)
+			columns = [description[0] for description in cursor.description]
+			df = pd.DataFrame(cursor.fetchall(), columns = columns)   
+
+			# if the tablename is 'paragraphs', then we search for the paragraphname; otherwise we search for the username
+			iRow = []
+			if (tablename == 'paragraphs'):
+				key = 'paragraphname'
+				iRow = df.index[ df[key] == data[key] ].tolist()
+			else:
+				key = 'username'
+				iRow = df.index[ (df[key] == data[key]) & (df['task'] == data['task']) ].tolist()
+
+
+			#if the key is paragraphname, we only expect to find one of these
+			#if the key is username, we may have two
+			# - if we have 1 then we append a new row for the 2nd version
+			# - if we have 2 then we use the second version
+			version = 1
+			if (key == 'username'):
+				print('!!!!!!checking', iRow)
+				if (len(iRow) == 1):
+					iRow = []
+					version = 2
+				if (len(iRow) >= 2):
+					iRow = [iRow[1]]
+					version = 2
+
+				# not limitting to version 1 and 2.  keep all responses
+				# version = len(iRow) + 1
+				# iRow = []
+
+			#print('!!! checking ', key, iRow, version)
+
+			#populate a new row DataFrame
+			d = dict()
+			for h in df.columns.tolist():
+				if (h in data):
+					d[h] = data[h]
+				if (h == 'Timestamp'):
+					CT = pytz.timezone('America/Chicago')
+					d[h] = datetime.now(CT).strftime('%m/%d/%Y %H:%M:%S')
+				if (h == 'version'):
+					d[h] = version
+				if (h not in data and h != 'Timestamp' and h != 'version'):
+					d[h] = ''
+
+			df2 = pd.Series(d) #this might not be necessary
+
+			if (len(iRow) == 1):
+				#this is an existing row that needs to be updated
+				for h in df.columns.tolist():
+					df.loc[iRow[0], h] = df2[h]
+
+			else:
+				#this is a new row
+				df = df.append(df2, ignore_index=True)
+
+
+		else:
+			# if this is a new paragraph then we will need to create a new table (from editPara)
+			print('!!! creating new table')
+			df = pd.DataFrame()
+			if ('header' in data):
+				d = dict()
+				for h in data['header']:
+					d[h] = []
+				df = pd.DataFrame(d)
 
 	#now write the table (will replace the current file)
 	print(df)

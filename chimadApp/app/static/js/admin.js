@@ -336,8 +336,15 @@ function getParagraphnameInput(iden, notificationIden){
 
 		console.log('paragraphname ', paragraphname);
 
-		//check if groupname exists
-		if (params.availableParagraphnames.includes(params.cleanString(paragraphname))){
+		//check if name exists
+		if (paragraphname == '') {
+			d3.select('#' + notificationIden)
+				.text('Please enter a paragraph name.')
+				.classed('error', true)
+			good = false
+		}
+
+		if (params.availableParagraphnames.includes(params.cleanString(paragraphname))) {
 			d3.select('#' + notificationIden)
 				.text('This paragraph name (or one too similar) is already in use.  Please enter a different paragraph name.')
 				.classed('error', true)

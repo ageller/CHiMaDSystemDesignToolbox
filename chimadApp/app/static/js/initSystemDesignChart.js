@@ -181,6 +181,14 @@ function setSDCResponseDateRange(){
 		params.SDCHist.dateAggLims[1] = new Date();
 	}
 }
+function destroySDC(){
+	//destroy the plot (if it exists)
+	var parent = d3.select('#systemDesignChartSVGContainer').node();
+	while (parent.firstChild) {
+		parent.removeChild(parent.firstChild);
+	}
+}
+
 function createSystemDesignChart(){
 	//for the paragraph editor, I will grab possible additional answers from the URL(?)
 	if (params.haveParaEditor) populateAnswersFromURL();
@@ -207,12 +215,8 @@ function createSystemDesignChart(){
 			if (d != 'Select Category') params.SDCColumnYTops[params.cleanString(d)] = params.SDCBoxMargin; //will be reset in formatSDC()
 		})
 
-		//destroy the plot (if it exists)
-		var parent = d3.select('#systemDesignChartSVGContainer').node();
-		while (parent.firstChild) {
-			parent.removeChild(parent.firstChild);
-		}
-
+		destroySDC();
+		
 		//plot size and margins; I may have to resize this later once I know how many entries go in each column
 		params.SDCSVGMargin = {'top':20,'bottom':20,'left':20,'right':20};
 		params.SDCSVGHeight = 0.9*window.innerHeight - params.SDCSVGMargin.top - params.SDCSVGMargin.bottom;
