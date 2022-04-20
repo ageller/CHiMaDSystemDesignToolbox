@@ -1,4 +1,4 @@
-function sendResponsesToFlask(out, notificationID, startInterval=true, successResponse=null, failResponse=null){
+function sendResponsesToFlask(out, notificationID, startInterval=true, successResponse=null, failResponse=null, updatePara=false){
 
 	if (!successResponse) successResponse = 'Responses submitted successfully.  The chart will update automatically when new data are available.  You can change your responses anytime by re-submitting.';
 	if (!failResponse) failResponse = 'Responses failed to be submitted.  Please refresh your browser and try again.'
@@ -31,6 +31,8 @@ function sendResponsesToFlask(out, notificationID, startInterval=true, successRe
 						.text(d.successResponse);
 				}
 
+				if (updatePara) loadTable(params.dbname, params.paragraphTable, compileParagraphData);
+
 				//show the aggregated responses (now showing after reading in the data within aggregateParaResults)
 				if (d.startInterval && !d.error) {
 					loadTable(params.dbname, params.surveyTable, aggregateResults);
@@ -47,12 +49,12 @@ function sendResponsesToFlask(out, notificationID, startInterval=true, successRe
 			},
 			error: function(d) {
 				console.log('!!! WARNING: responses did not save', d);
-				if (d.notificationID){
-					d3.select('#'+d.notificationID)
-						.classed('blink_me', false)
-						.classed('error', true)
-						.text(d.failResponse);
-				}
+				if (d.notificationID) notifcationID = d.notificationID;
+				if (d.failResponse) failResponse = "Responses failed to be submitted. Please refresh your browser and try again.";
+				d3.select('#'+notificationID)
+					.classed('blink_me', false)
+					.classed('error', true)
+					.text(failResponse);
 			}
 		});
 
@@ -320,8 +322,12 @@ function setParagraphnameFromOptions(paragraphname=null){
 
 	if (this.value) {
 		params.paragraphname = params.cleanString(this.value);
+		params.paragraphnameOrg = this.value;
+		params.paragraphnamePrev = this.value;
 	} else {
 		params.paragraphname = params.cleanString(paragraphname);
+		params.paragraphnameOrg = paragraphname;
+		params.paragraphnamePrev = paragraphname;
 	}
 
 	console.log('setting paragraphname', params.paragraphname);
@@ -368,11 +374,39 @@ function checkAnswerTogglesVisibility(){
 	}
 }
 
-function addEmptyAnswers(name){
-	params.answers.push({'paragraphname':params.cleanString(name), 'task':'para'});
-	params.answers.push({'paragraphname':params.cleanString(name), 'task':'SDC'});
-	params.answersParagraphnames['para'].push(params.cleanString(name));
-	params.answersParagraphnames['SDC'].push(params.cleanString(name));
+function addEmptyAnswers(name, replace = false){
+	var foundPara = false;
+	var foundSDC = false;
+
+	if (replace){
+		//find the row; if it exists, replace it.  
+		var pRow = -1;
+		var sRow = -1;
+		params.answers.forEach(function(d,i){
+			if (d.paragraphname == name && d.task == 'para') pRow = i;
+			if (d.paragraphname == name && d.task == 'SDC') sRow = i;			
+		});
+
+		if (pRow >= 0) {
+			params.answers[pRow] = {'paragraphname':params.cleanString(name), 'task':'para'};
+			foundPara = true;
+		} 
+
+		if (sRow >= 0) {
+			params.answers[sRow] = {'paragraphname':params.cleanString(name), 'task':'SDC'};
+			foundSDC = true;
+		} 
+	} 
+
+	// otherwise, append to the list
+	if (!foundPara){
+		params.answers.push({'paragraphname':params.cleanString(name), 'task':'para'});
+		params.answersParagraphnames['para'].push(params.cleanString(name));
+	}
+	if (!foundSDC){
+		params.answers.push({'paragraphname':params.cleanString(name), 'task':'SDC'});
+		params.answersParagraphnames['SDC'].push(params.cleanString(name));
+	}
 }
 
 function createEmail(){

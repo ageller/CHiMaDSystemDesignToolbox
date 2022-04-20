@@ -1,26 +1,10 @@
-//add edit button
-// var parentEl = document.getElementById('paraForm');
-// var btn = document.createElement('button');
-// btn.className = 'secondaryButton';
-// btn.id = 'paraEditButton';
-// btn.textContent = 'edit';
-// btn.style = 'margin-bottom:10px;'
-// btn.onclick = beginParaEdit;
-// parentEl.insertBefore(btn, document.getElementById('paraText'));
-
-//add save button (and hide it)
-// btn2 = document.createElement('button');
-// btn2.className = 'secondaryButton';
-// btn2.id = 'paraSaveButton';
-// btn2.textContent = 'save';
-// btn2.style = 'margin-bottom:10px; display:none;'
-// btn2.onclick = saveParaEdit;
-// parentEl.insertBefore(btn2, document.getElementById('paraText'));
 
 //attach function to buttons and input
-d3.select('#paragraphnameInput').on("keyup",getParagraphnameInput);
+//d3.select('#paragraphnameInput').on("keyup",getParagraphnameInput);
+document.getElementById('paraNewButton').onclick = beginParaNew;
 document.getElementById('paraEditButton').onclick = beginParaEdit;
 document.getElementById('paraSaveButton').onclick = saveParaEdit;
+document.getElementById('paraCancelButton').onclick = cancelParaEdit;
 params.haveParaEditor = true;
 
 //should I do this, or do I want to read in all the answers from the form first (once that is set up)?
@@ -85,14 +69,77 @@ function populateAnswersFromURL(){
 	}
 }
 
+function beginParaNew(){
+	params.paragraphnameOrgPrev = params.paragraphnameOrg;
+
+	var cleanGroupnames = []
+	params.availableGroupnames.forEach(function(d){cleanGroupnames.push(params.cleanString(d));})
+
+	if (params.groupname != 'default' && (params.availableGroupnames.includes(params.groupname) || cleanGroupnames.includes(params.cleanString(params.groupname)))){
+
+		// check the name input
+		var good = getParagraphnameInput('paragraphnameInput','paragraphnameNotification');
+
+		if (good){
+
+			console.log('creating new paragraph');
+			params.editingPara = true;
+			params.replacePara = false;
+			params.userModified = true;
+			params.userSubmitted = false;
+
+			//reset the URL
+			resetURLdata(['groupname']);
+
+			//reset the notification
+			d3.select('#paragraphnameNotification').text('').classed('error', false);
+
+			//remove the paragraph name
+			document.getElementById('paragraphnameInput').value = '';
+
+			//change button to save
+			d3.select('#paraNewButton').style('visibility','hidden');
+			d3.select('#paraEditButton').style('visibility','hidden');
+			d3.select('#paragraphnameTextInput').style('visibility','hidden');
+			d3.select('#paraSaveButtons').style('visibility','visible');
+
+			//populate the editor
+			var txtarea = d3.select('#paraTextEditor').select('textarea');
+			var height = Math.max(100., d3.select('#paraText').node().getBoundingClientRect().height);
+			txtarea.style('height',height + 'px');
+			//txtarea.node().value = params.paraTextSave;
+			txtarea.text('');
+			txtarea.node().value = '';
+
+			//remove the selectionWords
+			params.selectionWords = [];
+
+			//hide the current paragraph and show the editor
+			d3.select('#paraText').style('display','none');
+			d3.select('#paraTextEditor').style('display','block');
+
+			resize();
+		}
+	} else {
+		d3.select('#paragraphnameNotification')
+			.classed('error', true)
+			.text('Please login first');
+	}
+
+}
+
 function beginParaEdit(){
+	params.paragraphnameOrgPrev = params.paragraphnameOrg;
+
 	var cleanGroupnames = []
 	params.availableGroupnames.forEach(function(d){cleanGroupnames.push(params.cleanString(d));})
 
 
 	if (params.groupname != 'default' && (params.availableGroupnames.includes(params.groupname) || cleanGroupnames.includes(params.cleanString(params.groupname)))){
+
 		console.log('editing paragraph');
-		params.edittingPara = true;
+		params.editingPara = true;
+		params.replacePara = true;
 		params.userModified = true;
 		params.userSubmitted = false;
 
@@ -106,8 +153,10 @@ function beginParaEdit(){
 		document.getElementById('paragraphnameInput').value = '';
 
 		//change button to save
-		d3.select('#paraEditButton').style('display','none');
-		d3.select('#paraSaveButton').style('display','block');
+		d3.select('#paraNewButton').style('visibility','hidden');
+		d3.select('#paraEditButton').style('visibility','hidden');
+		d3.select('#paragraphnameTextInput').style('visibility','hidden');
+		d3.select('#paraSaveButtons').style('visibility','visible');
 
 		//populate the editor
 		var txtarea = d3.select('#paraTextEditor').select('textarea');
@@ -122,6 +171,8 @@ function beginParaEdit(){
 		d3.select('#paraTextEditor').style('display','block');
 
 		resize();
+		
+
 	} else {
 		d3.select('#paragraphnameNotification')
 			.classed('error', true)
@@ -130,26 +181,54 @@ function beginParaEdit(){
 
 }
 
-function saveParaEdit(){
-	console.log('saving paragraph');
-	params.edittingPara = false;
-	params.userModified = false;
-	params.userSubmitted = true;
-	d3.select('#answerSubmitNotification')
-		.classed('blink_me', false)
-		.classed('error', false)
-		.text('');
+function cancelParaEdit(){
+	console.log('cancelled by user. reverting to ', params.paragraphnameOrgPrev)
 
-	//check that the paragraph name is not already used
-	if (params.availableParagraphnames.includes(params.cleanString(params.paragraphname)) || params.paragraphname == ''){
-		d3.select('#paragraphnameNotification')
-			.classed('error', true)
-			.text('Please choose a different paragraph name.  ');
-	} else {
-		
+	//revert to the previous paragraph
+	setParagraphnameFromOptions(params.cleanString(params.paragraphnameOrgPrev));
+
+	//hide the editor and show the current paragraph
+	d3.select('#paraText').style('display','block');
+	d3.select('#paraTextEditor').style('display','none');
+
+	//revert the buttons
+	d3.select('#paraNewButton').style('visibility','visible');
+	d3.select('#paraEditButton').style('visibility','visible');
+	d3.select('#paragraphnameTextInput').style('visibility','visible');
+	d3.select('#paraSaveButtons').style('visibility','hidden');
+
+	params.replacePara = false;
+	params.editingPara = false;
+	params.userModified = false;
+
+}
+
+function saveParaEdit(){
+
+	let proceed = true;
+
+	if (params.replacePara){
+		var proceedText = 'You are about to replace paragraph  "' + params.paragraphnameOrg +'".  This will delete all previously saved answers and responses related to this paragraph.  This action cannot be undone.';
+		proceed = confirm(proceedText);
+		console.log(proceed);
+	}
+
+	if (proceed){
+
+		params.pagraphnameOrgPrev = params.paragraphnameOrg;
+
+		console.log('saving paragraph');
+
+		d3.select('#answerSubmitNotification')
+			.classed('blink_me', false)
+			.classed('error', false)
+			.text('');
+
 		//change button to save
-		d3.select('#paraEditButton').style('display','block');
-		d3.select('#paraSaveButton').style('display','none');
+		d3.select('#paraNewButton').style('visibility','visible');
+		d3.select('#paraEditButton').style('visibility','visible');
+		d3.select('#paragraphnameTextInput').style('visibility','visible');
+		d3.select('#paraSaveButtons').style('visibility','hidden');
 
 		//populate the paragraph and convert the paragraph to html markup (this also updates params.paraTextSave)
 		var newText = d3.select('#paraTextEditor').select('textarea').node().value;
@@ -162,34 +241,37 @@ function saveParaEdit(){
 		createDropdowns();
 
 		//create the new table in the database
-		var out = {'tablename':params.cleanString(params.paragraphname), 'dbname':params.dbname}
+		var out = {'tablename':params.cleanString(params.paragraphname), 'dbname':params.dbname, 'replace':params.replacePara}
 		out.data = {'header':['Timestamp','IP','username','version', 'task']};
 		params.selectionWords.forEach(function(d){
 			out.data.header.push(params.cleanString(d));
 		})
-		sendResponsesToFlask(out, 'paragraphnameNotification', false, 'Paragraph updated successfully.');
+		sendResponsesToFlask(out, 'paragraphnameNotification', false, 'Paragraph updated successfully.','Responses failed to be submitted. Please refresh your browser and try again.' );
 
 		//add to the paragraphs table in the database (answers will come later with the onAnswersSubmit)
-		out = {'tablename':'paragraphs', 'dbname':params.dbname}
+		out = {'tablename':'paragraphs', 'dbname':params.dbname, 'replace':params.replacePara}
 		out.data = {'paragraphname':params.paragraphname,'paragraph':newText,'answersJSON':''};
 		params.nTrials = 0; //this may not work properly since I have a submit up above...
-		sendResponsesToFlask(out, 'paragraphnameNotification', false, 'Paragraph updated successfully.');
+		//this will also update the local paragraphs and answers objects and redraw the SDC
+		sendResponsesToFlask(out, 'paragraphnameNotification', false, 'Paragraph updated successfully.', 'Responses failed to be submitted. Please refresh your browser and try again.', true);
 
 		//hide the editor and show the current paragraph
 		d3.select('#paraText').style('display','block');
 		d3.select('#paraTextEditor').style('display','none');
 
-		//create blank entries for the answers
-		addEmptyAnswers(params.cleanString(params.paragraphname));
 
-		//show the system design chart starter
-		createSystemDesignChart();
-	} 
+
+	}
+
+	params.editingPara = false;
+	params.replacePara = false;
+	params.userModified = false;
+	params.userSubmitted = true;
 }
 
 function onAnswersSubmit(){
 	if (params.groupname != 'default' && params.availableGroupnames.includes(params.groupname)){
-		if (params.edittingPara){
+		if (params.editingPara){
 			d3.select('#answerSubmitNotification')
 				.classed('blink_me', false)
 				.classed('error', true)
@@ -208,7 +290,7 @@ function onAnswersSubmit(){
 			})
 			var out = {'tablename':'paragraphs', 'dbname':params.dbname}
 			out.data = {'paragraphname':params.paragraphname,'paragraph':params.paraTextSave, 'answersJSON':JSON.stringify(answersData)}
-			sendResponsesToFlask(out, 'answerSubmitNotification', false, 'Answers updated successfully.');
+			sendResponsesToFlask(out, 'answerSubmitNotification', false, 'Answers updated successfully.', 'Answers failed to be submitted. Please refresh your browser and try again.', true);;
 			console.log('answers submitted', out);
 			params.userModified = false;
 			params.userSubmitted = true;
@@ -221,30 +303,46 @@ function onAnswersSubmit(){
 	}
 }
 
-function getParagraphnameInput(paragraphname=null, evnt=null){
+function getParagraphnameInput(iden, notificationIden){
 	//get the paragraph data from the text input box to define the paragraph
 
-	if (this.value) paragraphname = this.value;
+	var paragraphname = d3.select('#' + iden).property('value');
+	var good = true;
 
-	//this will handle the write-in paragraphname for the editor
 	if (params.event.keyCode === 13 || params.event.which === 13) {
 		//prevent returns from triggering anything
 		event.preventDefault();
 	} else {
-
+		if (!(typeof paragraphname === 'string') && !(paragraphname instanceof String)) paragraphname = '';
 		params.paragraphnameOrg = paragraphname;
 		params.paragraphname = params.cleanString(paragraphname);
-		if (!(typeof params.paragraphname === 'string') && !(params.paragraphname instanceof String)) params.paragraphname = '';
 
-		console.log('paragraphname ', params.paragraphname);
-		if (params.availableParagraphnames.includes(params.paragraphname) || params.paragraphname == '') {
-			d3.select('#paragraphnameNotification')
+		console.log('paragraphname ', paragraphname);
+
+		//check if name exists
+		if (paragraphname == '') {
+			d3.select('#' + notificationIden)
+				.text('Please enter a paragraph name.')
 				.classed('error', true)
-				.text('Please choose a different paragraph name. ');
-		} else {
-			d3.select('#paragraphnameNotification').text('');
+			good = false
+		}
+
+		if (params.availableParagraphnames.includes(params.cleanString(paragraphname))) {
+			d3.select('#' + notificationIden)
+				.text('This paragraph name (or one too similar) is already in use.  Please enter a different paragraph name.')
+				.classed('error', true)
+			good = false
+		} 
+
+		if (good) {
+			d3.select('#' + notificationIden)
+				.text('')
+				.classed('error', false);
 			params.URLInputValues["paragraphname"] = params.paragraphname;
 			appendURLdata();
 		}
+
 	}
+
+	return good;
 }
