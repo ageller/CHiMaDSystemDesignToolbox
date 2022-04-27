@@ -562,11 +562,11 @@ function deleteParagraph(){
 		if (proceed){
 			//is this newname needed?  maybe for initParaphnameAdmin?? can't hurt to leave it
 			newname = null;
-			params.availableParagraphnames.every(function(d){
-				if (d != params.cleanString(paragraphname)) newname = d;
-				if (newname) return false;
-				return true;
-			})
+			// params.availableParagraphnames.every(function(d){
+			// 	if (d != params.cleanString(paragraphname)) newname = d;
+			// 	if (newname) return false;
+			// 	return true;
+			// })
 			var out = {'paragraphname':paragraphname, 'groupname':params.groupname, 'newname':newname};
 
 			//send to flask
