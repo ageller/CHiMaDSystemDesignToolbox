@@ -1,10 +1,11 @@
 
 //attach function to buttons and input
 //d3.select('#paragraphnameInput').on("keyup",getParagraphnameInput);
-document.getElementById('paraNewButton').onclick = beginParaNew;
 document.getElementById('paraEditButton').onclick = beginParaEdit;
-document.getElementById('paraSaveButton').onclick = saveParaEdit;
 document.getElementById('paraCancelButton').onclick = cancelParaEdit;
+document.getElementById('paraSaveButton').onclick = saveParaEdit;
+document.getElementById('paraSaveAsButton').onclick = saveAsParaEdit;
+
 params.haveParaEditor = true;
 
 //should I do this, or do I want to read in all the answers from the form first (once that is set up)?
@@ -69,64 +70,6 @@ function populateAnswersFromURL(){
 	}
 }
 
-function beginParaNew(){
-	params.paragraphnameOrgPrev = params.paragraphnameOrg;
-
-	var cleanGroupnames = []
-	params.availableGroupnames.forEach(function(d){cleanGroupnames.push(params.cleanString(d));})
-
-	if (params.groupname != 'default' && (params.availableGroupnames.includes(params.groupname) || cleanGroupnames.includes(params.cleanString(params.groupname)))){
-
-		// check the name input
-		var good = getParagraphnameInput('paragraphnameInput','paragraphnameNotification');
-
-		if (good){
-
-			console.log('creating new paragraph');
-			params.editingPara = true;
-			params.replacePara = false;
-			params.userModified = true;
-			params.userSubmitted = false;
-
-			//reset the URL
-			resetURLdata(['groupname']);
-
-			//reset the notification
-			d3.select('#paragraphnameNotification').text('').classed('error', false);
-
-			//remove the paragraph name
-			document.getElementById('paragraphnameInput').value = '';
-
-			//change button to save
-			d3.select('#paraNewButton').style('visibility','hidden');
-			d3.select('#paraEditButton').style('visibility','hidden');
-			d3.select('#paragraphnameTextInput').style('visibility','hidden');
-			d3.select('#paraSaveButtons').style('visibility','visible');
-
-			//populate the editor
-			var txtarea = d3.select('#paraTextEditor').select('textarea');
-			var height = Math.max(100., d3.select('#paraText').node().getBoundingClientRect().height);
-			txtarea.style('height',height + 'px');
-			//txtarea.node().value = params.paraTextSave;
-			txtarea.text('');
-			txtarea.node().value = '';
-
-			//remove the selectionWords
-			params.selectionWords = [];
-
-			//hide the current paragraph and show the editor
-			d3.select('#paraText').style('display','none');
-			d3.select('#paraTextEditor').style('display','block');
-
-			resize();
-		}
-	} else {
-		d3.select('#paragraphnameNotification')
-			.classed('error', true)
-			.text('Please login first');
-	}
-
-}
 
 function beginParaEdit(){
 	params.paragraphnameOrgPrev = params.paragraphnameOrg;
@@ -153,10 +96,8 @@ function beginParaEdit(){
 		document.getElementById('paragraphnameInput').value = '';
 
 		//change button to save
-		d3.select('#paraNewButton').style('visibility','hidden');
-		d3.select('#paraEditButton').style('visibility','hidden');
-		d3.select('#paragraphnameTextInput').style('visibility','hidden');
-		d3.select('#paraSaveButtons').style('visibility','visible');
+		d3.select('#paraEditButton').style('display','none');
+		d3.select('#paraSaveButtons').style('display','block');
 
 		//populate the editor
 		var txtarea = d3.select('#paraTextEditor').select('textarea');
@@ -164,6 +105,7 @@ function beginParaEdit(){
 		txtarea.style('height',height + 'px');
 		//txtarea.node().value = params.paraTextSave;
 		txtarea.text(params.paraTextSave);
+		txtarea.node().value = params.paraTextSave;
 
 
 		//hide the current paragraph and show the editor
@@ -192,14 +134,48 @@ function cancelParaEdit(){
 	d3.select('#paraTextEditor').style('display','none');
 
 	//revert the buttons
-	d3.select('#paraNewButton').style('visibility','visible');
-	d3.select('#paraEditButton').style('visibility','visible');
-	d3.select('#paragraphnameTextInput').style('visibility','visible');
-	d3.select('#paraSaveButtons').style('visibility','hidden');
+	d3.select('#paraEditButton').style('display','block');
+	d3.select('#paraSaveButtons').style('display','none');
 
 	params.replacePara = false;
 	params.editingPara = false;
 	params.userModified = false;
+
+}
+
+function saveAsParaEdit(){
+	params.paragraphnameOrgPrev = params.paragraphnameOrg;
+
+	var cleanGroupnames = []
+	params.availableGroupnames.forEach(function(d){cleanGroupnames.push(params.cleanString(d));})
+
+	if (params.groupname != 'default' && (params.availableGroupnames.includes(params.groupname) || cleanGroupnames.includes(params.cleanString(params.groupname)))){
+
+		// check the name input
+		var good = getParagraphnameInput('paragraphnameInput','paragraphnameNotification');
+
+		if (good){
+
+			console.log('creating new paragraph');
+			params.editingPara = true;
+			params.replacePara = false;
+			params.userModified = true;
+			params.userSubmitted = false;
+
+			//reset the URL
+			resetURLdata(['groupname']);
+
+			//reset the notification
+			d3.select('#paragraphnameNotification').text('').classed('error', false);
+
+			saveParaEdit();
+
+		}
+	} else {
+		d3.select('#paragraphnameNotification')
+			.classed('error', true)
+			.text('Please login first');
+	}
 
 }
 
@@ -225,10 +201,8 @@ function saveParaEdit(){
 			.text('');
 
 		//change button to save
-		d3.select('#paraNewButton').style('visibility','visible');
-		d3.select('#paraEditButton').style('visibility','visible');
-		d3.select('#paragraphnameTextInput').style('visibility','visible');
-		d3.select('#paraSaveButtons').style('visibility','hidden');
+		d3.select('#paraEditButton').style('display','block');
+		d3.select('#paraSaveButtons').style('display','none');
 
 		//populate the paragraph and convert the paragraph to html markup (this also updates params.paraTextSave)
 		var newText = d3.select('#paraTextEditor').select('textarea').node().value;

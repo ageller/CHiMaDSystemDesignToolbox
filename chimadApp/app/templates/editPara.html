@@ -34,27 +34,26 @@
 				</div>
 
 
-				<div id="paragraphnameInstructions" class="instructions">2. (Optional) Below you can either edit and replace an existing paragraph or create a new paragraph.  If you choose to edit and replace an existing paragraph, all saved answers and responses for that paragraph (e.g., from the collaborate page) will be erased.  Therefore for most use cases it may be prudent to simply create a new paragraph. In order to create a new paragraph you must first specify a new unique paragraph name.  When you are finished editing the paragraph text, click the "save" button (which will become visible after beginning to edit or create a new paragraph).  
+				<div id="paragraphnameInstructions" class="instructions">2. (Optional) Below you can edit an existing paragraph by clicking the "edit" button. This will produce a paragraph editing textbox that is pre-populated with the current paragraph text.  Within the paragraph editing textbox, use double square brakets to indicate a word or phrase that is meant to be classified, e.g., "[[classify this]]".  Subscripts can be included as "_{subscripted text}_", and superscripts can be included as "^{superscripted text}^".  
 
-				<br/><br/>Within the paragraph editing textbox, use double square brakets to indicate a word or phrase that is meant to be classified, e.g., "[[classify this]]".  Subscripts can be included as "_{subscripted text}_", and superscripts can be included as "^{superscripted text}^".
+				<br/><br/>When you are finished, you can "save" or "save as". Clicking "save" will edit and replace the existing paragraph; all saved answers and responses for that paragraph (e.g., from the collaborate page) will be erased.  Therefore for most use cases it may be prudent to instead click "save as" to create a new paragraph with a new unique name.  
 
 				<br/><br/>Please note: If you want to collaborate on writing the paragraph, we recommend using a separate editor built for that purpose (e.g., Google Docs, GitHub, etc); then copy and paste the final paragraph below.  
 				</div>
 
-				<button class='secondaryButton' id='paraEditButton' style='display:block'>edit and replace</button>
+				<button class='secondaryButton' id='paraEditButton' style='display:block'>edit</button>
 
-				<div id="paragraphnameTextInput" style='display:inline-block'>
-					<label for="paragraphname" id="paragraphnameLabel">new paragraph name:</label>
-					<input type="text" id="paragraphnameInput" name="paragraphname" value=''>
+				<div id='paraSaveButtons' style='display:none;'>
+					<button class='secondaryButton' id='paraCancelButton' style='display:inline-block'>cancel</button>
+					<button class='secondaryButton' id='paraSaveButton' style='display:inline-block'>save</button>
+					<button class='secondaryButton' id='paraSaveAsButton' style='display:inline-block'>save as</button>
+					<div id="paragraphnameTextInput" style='display:inline-block'>
+						<!-- <label for="paragraphname" id="paragraphnameLabel">new paragraph name:</label> -->
+						<input type="text" id="paragraphnameInput" name="paragraphname" placeholder="save as new name" value=''>
+					</div>
 				</div>
-				<button class='secondaryButton' id='paraNewButton' style='display:inline-block; margin-top:20px'>create new</button>
 
 				<div id="paragraphnameNotification" class="notifications" style="margin:20"></div>
-
-				<div id='paraSaveButtons' style='display:block; visibility:hidden; margin-bottom:20px'>
-					<button class='secondaryButton' id='paraSaveButton' style='display:inline-block'>save</button>
-					<button class='secondaryButton' id='paraCancelButton' style='display:inline-block'>cancel</button>
-				</div>
 
 				<div id='paraText'>
 					Polymer matrix composites are traditionally valued for use in [[lightweight mechanical]] applications (aerospace, automotive, etc.) due to their attractive combination of mechanical properties ([[toughness]], [[strength/stiffness]]) and [[low density]]. For use in [[extreme environments]], these materials must possess [[slow degradation rates when exposed to O_{2}_, H_{2}_O, and salts]]. Moreover, maintaining structural integrity over a wide temperature range requires a low [[thermal expansion coefficient mismatch]] between matrix/reinforcement and a high [[glass transition temperature (T_{g}_)]]. Composites must also demonstrate excellent [[resistance to fracture]], determined in part by the mechanical properties (described above) and by the preferred [[failure mode]], which is a function of the [[reinforcement architecture]] and [[fiber/matrix interface]]. The [[polymer matrix]] [[is prepared]] by combining epoxy, crosslinker, and filler (as-needed), which controls the [[crosslinking density]] and [[heterogeneity]] within the matrix structure. [[The choice and preparation of reinforcement]] sets the [[morphology]] and [[microstructure of the reinforcement phase]].  The architecture of the reinforcement (and therefore, composite) is set during [[layup and curing]] and is defined by the [[dispersion]], [[aggregation]], and [[orientation of the reinforcement]]. [[Post-layup annealing and aging]] can improve the [[matrix/reinforcement interface]], and is critical to the mechanical properties, particularly the failure mode and toughness.
