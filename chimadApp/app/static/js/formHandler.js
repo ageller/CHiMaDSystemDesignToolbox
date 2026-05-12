@@ -85,6 +85,16 @@ function sendMetricsToFlask(){
 function onParaSubmit(){
 	//when form is submitted, compile responses and send the flask
 
+	var cleanGroupnames = []
+	params.availableGroupnames.forEach(function(d){cleanGroupnames.push(params.cleanString(d));})
+	if (!(params.groupname != 'default' && (params.availableGroupnames.includes(params.groupname) || cleanGroupnames.includes(params.cleanString(params.groupname))))){
+		d3.select('#paraNotification')
+			.classed('blink_me', false)
+			.classed('error', true)
+			.text('Please login first');
+		return;
+	}
+
 	console.log('username',params.username);
 	params.userSubmitted = true;
 	params.userModified = false;
@@ -165,6 +175,16 @@ function onParaSubmit(){
 
 function onSDCSubmit(){
 	//gather all the data from the lines that were drawn, and send them to flask
+
+	var cleanGroupnames = []
+	params.availableGroupnames.forEach(function(d){cleanGroupnames.push(params.cleanString(d));})
+	if (!(params.groupname != 'default' && (params.availableGroupnames.includes(params.groupname) || cleanGroupnames.includes(params.cleanString(params.groupname))))){
+		d3.select('#SDCNotification')
+			.classed('blink_me', false)
+			.classed('error', true)
+			.text('Please login first');
+		return;
+	}
 
 	params.userSubmitted = true;
 	params.userModified = false;

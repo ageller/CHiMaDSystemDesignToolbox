@@ -64,6 +64,16 @@ d3.select(editButtons).append('div').attr('id','flipProcessingArrows');
 
 
 function beginSDCEdit(){
+	var cleanGroupnames = []
+	params.availableGroupnames.forEach(function(d){cleanGroupnames.push(params.cleanString(d));})
+	if (!(params.groupname != 'default' && (params.availableGroupnames.includes(params.groupname) || cleanGroupnames.includes(params.cleanString(params.groupname))))){
+		d3.select('#SDCEditNotification')
+			.classed('error', true)
+			.text('Please login first');
+		return;
+	}
+	d3.select('#SDCEditNotification').classed('error', false).text('');
+
 	console.log('editing SDC');
 	params.userModified = true;
 
