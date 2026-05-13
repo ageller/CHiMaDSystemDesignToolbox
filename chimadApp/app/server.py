@@ -968,7 +968,7 @@ def requires_auth(f):
 		print('checking', auth)
 		if not auth or not check_auth(auth.username, auth.password):
 			return authenticate()
-		user = private.loc[(private['username'] == auth.username) & (private['password'] == auth.password)]
+		user = private.loc[private['username'] == auth.username]
 		#return f(*args, **kwargs)
 		return f(user)
 	return decorated
