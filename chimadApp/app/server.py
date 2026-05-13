@@ -854,9 +854,21 @@ def download_metricsCSV():
 def download_groupSQL():
 	groupname = request.args.get('groupname', default = 'default', type = str)
 	print('======= download_groupSQL', groupname)
-	dbname = re.sub('[^A-Za-z0-9]+', '',groupname).lower()+'.db'
-	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
 
+	level = get_request_admin_level()
+	if level == 'group':
+		# group admins may only download their own group
+		clean_requested = re.sub('[^A-Za-z0-9]+', '', groupname).lower()
+		clean_admin = re.sub('[^A-Za-z0-9]+', '', request.authorization.username).lower()
+		if clean_requested != clean_admin:
+			level = None
+	if level not in ('global', 'group'):
+		return authenticate()
+
+	dbname = re.sub('[^A-Za-z0-9]+', '',groupname).lower()+'.db'
+	if dbname not in get_valid_dbnames():
+		return Response('Invalid groupname', 403)
+	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
 	return send_file(db, as_attachment=True)
 
 
@@ -865,14 +877,32 @@ def download_paragraphCSV():
 	groupname = request.args.get('groupname', default = 'default', type = str)
 	paragraph = request.args.get('paragraph', default = 'polymercompositeexample', type = str)
 	print('======= download_paragraphCSV', groupname, paragraph)
+
+	level = get_request_admin_level()
+	if level == 'group':
+		# group admins may only download their own group
+		clean_requested = re.sub('[^A-Za-z0-9]+', '', groupname).lower()
+		clean_admin = re.sub('[^A-Za-z0-9]+', '', request.authorization.username).lower()
+		if clean_requested != clean_admin:
+			level = None
+	if level not in ('global', 'group'):
+		return authenticate()
+
 	dbname = re.sub('[^A-Za-z0-9]+', '',groupname).lower()+'.db'
+	if dbname not in get_valid_dbnames():
+		return Response('Invalid groupname', 403)
 	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
 	conn = sqlite3.connect(db)
 	cursor = conn.cursor()
 	tableName = re.sub('[^A-Za-z0-9]+', '',paragraph).lower()
-	cursor.execute('SELECT * FROM ' + tableName)
+	cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+	tables = {x[0].lower(): x[0] for x in cursor.fetchall()}
+	if tableName not in tables:
+		cursor.close()
+		return Response('Invalid paragraph', 403)
+	cursor.execute('SELECT * FROM ' + tables[tableName])
 	columns = [description[0] for description in cursor.description]
-	df = pd.DataFrame(cursor.fetchall(), columns = columns) 
+	df = pd.DataFrame(cursor.fetchall(), columns = columns)
 	cursor.close()
 
 	resp = make_response(df.to_csv())
