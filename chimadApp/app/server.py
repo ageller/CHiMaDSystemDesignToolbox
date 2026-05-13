@@ -633,8 +633,13 @@ def delete_paragraph_rows():
 	cursor = conn.cursor()
 	cursor.execute('SELECT * FROM ' + tableName)
 	columns = [description[0] for description in cursor.description]
-	df = pd.DataFrame(cursor.fetchall(), columns = columns) 
-	df.drop(indices, inplace = True)
+	df = pd.DataFrame(cursor.fetchall(), columns = columns)
+	# validate all indices are non-negative integers within the DataFrame's actual bounds
+	valid_indices = [i for i in indices if isinstance(i, int) and 0 <= i < len(df)]
+	if len(valid_indices) != len(indices):
+		cursor.close()
+		return jsonify({'data': message, 'success': False})
+	df.drop(valid_indices, inplace = True)
 	df.to_sql(tableName, conn, if_exists='replace', index = False)
 
 	cursor.close()
@@ -668,15 +673,21 @@ def set_paragraph_answers():
 	cursor = conn.cursor()
 	cursor.execute('SELECT * FROM ' + tableName)
 	columns = [description[0] for description in cursor.description]
-	df = pd.DataFrame(cursor.fetchall(), columns = columns) 
+	df = pd.DataFrame(cursor.fetchall(), columns = columns)
+	if not isinstance(index, int) or index < 0 or index >= len(df):
+		cursor.close()
+		return jsonify({'data': message, 'success': False})
 	row = df.iloc[index]
 	task = row['task']
 
 	# get the correct paragraph from the list to set the answers
 	cursor.execute('SELECT * FROM paragraphs')
 	columns = [description[0] for description in cursor.description]
-	dfP = pd.DataFrame(cursor.fetchall(), columns = columns) 
+	dfP = pd.DataFrame(cursor.fetchall(), columns = columns)
 	paraRow = dfP.loc[dfP['paragraphname'] == paragraphname]
+	if len(paraRow.index) == 0:
+		cursor.close()
+		return jsonify({'data': message, 'success': False})
 
 	# get the answersDict and parse it to find the correct task
 	answersDict = json.loads(paraRow['answersJSON'].values[0])
