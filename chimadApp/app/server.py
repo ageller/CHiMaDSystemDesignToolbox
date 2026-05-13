@@ -752,6 +752,8 @@ def copy_paragraph():
 
 @app.route('/get_group_admins', methods=['GET', 'POST'])
 def get_group_admins():
+	if get_request_admin_level() != 'global':
+		return jsonify([])
 	out = private['username'].tolist()
 	return jsonify(out)
 
