@@ -734,9 +734,13 @@ def copy_paragraph():
 	groupname2 = re.sub('[^A-Za-z0-9]+', '',message['groupname2']).lower()
 	paragraphname = message['paragraphname']
 
+	valid = get_valid_dbnames()
+	if (groupname1 + '.db') not in valid or (groupname2 + '.db') not in valid:
+		return jsonify({'data': message, 'success': False})
+
 	success = True
 
-	#copy the paragraph 
+	#copy the paragraph
 	db1 = os.path.join(current_location, 'static','data','sqlite3', groupname1 + '.db')
 	db2 = os.path.join(current_location, 'static','data','sqlite3', groupname2 + '.db')
 
@@ -790,7 +794,7 @@ def add_group_admin():
 	if get_request_admin_level() != 'global':
 		return 	jsonify({'data':message,'success':False})
 
-	print('======= add_group_admin', message)
+	print('======= add_group_admin', {k: v for k, v in message.items() if k != 'password'})
 	p = os.path.join(current_location, 'private','access.csv')
 	private = pd.read_csv(p)
 	newAdmin = pd.DataFrame({'username':[message['groupname']], 'password':[message['password']], 'level':['group']})
@@ -833,7 +837,7 @@ def set_group_adminPW():
 	global private
 
 	message = request.get_json()
-	print('======= set_group_adminPW', message)
+	print('======= set_group_adminPW', {k: v for k, v in message.items() if k != 'password'})
 
 	if not check_group_access(message['groupname']):
 		return jsonify({'data': message, 'success': False})
@@ -856,7 +860,7 @@ def set_group_adminPW():
 @app.route('/download_metricsSQL')
 def download_metricsSQL():
 	if get_request_admin_level() != 'global':
-		return 	None
+		return authenticate()
 
 	db = os.path.join(current_location, 'static','data','sqlite3','CHiMaD_metrics.db')
 	return send_file(db, as_attachment=True)
@@ -864,7 +868,7 @@ def download_metricsSQL():
 @app.route('/download_metricsCSV')
 def download_metricsCSV():
 	if get_request_admin_level() != 'global':
-		return 	None
+		return authenticate()
 
 	db = os.path.join(current_location, 'static','data','sqlite3','CHiMaD_metrics.db')
 	conn = sqlite3.connect(db)
@@ -975,11 +979,17 @@ def get_request_admin_level():
 	"""Return the admin level for the current request by verifying its Basic Auth
 	credentials against access.csv.  Returns None if the request is unauthenticated
 	or the credentials are invalid, so callers can safely compare with '==' or '!='.
+	Reads access.csv fresh each call so credential changes take effect immediately
+	across all workers without requiring a restart.
 	"""
 	auth = request.authorization
 	if not auth:
 		return None
-	user = private.loc[(private['username'] == auth.username) & (private['password'] == auth.password)]
+	try:
+		creds = pd.read_csv(os.path.join(current_location, 'private', 'access.csv'))
+	except Exception:
+		return None
+	user = creds.loc[(creds['username'] == auth.username) & (creds['password'] == auth.password)]
 	if len(user.index) > 0:
 		return user['level'].values[0]
 	return None
