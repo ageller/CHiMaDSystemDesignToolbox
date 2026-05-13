@@ -60,9 +60,7 @@ def get_valid_dbnames():
 		pass
 	return valid
 
-# for admin
-adminLevel = 'group'
-adminGroup = 'null'
+# for admin (level and group are now derived per-request, not stored as globals)
 
 # using sqlite3 database
 @app.route('/load_table', methods=['GET', 'POST'])
@@ -369,7 +367,7 @@ def add_new_groupname():
 
 	message = request.get_json()
 
-	if (adminLevel != 'global'):
+	if get_request_admin_level() != 'global':
 		return 	jsonify({'data':message,'success':False})
 
 	print('======= add_new_groupname', message)
@@ -704,7 +702,7 @@ def copy_paragraph():
 
 	message = request.get_json()
 
-	if (adminLevel != 'global'):
+	if get_request_admin_level() != 'global':
 		return 	jsonify({'data':message,'success':False})
 
 	print('======= copy_paragraph', message)
@@ -763,7 +761,7 @@ def add_group_admin():
 
 	message = request.get_json()
 
-	if (adminLevel != 'global'):
+	if get_request_admin_level() != 'global':
 		return 	jsonify({'data':message,'success':False})
 
 	print('======= add_group_admin', message)
@@ -784,7 +782,7 @@ def remove_group_admin():
 
 	message = request.get_json()
 
-	if (adminLevel != 'global'):
+	if get_request_admin_level() != 'global':
 		return 	jsonify({'data':message,'success':False})
 
 	print('======= remove_group_admin', message)
@@ -828,7 +826,7 @@ def set_group_adminPW():
 
 @app.route('/download_metricsSQL')
 def download_metricsSQL():
-	if (adminLevel != 'global'):
+	if get_request_admin_level() != 'global':
 		return 	None
 
 	db = os.path.join(current_location, 'static','data','sqlite3','CHiMaD_metrics.db')
@@ -836,7 +834,7 @@ def download_metricsSQL():
 
 @app.route('/download_metricsCSV')
 def download_metricsCSV():
-	if (adminLevel != 'global'):
+	if get_request_admin_level() != 'global':
 		return 	None
 
 	db = os.path.join(current_location, 'static','data','sqlite3','CHiMaD_metrics.db')
@@ -905,7 +903,7 @@ def authenticate():
 def requires_auth(f):
 	@wraps(f)
 	def decorated(*args, **kwargs):
-		auth = request.authorization or request.environ.get('REMOTE_USER') 
+		auth = request.authorization or request.environ.get('REMOTE_USER')
 		print('checking', auth)
 		if not auth or not check_auth(auth.username, auth.password):
 			return authenticate()
@@ -913,6 +911,19 @@ def requires_auth(f):
 		#return f(*args, **kwargs)
 		return f(user)
 	return decorated
+
+def get_request_admin_level():
+	"""Return the admin level for the current request by verifying its Basic Auth
+	credentials against access.csv.  Returns None if the request is unauthenticated
+	or the credentials are invalid, so callers can safely compare with '==' or '!='.
+	"""
+	auth = request.authorization
+	if not auth:
+		return None
+	user = private.loc[(private['username'] == auth.username) & (private['password'] == auth.password)]
+	if len(user.index) > 0:
+		return user['level'].values[0]
+	return None
 
 
 @app.route('/')
@@ -950,12 +961,10 @@ def documentation():
 @app.route('/admin')
 @requires_auth
 def admin(user):
-	global adminLevel, adminGroup
-	if (len(user.index) > 0):
-		adminLevel = user['level'].values[0]
-		adminGroup = user['username'].values[0]
-	# send level to the template
-	return render_template('admin.html', inDesktopApp=inDesktopApp, adminLevel=adminLevel, adminGroup=adminGroup)
+	# derive level and group from the authenticated user for this request only
+	admin_level = user['level'].values[0] if len(user.index) > 0 else 'group'
+	admin_group = user['username'].values[0] if len(user.index) > 0 else ''
+	return render_template('admin.html', inDesktopApp=inDesktopApp, adminLevel=admin_level, adminGroup=admin_group)
 
 @app.route('/admin_logout')
 def admin_logout():
