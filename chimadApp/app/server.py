@@ -68,9 +68,9 @@ adminGroup = 'null'
 @app.route('/load_table', methods=['GET', 'POST'])
 def load_table():
 	message = request.get_json()
-	tablename = message['tablename']
+	tablename = re.sub('[^A-Za-z0-9]+', '', message['tablename']).lower()
 	dbname = message['dbname']
-	print('======= load_table', message, tablename)
+	print('======= load_table', tablename, dbname)
 
 	if dbname not in get_valid_dbnames():
 		print('!!! load_table rejected invalid dbname:', dbname)
@@ -80,9 +80,14 @@ def load_table():
 	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
 	conn = sqlite3.connect(db)
 	cursor = conn.cursor()
+	cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+	if tablename not in [x[0] for x in cursor.fetchall()]:
+		cursor.close()
+		print('!!! load_table rejected invalid tablename:', tablename)
+		return jsonify({'error': 'Invalid table'}), 403
 	cursor.execute('SELECT * FROM ' + tablename)
 	columns = [description[0] for description in cursor.description]
-	df = pd.DataFrame(cursor.fetchall(), columns = columns)    
+	df = pd.DataFrame(cursor.fetchall(), columns = columns)
 	cursor.close()
 
 	out = {'data': df.fillna('').to_json(orient='records'), 'columns':df.columns.tolist()}
@@ -107,7 +112,7 @@ def save_responses():
 		print('!!! save_responses rejected invalid groupname:', groupname)
 		return jsonify({'error': 'Invalid groupname'}), 403
 
-	tablename = message['tablename']
+	tablename = re.sub('[^A-Za-z0-9]+', '', message['tablename']).lower()
 	replace = False
 	if ('replace' in message):
 		replace = message['replace']#.lower() == 'true'
@@ -263,7 +268,7 @@ def save_metrics():
 	print('======= save_metrics', message)
 
 	data = message['data']
-	tablename = message['tablename']
+	tablename = 'loginMetrics'  # always use the fixed metrics table; ignore client-supplied value
 	dbname = 'CHiMaD_metrics.db'  # always use the fixed metrics database; ignore client-supplied value
 	print('!!! dbname, tablename', dbname, tablename)
 
