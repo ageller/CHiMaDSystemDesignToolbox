@@ -69,7 +69,7 @@ adminGroup = 'null'
 def load_table():
 	message = request.get_json()
 	tablename = re.sub('[^A-Za-z0-9]+', '', message['tablename']).lower()
-	dbname = message['dbname']
+	dbname = message['dbname'].lower()
 	print('======= load_table', tablename, dbname)
 
 	if dbname not in get_valid_dbnames():
@@ -81,11 +81,12 @@ def load_table():
 	conn = sqlite3.connect(db)
 	cursor = conn.cursor()
 	cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-	if tablename not in [x[0] for x in cursor.fetchall()]:
+	tables = {x[0].lower(): x[0] for x in cursor.fetchall()}  # lowercase key → original-case value
+	if tablename not in tables:
 		cursor.close()
 		print('!!! load_table rejected invalid tablename:', tablename)
 		return jsonify({'error': 'Invalid table'}), 403
-	cursor.execute('SELECT * FROM ' + tablename)
+	cursor.execute('SELECT * FROM ' + tables[tablename])  # use original case from sqlite_master
 	columns = [description[0] for description in cursor.description]
 	df = pd.DataFrame(cursor.fetchall(), columns = columns)
 	cursor.close()
@@ -131,7 +132,8 @@ def save_responses():
 	conn = sqlite3.connect(db)
 	cursor = conn.cursor()
 	cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-	tables = [x[0] for x in cursor.fetchall()]
+	tables = {x[0].lower(): x[0] for x in cursor.fetchall()}  # lowercase key → original-case value
+	canonical_tablename = tables.get(tablename, tablename)  # existing: original case; new table: lowercase
 
 
 	# if we are replacing the table (from editPara)
@@ -150,11 +152,11 @@ def save_responses():
 		if (tablename in tables):
 			# if this is an existing table, then read it in and see if we have the username already
 			print('!!! have table')
-			cursor.execute('SELECT * FROM ' + tablename)
+			cursor.execute('SELECT * FROM ' + canonical_tablename)
 			columns = [description[0] for description in cursor.description]
-			df = pd.DataFrame(cursor.fetchall(), columns = columns)   
+			df = pd.DataFrame(cursor.fetchall(), columns = columns)
 
-			# if the tablename is 'paragraphs', then we search for the paragraphname; 
+			# if the tablename is 'paragraphs', then we search for the paragraphname;
 			if (tablename == 'paragraphs'):
 				key = 'paragraphname'
 				iRow = df.index[ df[key] == data[key] ].tolist()
@@ -182,7 +184,7 @@ def save_responses():
 		if (tablename in tables):
 			# if this is an existing table, then read it in and see if we have the username already
 			print('!!! have table')
-			cursor.execute('SELECT * FROM ' + tablename)
+			cursor.execute('SELECT * FROM ' + canonical_tablename)
 			columns = [description[0] for description in cursor.description]
 			df = pd.DataFrame(cursor.fetchall(), columns = columns)   
 
@@ -254,9 +256,9 @@ def save_responses():
 	#now write the table (will replace the current file)
 	print(df)
 	df.fillna('')
-	
+
 	# add the dataFrame into the database
-	df.to_sql(tablename, conn, if_exists='replace', index = False)
+	df.to_sql(canonical_tablename, conn, if_exists='replace', index = False)
 
 	cursor.close()
 
@@ -314,7 +316,7 @@ def get_table_names():
 	print('======= get_table_names', message)
 
 	# connect to the SQL database and check if the table exists
-	dbname = message['dbname']
+	dbname = message['dbname'].lower()
 	print('!!! dbname', dbname)
 
 	if dbname not in get_valid_dbnames():
