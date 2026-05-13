@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, render_template, send_file, make_response, Response
 from functools import wraps
+from werkzeug.security import generate_password_hash, check_password_hash
 import pandas as pd
 import os
 import re
@@ -26,8 +27,7 @@ app.config.update(
 # store whether a user submitted a response
 userSubmitted = dict()
 
-#get the passwords
-#the security here should be updated (save an encrypted)
+#get the passwords (hashed in the file)
 p = os.path.join(current_location, 'private','access.csv')
 private = pd.read_csv(p)
 
@@ -797,7 +797,7 @@ def add_group_admin():
 	print('======= add_group_admin', {k: v for k, v in message.items() if k != 'password'})
 	p = os.path.join(current_location, 'private','access.csv')
 	private = pd.read_csv(p)
-	newAdmin = pd.DataFrame({'username':[message['groupname']], 'password':[message['password']], 'level':['group']})
+	newAdmin = pd.DataFrame({'username':[message['groupname']], 'password':[generate_password_hash(message['password'])], 'level':['group']})
 	private  = pd.concat([private, newAdmin], ignore_index = True)
 	private.to_csv(p, index = False)
 	success = True
@@ -848,7 +848,7 @@ def set_group_adminPW():
 	private = pd.read_csv(p)
 	row = private.loc[private['username'] == message['groupname']]
 	if (len(row.index) > 0):
-		private.loc[row.index,'password'] = message['password']
+		private.loc[row.index,'password'] = generate_password_hash(message['password'])
 		private.to_csv(p, index = False)
 		success = True
 
@@ -948,11 +948,9 @@ def check_auth(username, password):
 	"""This function is called to check if a username /
 	password combination is valid.
 	"""
-	allow = False
-	user = private.loc[(private['username'] == username) & (private['password'] == password)]
-	if (len(user.index) > 0):
-		allow = True
-	print('=========== attempting access', username, len(user.index), allow)
+	user = private.loc[private['username'] == username]
+	allow = len(user.index) > 0 and check_password_hash(user['password'].values[0], password)
+	print('=========== attempting access', username, allow)
 	request.close()
 	return allow
 
@@ -989,8 +987,8 @@ def get_request_admin_level():
 		creds = pd.read_csv(os.path.join(current_location, 'private', 'access.csv'))
 	except Exception:
 		return None
-	user = creds.loc[(creds['username'] == auth.username) & (creds['password'] == auth.password)]
-	if len(user.index) > 0:
+	user = creds.loc[creds['username'] == auth.username]
+	if len(user.index) > 0 and check_password_hash(user['password'].values[0], auth.password):
 		return user['level'].values[0]
 	return None
 
