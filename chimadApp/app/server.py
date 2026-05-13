@@ -38,6 +38,28 @@ def setInDesktopApp():
 	print('======= setting to desktop version')
 	inDesktopApp = True
 
+def get_valid_dbnames():
+	"""Return the set of legitimate .db filenames derived from available_dbs.db.
+	Always includes the three built-in databases. Queries available_dbs.db each
+	call so newly-added groups are immediately accepted without a restart.
+	"""
+	valid = {'default.db', 'available_dbs.db', 'CHiMaD_metrics.db'}
+	try:
+		db_path = os.path.join(current_location, 'static', 'data', 'sqlite3', 'available_dbs.db')
+		conn = sqlite3.connect(db_path)
+		cursor = conn.cursor()
+		cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='dbs';")
+		if cursor.fetchone():
+			cursor.execute('SELECT groupname FROM dbs')
+			for (groupname,) in cursor.fetchall():
+				clean = re.sub('[^A-Za-z0-9]+', '', groupname).lower()
+				if clean:
+					valid.add(clean + '.db')
+		cursor.close()
+	except Exception:
+		pass
+	return valid
+
 # for admin
 adminLevel = 'group'
 adminGroup = 'null'
@@ -49,6 +71,10 @@ def load_table():
 	tablename = message['tablename']
 	dbname = message['dbname']
 	print('======= load_table', message, tablename)
+
+	if dbname not in get_valid_dbnames():
+		print('!!! load_table rejected invalid dbname:', dbname)
+		return jsonify({'error': 'Invalid database'}), 403
 
 	# connect to the SQL database and load the table
 	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
@@ -74,9 +100,13 @@ def save_responses():
 	# since I started with csv files read in by pandas, I will just convert this code to work with pandas (rather than doing the searching in sqlite3)
 	data = message['data']
 
-	# connect to the SQL database and check if the table exists
+	# validate groupname and derive dbname server-side (never trust the client's dbname)
 	groupname = message['groupname']
-	dbname = message['dbname']
+	dbname = re.sub('[^A-Za-z0-9]+', '', groupname).lower() + '.db'
+	if dbname not in get_valid_dbnames():
+		print('!!! save_responses rejected invalid groupname:', groupname)
+		return jsonify({'error': 'Invalid groupname'}), 403
+
 	tablename = message['tablename']
 	replace = False
 	if ('replace' in message):
@@ -234,7 +264,7 @@ def save_metrics():
 
 	data = message['data']
 	tablename = message['tablename']
-	dbname = message['dbname']
+	dbname = 'CHiMaD_metrics.db'  # always use the fixed metrics database; ignore client-supplied value
 	print('!!! dbname, tablename', dbname, tablename)
 
 	#add the timestamp
@@ -282,6 +312,10 @@ def get_table_names():
 	dbname = message['dbname']
 	print('!!! dbname', dbname)
 
+	if dbname not in get_valid_dbnames():
+		print('!!! get_table_names rejected invalid dbname:', dbname)
+		return jsonify({'error': 'Invalid database'}), 403
+
 	db = os.path.join(current_location, 'static','data','sqlite3',dbname)
 	conn = sqlite3.connect(db)
 	cursor = conn.cursor()
@@ -301,7 +335,9 @@ def check_user_submitted():
 	#print('======= check_user_submitted', message)
 
 	groupname = message['groupname']
-	dbname = message['dbname']
+	dbname = re.sub('[^A-Za-z0-9]+', '', groupname).lower() + '.db'
+	if dbname not in get_valid_dbnames():
+		return jsonify({'submitted': False, 'data': message})
 	tablename = message['tablename']
 
 	# set the userSubmitted flag
