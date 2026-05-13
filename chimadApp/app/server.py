@@ -447,6 +447,10 @@ def delete_groupname():
 
 	message = request.get_json()
 	print('======= delete_groupname', message)
+
+	if get_request_admin_level() != 'global':
+		return jsonify({'data': message, 'success': False})
+
 	groupname = message['groupname']
 
 	success = True
@@ -491,6 +495,10 @@ def rename_groupname():
 
 	message = request.get_json()
 	print('======= rename_groupname', message)
+
+	if get_request_admin_level() != 'global':
+		return jsonify({'data': message, 'success': False})
+
 	groupname = message['groupname']
 	newname = message['newname']
 
@@ -538,6 +546,10 @@ def delete_paragraph():
 	message = request.get_json()
 	print('======= delete_paragraph', message)
 	groupname = message['groupname']
+
+	if not check_group_access(groupname):
+		return jsonify({'data': message, 'success': False})
+
 	paragraphname = message['paragraphname']
 
 	success = True
@@ -568,6 +580,10 @@ def rename_paragraph():
 	message = request.get_json()
 	print('======= rename_paragraph', message)
 	groupname = message['groupname']
+
+	if not check_group_access(groupname):
+		return jsonify({'data': message, 'success': False})
+
 	paragraphname = message['paragraphname']
 	newname = message['newname']
 
@@ -601,6 +617,10 @@ def delete_paragraph_rows():
 	message = request.get_json()
 	print('======= delete_paragraph_rows', message)
 	groupname = message['groupname']
+
+	if not check_group_access(groupname):
+		return jsonify({'data': message, 'success': False})
+
 	paragraphname = message['paragraphname']
 	tableName = re.sub('[^A-Za-z0-9]+', '',paragraphname).lower()
 	indices = message['rowsToRemove']
@@ -630,6 +650,10 @@ def set_paragraph_answers():
 	message = request.get_json()
 	print('======= set_paragraph_answers', message)
 	groupname = message['groupname']
+
+	if not check_group_access(groupname):
+		return jsonify({'data': message, 'success': False})
+
 	paragraphname = message['paragraphname']
 	index = message['rowForAnswers']
 
@@ -811,6 +835,9 @@ def set_group_adminPW():
 	message = request.get_json()
 	print('======= set_group_adminPW', message)
 
+	if not check_group_access(message['groupname']):
+		return jsonify({'data': message, 'success': False})
+
 	success = False
 
 	p = os.path.join(current_location, 'private','access.csv')
@@ -956,6 +983,19 @@ def get_request_admin_level():
 	if len(user.index) > 0:
 		return user['level'].values[0]
 	return None
+
+def check_group_access(groupname):
+	"""Return True if the current request has admin rights over groupname.
+	Global admins have access to every group; group admins only their own.
+	"""
+	level = get_request_admin_level()
+	if level == 'global':
+		return True
+	if level == 'group':
+		clean_requested = re.sub('[^A-Za-z0-9]+', '', groupname).lower()
+		clean_admin = re.sub('[^A-Za-z0-9]+', '', request.authorization.username).lower()
+		return clean_requested == clean_admin
+	return False
 
 
 @app.route('/')
