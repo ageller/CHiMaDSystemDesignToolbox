@@ -179,7 +179,7 @@ server {
 }
 ```
 
-**If you add a new route to `server.py`, add it to the matching `location` list above**, or nginx will drop requests to it. Also keep the trailing slashes on `location ^~ /static/` and its `alias`; without them, requests like `/static../server.py` can read files outside `static/`.
+**If you add a new route to `server.py`, add it to the matching `location` list above**, or nginx will drop requests to it. Also keep `location ^~ /static/` and its `alias` both ending in `/`. If the location lacks the trailing slash but the alias has one, requests like `/static../server.py` can read files outside `static/`.
 
 ## 8. Start the services
 
