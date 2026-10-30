@@ -53,13 +53,6 @@
 		<script src="static/js/params.js"></script>
 
 		<script>
-			if ({{ inDesktopApp|tojson|safe }}){
-				console.log('running in desktop app')
-				var script = document.createElement("script");  
-				script.src = 'static/js/forFlaskWebGUI.js';
-				document.body.appendChild(script);  
-			}
-
 			window.onload = setTimeout(resizeIndex, 500); //sometimes the top bar doesn't size right away
 			window.addEventListener('resize', resizeIndex);
 			function resizeIndex(){

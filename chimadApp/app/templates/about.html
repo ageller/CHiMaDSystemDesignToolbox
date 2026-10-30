@@ -193,13 +193,6 @@
 		<script src="static/js/params.js"></script>
 
 		<script>
-			if ({{ inDesktopApp|tojson|safe }}){
-				console.log('running in desktop app')
-				var script = document.createElement("script");  
-				script.src = 'static/js/forFlaskWebGUI.js';
-				document.body.appendChild(script);  
-			}
-
 			readURLdata();
 			if ('groupname' in params.URLInputValues) setGroupname(decodeURI(params.URLInputValues.groupname));
 			loadTable('available_dbs.db', 'dbs', compileAvailableGroupnames);

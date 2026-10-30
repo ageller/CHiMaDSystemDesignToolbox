@@ -160,12 +160,6 @@
 
 		<script>
 			params.inCollaborate = true;
-			if ({{ inDesktopApp|tojson|safe }}){
-				console.log('running in desktop app')
-				var script = document.createElement("script");  
-				script.src = 'static/js/forFlaskWebGUI.js';
-				document.body.appendChild(script);  
-			}
 		</script>
 
 		<!-- my codes -->

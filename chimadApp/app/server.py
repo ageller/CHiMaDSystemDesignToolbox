@@ -4,7 +4,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import pandas as pd
 import os
 import re
-import sys
 from datetime import datetime
 import pytz
 import json
@@ -12,9 +11,7 @@ import json
 import sqlite3
 
 
-#https://github.com/smoqadam/PyFladesk/issues/9
-# PyInstaller creates a temp folder and stores path in _MEIPASS
-current_location = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+current_location = os.path.dirname(os.path.abspath(__file__))
 
 template_dir = os.path.join(current_location, 'templates')
 static_dir = os.path.join(current_location, 'static')
@@ -30,13 +27,6 @@ userSubmitted = dict()
 #get the passwords (hashed in the file)
 p = os.path.join(current_location, 'private','access.csv')
 private = pd.read_csv(p)
-
-#I need to set this to true in my gui.py file
-inDesktopApp = False
-def setInDesktopApp():
-	global inDesktopApp
-	print('======= setting to desktop version')
-	inDesktopApp = True
 
 def get_valid_dbnames():
 	"""Return the set of legitimate .db filenames derived from available_dbs.db.
@@ -63,7 +53,7 @@ def get_valid_dbnames():
 # for admin (level and group are now derived per-request, not stored as globals)
 
 # using sqlite3 database
-@app.route('/load_table', methods=['GET', 'POST'])
+@app.route('/load_table', methods=['POST'])
 def load_table():
 	message = request.get_json()
 	tablename = re.sub('[^A-Za-z0-9]+', '', message['tablename']).lower()
@@ -93,7 +83,7 @@ def load_table():
 	return jsonify(out)
 
 
-@app.route('/save_responses', methods=['GET', 'POST'])
+@app.route('/save_responses', methods=['POST'])
 def save_responses():
 	global userSubmitted
 
@@ -262,7 +252,7 @@ def save_responses():
 
 	return jsonify(message)
 
-@app.route('/save_metrics', methods=['GET', 'POST'])
+@app.route('/save_metrics', methods=['POST'])
 def save_metrics():
 	message = request.get_json()
 	print('======= save_metrics', message)
@@ -308,7 +298,7 @@ def save_metrics():
 
 	return jsonify(message)
 
-@app.route('/get_table_names', methods=['GET', 'POST'])
+@app.route('/get_table_names', methods=['POST'])
 def get_table_names():
 	message = request.get_json()
 	print('======= get_table_names', message)
@@ -332,7 +322,7 @@ def get_table_names():
 
 	return jsonify(out)
 
-@app.route('/check_user_submitted', methods=['GET', 'POST'])
+@app.route('/check_user_submitted', methods=['POST'])
 def check_user_submitted():
 	global userSubmitted
 
@@ -362,7 +352,7 @@ def check_user_submitted():
 
 	return jsonify(out)
 
-@app.route('/add_new_groupname', methods=['GET', 'POST'])
+@app.route('/add_new_groupname', methods=['POST'])
 def add_new_groupname():
 
 	message = request.get_json()
@@ -441,7 +431,7 @@ def add_new_groupname():
 
 	return jsonify(out)
 
-@app.route('/delete_groupname', methods=['GET', 'POST'])
+@app.route('/delete_groupname', methods=['POST'])
 def delete_groupname():
 	global private
 
@@ -489,7 +479,7 @@ def delete_groupname():
 
 	return jsonify(out)
 
-@app.route('/rename_groupname', methods=['GET', 'POST'])
+@app.route('/rename_groupname', methods=['POST'])
 def rename_groupname():
 	global private
 
@@ -540,7 +530,7 @@ def rename_groupname():
 
 	return jsonify(out)
 
-@app.route('/delete_paragraph', methods=['GET', 'POST'])
+@app.route('/delete_paragraph', methods=['POST'])
 def delete_paragraph():
 
 	message = request.get_json()
@@ -574,7 +564,7 @@ def delete_paragraph():
 
 	return jsonify(out)
 
-@app.route('/rename_paragraph', methods=['GET', 'POST'])
+@app.route('/rename_paragraph', methods=['POST'])
 def rename_paragraph():
 
 	message = request.get_json()
@@ -611,7 +601,7 @@ def rename_paragraph():
 
 	return jsonify(out)
 
-@app.route('/delete_paragraph_rows', methods=['GET', 'POST'])
+@app.route('/delete_paragraph_rows', methods=['POST'])
 def delete_paragraph_rows():
 
 	message = request.get_json()
@@ -649,7 +639,7 @@ def delete_paragraph_rows():
 	return jsonify(out)
 
 
-@app.route('/set_paragraph_answers', methods=['GET', 'POST'])
+@app.route('/set_paragraph_answers', methods=['POST'])
 def set_paragraph_answers():
 	# set paragraph answers from a row
 	message = request.get_json()
@@ -731,7 +721,7 @@ def set_paragraph_answers():
 	return jsonify(out)
 
 
-@app.route('/copy_paragraph', methods=['GET', 'POST'])
+@app.route('/copy_paragraph', methods=['POST'])
 def copy_paragraph():
 	# copy paragraph from groupname2 into groupname1
 
@@ -789,14 +779,14 @@ def copy_paragraph():
 
 	return jsonify(out)
 
-@app.route('/get_group_admins', methods=['GET', 'POST'])
+@app.route('/get_group_admins', methods=['POST'])
 def get_group_admins():
 	if get_request_admin_level() != 'global':
 		return jsonify([])
 	out = private['username'].tolist()
 	return jsonify(out)
 
-@app.route('/add_group_admin', methods=['GET', 'POST'])
+@app.route('/add_group_admin', methods=['POST'])
 def add_group_admin():
 	global private
 
@@ -817,7 +807,7 @@ def add_group_admin():
 
 	return jsonify(out)
 
-@app.route('/remove_group_admin', methods=['GET', 'POST'])
+@app.route('/remove_group_admin', methods=['POST'])
 def remove_group_admin():
 	global private
 
@@ -843,7 +833,7 @@ def remove_group_admin():
 
 	return jsonify(out)
 
-@app.route('/set_group_adminPW', methods=['GET', 'POST'])
+@app.route('/set_group_adminPW', methods=['POST'])
 def set_group_adminPW():
 	global private
 
@@ -1019,35 +1009,35 @@ def check_group_access(groupname):
 
 @app.route('/')
 def default():
-	return render_template('index.html', inDesktopApp=inDesktopApp)
+	return render_template('index.html')
 
 @app.route('/home')
 def home():
-	return render_template('index.html', inDesktopApp=inDesktopApp)
+	return render_template('index.html')
 
 @app.route('/index')
 def index():
-	return render_template('index.html', inDesktopApp=inDesktopApp)
+	return render_template('index.html')
 
 @app.route('/training')
 def training():
-	return render_template('training.html', inDesktopApp=inDesktopApp)
+	return render_template('training.html')
 
 @app.route('/editPara')
 def editPara():
-	return render_template('editPara.html', inDesktopApp=inDesktopApp)
+	return render_template('editPara.html')
 
 @app.route('/editSDC')
 def editSDC():
-	return render_template('editSDC.html', inDesktopApp=inDesktopApp)
+	return render_template('editSDC.html')
 
 @app.route('/about')
 def about():
-	return render_template('about.html', inDesktopApp=inDesktopApp)
+	return render_template('about.html')
 
 @app.route('/documentation')
 def documentation():
-	return render_template('docs.html', inDesktopApp=inDesktopApp)
+	return render_template('docs.html')
 
 @app.route('/admin')
 @requires_auth
@@ -1055,7 +1045,7 @@ def admin(user):
 	# derive level and group from the authenticated user for this request only
 	admin_level = user['level'].values[0] if len(user.index) > 0 else 'group'
 	admin_group = user['username'].values[0] if len(user.index) > 0 else ''
-	return render_template('admin.html', inDesktopApp=inDesktopApp, adminLevel=admin_level, adminGroup=admin_group)
+	return render_template('admin.html', adminLevel=admin_level, adminGroup=admin_group)
 
 @app.route('/admin_logout')
 def admin_logout():
