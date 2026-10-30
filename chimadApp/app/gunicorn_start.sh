@@ -2,4 +2,4 @@
 
 source /home/chimad/.bashrc
 
-gunicorn server:app --workers 1 --bind 0.0.0.0:5000
+gunicorn server:app --workers 1 --bind 127.0.0.1:5000
