@@ -19,7 +19,6 @@ app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 app.config.update(
 	TEMPLATES_AUTO_RELOAD=True
 )
-#app.config['SECRET_KEY'] = 'REDACTED'
 
 # store whether a user submitted a response
 userSubmitted = dict()
